@@ -11,7 +11,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Emoji Shooter V0.1.3 🗿</title>
+    <title>Emoji Shooter V0.1.4 🗿</title>
     <style>
         * {
             margin: 0;
@@ -338,8 +338,8 @@
         /* 暂停按钮 */
         #pauseBtn {
             position: absolute;
-            top: 5px;
-            left: 10px;  /* 改到左边，不和右侧面板重叠 */
+            top: 45px;  /* 往下移，避开顶部UI面板 */
+            left: 10px;
             background: rgba(255, 255, 255, 0.15);
             border: 1px solid rgba(255, 255, 255, 0.3);
             color: #fff;
@@ -489,7 +489,7 @@
             <div id="ui">
                 <div id="startScreen" class="screen">
                     <div class="emoji-title">🗿</div>
-                    <h1>EMOJI SHOOTER V0.1.3</h1>
+                    <h1>EMOJI SHOOTER V0.1.4</h1>
                     <div class="high-score">最高分: <span id="startHighScore">0</span></div>
                     <button class="btn" onclick="startGame()">开始游戏</button>
                     <div class="instructions">
@@ -970,7 +970,8 @@
                 powerups.forEach((p, pi) => {
                     const dx = b.x - p.x, dy = b.y - p.y;
                     if (Math.sqrt(dx*dx + dy*dy) < (CONFIG.bulletSize + p.size) / 2) {
-                        p.hp--;
+                        const damage = activePowerups.power.active ? 3 : 1;  // 强力加成也作用于奖励包
+                        p.hp -= damage;
                         createSparkle(b.x, b.y);
                         bullets.splice(bi, 1);
                         
