@@ -1,0 +1,26 @@
+{
+  "name": "Emoji Arcade",
+  "version": "0.1.0",
+  "description": "你的口袋街机厅",
+  "games": [
+    {
+      "id": "emoji-shooter",
+      "name": "Emoji Shooter",
+      "emoji": "🗿",
+      "tagline": "消灭搞怪Emoji敌人",
+      "version": "0.1.5",
+      "status": "ready",
+      "path": "games/emoji-shooter/index.html",
+      "cover": "assets/images/shooter-cover.svg",
+      "difficulty": "中等",
+      "tags": ["射击", "街机", "Boss战"],
+      "players": "1人",
+      "playTime": "5-10分钟"
+    }
+  ],
+  "features": {
+    "userSystem": false,
+    "leaderboard": false,
+    "achievements": false
+  }
+}
