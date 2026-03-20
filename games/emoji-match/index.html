@@ -164,6 +164,8 @@
             background: rgba(0, 0, 0, 0.3);
             border-radius: 16px;
             margin-bottom: 15px;
+            width: 100%;
+            max-width: min(90vw, 500px);
         }
         
         .game-board.easy { grid-template-columns: repeat(4, 1fr); }
@@ -172,11 +174,13 @@
         
         /* 卡片 */
         .card {
+            width: 100%;
             aspect-ratio: 1;
             position: relative;
             cursor: pointer;
             transform-style: preserve-3d;
             transition: transform 0.4s ease;
+            min-height: 50px;
         }
         
         .card.flipped {
