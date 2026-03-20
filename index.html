@@ -11,7 +11,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Emoji Shooter V0.0.4 🗿</title>
+    <title>Emoji Shooter V0.1.1 🗿</title>
     <style>
         * {
             margin: 0;
@@ -392,7 +392,7 @@
             <div id="ui">
                 <div id="startScreen" class="screen">
                     <div class="emoji-title">🗿</div>
-                    <h1>EMOJI SHOOTER V0.0.4</h1>
+                    <h1>EMOJI SHOOTER V0.1.1</h1>
                     <div class="high-score">最高分: <span id="startHighScore">0</span></div>
                     <button class="btn" onclick="startGame()">开始游戏</button>
                     <div class="instructions">
@@ -1230,7 +1230,7 @@
                         ctx.fillStyle = '#333';
                         ctx.fillRect(e.x - bw/2, e.y - e.size/2 - 8, bw, bh);
                         ctx.fillStyle = '#ff4444';
-                        const maxHp = e.hp + 1;
+                        const maxHp = e.maxHp || e.hp;
                         ctx.fillRect(e.x - bw/2, e.y - e.size/2 - 8, bw * (e.hp / maxHp), bh);
                     }
                 });
