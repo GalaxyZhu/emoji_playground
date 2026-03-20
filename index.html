@@ -11,7 +11,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Emoji Shooter V0.1.4 🗿</title>
+    <title>Emoji Shooter V0.1.5 🗿</title>
     <style>
         * {
             margin: 0;
@@ -335,27 +335,6 @@
             left: 30%;
         }
         
-        /* 暂停按钮 */
-        #pauseBtn {
-            position: absolute;
-            top: 45px;  /* 往下移，避开顶部UI面板 */
-            left: 10px;
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #fff;
-            padding: 6px 14px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            z-index: 55;
-            pointer-events: auto;
-            backdrop-filter: blur(4px);
-        }
-        
-        #pauseBtn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
         /* 暂停对话框 */
         #pauseScreen {
             position: absolute;
@@ -441,8 +420,6 @@
         
         <!-- 游戏区域 -->
         <div id="gameArea">
-            <button id="pauseBtn" onclick="togglePause()">⏸️ 暂停</button>
-            
             <canvas id="gameCanvas"></canvas>
             
             <!-- 分界线 -->
@@ -489,7 +466,7 @@
             <div id="ui">
                 <div id="startScreen" class="screen">
                     <div class="emoji-title">🗿</div>
-                    <h1>EMOJI SHOOTER V0.1.4</h1>
+                    <h1>EMOJI SHOOTER V0.1.5</h1>
                     <div class="high-score">最高分: <span id="startHighScore">0</span></div>
                     <button class="btn" onclick="startGame()">开始游戏</button>
                     <div class="instructions">
@@ -762,7 +739,6 @@
             isBossFight = false;
             currentSpawnInterval = CONFIG.enemySpawnInterval; // 重置难度
             hideBossUI();
-            document.getElementById('pauseBtn').textContent = '⏸️ 暂停';
             document.getElementById('pauseScreen').classList.add('hidden');
             activePowerups = { speed: { active: false, endTime: 0 }, power: { active: false, endTime: 0 }, shield: { active: false, used: false } };
             updateUI();
@@ -771,7 +747,6 @@
         function gameOver() {
             gameState = 'gameover';
             cancelAnimationFrame(gameLoop);
-            document.getElementById('pauseBtn').textContent = '⏸️ 暂停';
             
             if (score > highScore) {
                 highScore = score;
@@ -1459,7 +1434,6 @@
                 gameState = 'paused';
                 cancelAnimationFrame(gameLoop);
                 document.getElementById('pauseScreen').classList.remove('hidden');
-                document.getElementById('pauseBtn').textContent = '▶️ 继续';
             } else if (gameState === 'paused') {
                 resumeGame();
             }
@@ -1469,7 +1443,6 @@
             if (gameState === 'paused') {
                 gameState = 'playing';
                 document.getElementById('pauseScreen').classList.add('hidden');
-                document.getElementById('pauseBtn').textContent = '⏸️ 暂停';
                 lastTime = performance.now();
                 gameLoop = requestAnimationFrame(update);
             }
