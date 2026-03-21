@@ -204,13 +204,13 @@
                 
                 if (type < 0.7) {
                     // 障碍物
-                    const obstacles = ['🚧', '🚙', '🚚', '🛻', '🦌'];
+                    const obstacleTypes = ['🚧', '🚙', '🚚', '🛻', '🦌'];
                     obstacles.push({
                         x: LANES[lane],
                         y: -50,
                         lane: lane,
                         type: 'obstacle',
-                        emoji: obstacles[Math.floor(Math.random() * obstacles.length)],
+                        emoji: obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)],
                         size: 40
                     });
                 } else if (type < 0.9) {
