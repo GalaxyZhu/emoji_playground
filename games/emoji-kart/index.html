@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🏎️ Emoji Kart V0.1.0</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
+        body {
+            background: #0d0d1a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+        #gameCanvas {
+            background: linear-gradient(180deg, #2a1a3e 0%, #0d0d1a 100%);
+            box-shadow: 0 0 50px rgba(255, 0, 200, 0.3);
+        }
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.9);
+            z-index: 100;
+        }
+        .hidden { display: none !important; }
+        h1 { font-size: 48px; color: #fff; text-shadow: 0 0 20px #ff00c8; margin-bottom: 10px; }
+        .emoji-title { font-size: 72px; margin-bottom: 20px; animation: bounce 1s infinite; }
+        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        .btn {
+            padding: 15px 40px;
+            font-size: 24px;
+            background: linear-gradient(135deg, #ff00c8 0%, #ff6b00 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(255, 0, 200, 0.5);
+        }
+        .btn:hover { transform: scale(1.05); }
+        .instructions {
+            color: #888;
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .position-display {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-size: 24px;
+            z-index: 50;
+        }
+        .lap-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 20px;
+            z-index: 50;
+        }
+        .item-slot {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid #fff;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 35px;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="position-display" id="positionDisplay">🥇 1/4</div>
+    <div class="lap-display" id="lapDisplay">圈数: 1/3</div>
+    <div class="item-slot" id="itemSlot">❓</div>
+    
+    <div class="ui-overlay" id="startScreen">
+        <div class="emoji-title">🏎️</div>
+        <h1>EMOJI KART</h1>
+        <button class="btn" id="startBtn">开始比赛</button>
+        <div class="instructions"
+            👈 左滑 / A键 = 左转<br>
+            👉 右滑 / D键 = 右转<br>
+            💨 漂移积攒氮气<br>
+            🎁 撞道具箱获得道具<br>
+            🚀 点击使用道具攻击对手<br>
+            拿下第一名！
+        </div>
+    </div>
+    
+    <div class="ui-overlay hidden" id="gameOverScreen">
+        <div class="emoji-title" id="resultEmoji">🏆</div>
+        <h1 id="resultTitle">比赛结束！</h1>
+        <div style="color: #fff; font-size: 24px; margin-bottom: 10px;">最终排名: <span id="finalPosition">1</span></div>
+        <div style="color: #ffd700; font-size: 18px; margin-bottom: 30px;"><span id="bestPosition"></span></div>
+        <button class="btn" id="restartBtn">再来一局</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const GAME_WIDTH = 500;
+        const GAME_HEIGHT = 600;
+        canvas.width = GAME_WIDTH;
+        canvas.height = GAME_HEIGHT;
+        
+        let gameState = 'start';
+        let position = 1;
+        let lap = 1;
+        const TOTAL_LAPS = 3;
+        let currentItem = null;
+        
+        // 赛道配置
+        const TRACK_WIDTH = 400;
+        const TRACK_HEIGHT = 500;
+        const TRACK_X = 50;
+        const TRACK_Y = 50;
+        
+        // 玩家
+        let player = {
+            x: GAME_WIDTH / 2,
+            y: GAME_HEIGHT - 100,
+            angle: -Math.PI / 2,
+            speed: 0,
+            maxSpeed: 8,
+            emoji: '🏎️'
+        };
+        
+        // AI对手
+        let opponents = [
+            { x: GAME_WIDTH / 2 - 30, y: GAME_HEIGHT - 150, angle: -Math.PI / 2, speed: 5, emoji: '🚗', color: '#ff0000', name: 'AI 1' },
+            { x: GAME_WIDTH / 2 + 30, y: GAME_HEIGHT - 180, angle: -Math.PI / 2, speed: 5.5, emoji: '🚙', color: '#00ff00', name: 'AI 2' },
+            { x: GAME_WIDTH / 2, y: GAME_HEIGHT - 210, angle: -Math.PI / 2, speed: 6, emoji: '🚕', color: '#0000ff', name: 'AI 3' }
+        ];
+        
+        // 道具箱
+        let itemBoxes = [];
+        // 道具效果
+        let projectiles = [];
+        let particles = [];
+        
+        // 输入
+        let keys = {};
+        let touchX = null;
+        
+        document.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+            if (e.key === ' ' && currentItem) useItem();
+        });
+        document.addEventListener('keyup', (e) => keys[e.key] = false);
+        
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchX = e.touches[0].clientX;
+        }, { passive: false });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (touchX !== null && gameState === 'playing') {
+                const diff = e.touches[0].clientX - touchX;
+                player.angle += diff * 0.005;
+                touchX = e.touches[0].clientX;
+            }
+        }, { passive: false });
+        
+        canvas.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            if (currentItem) useItem();
+            touchX = null;
+        }, { passive: false });
+        
+        canvas.addEventListener('click', () => {
+            if (gameState === 'playing' && currentItem) useItem();
+        });
+        
+        function useItem() {
+            if (!currentItem) return;
+            
+            if (currentItem === '🚀') {
+                // 火箭
+                projectiles.push({
+                    x: player.x,
+                    y: player.y,
+                    vx: Math.cos(player.angle) * 15,
+                    vy: Math.sin(player.angle) * 15,
+                    emoji: '🚀',
+                    owner: 'player'
+                });
+            } else if (currentItem === '🍌') {
+                // 香蕉皮
+                projectiles.push({
+                    x: player.x - Math.cos(player.angle) * 40,
+                    y: player.y - Math.sin(player.angle) * 40,
+                    vx: 0, vy: 0,
+                    emoji: '🍌',
+                    owner: 'player',
+                    stationary: true
+                });
+            } else if (currentItem === '⚡') {
+                // 加速
+                player.speed = player.maxSpeed * 1.5;
+                createParticle(player.x, player.y, '⚡', 10);
+            } else if (currentItem === '🛡️') {
+                // 护盾
+                player.shield = true;
+                player.shieldTime = 300;
+                createParticle(player.x, player.y, '🛡️', 5);
+            }
+            
+            currentItem = null;
+            document.getElementById('itemSlot').textContent = '❓';
+        }
+        
+        function startGame() {
+            gameState = 'playing';
+            position = 4;
+            lap = 1;
+            currentItem = null;
+            player.x = GAME_WIDTH / 2;
+            player.y = GAME_HEIGHT - 100;
+            player.angle = -Math.PI / 2;
+            player.speed = 0;
+            player.shield = false;
+            
+            opponents = [
+                { x: GAME_WIDTH / 2 - 30, y: GAME_HEIGHT - 150, angle: -Math.PI / 2, speed: 4, emoji: '🚗', color: '#ff0000', name: 'AI 1', stunned: 0 },
+                { x: GAME_WIDTH / 2 + 30, y: GAME_HEIGHT - 180, angle: -Math.PI / 2, speed: 4.5, emoji: '🚙', color: '#00ff00', name: 'AI 2', stunned: 0 },
+                { x: GAME_WIDTH / 2, y: GAME_HEIGHT - 210, angle: -Math.PI / 2, speed: 5, emoji: '🚕', color: '#0000ff', name: 'AI 3', stunned: 0 }
+            ];
+            
+            itemBoxes = [];
+            projectiles = [];
+            particles = [];
+            
+            // 生成道具箱
+            for (let i = 0; i < 6; i++) {
+                itemBoxes.push({
+                    x: TRACK_X + 50 + Math.random() * (TRACK_WIDTH - 100),
+                    y: TRACK_Y + 50 + Math.random() * (TRACK_HEIGHT - 100),
+                    emoji: '📦'
+                });
+            }
+            
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('itemSlot').textContent = '❓';
+            requestAnimationFrame(gameLoop);
+        }
+        
+        function gameOver() {
+            gameState = 'gameover';
+            
+            const resultDiv = document.getElementById('resultEmoji');
+            const titleDiv = document.getElementById('resultTitle');
+            
+            if (position === 1) {
+                resultDiv.textContent = '🥇';
+                titleDiv.textContent = '冠军！';
+            } else if (position === 2) {
+                resultDiv.textContent = '🥈';
+                titleDiv.textContent = '亚军！';
+            } else if (position === 3) {
+                resultDiv.textContent = '🥉';
+                titleDiv.textContent = '季军！';
+            } else {
+                resultDiv.textContent = '😅';
+                titleDiv.textContent = '再接再厉！';
+            }
+            
+            document.getElementById('finalPosition').textContent = position;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+        
+        function createParticle(x, y, emoji, count = 3) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 5,
+                    vy: (Math.random() - 0.5) * 5,
+                    life: 1,
+                    emoji: emoji
+                });
+            }
+        }
+        
+        function update() {
+            if (gameState !== 'playing') return;
+            
+            // 玩家控制
+            if (keys['ArrowLeft'] || keys['a'] || keys['A']) player.angle -= 0.05;
+            if (keys['ArrowRight'] || keys['d'] || keys['D']) player.angle += 0.05;
+            if (keys['ArrowUp'] || keys['w'] || keys['W']) {
+                player.speed = Math.min(player.speed + 0.2, player.maxSpeed);
+            } else {
+                player.speed = Math.max(player.speed - 0.1, 0);
+            }
+            
+            // 移动玩家
+            player.x += Math.cos(player.angle) * player.speed;
+            player.y += Math.sin(player.angle) * player.speed;
+            
+            // 边界检测
+            if (player.x < TRACK_X) player.x = TRACK_X;
+            if (player.x > TRACK_X + TRACK_WIDTH) player.x = TRACK_X + TRACK_WIDTH;
+            if (player.y < TRACK_Y) player.y = TRACK_Y;
+            if (player.y > TRACK_Y + TRACK_HEIGHT) {
+                player.y = TRACK_Y;
+                lap++;
+                if (lap > TOTAL_LAPS) {
+                    gameOver();
+                    return;
+                }
+                document.getElementById('lapDisplay').textContent = '圈数: ' + lap + '/' + TOTAL_LAPS;
+            }
+            
+            // 更新护盾
+            if (player.shield) {
+                player.shieldTime--;
+                if (player.shieldTime <= 0) player.shield = false;
+            }
+            
+            // 更新AI
+            opponents.forEach(ai => {
+                if (ai.stunned > 0) {
+                    ai.stunned--;
+                    return;
+                }
+                
+                // 简单AI：向上开，左右轻微摆动
+                ai.y -= ai.speed;
+                ai.x += Math.sin(Date.now() * 0.001 + ai.name.charCodeAt(0)) * 2;
+                ai.angle = -Math.PI / 2;
+                
+                if (ai.y < TRACK_Y) {
+                    ai.y = TRACK_Y + TRACK_HEIGHT;
+                }
+                
+                // 边界限制
+                if (ai.x < TRACK_X) ai.x = TRACK_X;
+                if (ai.x > TRACK_X + TRACK_WIDTH) ai.x = TRACK_X + TRACK_WIDTH;
+            });
+            
+            // 计算排名
+            let aheadCount = 0;
+            opponents.forEach(ai => {
+                if (ai.y < player.y) aheadCount++;
+            });
+            position = aheadCount + 1;
+            document.getElementById('positionDisplay').textContent = 
+                (position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : '😅') + ' ' + position + '/4';
+            
+            // 道具箱碰撞
+            itemBoxes = itemBoxes.filter(box => {
+                const dx = box.x - player.x;
+                const dy = box.y - player.y;
+                if (Math.sqrt(dx*dx + dy*dy) < 30) {
+                    // 随机道具
+                    const items = ['🚀', '🍌', '⚡', '🛡️'];
+                    currentItem = items[Math.floor(Math.random() * items.length)];
+                    document.getElementById('itemSlot').textContent = currentItem;
+                    createParticle(box.x, box.y, '✨', 5);
+                    
+                    // 重新生成
+                    setTimeout(() => {
+                        itemBoxes.push({
+                            x: TRACK_X + 50 + Math.random() * (TRACK_WIDTH - 100),
+                            y: TRACK_Y + 50 + Math.random() * (TRACK_HEIGHT - 100),
+                            emoji: '📦'
+                        });
+                    }, 3000);
+                    return false;
+                }
+                return true;
+            });
+            
+            // 更新投射物
+            projectiles = projectiles.filter(p => {
+                if (!p.stationary) {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                }
+                
+                // 检测击中AI
+                opponents.forEach(ai => {
+                    if (p.owner === 'player' && ai.stunned === 0) {
+                        const dx = p.x - ai.x;
+                        const dy = p.y - ai.y;
+                        if (Math.sqrt(dx*dx + dy*dy) < 30) {
+                            ai.stunned = 60;
+                            ai.speed = 2;
+                            createParticle(ai.x, ai.y, '💥', 5);
+                        }
+                    }
+                });
+                
+                // 检测击中玩家
+                if (p.owner !== 'player') {
+                    const dx = p.x - player.x;
+                    const dy = p.y - player.y;
+                    if (Math.sqrt(dx*dx + dy*dy) < 30) {
+                        if (player.shield) {
+                            player.shield = false;
+                            createParticle(player.x, player.y, '🛡️', 3);
+                        } else {
+                            player.speed *= 0.5;
+                            createParticle(player.x, player.y, '💥', 5);
+                        }
+                        return false;
+                    }
+                }
+                
+                return p.x > 0 && p.x < GAME_WIDTH && p.y > 0 && p.y < GAME_HEIGHT;
+            });
+            
+            // 更新粒子
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.05;
+                return p.life > 0;
+            });
+        }
+        
+        function draw() {
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+            
+            // 绘制赛道
+            ctx.fillStyle = '#2d2d3a';
+            ctx.fillRect(TRACK_X, TRACK_Y, TRACK_WIDTH, TRACK_HEIGHT);
+            
+            // 赛道边框
+            ctx.strokeStyle = '#ff00c8';
+            ctx.lineWidth = 5;
+            ctx.strokeRect(TRACK_X, TRACK_Y, TRACK_WIDTH, TRACK_HEIGHT);
+            
+            // 赛道中线
+            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([20, 20]);
+            ctx.beginPath();
+            ctx.moveTo(GAME_WIDTH / 2, TRACK_Y);
+            ctx.lineTo(GAME_WIDTH / 2, TRACK_Y + TRACK_HEIGHT);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            ctx.font = '30px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // 道具箱
+            itemBoxes.forEach(box => {
+                ctx.fillText(box.emoji, box.x, box.y);
+            });
+            
+            // 投射物
+            projectiles.forEach(p => {
+                ctx.fillText(p.emoji, p.x, p.y);
+            });
+            
+            // AI
+            opponents.forEach(ai => {
+                if (ai.stunned > 0 && Math.floor(Date.now() / 100) % 2 === 0) return;
+                ctx.save();
+                ctx.translate(ai.x, ai.y);
+                ctx.rotate(ai.angle + Math.PI / 2);
+                ctx.font = '35px sans-serif';
+                ctx.fillText(ai.emoji, 0, 0);
+                ctx.restore();
+            });
+            
+            // 玩家
+            ctx.save();
+            ctx.translate(player.x, player.y);
+            ctx.rotate(player.angle + Math.PI / 2);
+            ctx.font = '40px sans-serif';
+            ctx.fillText(player.emoji, 0, 0);
+            
+            // 护盾特效
+            if (player.shield) {
+                ctx.strokeStyle = '#00ff88';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(0, 0, 30, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            ctx.restore();
+            
+            // 粒子
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life;
+                ctx.font = '20px sans-serif';
+                ctx.fillText(p.emoji, p.x, p.y);
+            });
+            ctx.globalAlpha = 1;
+        }
+        
+        function gameLoop() {
+            update();
+            draw();
+            if (gameState === 'playing') {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+        
+        draw();
+    </script>
+</body>
+</html>
