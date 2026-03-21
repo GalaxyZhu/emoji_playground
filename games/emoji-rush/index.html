@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🏎️ Emoji Rush V0.1.0</title>
+    <title>🏎️ Emoji Rush V0.2.0 - 速度失控</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
         body {
@@ -34,8 +34,12 @@
         }
         .hidden { display: none !important; }
         h1 { font-size: 48px; color: #fff; text-shadow: 0 0 20px #e94560; margin-bottom: 10px; }
-        .emoji-title { font-size: 72px; margin-bottom: 20px; animation: pulse 1s infinite; }
-        @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+        .emoji-title { font-size: 72px; margin-bottom: 20px; animation: shake 0.5s infinite; }
+        @keyframes shake { 
+            0%,100%{transform:translateX(0) rotate(0)} 
+            25%{transform:translateX(-3px) rotate(-2deg)} 
+            75%{transform:translateX(3px) rotate(2deg)} 
+        }
         .btn {
             padding: 15px 40px;
             font-size: 24px;
@@ -66,59 +70,72 @@
             z-index: 50;
             text-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
-        .boost-bar {
+        .speedometer {
             position: absolute;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            width: 200px;
-            height: 20px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 10px;
-            overflow: hidden;
+            text-align: center;
             z-index: 50;
         }
-        .boost-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #00ff88 0%, #00ccff 100%);
-            width: 0%;
-            transition: width 0.1s;
+        .speed-value {
+            font-size: 48px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 20px #e94560;
         }
-        .boost-label {
-            position: absolute;
-            bottom: 55px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #00ff88;
+        .speed-label {
             font-size: 12px;
-            z-index: 50;
+            color: #888;
         }
+        .warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff0000;
+            font-size: 36px;
+            font-weight: bold;
+            text-shadow: 0 0 20px #ff0000;
+            opacity: 0;
+            transition: opacity 0.2s;
+            z-index: 60;
+            pointer-events: none;
+        }
+        .warning.show { opacity: 1; }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
     
     <div class="score-display" id="scoreDisplay">0m</div>
-    <div class="boost-label">🔥 氮气 (长按屏幕/按住鼠标加速)</div>
-    <div class="boost-bar"><div class="boost-fill" id="boostFill"></div></div>
+    <div class="warning" id="warning">🔥 速度失控!</div>
+    
+    <div class="speedometer">
+        <div class="speed-value" id="speedValue">100</div>
+        <div class="speed-label">km/h</div>
+    </div>
     
     <div class="ui-overlay" id="startScreen">
         <div class="emoji-title">🏎️</div>
         <h1>EMOJI RUSH</h1>
+        <div style="color: #e94560; font-size: 18px; margin-bottom: 20px;">⚠️ 速度失控模式</div>
         <button class="btn" id="startBtn">开始狂飙</button>
         <div class="instructions">
-            🎮 按住屏幕/鼠标 = 加速冲刺<br>
-            ⚡ 松开 = 积攒氮气<br>
-            🚧 躲避路上的障碍物<br>
-            看你能跑多远！
+            ⚠️ 刹车坏了！车速只会越来越快！<br>
+            👈 点击/触摸左侧 = 左变道<br>
+            👉 点击/触摸右侧 = 右变道<br>
+            🚧 躲避障碍物，撑得越久速度越快<br>
+            🔥 速度超过300km/h时画面会颤抖！
         </div>
     </div>
     
     <div class="ui-overlay hidden" id="gameOverScreen">
         <div class="emoji-title">💥</div>
         <h1>撞车了！</h1>
-        <div style="color: #fff; font-size: 24px; margin-bottom: 10px;">行驶距离: <span id="finalScore">0</span>m</div>
-        <div style="color: #ffd700; font-size: 18px; margin-bottom: 30px;">最高分: <span id="highScore">0</span>m</div>
+        <div style="color: #fff; font-size: 20px; margin-bottom: 5px;">行驶距离: <span id="finalScore">0</span>m</div>
+        <div style="color: #e94560; font-size: 18px; margin-bottom: 5px;">最高速度: <span id="finalSpeed">0</span>km/h</div>
+        <div style="color: #ffd700; font-size: 16px; margin-bottom: 30px;">最高分: <span id="highScore">0</span>m</div>
         <button class="btn" id="restartBtn">再来一局</button>
     </div>
 
@@ -126,90 +143,85 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
-        // 设置画布大小
         const GAME_WIDTH = 400;
         const GAME_HEIGHT = 700;
         canvas.width = GAME_WIDTH;
         canvas.height = GAME_HEIGHT;
         
-        // 游戏状态
         let gameState = 'start';
         let score = 0;
         let highScore = localStorage.getItem('emojiRushHighScore') || 0;
-        let speed = 5;
-        let boostMeter = 0;
-        let isAccelerating = false;
+        let speed = 100; // km/h
+        let maxSpeed = 100;
+        let shakeIntensity = 0;
         
-        // 玩家
         const player = {
             x: GAME_WIDTH / 2,
             y: GAME_HEIGHT - 120,
-            width: 40,
-            height: 60,
-            emoji: '🏎️',
-            lane: 1, // 0=left, 1=center, 2=right
-            targetX: GAME_WIDTH / 2
+            lane: 1,
+            targetX: GAME_WIDTH / 2,
+            emoji: '🏎️'
         };
         
-        // 车道配置
         const LANES = [100, 200, 300];
-        const LANE_WIDTH = 100;
         
-        // 障碍物
         let obstacles = [];
-        const OBSTACLE_EMOJIS = ['🪨', '🛢️', '🚧', '🕳️', '🌲'];
+        const OBSTACLE_EMOJIS = ['🪨', '🛢️', '🚧', '🕳️', '🌲', '🚜', '🦌'];
         
-        // 粒子效果
         let particles = [];
-        
-        // 道路线
         let roadLines = [];
         for (let i = 0; i < 10; i++) {
             roadLines.push({ y: i * 80 });
         }
         
-        // 输入处理
-        let touchStartX = 0;
+        // 输入处理 - 左右半屏点击
+        canvas.addEventListener('click', (e) => {
+            if (gameState !== 'playing') return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX - rect.left) * (GAME_WIDTH / rect.width);
+            
+            if (x < GAME_WIDTH / 2) {
+                if (player.lane > 0) player.lane--;
+            } else {
+                if (player.lane < 2) player.lane++;
+            }
+        });
         
-        canvas.addEventListener('mousedown', () => { isAccelerating = true; });
-        canvas.addEventListener('mouseup', () => { isAccelerating = false; });
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
-            isAccelerating = true;
-            touchStartX = e.touches[0].clientX;
-        }, { passive: false });
-        canvas.addEventListener('touchend', () => { isAccelerating = false; });
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            const touchX = e.touches[0].clientX;
-            const diff = touchX - touchStartX;
-            if (Math.abs(diff) > 50) {
-                if (diff > 0 && player.lane < 2) player.lane++;
-                else if (diff < 0 && player.lane > 0) player.lane--;
-                touchStartX = touchX;
+            if (gameState !== 'playing') return;
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = (touch.clientX - rect.left) * (GAME_WIDTH / rect.width);
+            
+            if (x < GAME_WIDTH / 2) {
+                if (player.lane > 0) player.lane--;
+            } else {
+                if (player.lane < 2) player.lane++;
             }
         }, { passive: false });
         
-        // 键盘控制
         document.addEventListener('keydown', (e) => {
+            if (gameState !== 'playing') return;
             if (e.key === 'ArrowLeft' && player.lane > 0) player.lane--;
             if (e.key === 'ArrowRight' && player.lane < 2) player.lane++;
-            if (e.key === ' ' || e.key === 'ArrowUp') isAccelerating = true;
-        });
-        document.addEventListener('keyup', (e) => {
-            if (e.key === ' ' || e.key === 'ArrowUp') isAccelerating = false;
         });
         
         function startGame() {
             gameState = 'playing';
             score = 0;
-            speed = 5;
-            boostMeter = 0;
+            speed = 100;
+            maxSpeed = 100;
+            shakeIntensity = 0;
             obstacles = [];
             particles = [];
             player.lane = 1;
+            player.x = LANES[1];
+            player.targetX = LANES[1];
+            
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('warning').classList.remove('show');
             requestAnimationFrame(gameLoop);
         }
         
@@ -220,32 +232,41 @@
                 localStorage.setItem('emojiRushHighScore', highScore);
             }
             document.getElementById('finalScore').textContent = Math.floor(score);
+            document.getElementById('finalSpeed').textContent = Math.floor(maxSpeed);
             document.getElementById('highScore').textContent = Math.floor(highScore);
             document.getElementById('gameOverScreen').classList.remove('hidden');
         }
         
         function spawnObstacle() {
-            if (Math.random() < 0.02 + score * 0.00001) {
+            // 根据速度调整生成率
+            const spawnRate = 0.015 + (speed - 100) * 0.00005;
+            
+            if (Math.random() < spawnRate) {
                 const lane = Math.floor(Math.random() * 3);
+                // 避免连续在同一车道生成
+                const lastObs = obstacles[obstacles.length - 1];
+                if (lastObs && lastObs.lane === lane && lastObs.y < 150) return;
+                
                 obstacles.push({
                     x: LANES[lane],
                     y: -50,
                     lane: lane,
                     emoji: OBSTACLE_EMOJIS[Math.floor(Math.random() * OBSTACLE_EMOJIS.length)],
-                    size: 35
+                    size: 35,
+                    passed: false
                 });
             }
         }
         
-        function createParticle(x, y, emoji) {
-            for (let i = 0; i < 5; i++) {
+        function createParticle(x, y, emoji, count = 5) {
+            for (let i = 0; i < count; i++) {
                 particles.push({
                     x: x,
                     y: y,
-                    vx: (Math.random() - 0.5) * 5,
-                    vy: (Math.random() - 0.5) * 5,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8 + speed * 0.01,
                     life: 1,
-                    emoji: emoji || '💨'
+                    emoji: emoji
                 });
             }
         }
@@ -253,30 +274,40 @@
         function update() {
             if (gameState !== 'playing') return;
             
-            // 加速逻辑
-            if (isAccelerating && boostMeter > 0) {
-                speed = Math.min(speed + 0.1, 15);
-                boostMeter -= 0.5;
-                createParticle(player.x, player.y + 30, '🔥');
+            // 速度只会越来越快！
+            speed += 0.1;
+            if (speed > maxSpeed) maxSpeed = speed;
+            
+            // 更新速度显示
+            document.getElementById('speedValue').textContent = Math.floor(speed);
+            
+            // 速度颜色变化
+            const speedEl = document.getElementById('speedValue');
+            if (speed < 200) speedEl.style.color = '#fff';
+            else if (speed < 300) speedEl.style.color = '#ffaa00';
+            else speedEl.style.color = '#ff0000';
+            
+            // 显示警告
+            if (speed > 300) {
+                document.getElementById('warning').classList.add('show');
+                shakeIntensity = (speed - 300) * 0.02;
             } else {
-                speed = Math.max(speed - 0.05, 5);
-                boostMeter = Math.min(boostMeter + 0.1, 100);
+                document.getElementById('warning').classList.remove('show');
+                shakeIntensity = 0;
             }
             
-            // 更新氮气条
-            document.getElementById('boostFill').style.width = boostMeter + '%';
-            
-            // 移动玩家到目标车道
+            // 移动玩家
             player.targetX = LANES[player.lane];
-            player.x += (player.targetX - player.x) * 0.2;
+            player.x += (player.targetX - player.x) * 0.3;
             
             // 更新分数
-            score += speed * 0.1;
+            score += speed * 0.01;
             document.getElementById('scoreDisplay').textContent = Math.floor(score) + 'm';
             
-            // 更新道路线
+            // 更新道路线 - 根据速度
+            const moveSpeed = speed * 0.1;
             roadLines.forEach(line => {
-                line.y += speed;
+                line.y += moveSpeed;
                 if (line.y > GAME_HEIGHT) line.y = -80;
             });
             
@@ -285,14 +316,14 @@
             
             // 更新障碍物
             obstacles = obstacles.filter(obs => {
-                obs.y += speed;
+                obs.y += moveSpeed;
                 
                 // 碰撞检测
                 const dx = obs.x - player.x;
                 const dy = obs.y - player.y;
                 const dist = Math.sqrt(dx*dx + dy*dy);
                 if (dist < 35) {
-                    createParticle(player.x, player.y, '💥');
+                    createParticle(player.x, player.y, '💥', 10);
                     gameOver();
                     return false;
                 }
@@ -304,12 +335,26 @@
             particles = particles.filter(p => {
                 p.x += p.vx;
                 p.y += p.vy;
-                p.life -= 0.05;
+                p.life -= 0.03;
                 return p.life > 0;
             });
+            
+            // 尾气效果 - 速度越快尾气越多
+            if (Math.random() < speed / 500) {
+                createParticle(player.x, player.y + 30, '💨', 1);
+            }
         }
         
         function draw() {
+            ctx.save();
+            
+            // 屏幕颤抖效果
+            if (shakeIntensity > 0) {
+                const shakeX = (Math.random() - 0.5) * shakeIntensity;
+                const shakeY = (Math.random() - 0.5) * shakeIntensity;
+                ctx.translate(shakeX, shakeY);
+            }
+            
             // 清空画布
             ctx.fillStyle = '#1a1a2e';
             ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
@@ -318,8 +363,12 @@
             ctx.fillStyle = '#0d0d1a';
             ctx.fillRect(50, 0, 300, GAME_HEIGHT);
             
-            // 绘制道路边线
-            ctx.strokeStyle = '#e94560';
+            // 绘制道路边线 - 根据速度变色
+            const speedRatio = Math.min((speed - 100) / 300, 1);
+            const r = Math.floor(233 + (255 - 233) * speedRatio);
+            const g = Math.floor(69 * (1 - speedRatio));
+            const b = Math.floor(96 * (1 - speedRatio));
+            ctx.strokeStyle = `rgb(${r}, ${g}, ${b})`;
             ctx.lineWidth = 3;
             ctx.beginPath();
             ctx.moveTo(50, 0);
@@ -329,9 +378,9 @@
             ctx.stroke();
             
             // 绘制车道线
-            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+            ctx.strokeStyle = `rgba(255,255,255,${0.3 + speedRatio * 0.4})`;
             ctx.lineWidth = 2;
-            ctx.setLineDash([30, 30]);
+            ctx.setLineDash([30 - speedRatio * 15, 30 - speedRatio * 15]);
             [150, 250].forEach(x => {
                 ctx.beginPath();
                 ctx.moveTo(x, 0);
@@ -341,7 +390,7 @@
             ctx.setLineDash([]);
             
             // 绘制道路线
-            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.fillStyle = `rgba(255,255,255,${0.5 + speedRatio * 0.5})`;
             roadLines.forEach(line => {
                 ctx.fillRect(148, line.y, 4, 40);
                 ctx.fillRect(248, line.y, 4, 40);
@@ -355,17 +404,14 @@
                 ctx.fillText(obs.emoji, obs.x, obs.y);
             });
             
-            // 绘制玩家
+            // 绘制玩家 - 速度越快车越倾斜
+            ctx.save();
+            ctx.translate(player.x, player.y);
+            const tilt = (player.targetX - player.x) * 0.05;
+            ctx.rotate(tilt);
             ctx.font = '50px sans-serif';
-            ctx.fillText(player.emoji, player.x, player.y);
-            
-            // 绘制加速特效
-            if (isAccelerating && boostMeter > 0) {
-                ctx.font = '30px sans-serif';
-                for (let i = 0; i < 3; i++) {
-                    ctx.fillText('🔥', player.x, player.y + 40 + i * 20);
-                }
-            }
+            ctx.fillText(player.emoji, 0, 0);
+            ctx.restore();
             
             // 绘制粒子
             particles.forEach(p => {
@@ -374,6 +420,8 @@
                 ctx.fillText(p.emoji, p.x, p.y);
             });
             ctx.globalAlpha = 1;
+            
+            ctx.restore();
         }
         
         function gameLoop() {
@@ -384,11 +432,9 @@
             }
         }
         
-        // 初始化
         document.getElementById('startBtn').addEventListener('click', startGame);
         document.getElementById('restartBtn').addEventListener('click', startGame);
         
-        // 初始绘制
         draw();
     </script>
 </body>
