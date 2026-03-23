@@ -228,7 +228,7 @@
     <div class="score-display" id="scoreDisplay">0m</div>
     <div class="warning" id="warning">🔥 速度失控!</div>
     <div class="slowdown-effect" id="slowdownEffect">⏱️ -50km/h!</div>
-    <div class="speed-hint" id="speedHint">⚡ QTE就绪！速度超过200km/h时会出现</div>
+    <div class="speed-hint" id="speedHint">⚡ QTE就绪！速度超过140km/h时会出现</div>
     
     <div class="speedometer">
         <div class="speed-value" id="speedValue">100</div>
@@ -509,7 +509,7 @@
             
             // 速度颜色变化
             const speedEl = document.getElementById('speedValue');
-            if (speed < 200) speedEl.style.color = '#fff';
+            if (speed < 140) speedEl.style.color = '#fff';
             else if (speed < 300) speedEl.style.color = '#ffaa00';
             else speedEl.style.color = '#ff0000';
             
