@@ -66,6 +66,13 @@
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: 0 4px 20px rgba(233, 69, 96, 0.5);
+            margin: 5px 0;
+        }
+        .btn-home {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+            font-size: 18px;
+            padding: 12px 30px;
         }
         .btn:hover { transform: scale(1.05); }
         .btn:active { transform: scale(0.95); }
@@ -286,6 +293,7 @@
         <div style="color: #00d4ff; font-size: 16px; margin-bottom: 5px;">成功QTE: <span id="finalQTE">0</span>次</div>
         <div style="color: #ffd700; font-size: 16px; margin-bottom: 30px;">最高分: <span id="highScore">0</span>m</div>
         <button class="btn" id="restartBtn">再来一局</button>
+        <button class="btn btn-home" id="homeBtn" onclick="location.href='https://galaxyzhu.github.io/emoji_playground/'">🏠 回到首页</button>
     </div>
 
     <script>
