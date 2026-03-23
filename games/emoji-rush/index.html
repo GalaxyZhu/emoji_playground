@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🏎️ Emoji Rush V0.2.0 - 速度失控</title>
+    <title>🏎️ Emoji Rush V0.3.0 - QTE减速模式</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
         body {
@@ -103,6 +103,123 @@
             pointer-events: none;
         }
         .warning.show { opacity: 1; }
+        
+        /* QTE UI */
+        .qte-zone {
+            position: absolute;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 200px;
+            z-index: 70;
+            pointer-events: none;
+        }
+        .qte-zone.active {
+            pointer-events: auto;
+        }
+        .qte-button {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+            cursor: pointer;
+            transition: transform 0.1s;
+            border: 4px solid #fff;
+        }
+        .qte-button.show {
+            animation: qtePop 0.3s forwards;
+        }
+        .qte-button.pressed {
+            transform: translate(-50%, -50%) scale(0.9);
+            background: linear-gradient(135deg, #00ff88 0%, #00cc66 100%);
+        }
+        @keyframes qtePop {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+        .qte-timer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            border: 4px solid rgba(0, 212, 255, 0.3);
+        }
+        .qte-timer-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(rgba(0, 212, 255, 0.3) var(--progress, 0%), transparent 0);
+            transition: --progress 0.1s;
+        }
+        .qte-indicator {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 212, 255, 0.9);
+            color: #000;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .qte-indicator.show { opacity: 1; }
+        
+        /* 减速特效 */
+        .slowdown-effect {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: #00ff88;
+            text-shadow: 0 0 20px #00ff88;
+            opacity: 0;
+            z-index: 80;
+            pointer-events: none;
+        }
+        .slowdown-effect.show {
+            animation: slowdownAnim 1s forwards;
+        }
+        @keyframes slowdownAnim {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -80%) scale(1); }
+        }
+        
+        /* 速度警告区提示 */
+        .speed-hint {
+            position: absolute;
+            bottom: 180px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #00d4ff;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 55;
+        }
+        .speed-hint.show { opacity: 1; }
     </style>
 </head>
 <body>
@@ -110,23 +227,35 @@
     
     <div class="score-display" id="scoreDisplay">0m</div>
     <div class="warning" id="warning">🔥 速度失控!</div>
+    <div class="slowdown-effect" id="slowdownEffect">⏱️ -50km/h!</div>
+    <div class="speed-hint" id="speedHint">⚡ QTE就绪！速度超过200km/h时会出现</div>
     
     <div class="speedometer">
         <div class="speed-value" id="speedValue">100</div>
         <div class="speed-label">km/h</div>
     </div>
     
+    <!-- QTE 区域 -->
+    <div class="qte-zone" id="qteZone">
+        <div class="qte-timer">
+            <div class="qte-timer-fill" id="qteTimerFill"></div>
+        </div>
+        <div class="qte-button" id="qteButton">👆</div>
+        <div class="qte-indicator" id="qteIndicator">🛑 紧急制动！</div>
+    </div>
+    
     <div class="ui-overlay" id="startScreen">
         <div class="emoji-title">🏎️</div>
         <h1>EMOJI RUSH</h1>
-        <div style="color: #e94560; font-size: 18px; margin-bottom: 20px;">⚠️ 速度失控模式</div>
+        <div style="color: #e94560; font-size: 18px; margin-bottom: 20px;">⚠️ 速度失控 + QTE减速模式</div>
         <button class="btn" id="startBtn">开始狂飙</button>
         <div class="instructions">
             ⚠️ 刹车坏了！车速只会越来越快！<br>
-            👈 点击/触摸左侧 = 左变道<br>
-            👉 点击/触摸右侧 = 右变道<br>
-            🚧 躲避障碍物，撑得越久速度越快<br>
-            🔥 速度超过300km/h时画面会颤抖！
+            👈 点击/触摸左侧 = 左变道 | 点击/触摸右侧 = 右变道 👉<br>
+            🚧 躲避障碍物<br>
+            🔥 速度超过300km/h时画面会颤抖！<br>
+            <span style="color: #00d4ff;">⏱️ 速度超过200km/h时，会出现QTE制动机会！<br>
+            按下蓝色按钮即可减速50km/h，获得喘息机会！</span>
         </div>
     </div>
     
@@ -135,6 +264,7 @@
         <h1>撞车了！</h1>
         <div style="color: #fff; font-size: 20px; margin-bottom: 5px;">行驶距离: <span id="finalScore">0</span>m</div>
         <div style="color: #e94560; font-size: 18px; margin-bottom: 5px;">最高速度: <span id="finalSpeed">0</span>km/h</div>
+        <div style="color: #00d4ff; font-size: 16px; margin-bottom: 5px;">成功QTE: <span id="finalQTE">0</span>次</div>
         <div style="color: #ffd700; font-size: 16px; margin-bottom: 30px;">最高分: <span id="highScore">0</span>m</div>
         <button class="btn" id="restartBtn">再来一局</button>
     </div>
@@ -154,6 +284,7 @@
         let speed = 100; // km/h
         let maxSpeed = 100;
         let shakeIntensity = 0;
+        let qteSuccessCount = 0;
         
         const player = {
             x: GAME_WIDTH / 2,
@@ -167,6 +298,7 @@
         
         let obstacles = [];
         const OBSTACLE_EMOJIS = ['🪨', '🛢️', '🚧', '🕳️', '🌲', '🚜', '🦌'];
+        const QTE_EMOJI = '⚠️'; // QTE 障碍物特殊标识
         
         let particles = [];
         let roadLines = [];
@@ -174,9 +306,21 @@
             roadLines.push({ y: i * 80 });
         }
         
-        // 输入处理 - 左右半屏点击
+        // QTE 系统状态
+        let qteState = {
+            active: false,
+            obstacle: null,
+            buttonShown: false,
+            timeLeft: 0,
+            maxTime: 120, // 帧数 (约2秒)
+            cooldown: 0
+        };
+        
+        // 输入处理 - 左右半屏点击（仅在非QTE时）
         canvas.addEventListener('click', (e) => {
             if (gameState !== 'playing') return;
+            if (qteState.active && qteState.buttonShown) return; // QTE时不处理变道
+            
             const rect = canvas.getBoundingClientRect();
             const x = (e.clientX - rect.left) * (GAME_WIDTH / rect.width);
             
@@ -190,6 +334,8 @@
         canvas.addEventListener('touchstart', (e) => {
             e.preventDefault();
             if (gameState !== 'playing') return;
+            if (qteState.active && qteState.buttonShown) return;
+            
             const rect = canvas.getBoundingClientRect();
             const touch = e.touches[0];
             const x = (touch.clientX - rect.left) * (GAME_WIDTH / rect.width);
@@ -203,9 +349,78 @@
         
         document.addEventListener('keydown', (e) => {
             if (gameState !== 'playing') return;
+            if (qteState.active && qteState.buttonShown) return;
+            
             if (e.key === 'ArrowLeft' && player.lane > 0) player.lane--;
             if (e.key === 'ArrowRight' && player.lane < 2) player.lane++;
         });
+        
+        // QTE 按钮处理
+        const qteButton = document.getElementById('qteButton');
+        const qteZone = document.getElementById('qteZone');
+        
+        function handleQTEPress() {
+            if (!qteState.active || !qteState.buttonShown) return;
+            
+            // QTE 成功！
+            qteSuccessCount++;
+            
+            // 减速效果
+            const slowdownAmount = 50;
+            speed = Math.max(100, speed - slowdownAmount);
+            
+            // 显示减速特效
+            const effect = document.getElementById('slowdownEffect');
+            effect.textContent = `⏱️ -${slowdownAmount}km/h!`;
+            effect.classList.add('show');
+            setTimeout(() => effect.classList.remove('show'), 1000);
+            
+            // 移除QTE障碍物
+            if (qteState.obstacle) {
+                createParticle(qteState.obstacle.x, qteState.obstacle.y, '✨', 8);
+                obstacles = obstacles.filter(o => o !== qteState.obstacle);
+            }
+            
+            // 重置QTE状态
+            resetQTE();
+            
+            // 添加成功粒子效果
+            createParticle(GAME_WIDTH / 2, GAME_HEIGHT - 200, '💨', 5);
+        }
+        
+        qteButton.addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleQTEPress();
+        });
+        
+        qteButton.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleQTEPress();
+        }, { passive: false });
+        
+        function resetQTE() {
+            qteState.active = false;
+            qteState.obstacle = null;
+            qteState.buttonShown = false;
+            qteState.timeLeft = 0;
+            qteState.cooldown = 180; // 3秒冷却时间
+            
+            qteButton.classList.remove('show', 'pressed');
+            document.getElementById('qteIndicator').classList.remove('show');
+            qteZone.classList.remove('active');
+        }
+        
+        function startQTE(obstacle) {
+            qteState.active = true;
+            qteState.obstacle = obstacle;
+            qteState.buttonShown = true;
+            qteState.timeLeft = qteState.maxTime;
+            
+            qteButton.classList.add('show');
+            document.getElementById('qteIndicator').classList.add('show');
+            qteZone.classList.add('active');
+        }
         
         function startGame() {
             gameState = 'playing';
@@ -213,11 +428,13 @@
             speed = 100;
             maxSpeed = 100;
             shakeIntensity = 0;
+            qteSuccessCount = 0;
             obstacles = [];
             particles = [];
             player.lane = 1;
             player.x = LANES[1];
             player.targetX = LANES[1];
+            resetQTE();
             
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
@@ -233,12 +450,14 @@
             }
             document.getElementById('finalScore').textContent = Math.floor(score);
             document.getElementById('finalSpeed').textContent = Math.floor(maxSpeed);
+            document.getElementById('finalQTE').textContent = qteSuccessCount;
             document.getElementById('highScore').textContent = Math.floor(highScore);
             document.getElementById('gameOverScreen').classList.remove('hidden');
         }
         
         function spawnObstacle() {
-            // 根据速度调整生成率
+            // QTE障碍物生成条件：速度>200，不在冷却，没有活跃QTE
+            const canSpawnQTE = speed > 200 && qteState.cooldown <= 0 && !qteState.active;
             const spawnRate = 0.015 + (speed - 100) * 0.00005;
             
             if (Math.random() < spawnRate) {
@@ -247,14 +466,21 @@
                 const lastObs = obstacles[obstacles.length - 1];
                 if (lastObs && lastObs.lane === lane && lastObs.y < 150) return;
                 
-                obstacles.push({
+                // 决定是否生成QTE障碍物 (20%概率，当满足条件时)
+                const isQTE = canSpawnQTE && Math.random() < 0.2;
+                
+                const obstacle = {
                     x: LANES[lane],
                     y: -50,
                     lane: lane,
-                    emoji: OBSTACLE_EMOJIS[Math.floor(Math.random() * OBSTACLE_EMOJIS.length)],
+                    emoji: isQTE ? QTE_EMOJI : OBSTACLE_EMOJIS[Math.floor(Math.random() * OBSTACLE_EMOJIS.length)],
                     size: 35,
-                    passed: false
-                });
+                    passed: false,
+                    isQTE: isQTE,
+                    qteTriggered: false
+                };
+                
+                obstacles.push(obstacle);
             }
         }
         
@@ -274,7 +500,7 @@
         function update() {
             if (gameState !== 'playing') return;
             
-            // 速度只会越来越快！
+            // 速度只会越来越快（除非QTE减速）
             speed += 0.1;
             if (speed > maxSpeed) maxSpeed = speed;
             
@@ -296,6 +522,14 @@
                 shakeIntensity = 0;
             }
             
+            // 显示QTE提示
+            const speedHint = document.getElementById('speedHint');
+            if (speed > 180 && speed < 200 && qteState.cooldown <= 0) {
+                speedHint.classList.add('show');
+            } else {
+                speedHint.classList.remove('show');
+            }
+            
             // 移动玩家
             player.targetX = LANES[player.lane];
             player.x += (player.targetX - player.x) * 0.3;
@@ -304,12 +538,32 @@
             score += speed * 0.01;
             document.getElementById('scoreDisplay').textContent = Math.floor(score) + 'm';
             
-            // 更新道路线 - 根据速度
+            // 更新道路线
             const moveSpeed = speed * 0.1;
             roadLines.forEach(line => {
                 line.y += moveSpeed;
                 if (line.y > GAME_HEIGHT) line.y = -80;
             });
+            
+            // 更新QTE冷却
+            if (qteState.cooldown > 0) {
+                qteState.cooldown--;
+            }
+            
+            // 更新QTE计时器
+            if (qteState.active && qteState.buttonShown) {
+                qteState.timeLeft--;
+                const progress = (qteState.timeLeft / qteState.maxTime) * 100;
+                document.getElementById('qteTimerFill').style.setProperty('--progress', progress + '%');
+                
+                // 时间到，QTE失败
+                if (qteState.timeLeft <= 0) {
+                    // QTE失败 = 撞车
+                    createParticle(player.x, player.y, '💥', 10);
+                    gameOver();
+                    return;
+                }
+            }
             
             // 生成障碍物
             spawnObstacle();
@@ -318,14 +572,24 @@
             obstacles = obstacles.filter(obs => {
                 obs.y += moveSpeed;
                 
-                // 碰撞检测
-                const dx = obs.x - player.x;
-                const dy = obs.y - player.y;
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                if (dist < 35) {
-                    createParticle(player.x, player.y, '💥', 10);
-                    gameOver();
-                    return false;
+                // QTE障碍物特殊处理
+                if (obs.isQTE && !obs.qteTriggered && obs.y > 100 && obs.y < 300) {
+                    obs.qteTriggered = true;
+                    if (!qteState.active) {
+                        startQTE(obs);
+                    }
+                }
+                
+                // 碰撞检测（仅在非QTE状态或不是当前QTE障碍物时）
+                if (!qteState.active || obs !== qteState.obstacle) {
+                    const dx = obs.x - player.x;
+                    const dy = obs.y - player.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < 35) {
+                        createParticle(player.x, player.y, '💥', 10);
+                        gameOver();
+                        return false;
+                    }
                 }
                 
                 return obs.y < GAME_HEIGHT + 50;
@@ -339,7 +603,7 @@
                 return p.life > 0;
             });
             
-            // 尾气效果 - 速度越快尾气越多
+            // 尾气效果
             if (Math.random() < speed / 500) {
                 createParticle(player.x, player.y + 30, '💨', 1);
             }
@@ -363,7 +627,7 @@
             ctx.fillStyle = '#0d0d1a';
             ctx.fillRect(50, 0, 300, GAME_HEIGHT);
             
-            // 绘制道路边线 - 根据速度变色
+            // 绘制道路边线
             const speedRatio = Math.min((speed - 100) / 300, 1);
             const r = Math.floor(233 + (255 - 233) * speedRatio);
             const g = Math.floor(69 * (1 - speedRatio));
@@ -401,10 +665,16 @@
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             obstacles.forEach(obs => {
+                // QTE障碍物发光效果
+                if (obs.isQTE) {
+                    ctx.shadowColor = '#00d4ff';
+                    ctx.shadowBlur = 20;
+                }
                 ctx.fillText(obs.emoji, obs.x, obs.y);
+                ctx.shadowBlur = 0;
             });
             
-            // 绘制玩家 - 速度越快车越倾斜
+            // 绘制玩家
             ctx.save();
             ctx.translate(player.x, player.y);
             const tilt = (player.targetX - player.x) * 0.05;
