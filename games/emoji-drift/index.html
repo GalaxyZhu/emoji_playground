@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🚗 Emoji Drift V0.2.0 - 节奏漂移</title>
+    <title>🚗 Emoji Drift V0.3.0 - 节奏漂移</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
         body {
@@ -46,8 +46,15 @@
             cursor: pointer;
             transition: all 0.3s;
             box-shadow: 0 4px 20px rgba(0, 200, 255, 0.5);
+            margin: 5px 0;
         }
         .btn:hover { transform: scale(1.05); }
+        .btn-home {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+            font-size: 18px;
+            padding: 12px 30px;
+        }
         .instructions {
             color: #888;
             margin-top: 30px;
@@ -71,6 +78,15 @@
             font-size: 28px;
             z-index: 50;
             font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        .health-display {
+            position: absolute;
+            top: 60px;
+            left: 20px;
+            color: #ff4444;
+            font-size: 24px;
+            z-index: 50;
         }
         .judgment {
             position: absolute;
@@ -88,38 +104,84 @@
         .judgment.good { color: #00ccff; text-shadow: 0 0 20px #00ccff; }
         .judgment.miss { color: #ff4444; text-shadow: 0 0 20px #ff4444; }
         .judgment.show { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+        
+        /* 连击特效 */
+        .combo-bonus {
+            position: absolute;
+            top: 25%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 36px;
+            color: #00ff88;
+            text-shadow: 0 0 20px #00ff88;
+            z-index: 60;
+            pointer-events: none;
+            opacity: 0;
+        }
+        .combo-bonus.show {
+            animation: comboBonusAnim 1s forwards;
+        }
+        @keyframes comboBonusAnim {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -80%) scale(1); }
+        }
+        
+        /* 低血量警告 */
+        .low-health-warning {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ff0000;
+            font-size: 48px;
+            font-weight: bold;
+            text-shadow: 0 0 30px #ff0000;
+            z-index: 55;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .low-health-warning.show { opacity: 1; animation: pulse 0.5s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
     
     <div class="score-display" id="scoreDisplay">得分: 0</div>
-    <div class="combo-display" id="comboDisplay">🔥 x1</div>
+    <div class="combo-display" id="comboDisplay">🔥 x0</div>
+    <div class="health-display" id="healthDisplay">❤️ x10</div>
     <div class="judgment" id="judgment">PERFECT!</div>
+    <div class="combo-bonus" id="comboBonus">+❤️ 连击奖励!</div>
+    <div class="low-health-warning" id="lowHealthWarning">⚠️ 血量危险!</div>
     
     <div class="ui-overlay" id="startScreen">
         <div class="emoji-title">🚗</div>
         <h1>EMOJI DRIFT</h1>
-        <div style="color: #00c8ff; font-size: 18px; margin-bottom: 20px;">🎵 节奏漂移模式</div>
+        <div style="color: #00c8ff; font-size: 18px; margin-bottom: 20px;">🎵 节奏漂移模式 V0.3.0</div>
         <button class="btn" id="startBtn">开始漂移</button>
-        <div class="instructions"
+        <div class="instructions">
             🎵 弯道会在道路上出现<br>
             🎯 当车进入弯道判定区时<br>
             👈 点击左侧 = 左漂移<br>
             👉 点击右侧 = 右漂移<br>
-            💚 Perfect = 最高速<br>
+            💚 Perfect = 最高速 + 连击+1<br>
             💙 Good = 正常<br>
-            ❌ Miss = 撞墙减速
+            ❌ Miss = 扣1血 + 连击重置<br>
+            <span style="color: #00ff88;">🔥 每10连击恢复1点生命！</span>
         </div>
     </div>
     
     <div class="ui-overlay hidden" id="gameOverScreen">
         <div class="emoji-title">💥</div>
-        <h1>撞墙了！</h1>
+        <h1 id="gameOverTitle">撞墙了！</h1>
         <div style="color: #fff; font-size: 20px; margin-bottom: 5px;">得分: <span id="finalScore">0</span></div>
         <div style="color: #ffd700; font-size: 16px; margin-bottom: 5px;">最高连击: <span id="finalCombo">0</span></div>
+        <div style="color: #ff4444; font-size: 16px; margin-bottom: 5px;">剩余生命: <span id="finalHealth">0</span></div>
         <div style="color: #00c8ff; font-size: 14px; margin-bottom: 30px;">最高分: <span id="highScore">0</span></div>
         <button class="btn" id="restartBtn">再来一局</button>
+        <button class="btn btn-home" id="homeBtn" onclick="location.href='https://galaxyzhu.github.io/emoji_playground/'">🏠 回到首页</button>
     </div>
 
     <script>
@@ -135,8 +197,11 @@
         let gameState = 'start';
         let score = 0;
         let highScore = localStorage.getItem('emojiDriftHighScore') || 0;
-        let combo = 1;
-        let maxCombo = 1;
+        let combo = 0;
+        let maxCombo = 0;
+        let health = 10;
+        const MAX_HEALTH = 10;
+        let lastComboMilestone = 0; // 上次回血时的连击数
         let speed = 5;
         let baseSpeed = 5;
         
@@ -253,14 +318,64 @@
             setTimeout(() => el.classList.remove('show'), 300);
         }
         
+        function showComboBonus() {
+            const el = document.getElementById('comboBonus');
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 1000);
+        }
+        
+        function updateHealthUI() {
+            document.getElementById('healthDisplay').textContent = '❤️ x' + health;
+            
+            // 低血量警告
+            const warning = document.getElementById('lowHealthWarning');
+            if (health <= 3 && health > 0) {
+                warning.classList.add('show');
+            } else {
+                warning.classList.remove('show');
+            }
+        }
+        
+        function updateComboUI() {
+            document.getElementById('comboDisplay').textContent = '🔥 x' + combo;
+            
+            // 连击奖励：每10连击恢复1点生命
+            const currentMilestone = Math.floor(combo / 10);
+            if (currentMilestone > lastComboMilestone && health < MAX_HEALTH) {
+                health = Math.min(health + 1, MAX_HEALTH);
+                lastComboMilestone = currentMilestone;
+                updateHealthUI();
+                showComboBonus();
+                createParticle(player.x, player.y - 50, '💖', 5);
+            }
+        }
+        
+        function takeDamage() {
+            health--;
+            updateHealthUI();
+            
+            // 屏幕闪烁红色
+            const flash = document.createElement('div');
+            flash.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,0,0,0.3);z-index:90;pointer-events:none;';
+            document.body.appendChild(flash);
+            setTimeout(() => flash.remove(), 100);
+            
+            if (health <= 0) {
+                createParticle(player.x, player.y, '💥', 15);
+                gameOver();
+            }
+        }
+        
         function checkCurveJudgment() {
             // 找到最近的未判定弯道
             const curve = curves.find(c => !c.judged && c.y > 300 && c.y < 550);
             if (!curve) {
-                // 没有弯道时漂移会减速
-                speed = Math.max(speed - 1, baseSpeed);
-                combo = 1;
+                // 没有弯道时漂移会扣血（乱按）
+                showJudgment('MISS!', 'miss');
+                combo = 0;
+                lastComboMilestone = 0;
                 updateComboUI();
+                takeDamage();
                 return;
             }
             
@@ -273,46 +388,48 @@
             if (driftInput !== curve.direction) {
                 // 方向错误
                 showJudgment('MISS!', 'miss');
-                combo = 1;
-                speed = Math.max(speed - 2, 2);
+                combo = 0;
+                lastComboMilestone = 0;
                 updateComboUI();
+                takeDamage();
                 return;
             }
             
             if (dist < 30) {
                 // Perfect
                 showJudgment('PERFECT!', 'perfect');
-                score += 100 * combo;
-                combo = Math.min(combo + 1, 20);
-                speed = Math.min(speed + 0.5, 12);
+                score += 100 * (1 + combo * 0.1);
+                combo++;
+                speed = Math.min(speed + 0.3, 15);
                 createParticle(player.x, player.y, '✨', 8);
             } else if (dist < 80) {
                 // Good
                 showJudgment('GOOD!', 'good');
-                score += 50 * combo;
-                combo = Math.min(combo + 0.5, 20);
-                speed = Math.min(speed + 0.2, 10);
+                score += 50 * (1 + combo * 0.05);
+                combo++;
+                speed = Math.min(speed + 0.1, 12);
                 createParticle(player.x, player.y, '💙', 5);
             } else {
                 // Miss
                 showJudgment('MISS!', 'miss');
-                combo = 1;
-                speed = Math.max(speed - 1, baseSpeed);
+                combo = 0;
+                lastComboMilestone = 0;
+                updateComboUI();
+                takeDamage();
+                return;
             }
             
             if (combo > maxCombo) maxCombo = combo;
             updateComboUI();
         }
         
-        function updateComboUI() {
-            document.getElementById('comboDisplay').textContent = '🔥 x' + Math.floor(combo);
-        }
-        
         function startGame() {
             gameState = 'playing';
             score = 0;
-            combo = 1;
-            maxCombo = 1;
+            combo = 0;
+            maxCombo = 0;
+            health = MAX_HEALTH;
+            lastComboMilestone = 0;
             speed = baseSpeed;
             curves = [];
             particles = [];
@@ -324,6 +441,7 @@
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
             updateComboUI();
+            updateHealthUI();
             requestAnimationFrame(gameLoop);
         }
         
@@ -333,15 +451,21 @@
                 highScore = score;
                 localStorage.setItem('emojiDriftHighScore', highScore);
             }
+            
+            // 判断游戏结束原因
+            const title = health <= 0 ? '生命耗尽！' : '撞墙了！';
+            document.getElementById('gameOverTitle').textContent = title;
+            
             document.getElementById('finalScore').textContent = Math.floor(score);
-            document.getElementById('finalCombo').textContent = Math.floor(maxCombo);
+            document.getElementById('finalCombo').textContent = maxCombo;
+            document.getElementById('finalHealth').textContent = health;
             document.getElementById('highScore').textContent = Math.floor(highScore);
             document.getElementById('gameOverScreen').classList.remove('hidden');
         }
         
         function spawnCurve() {
             // 根据速度调整生成间隔
-            const interval = Math.max(300, 600 - speed * 30);
+            const interval = Math.max(250, 500 - speed * 25);
             
             if (lastCurveY < -interval) {
                 const direction = Math.random() < 0.5 ? -1 : 1;
@@ -395,15 +519,10 @@
                 if (!curve.judged && !curve.passed && curve.y > player.y + 50) {
                     curve.passed = true;
                     showJudgment('MISS!', 'miss');
-                    combo = 1;
-                    speed = Math.max(speed - 1, baseSpeed);
+                    combo = 0;
+                    lastComboMilestone = 0;
                     updateComboUI();
-                    
-                    // 撞墙判定
-                    if (Math.random() < 0.3) {
-                        createParticle(player.x, player.y, '💥', 10);
-                        gameOver();
-                    }
+                    takeDamage();
                 }
                 
                 return curve.y < GAME_HEIGHT + 100;
@@ -427,7 +546,7 @@
             ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
             
             // 绘制道路
-            ctx.fillStyle = '#0d0d1a';
+            ctx.fillStyle = '#3d3d5c';
             ctx.fillRect(50, 0, 300, GAME_HEIGHT);
             
             // 绘制道路边线
