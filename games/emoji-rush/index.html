@@ -254,7 +254,7 @@
             👈 点击/触摸左侧 = 左变道 | 点击/触摸右侧 = 右变道 👉<br>
             🚧 躲避障碍物<br>
             🔥 速度超过300km/h时画面会颤抖！<br>
-            <span style="color: #00d4ff;">⏱️ 速度超过200km/h时，会出现QTE制动机会！<br>
+            <span style="color: #00d4ff;">⏱️ 速度超过140km/h时，会出现QTE制动机会！<br>
             按下蓝色按钮即可减速50km/h，获得喘息机会！</span>
         </div>
     </div>
@@ -456,8 +456,8 @@
         }
         
         function spawnObstacle() {
-            // QTE障碍物生成条件：速度>200，不在冷却，没有活跃QTE
-            const canSpawnQTE = speed > 200 && qteState.cooldown <= 0 && !qteState.active;
+            // QTE障碍物生成条件：速度>140，不在冷却，没有活跃QTE
+            const canSpawnQTE = speed > 140 && qteState.cooldown <= 0 && !qteState.active;
             const spawnRate = 0.015 + (speed - 100) * 0.00005;
             
             if (Math.random() < spawnRate) {
@@ -524,7 +524,7 @@
             
             // 显示QTE提示
             const speedHint = document.getElementById('speedHint');
-            if (speed > 180 && speed < 200 && qteState.cooldown <= 0) {
+            if (speed > 120 && speed < 140 && qteState.cooldown <= 0) {
                 speedHint.classList.add('show');
             } else {
                 speedHint.classList.remove('show');
