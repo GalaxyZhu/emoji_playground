@@ -16,10 +16,7 @@
         #gameCanvas {
             background: linear-gradient(180deg, #1a1a2e 0%, #0d0d1a 100%);
             box-shadow: 0 0 50px rgba(233, 69, 96, 0.3);
-            max-width: 100%;
-            max-height: 100vh;
-            width: auto;
-            height: auto;
+            display: block;
         }
         #gameContainer {
             position: relative;
@@ -308,7 +305,7 @@
             // 计算缩放比例，保持宽高比
             const scaleX = containerWidth / GAME_WIDTH;
             const scaleY = containerHeight / GAME_HEIGHT;
-            const scale = Math.min(scaleX, scaleY, 1.5); // 最大放大1.5倍
+            const scale = Math.min(scaleX, scaleY);
             
             // 设置 Canvas 实际显示尺寸
             canvas.style.width = (GAME_WIDTH * scale) + 'px';
