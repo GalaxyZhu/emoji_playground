@@ -434,3 +434,29 @@ body {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* ============================================
+   Emoji for Speed 区域高亮样式
+   ============================================ */
+
+/* 给 Emoji for Speed 区域的卡片标题加亮 */
+.games-section:nth-of-type(2) .game-card .game-title {
+  color: #ffffff;
+  font-weight: 700;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+/* 给 Emoji for Speed 区域的副标题加亮 */
+.games-section:nth-of-type(2) .game-card .game-tagline {
+  color: #bbbbcc;
+}
+
+/* 给 Emoji for Speed 区域的卡片加个淡紫色边框 */
+.games-section:nth-of-type(2) .game-card {
+  border: 1px solid rgba(188, 19, 254, 0.15);
+}
+
+.games-section:nth-of-type(2) .game-card:hover {
+  border-color: rgba(188, 19, 254, 0.4);
+  box-shadow: var(--card-shadow), 0 0 25px rgba(188, 19, 254, 0.15);
+}
