@@ -38,8 +38,8 @@
         <!-- 英雄区 -->
         <section class="hero">
             <h1>🎮 EMOJI ARCADE</h1>
-            <p>随身街机厅，点开就能玩<br>手机电脑通吃，随时随地开黑</p>
-            <p style="font-size: 14px; color: #666; margin-top: 8px;">Pocket Arcade, Instant Play · Mobile & Desktop · Anytime, Anywhere</p>
+            <p id="heroSubtitle">随身街机厅，点开就能玩<br>手机电脑通吃，随时随地开黑</p>
+            <p id="heroSubtitleEn" style="font-size: 14px; color: #666; margin-top: 8px; display: none;">Pocket Arcade, Instant Play<br>Mobile & Desktop · Anytime, Anywhere</p>
         </section>
 
         <!-- 游戏列表 -->
@@ -53,8 +53,8 @@
         <!-- Emoji for Speed 赛车系列 -->
         <section class="games-section">
             <h2 class="section-title">🏎️ Emoji for Speed</h2>
-            <p style="color: #888; margin-bottom: 20px; font-size: 14px;">Emoji赛车专区 · 速度与激情 · 用表情包飙车才是正经事</p>
-            <p style="color: #666; margin-bottom: 20px; font-size: 12px;">Racing with Emojis · Speed & Passion · Drive with Attitude</p>
+            <p id="speedSubtitle" style="color: #888; margin-bottom: 20px; font-size: 14px;">Emoji赛车专区 · 速度与激情 · 用表情包飙车才是正经事</p>
+            <p id="speedSubtitleEn" style="color: #666; margin-bottom: 20px; font-size: 14px; display: none;">Racing with Emojis · Speed & Passion · Drive with Attitude</p>
             <div class="games-grid">
                 <div class="game-card" style="opacity: 0.6;" onclick="launchGame({id:'emoji-rush',name:'Emoji Rush',emoji:'🏎️',tagline:'极简直线狂飙，单手操作',version:'0.1.0',status:'ready',path:'games/emoji-rush/index.html',difficulty:'简单',tags:['竞速','极简'],players:'1人',playTime:'3分钟'})">
                     <div class="game-cover">
@@ -351,8 +351,23 @@
             }
         });
         
+        // ==================== 语言检测 ====================
+        function detectLanguage() {
+            const lang = navigator.language || navigator.userLanguage;
+            const isChinese = lang.startsWith('zh');
+            
+            if (!isChinese) {
+                // 显示英文，隐藏中文
+                document.getElementById('heroSubtitle').style.display = 'none';
+                document.getElementById('heroSubtitleEn').style.display = 'block';
+                document.getElementById('speedSubtitle').style.display = 'none';
+                document.getElementById('speedSubtitleEn').style.display = 'block';
+            }
+        }
+        
         // ==================== 初始化 ====================
         document.addEventListener('DOMContentLoaded', () => {
+            detectLanguage();
             initUserSystem();
             loadGames();
         });
