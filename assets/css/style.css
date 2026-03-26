@@ -439,25 +439,25 @@ body {
    Emoji for Speed 区域高亮样式
    ============================================ */
 
-/* 给 Emoji for Speed 区域的卡片标题加亮 */
-.games-section:nth-of-type(2) .game-card .game-title {
+/* 给 Emoji for Speed 区域的卡片标题加亮 (第3个section) */
+section:nth-of-type(3) .game-card .game-title {
   color: #ffffff;
   font-weight: 700;
   text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 /* 给 Emoji for Speed 区域的副标题加亮 */
-.games-section:nth-of-type(2) .game-card .game-tagline {
+section:nth-of-type(3) .game-card .game-tagline {
   color: #bbbbcc;
 }
 
 /* 覆盖卡片的 opacity: 0.6，让卡片完全显示 */
-.games-section:nth-of-type(2) .game-card {
+section:nth-of-type(3) .game-card {
   opacity: 1 !important;
   border: 1px solid rgba(188, 19, 254, 0.15);
 }
 
-.games-section:nth-of-type(2) .game-card:hover {
+section:nth-of-type(3) .game-card:hover {
   border-color: rgba(188, 19, 254, 0.4);
   box-shadow: var(--card-shadow), 0 0 25px rgba(188, 19, 254, 0.15);
 }
