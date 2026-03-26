@@ -451,8 +451,9 @@ body {
   color: #bbbbcc;
 }
 
-/* 给 Emoji for Speed 区域的卡片加个淡紫色边框 */
+/* 覆盖卡片的 opacity: 0.6，让卡片完全显示 */
 .games-section:nth-of-type(2) .game-card {
+  opacity: 1 !important;
   border: 1px solid rgba(188, 19, 254, 0.15);
 }
 
