@@ -24,7 +24,7 @@
         <div class="user-section" id="userSection">
             <!-- 未登录状态 -->
             <div class="user-placeholder" id="loginBtn" onclick="showLoginModal()">
-                👤 登录 / 注册
+                <span id="loginText">登录</span>
             </div>
             <!-- 登录后显示（默认隐藏） -->
             <div class="user-avatar" id="userAvatar" style="display: none;" onclick="showUserMenu()">
@@ -362,6 +362,8 @@
                 document.getElementById('heroSubtitleEn').style.display = 'block';
                 document.getElementById('speedSubtitle').style.display = 'none';
                 document.getElementById('speedSubtitleEn').style.display = 'block';
+                // 切换登录按钮文字为英文
+                document.getElementById('loginText').textContent = 'Login';
             }
         }
         
