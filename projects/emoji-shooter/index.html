@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<!--
+  ============================================
+  Emoji Shooter - 超休闲Emoji射击游戏
+  ============================================
+  作者：Galaxy+AI四姐妹
+  欢迎关注推特：@galaxyzhu
+  ============================================
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Emoji Shooter V0.1.5 🗿</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: none;
+        }
+        
+        body {
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: auto;
+        }
+        
+        /* 主容器 - 最小宽度640px */
+        #gameContainer {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            min-width: 640px;
+            height: 100vh;
+            min-height: 600px;
+            background: #0d0d1a;
+        }
+        
+        /* 广告位 */
+        .ad-slot {
+            width: 15%;
+            min-width: 96px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
+            border: 2px dashed #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #444;
+            font-size: 14px;
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .ad-slot .ad-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+            opacity: 0.3;
+        }
+        
+        .ad-slot .ad-text {
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            letter-spacing: 4px;
+        }
+        
+        /* 游戏主区域 */
+        #gameArea {
+            width: 70%;
+            display: flex;
+            position: relative;
+        }
+        
+        /* 奖励包区域 */
+        #powerupZone {
+            width: 30%;
+            background: linear-gradient(180deg, #1e1e3a 0%, #151528 100%);
+            border-right: 2px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #powerupZone::before {
+            content: '奖励区';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #666;
+            font-size: 12px;
+            z-index: 10;
+        }
+        
+        /* 打怪区域 */
+        #combatZone {
+            width: 70%;
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #combatZone::before {
+            content: '战斗区';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #666;
+            font-size: 12px;
+            z-index: 10;
+        }
+        
+        /* Canvas */
+        #gameCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* UI层 */
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.9);
+            pointer-events: auto;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        h1 {
+            font-size: 36px;
+            color: #fff;
+            text-shadow: 0 0 20px #e94560;
+            margin-bottom: 10px;
+        }
+        
+        .emoji-title {
+            font-size: 60px;
+            margin-bottom: 15px;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            font-size: 20px;
+            background: linear-gradient(135deg, #e94560 0%, #ff6b6b 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(233, 69, 96, 0.4);
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6);
+        }
+        
+        .score-display {
+            font-size: 20px;
+            color: #fff;
+            margin: 8px 0;
+        }
+        
+        .high-score {
+            font-size: 16px;
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+        
+        .stats {
+            color: #aaa;
+            font-size: 14px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .instructions {
+            color: #888;
+            font-size: 12px;
+            margin-top: 20px;
+            text-align: center;
+            line-height: 1.6;
+            max-width: 80%;
+        }
+        
+        /* 游戏内UI */
+        #gameUI {
+            position: absolute;
+            top: 5px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+            pointer-events: none;
+            z-index: 50;
+        }
+        
+        .ui-panel {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 13px;
+        }
+        
+        .ui-panel .label {
+            color: #888;
+            font-size: 11px;
+        }
+        
+        .powerup-indicator {
+            display: flex;
+            gap: 5px;
+            margin-top: 3px;
+        }
+        
+        .powerup-badge {
+            font-size: 16px;
+            opacity: 0.3;
+        }
+        
+        .powerup-badge.active {
+            opacity: 1;
+            animation: pulse 0.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        /* BOSS血条UI */
+        #bossUI {
+            position: absolute;
+            top: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            max-width: 400px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 2px solid #ff4444;
+            pointer-events: none;
+            z-index: 60;
+            display: none;
+        }
+        
+        #bossUI.active {
+            display: block;
+            animation: bossEnter 0.5s ease-out;
+        }
+        
+        @keyframes bossEnter {
+            0% { transform: translateX(-50%) scale(0.8); opacity: 0; }
+            100% { transform: translateX(-50%) scale(1); opacity: 1; }
+        }
+        
+        .boss-name {
+            color: #ff4444;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px #ff4444;
+        }
+        
+        .boss-hp-bar {
+            width: 100%;
+            height: 12px;
+            background: #333;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .boss-hp-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444 0%, #ff6666 100%);
+            transition: width 0.2s;
+            box-shadow: 0 0 10px #ff4444;
+        }
+        
+        .boss-hp-text {
+            color: #fff;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 3px;
+        }
+        
+        /* 分栏线 */
+        .divider {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, transparent 0%, #444 20%, #444 80%, transparent 100%);
+            z-index: 20;
+        }
+        
+        .divider.powerup {
+            left: 30%;
+        }
+        
+        /* 暂停对话框 */
+        #pauseScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            pointer-events: auto;
+        }
+        
+        #pauseScreen.hidden {
+            display: none !important;
+        }
+        
+        #pauseScreen h2 {
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px #e94560;
+        }
+        
+        .pause-buttons {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .pause-btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .pause-btn.continue {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+        }
+        
+        .pause-btn.restart {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+        }
+        
+        .pause-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        /* 广告位样式增强 */
+        .ad-slot a {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .ad-slot img {
+            max-width: 90%;
+            max-height: 80%;
+            object-fit: contain;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- 左广告位 -->
+        <div class="ad-slot" id="adLeft">
+            <div class="ad-icon">📢</div>
+            <div class="ad-text">广告位招租</div>
+        </div>
+        
+        <!-- 游戏区域 -->
+        <div id="gameArea">
+            <canvas id="gameCanvas"></canvas>
+            
+            <!-- 分界线 -->
+            <div class="divider powerup"></div>
+            
+            <!-- BOSS血条 -->
+            <div id="bossUI">
+                <div class="boss-name" id="bossName">👹 BOSS</div>
+                <div class="boss-hp-bar">
+                    <div class="boss-hp-fill" id="bossHpFill" style="width: 100%;"></div>
+                </div>
+                <div class="boss-hp-text" id="bossHpText">1000 / 1000</div>
+            </div>
+            
+            <!-- 游戏内UI -->
+            <div id="gameUI">
+                <div class="ui-panel">
+                    <div class="label">当前加成</div>
+                    <div class="powerup-indicator" id="activePowerups">
+                        <span class="powerup-badge" id="badgeSpeed">⚡</span>
+                        <span class="powerup-badge" id="badgePower">💪</span>
+                        <span class="powerup-badge" id="badgeShield">🛡️</span>
+                    </div>
+                </div>
+                <div class="ui-panel">
+                    <div class="label">生命值</div>
+                    <div id="healthDisplay" style="color: #ff6b6b; font-size: 14px;">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</div>
+                </div>
+                <div class="ui-panel">
+                    <div class="label">得分</div>
+                    <div id="scoreDisplay">0</div>
+                </div>
+                <div class="ui-panel">
+                    <div class="label">波次</div>
+                    <div id="waveDisplay">1</div>
+                </div>
+                <div class="ui-panel">
+                    <div class="label">最高分</div>
+                    <div id="highScoreDisplay" style="color: #ffd700;">0</div>
+                </div>
+            </div>
+            
+            <!-- 开始/结束界面 -->
+            <div id="ui">
+                <div id="startScreen" class="screen">
+                    <div class="emoji-title">🗿</div>
+                    <h1>EMOJI SHOOTER V1.0.0</h1>
+                    <div class="high-score">最高分: <span id="startHighScore">0</span></div>
+                    <button class="btn" onclick="startGame()">开始游戏</button>
+                    <div class="instructions">
+                        移动鼠标控制🗿，自动射击消灭敌人<br>
+                        到<b>左边奖励区</b>击破奖励包获取强力加成<br>
+                        ⚡极速 💪强力 🛡️护盾<br>
+                        <b>每5关有BOSS战！</b>躲避BOSS攻击并反击！
+                    </div>
+                </div>
+                
+                <div id="gameOverScreen" class="screen hidden">
+                    <div class="emoji-title">💀</div>
+                    <h1>游戏结束</h1>
+                    <div class="score-display">得分: <span id="finalScore">0</span></div>
+                    <div class="high-score">最高分: <span id="finalHighScore">0</span></div>
+                    <div class="stats" id="gameStats"></div>
+                    <button class="btn" onclick="restartGame()">再来一局</button>
+                </div>
+                
+                <!-- 暂停对话框 -->
+                <div id="pauseScreen" class="screen hidden">
+                    <h2>⏸️ 游戏暂停</h2>
+                    <div class="pause-buttons">
+                        <button class="pause-btn continue" onclick="resumeGame()">▶️ 继续游戏</button>
+                        <button class="pause-btn restart" onclick="restartFromPause()">🔄 重新开始</button>
+                    </div>
+                    <div style="color: #888; margin-top: 20px; font-size: 12px;">
+                        按 ESC 键也可以继续游戏
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 右广告位 -->
+        <div class="ad-slot" id="adRight">
+            <div class="ad-icon">📢</div>
+            <div class="ad-text">广告位招租</div>
+        </div>
+    </div>
+
+    <script>
+        // 游戏配置
+        const CONFIG = {
+            version: '1.0.0',
+            playerEmoji: '🗿',
+            bulletEmoji: '⚡',
+            explosionEmoji: '💥',
+            // 广告配置 - 修改这里更换广告
+            ads: {
+                left: {
+                    enabled: false,  // 设置为 true 启用
+                    image: '',       // 广告图片 URL
+                    link: '',        // 点击跳转链接
+                    alt: '广告位招租'
+                },
+                right: {
+                    enabled: false,
+                    image: '',
+                    link: '',
+                    alt: '广告位招租'
+                }
+            },
+            // 难度配置
+            difficulty: {
+                densityIncreaseInterval: 3,  // 每3波增加密度
+                densityMultiplier: 0.85,     // 密度增加系数（spawnInterval * 0.85）
+                minSpawnInterval: 300,       // 最小生成间隔
+                rangedEnemyWave: 5,          // 第5波开始出现远程敌人
+                mageEnemyWave: 10            // 第10波开始出现法师
+            },
+            // 奖励包配置
+            powerups: [
+                { emoji: '⚡', hp: 20, maxHp: 20, type: 'speed', name: '极速', duration: 10000, multiplier: 2, desc: '2倍射速' },
+                { emoji: '💪', hp: 20, maxHp: 20, type: 'power', name: '强力', duration: 8000, multiplier: 3, desc: '3倍伤害' },
+                { emoji: '🛡️', hp: 15, maxHp: 15, type: 'shield', name: '护盾', duration: null, desc: '抵挡1次碰撞' },
+                { emoji: '❤️', hp: 10, maxHp: 10, type: 'health', name: '生命', duration: null, desc: '生命+5' }
+            ],
+            // 普通敌人配置
+            enemies: [
+                { emoji: '🦆', hp: 1, speed: 1.5, score: 10, size: 28, ranged: false },
+                { emoji: '🍌', hp: 1, speed: 2.5, score: 15, size: 28, ranged: false },
+                { emoji: '🦄', hp: 3, speed: 1, score: 50, size: 36, ranged: false },
+                { emoji: '🐙', hp: 2, speed: 1.2, score: 30, size: 32, ranged: false }
+            ],
+            // 远程敌人配置
+            rangedEnemies: [
+                { 
+                    emoji: '🎯', name: '弓箭手', hp: 2, speed: 0.8, score: 40, size: 32, 
+                    ranged: true, attackInterval: 2500, bulletEmoji: '🏹', bulletSpeed: 4
+                },
+                { 
+                    emoji: '🔥', name: '法师', hp: 3, speed: 0.5, score: 80, size: 36, 
+                    ranged: true, attackInterval: 2000, bulletEmoji: '🔥', bulletSpeed: 5
+                }
+            ],
+            // BOSS配置 - 每5关一个
+            bosses: [
+                { 
+                    emoji: '👹', name: '红脸恶魔', hp: 100, maxHp: 100, 
+                    speed: 0.8, score: 500, size: 60, 
+                    attackInterval: 2000, attackPattern: 'fireball',
+                    bulletEmoji: '🔥', bulletSpeed: 3, bulletDamage: 1
+                },
+                { 
+                    emoji: '🤡', name: '疯狂小丑', hp: 200, maxHp: 200, 
+                    speed: 1.0, score: 1000, size: 65, 
+                    attackInterval: 1800, attackPattern: 'bounce',
+                    bulletEmoji: '🎈', bulletSpeed: 4, bulletDamage: 1
+                },
+                { 
+                    emoji: '👾', name: '外星入侵者', hp: 350, maxHp: 350, 
+                    speed: 1.2, score: 1500, size: 70, 
+                    attackInterval: 1500, attackPattern: 'laser',
+                    bulletEmoji: '⚡', bulletSpeed: 6, bulletDamage: 2
+                },
+                { 
+                    emoji: '🎃', name: '南瓜魔王', hp: 500, maxHp: 500, 
+                    speed: 0.6, score: 2000, size: 75, 
+                    attackInterval: 2000, attackPattern: 'spread',
+                    bulletEmoji: '🦇', bulletSpeed: 3.5, bulletDamage: 1
+                },
+                { 
+                    emoji: '👽', name: '外星统领', hp: 750, maxHp: 750, 
+                    speed: 1.0, score: 3000, size: 80, 
+                    attackInterval: 1200, attackPattern: 'split',
+                    bulletEmoji: '🛸', bulletSpeed: 4, bulletDamage: 2
+                },
+                { 
+                    emoji: '🗿', name: '摩艾化身', hp: 1000, maxHp: 1000, 
+                    speed: 0.5, score: 5000, size: 90, 
+                    attackInterval: 1500, attackPattern: 'chaos',
+                    bulletEmoji: '💀', bulletSpeed: 5, bulletDamage: 3
+                }
+            ],
+            playerSize: 40,
+            bulletSize: 20,
+            shootInterval: 150,
+            enemySpawnInterval: 800,
+            powerupSpawnInterval: 8000,
+            bossWaveInterval: 5
+        };
+
+        // 游戏状态
+        let canvas, ctx;
+        let gameLoop, lastTime = 0;
+        let gameState = 'start';
+        
+        // 游戏尺寸
+        let gameWidth, gameHeight;
+        let powerupZoneWidth, combatZoneWidth;
+        
+        // 游戏数据
+        let player = { x: 0, y: 0 };
+        let bullets = [];
+        let enemyBullets = []; // BOSS发射的子弹
+        let enemies = [];
+        let powerups = [];
+        let particles = [];
+        let score = 0, highScore = 0, wave = 1, enemiesKilled = 0;
+        let playerHealth = 10; // 玩家生命值
+        const MAX_HEALTH = 10; // 最大生命值
+        let lastShot = 0, lastSpawn = 0, lastPowerupSpawn = 0;
+        
+        // BOSS状态
+        let currentBoss = null;
+        let isBossFight = false;
+        
+        // 难度相关
+        let currentSpawnInterval = CONFIG.enemySpawnInterval;
+        
+        // 加成状态
+        let activePowerups = {
+            speed: { active: false, endTime: 0 },
+            power: { active: false, endTime: 0 },
+            shield: { active: false, used: false }
+        };
+        
+        // 输入
+        let inputX = null, inputY = null;
+        
+        // 初始化
+        function init() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // 加载最高分
+            highScore = parseInt(localStorage.getItem('emojiShooterHighScore')) || 0;
+            document.getElementById('startHighScore').textContent = highScore;
+            
+            // 渲染广告位
+            renderAds();
+            
+            // 初始尺寸
+            resizeGame();
+            window.addEventListener('resize', resizeGame);
+            
+            // 输入事件
+            canvas.addEventListener('touchstart', handleTouch, { passive: false });
+            canvas.addEventListener('touchmove', handleTouch, { passive: false });
+            canvas.addEventListener('mousemove', handleMouse);
+            
+            // 开始渲染
+            requestAnimationFrame(render);
+        }
+        
+        function resizeGame() {
+            const container = document.getElementById('gameArea');
+            gameWidth = container.clientWidth;
+            gameHeight = container.clientHeight;
+            canvas.width = gameWidth;
+            canvas.height = gameHeight;
+            
+            // 计算区域宽度
+            powerupZoneWidth = gameWidth * 0.3;
+            combatZoneWidth = gameWidth * 0.7;
+            
+            // 重置玩家位置
+            if (gameState === 'start') {
+                player.x = powerupZoneWidth + combatZoneWidth / 2;
+                player.y = gameHeight - 60;
+            }
+        }
+        
+        function handleTouch(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            inputX = touch.clientX - rect.left;
+            inputY = touch.clientY - rect.top;
+        }
+        
+        function handleMouse(e) {
+            const rect = canvas.getBoundingClientRect();
+            inputX = e.clientX - rect.left;
+            inputY = e.clientY - rect.top;
+        }
+        
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            resetGame();
+            gameState = 'playing';
+            lastTime = performance.now();
+            gameLoop = requestAnimationFrame(update);
+        }
+        
+        function restartGame() {
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            resetGame();
+            gameState = 'playing';
+            lastTime = performance.now();
+            gameLoop = requestAnimationFrame(update);
+        }
+        
+        function resetGame() {
+            player.x = powerupZoneWidth + combatZoneWidth / 2;
+            player.y = gameHeight - 60;
+            bullets = [];
+            enemyBullets = [];
+            enemies = [];
+            powerups = [];
+            particles = [];
+            score = 0;
+            wave = 1;
+            enemiesKilled = 0;
+            playerHealth = MAX_HEALTH; // 重置生命值
+            lastShot = 0;
+            lastSpawn = 0;
+            lastPowerupSpawn = 0;
+            currentBoss = null;
+            isBossFight = false;
+            currentSpawnInterval = CONFIG.enemySpawnInterval; // 重置难度
+            hideBossUI();
+            document.getElementById('pauseScreen').classList.add('hidden');
+            activePowerups = { speed: { active: false, endTime: 0 }, power: { active: false, endTime: 0 }, shield: { active: false, used: false } };
+            updateUI();
+        }
+        
+        function gameOver() {
+            gameState = 'gameover';
+            cancelAnimationFrame(gameLoop);
+            
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('emojiShooterHighScore', highScore);
+            }
+            
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalHighScore').textContent = highScore;
+            document.getElementById('gameStats').innerHTML = `
+                击杀敌人: ${enemiesKilled}<br>
+                生存波次: ${wave}
+            `;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+        
+        function update(currentTime) {
+            if (gameState !== 'playing') return;
+            
+            // 更新难度
+            updateDifficulty();
+            
+            // 检查加成过期
+            checkPowerupExpiration(currentTime);
+            
+            // 玩家移动（可以在整个游戏区自由移动）
+            if (inputX !== null) {
+                const targetX = Math.max(CONFIG.playerSize/2, 
+                    Math.min(gameWidth - CONFIG.playerSize/2, inputX));
+                player.x += (targetX - player.x) * 0.15;
+            }
+            
+            // 自动射击
+            const currentShootInterval = activePowerups.speed.active ? 
+                CONFIG.shootInterval / 2 : CONFIG.shootInterval;
+            if (currentTime - lastShot > currentShootInterval) {
+                shoot();
+                lastShot = currentTime;
+            }
+            
+            // 生成敌人或BOSS
+            if (isBossFight) {
+                // BOSS战中，只更新BOSS攻击
+                if (currentBoss) {
+                    updateBoss(currentTime);
+                }
+            } else {
+                // 普通波次，生成小怪（使用增强版）
+                if (currentTime - lastSpawn > currentSpawnInterval) {
+                    spawnEnemyEnhanced(currentTime);
+                    lastSpawn = currentTime;
+                }
+            }
+            
+            // 更新远程敌人攻击
+            updateRangedEnemies(currentTime);
+            
+            // 检查是否应该进入BOSS战
+            checkBossSpawn();
+            
+            // 生成奖励包
+            if (currentTime - lastPowerupSpawn > CONFIG.powerupSpawnInterval) {
+                spawnPowerup();
+                lastPowerupSpawn = currentTime;
+            }
+            
+            // 更新子弹
+            bullets = bullets.filter(b => {
+                b.y -= 8;
+                return b.y > -50;
+            });
+            
+            // 更新BOSS子弹（需要躲避！）
+            enemyBullets = enemyBullets.filter(b => {
+                b.x += b.vx;
+                b.y += b.vy;
+                
+                // 检测是否击中玩家 - BOSS子弹击中玩家先消耗护盾，无护盾则游戏结束
+                const dx = b.x - player.x;
+                const dy = b.y - player.y;
+                if (Math.sqrt(dx*dx + dy*dy) < (CONFIG.bulletSize + CONFIG.playerSize) / 2) {
+                    // 有护盾时消耗护盾
+                    if (activePowerups.shield.active && !activePowerups.shield.used) {
+                        activePowerups.shield.used = true;
+                        activePowerups.shield.active = false;
+                        createExplosion(player.x, player.y, true);
+                        updatePowerupUI();
+                    } else {
+                        // 无护盾则游戏结束
+                        createExplosion(player.x, player.y);
+                        gameOver();
+                    }
+                    return false;
+                }
+                
+                // 飞出屏幕不扣生命值（和普通敌人不同）
+                return b.y < gameHeight + 50 && b.y > -50 && b.x > -50 && b.x < gameWidth + 50;
+            });
+            
+            // 更新敌人
+            enemies = enemies.filter(e => {
+                e.y += e.speed;
+                e.x += Math.sin(e.y * 0.02) * (e.isBoss ? 2 : 0);
+                
+                // 碰撞检测 - 敌人vs玩家
+                const dx = e.x - player.x;
+                const dy = e.y - player.y;
+                if (Math.sqrt(dx*dx + dy*dy) < (e.size + CONFIG.playerSize) / 2) {
+                    if (activePowerups.shield.active && !activePowerups.shield.used) {
+                        activePowerups.shield.used = true;
+                        activePowerups.shield.active = false;
+                        createExplosion(player.x, player.y, true);
+                        updatePowerupUI();
+                    } else {
+                        createExplosion(player.x, player.y);
+                        gameOver();
+                    }
+                    return false;
+                }
+                return e.y < gameHeight + 50;
+            });
+            
+            // 处理到达底部的敌人 - 扣除生命值
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                if (enemies[i].y >= gameHeight - 10) {
+                    playerHealth--;
+                    createExplosion(enemies[i].x, gameHeight - 20, true);
+                    enemies.splice(i, 1);
+                    updateUI();
+                    
+                    // 生命值为0时游戏结束
+                    if (playerHealth <= 0) {
+                        gameOver();
+                        return;
+                    }
+                }
+            }
+            
+            // 更新奖励包
+            powerups = powerups.filter(p => {
+                p.y += 1.5;
+                return p.y < gameHeight + 50 && p.hp > 0;
+            });
+            
+            // 更新粒子
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.05;
+                return p.life > 0;
+            });
+            
+            // 碰撞检测 - 子弹vs敌人/BOSS
+            bullets.forEach((b, bi) => {
+                // 打BOSS
+                if (currentBoss) {
+                    const dx = b.x - currentBoss.x;
+                    const dy = b.y - currentBoss.y;
+                    if (Math.sqrt(dx*dx + dy*dy) < (CONFIG.bulletSize + currentBoss.size) / 2) {
+                        const damage = activePowerups.power.active ? 3 : 1;
+                        currentBoss.hp -= damage;
+                        createExplosion(b.x, b.y, true);
+                        bullets.splice(bi, 1);
+                        updateBossUI();
+                        
+                        // BOSS受击闪烁
+                        currentBoss.hitFlash = 5;
+                        
+                        if (currentBoss.hp <= 0) {
+                            defeatBoss();
+                        }
+                        return;
+                    }
+                }
+                
+                // 打小怪
+                enemies.forEach((e, ei) => {
+                    const dx = b.x - e.x, dy = b.y - e.y;
+                    if (Math.sqrt(dx*dx + dy*dy) < (CONFIG.bulletSize + e.size) / 2) {
+                        const damage = activePowerups.power.active ? 3 : 1;
+                        e.hp -= damage;
+                        createExplosion(b.x, b.y, true);
+                        bullets.splice(bi, 1);
+                        
+                        if (e.hp <= 0) {
+                            createExplosion(e.x, e.y);
+                            score += e.score;
+                            enemiesKilled++;
+                            enemies.splice(ei, 1);
+                        }
+                    }
+                });
+            });
+            
+            // 碰撞检测 - 子弹vs奖励包
+            bullets.forEach((b, bi) => {
+                powerups.forEach((p, pi) => {
+                    const dx = b.x - p.x, dy = b.y - p.y;
+                    if (Math.sqrt(dx*dx + dy*dy) < (CONFIG.bulletSize + p.size) / 2) {
+                        const damage = activePowerups.power.active ? 3 : 1;  // 强力加成也作用于奖励包
+                        p.hp -= damage;
+                        createSparkle(b.x, b.y);
+                        bullets.splice(bi, 1);
+                        
+                        if (p.hp <= 0) {
+                            activatePowerup(p);
+                            createExplosion(p.x, p.y);
+                            score += 50;
+                            powerups.splice(pi, 1);
+                        }
+                    }
+                });
+            });
+            
+            // 波次进度（非BOSS战时）
+            if (!isBossFight && enemiesKilled > 0 && enemiesKilled % 10 === 0) {
+                const newWave = Math.floor(enemiesKilled / 10) + 1;
+                if (newWave > wave) wave = newWave;
+            }
+            
+            updateUI();
+            gameLoop = requestAnimationFrame(update);
+        }
+        
+        // 检查是否应该生成BOSS
+        function checkBossSpawn() {
+            if (isBossFight) return;
+            
+            // 每5关进入BOSS战（不需要等清屏，直接生成）
+            if (wave > 0 && wave % CONFIG.bossWaveInterval === 0) {
+                spawnBoss();
+            }
+        }
+        
+        // 生成BOSS
+        function spawnBoss() {
+            isBossFight = true;
+            
+            // 清屏：消灭所有小怪
+            enemies.forEach(e => {
+                createExplosion(e.x, e.y);
+                score += e.score;
+            });
+            enemies = [];
+            
+            // 根据波次选择BOSS
+            const bossIndex = Math.min(Math.floor((wave - 1) / 5), CONFIG.bosses.length - 1);
+            const bossConfig = CONFIG.bosses[bossIndex];
+            
+            currentBoss = {
+                ...bossConfig,
+                x: powerupZoneWidth + combatZoneWidth / 2,
+                y: 100,
+                direction: 1,
+                lastAttack: 0,
+                hitFlash: 0,
+                isEnraged: false
+            };
+            
+            showBossUI();
+            
+            // 清屏特效
+            for (let i = 0; i < 20; i++) {
+                createExplosion(
+                    powerupZoneWidth + combatZoneWidth / 2 + (Math.random() - 0.5) * 200,
+                    100 + (Math.random() - 0.5) * 100
+                );
+            }
+        }
+        
+        // 更新BOSS行为
+        function updateBoss(currentTime) {
+            if (!currentBoss) return;
+            
+            // BOSS左右移动
+            currentBoss.x += currentBoss.speed * currentBoss.direction;
+            
+            // 碰到边界反弹
+            const minX = powerupZoneWidth + currentBoss.size / 2;
+            const maxX = gameWidth - currentBoss.size / 2;
+            
+            if (currentBoss.x <= minX || currentBoss.x >= maxX) {
+                currentBoss.direction *= -1;
+            }
+            
+            // 狂暴模式：血量低于30%
+            if (!currentBoss.isEnraged && currentBoss.hp < currentBoss.maxHp * 0.3) {
+                currentBoss.isEnraged = true;
+                currentBoss.speed *= 1.5;
+                currentBoss.attackInterval *= 0.7;
+                // 狂暴特效
+                for (let i = 0; i < 15; i++) {
+                    particles.push({
+                        x: currentBoss.x + (Math.random() - 0.5) * currentBoss.size,
+                        y: currentBoss.y + (Math.random() - 0.5) * currentBoss.size,
+                        vx: (Math.random() - 0.5) * 5,
+                        vy: (Math.random() - 0.5) * 5,
+                        life: 1,
+                        emoji: '🔥',
+                        size: 20,
+                        type: 'explosion'
+                    });
+                }
+            }
+            
+            // BOSS攻击
+            if (currentTime - currentBoss.lastAttack > currentBoss.attackInterval) {
+                bossAttack();
+                currentBoss.lastAttack = currentTime;
+            }
+            
+            // 减少受击闪烁
+            if (currentBoss.hitFlash > 0) {
+                currentBoss.hitFlash--;
+            }
+        }
+        
+        // BOSS攻击模式
+        function bossAttack() {
+            if (!currentBoss) return;
+            
+            const pattern = currentBoss.attackPattern;
+            const bx = currentBoss.x;
+            const by = currentBoss.y + currentBoss.size / 2;
+            
+            switch (pattern) {
+                case 'fireball': // 火球 - 追踪玩家方向
+                    {
+                        const angle = Math.atan2(player.y - by, player.x - bx);
+                        enemyBullets.push({
+                            x: bx, y: by,
+                            vx: Math.cos(angle) * currentBoss.bulletSpeed,
+                            vy: Math.sin(angle) * currentBoss.bulletSpeed,
+                            emoji: currentBoss.bulletEmoji,
+                            size: 24
+                        });
+                    }
+                    break;
+                    
+                case 'bounce': // 反弹弹 - 两个方向
+                    {
+                        enemyBullets.push({
+                            x: bx - 20, y: by,
+                            vx: -2, vy: currentBoss.bulletSpeed,
+                            emoji: currentBoss.bulletEmoji,
+                            size: 24
+                        });
+                        enemyBullets.push({
+                            x: bx + 20, y: by,
+                            vx: 2, vy: currentBoss.bulletSpeed,
+                            emoji: currentBoss.bulletEmoji,
+                            size: 24
+                        });
+                    }
+                    break;
+                    
+                case 'laser': // 激光 - 快速直射
+                    {
+                        const offset = (Math.random() - 0.5) * 60;
+                        enemyBullets.push({
+                            x: bx + offset, y: by,
+                            vx: 0, vy: currentBoss.bulletSpeed,
+                            emoji: currentBoss.bulletEmoji,
+                            size: 28
+                        });
+                        if (currentBoss.isEnraged) {
+                            enemyBullets.push({
+                                x: bx + offset - 30, y: by,
+                                vx: 0, vy: currentBoss.bulletSpeed,
+                                emoji: currentBoss.bulletEmoji,
+                                size: 28
+                            });
+                        }
+                    }
+                    break;
+                    
+                case 'spread': // 散射 - 扇形
+                    {
+                        const angles = [-0.3, 0, 0.3];
+                        if (currentBoss.isEnraged) {
+                            angles.push(-0.6, 0.6);
+                        }
+                        angles.forEach(a => {
+                            enemyBullets.push({
+                                x: bx, y: by,
+                                vx: Math.sin(a) * currentBoss.bulletSpeed * 0.5,
+                                vy: Math.cos(a) * currentBoss.bulletSpeed,
+                                emoji: currentBoss.bulletEmoji,
+                                size: 24
+                            });
+                        });
+                    }
+                    break;
+                    
+                case 'split': // 分裂弹
+                    {
+                        enemyBullets.push({
+                            x: bx, y: by,
+                            vx: 0, vy: currentBoss.bulletSpeed,
+                            emoji: currentBoss.bulletEmoji,
+                            size: 26,
+                            split: true
+                        });
+                    }
+                    break;
+                    
+                case 'chaos': // 混乱 - 随机多发
+                    {
+                        const count = currentBoss.isEnraged ? 6 : 4;
+                        for (let i = 0; i < count; i++) {
+                            const angle = Math.PI / 2 + (Math.random() - 0.5) * Math.PI;
+                            enemyBullets.push({
+                                x: bx + (Math.random() - 0.5) * 40, y: by,
+                                vx: Math.cos(angle) * currentBoss.bulletSpeed,
+                                vy: Math.sin(angle) * currentBoss.bulletSpeed,
+                                emoji: currentBoss.bulletEmoji,
+                                size: 24
+                            });
+                        }
+                    }
+                    break;
+            }
+        }
+        
+        // 击败BOSS
+        function defeatBoss() {
+            if (!currentBoss) return;
+            
+            // BOSS爆炸特效
+            for (let i = 0; i < 30; i++) {
+                createExplosion(
+                    currentBoss.x + (Math.random() - 0.5) * currentBoss.size,
+                    currentBoss.y + (Math.random() - 0.5) * currentBoss.size
+                );
+            }
+            
+            score += currentBoss.score;
+            enemiesKilled++;
+            
+            // 清除所有BOSS子弹
+            enemyBullets = [];
+            
+            // 结束BOSS战
+            currentBoss = null;
+            isBossFight = false;
+            hideBossUI();
+            
+            // 进入下一波
+            wave++;
+        }
+        
+        // 显示BOSS血条
+        function showBossUI() {
+            if (!currentBoss) return;
+            const ui = document.getElementById('bossUI');
+            document.getElementById('bossName').textContent = `${currentBoss.emoji} ${currentBoss.name}`;
+            updateBossUI();
+            ui.classList.add('active');
+        }
+        
+        // 隐藏BOSS血条
+        function hideBossUI() {
+            document.getElementById('bossUI').classList.remove('active');
+        }
+        
+        // 更新BOSS血条
+        function updateBossUI() {
+            if (!currentBoss) return;
+            const hpPercent = (currentBoss.hp / currentBoss.maxHp) * 100;
+            document.getElementById('bossHpFill').style.width = `${Math.max(0, hpPercent)}%`;
+            document.getElementById('bossHpText').textContent = `${Math.max(0, currentBoss.hp)} / ${currentBoss.maxHp}`;
+        }
+        
+        function shoot() {
+            bullets.push({
+                x: player.x,
+                y: player.y - 25,
+                vx: 0,
+                vy: -10
+            });
+        }
+        
+        function spawnPowerup() {
+            const type = Math.floor(Math.random() * CONFIG.powerups.length);
+            const cfg = CONFIG.powerups[type];
+            // 奖励包生成在奖励区
+            powerups.push({
+                x: Math.random() * (powerupZoneWidth - 60) + 30,
+                y: -50,
+                type: cfg.type,
+                size: 36,
+                ...cfg
+            });
+        }
+        
+        function activatePowerup(p) {
+            const now = performance.now();
+            if (p.type === 'speed') {
+                activePowerups.speed = { active: true, endTime: now + p.duration };
+            } else if (p.type === 'power') {
+                activePowerups.power = { active: true, endTime: now + p.duration };
+            } else if (p.type === 'shield') {
+                activePowerups.shield = { active: true, used: false };
+            } else if (p.type === 'health') {
+                // 生命值包：+5生命，不超过最大值
+                playerHealth = Math.min(MAX_HEALTH, playerHealth + 5);
+                updateUI();
+            }
+            updatePowerupUI();
+        }
+        
+        function checkPowerupExpiration(currentTime) {
+            if (activePowerups.speed.active && currentTime > activePowerups.speed.endTime) {
+                activePowerups.speed.active = false;
+            }
+            if (activePowerups.power.active && currentTime > activePowerups.power.endTime) {
+                activePowerups.power.active = false;
+            }
+            updatePowerupUI();
+        }
+        
+        function updatePowerupUI() {
+            document.getElementById('badgeSpeed').classList.toggle('active', activePowerups.speed.active);
+            document.getElementById('badgePower').classList.toggle('active', activePowerups.power.active);
+            document.getElementById('badgeShield').classList.toggle('active', activePowerups.shield.active && !activePowerups.shield.used);
+        }
+        
+        function updateUI() {
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('waveDisplay').textContent = wave;
+            document.getElementById('highScoreDisplay').textContent = highScore;
+            document.getElementById('healthDisplay').textContent = '❤️'.repeat(playerHealth);
+        }
+        
+        function createExplosion(x, y, small = false) {
+            for (let i = 0; i < (small ? 3 : 8); i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 8,
+                    vy: (Math.random() - 0.5) * 8,
+                    life: 1,
+                    emoji: small ? '✨' : CONFIG.explosionEmoji,
+                    size: small ? 14 : 28,
+                    type: 'explosion'
+                });
+            }
+        }
+        
+        function createSparkle(x, y) {
+            for (let i = 0; i < 3; i++) {
+                particles.push({
+                    x, y,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: (Math.random() - 0.5) * 4,
+                    life: 0.8,
+                    emoji: '💫',
+                    size: 16,
+                    type: 'sparkle'
+                });
+            }
+        }
+        
+        function render() {
+            ctx.clearRect(0, 0, gameWidth, gameHeight);
+            
+            if (gameState === 'playing' || gameState === 'gameover') {
+                // 绘制玩家（可以在全屏移动）
+                ctx.font = `${CONFIG.playerSize}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(CONFIG.playerEmoji, player.x, player.y);
+                
+                // 绘制护盾效果
+                if (activePowerups.shield.active && !activePowerups.shield.used) {
+                    ctx.strokeStyle = '#4fc3f7';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(player.x, player.y, CONFIG.playerSize, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+                
+                // 绘制子弹
+                ctx.font = `${CONFIG.bulletSize}px sans-serif`;
+                bullets.forEach(b => ctx.fillText(CONFIG.bulletEmoji, b.x, b.y));
+                
+                // 绘制BOSS子弹（需要躲避！）
+                enemyBullets.forEach(b => {
+                    ctx.font = `${b.size || 24}px sans-serif`;
+                    ctx.fillText(b.emoji, b.x, b.y);
+                });
+                
+                // 绘制敌人
+                enemies.forEach(e => {
+                    ctx.font = `${e.size}px sans-serif`;
+                    ctx.fillText(e.emoji, e.x, e.y);
+                    
+                    // 血条
+                    if (e.hp > 1) {
+                        const bw = e.size, bh = 3;
+                        ctx.fillStyle = '#333';
+                        ctx.fillRect(e.x - bw/2, e.y - e.size/2 - 8, bw, bh);
+                        ctx.fillStyle = '#ff4444';
+                        const maxHp = e.maxHp || e.hp;
+                        ctx.fillRect(e.x - bw/2, e.y - e.size/2 - 8, bw * (e.hp / maxHp), bh);
+                    }
+                });
+                
+                // 绘制BOSS
+                if (currentBoss) {
+                    ctx.font = `${currentBoss.size}px sans-serif`;
+                    
+                    // BOSS受击闪烁
+                    if (currentBoss.hitFlash > 0 && Math.floor(currentBoss.hitFlash / 2) % 2 === 0) {
+                        ctx.filter = 'brightness(2)';
+                    }
+                    
+                    ctx.fillText(currentBoss.emoji, currentBoss.x, currentBoss.y);
+                    ctx.filter = 'none';
+                    
+                    // 狂暴模式特效
+                    if (currentBoss.isEnraged) {
+                        ctx.strokeStyle = '#ff4444';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.arc(currentBoss.x, currentBoss.y, currentBoss.size * 0.7, 0, Math.PI * 2);
+                        ctx.stroke();
+                    }
+                }
+                
+                // 绘制奖励包
+                powerups.forEach(p => {
+                    ctx.font = `${p.size}px sans-serif`;
+                    ctx.fillText(p.emoji, p.x, p.y);
+                    
+                    // HP条
+                    const bw = p.size, bh = 4;
+                    ctx.fillStyle = '#333';
+                    ctx.fillRect(p.x - bw/2, p.y - p.size/2 - 10, bw, bh);
+                    ctx.fillStyle = '#4caf50';
+                    ctx.fillRect(p.x - bw/2, p.y - p.size/2 - 10, bw * (p.hp / p.maxHp), bh);
+                    
+                    // 名称
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '10px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(`${p.name} ${p.hp}/${p.maxHp}`, p.x, p.y + p.size/2 + 12);
+                });
+                
+                // 绘制粒子
+                particles.forEach(p => {
+                    ctx.font = `${p.size}px sans-serif`;
+                    ctx.globalAlpha = p.life;
+                    ctx.fillText(p.emoji, p.x, p.y);
+                    ctx.globalAlpha = 1;
+                });
+            }
+            
+            requestAnimationFrame(render);
+        }
+        
+        // 渲染广告位
+        function renderAds() {
+            const leftAd = CONFIG.ads.left;
+            const rightAd = CONFIG.ads.right;
+            const leftSlot = document.getElementById('adLeft');
+            const rightSlot = document.getElementById('adRight');
+            
+            // 左广告位
+            if (leftAd.enabled && leftAd.image) {
+                leftSlot.innerHTML = leftAd.link 
+                    ? `<a href="${leftAd.link}" target="_blank"><img src="${leftAd.image}" alt="${leftAd.alt}"></a>`
+                    : `<img src="${leftAd.image}" alt="${leftAd.alt}">`;
+            }
+            
+            // 右广告位
+            if (rightAd.enabled && rightAd.image) {
+                rightSlot.innerHTML = rightAd.link 
+                    ? `<a href="${rightAd.link}" target="_blank"><img src="${rightAd.image}" alt="${rightAd.alt}"></a>`
+                    : `<img src="${rightAd.image}" alt="${rightAd.alt}">`;
+            }
+        }
+        
+        // 暂停功能
+        function togglePause() {
+            if (gameState === 'playing') {
+                gameState = 'paused';
+                cancelAnimationFrame(gameLoop);
+                document.getElementById('pauseScreen').classList.remove('hidden');
+            } else if (gameState === 'paused') {
+                resumeGame();
+            }
+        }
+        
+        function resumeGame() {
+            if (gameState === 'paused') {
+                gameState = 'playing';
+                document.getElementById('pauseScreen').classList.add('hidden');
+                lastTime = performance.now();
+                gameLoop = requestAnimationFrame(update);
+            }
+        }
+        
+        function restartFromPause() {
+            document.getElementById('pauseScreen').classList.add('hidden');
+            restartGame();
+        }
+        
+        // 键盘事件监听（ESC键暂停）
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (gameState === 'playing') {
+                    togglePause();
+                } else if (gameState === 'paused') {
+                    resumeGame();
+                }
+            }
+        });
+        
+        // 更新难度（根据波次）
+        function updateDifficulty() {
+            const diff = CONFIG.difficulty;
+            const densityLevel = Math.floor((wave - 1) / diff.densityIncreaseInterval);
+            
+            // 计算新的生成间隔
+            currentSpawnInterval = Math.max(
+                diff.minSpawnInterval,
+                CONFIG.enemySpawnInterval * Math.pow(diff.densityMultiplier, densityLevel)
+            );
+        }
+        
+        // 生成敌人（增强版）
+        function spawnEnemyEnhanced(currentTime) {
+            const r = Math.random();
+            let enemy;
+            
+            // 判断是否生成远程敌人
+            const canSpawnRanged = wave >= CONFIG.difficulty.rangedEnemyWave;
+            const canSpawnMage = wave >= CONFIG.difficulty.mageEnemyWave;
+            
+            if (canSpawnMage && r < 0.15) {
+                // 15% 概率生成法师
+                enemy = { ...CONFIG.rangedEnemies[1] };
+            } else if (canSpawnRanged && r < 0.3) {
+                // 15% 概率生成弓箭手
+                enemy = { ...CONFIG.rangedEnemies[0] };
+            } else {
+                // 普通敌人
+                let type;
+                if (wave < 3) type = r < 0.7 ? 0 : 1;
+                else if (wave < 5) type = r < 0.4 ? 0 : r < 0.7 ? 1 : 2;
+                else type = r < 0.3 ? 0 : r < 0.5 ? 1 : r < 0.8 ? 2 : 3;
+                
+                enemy = { ...CONFIG.enemies[type] };
+            }
+            
+            // 敌人生成在战斗区
+            enemy.x = powerupZoneWidth + combatZoneWidth/2 + (Math.random() - 0.5) * (combatZoneWidth * 0.6);
+            enemy.y = -50;
+            enemy.lastAttack = currentTime; // 用于远程敌人攻击计时
+            
+            enemies.push(enemy);
+        }
+        
+        // 更新远程敌人攻击
+        function updateRangedEnemies(currentTime) {
+            enemies.forEach(e => {
+                if (e.ranged && e.lastAttack) {
+                    if (currentTime - e.lastAttack > e.attackInterval) {
+                        // 发射子弹
+                        enemyBullets.push({
+                            x: e.x,
+                            y: e.y + e.size/2,
+                            vx: 0,
+                            vy: e.bulletSpeed,
+                            emoji: e.bulletEmoji,
+                            size: 20,
+                            fromEnemy: true
+                        });
+                        e.lastAttack = currentTime;
+                    }
+                }
+            });
+        }
+
+        init();
+    </script>
+</body>
+</html>
