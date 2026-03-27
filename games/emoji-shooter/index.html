@@ -263,32 +263,7 @@
             50% { transform: scale(1.2); }
         }
         
-        /* 返回街机厅按钮 */
-        #backToArcade {
-            position: absolute;
-            top: 5px;
-            left: 10px;
-            background: rgba(255, 0, 110, 0.2);
-            border: 1px solid rgba(255, 0, 110, 0.5);
-            color: #ff006e;
-            padding: 6px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            z-index: 100;
-            pointer-events: auto;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        
-        #backToArcade:hover {
-            background: rgba(255, 0, 110, 0.4);
-            box-shadow: 0 0 15px rgba(255, 0, 110, 0.5);
-        }
-        
+
         /* BOSS血条UI */
         #bossUI {
             position: absolute;
@@ -446,8 +421,6 @@
         
         <!-- 游戏区域 -->
         <div id="gameArea">
-            <a href="../../index.html" id="backToArcade">← 返回街机厅</a>
-            
             <canvas id="gameCanvas"></canvas>
             
             <!-- 分界线 -->
