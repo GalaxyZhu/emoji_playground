@@ -170,6 +170,9 @@
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .shop-title {
@@ -392,7 +395,7 @@
                         <div class="upgrade-level">等级: <span id="healthLevel">1</span></div>
                     </div>
                     <div style="display: flex; align-items: center;">
-                        <div class="upgrade-cost" id="healthCost">50💰</div>
+                        <div class="upgrade-cost" id="healthCost">10💰</div>
                         <button class="btn btn-upgrade" id="healthBtn" onclick="buyUpgrade('health')">升级</button>
                     </div>
                 </div>
@@ -404,7 +407,7 @@
                         <div class="upgrade-level">等级: <span id="damageLevel">1</span></div>
                     </div>
                     <div style="display: flex; align-items: center;">
-                        <div class="upgrade-cost" id="damageCost">60💰</div>
+                        <div class="upgrade-cost" id="damageCost">15💰</div>
                         <button class="btn btn-upgrade" id="damageBtn" onclick="buyUpgrade('damage')">升级</button>
                     </div>
                 </div>
@@ -416,7 +419,7 @@
                         <div class="upgrade-level">等级: <span id="fireRateLevel">1</span></div>
                     </div>
                     <div style="display: flex; align-items: center;">
-                        <div class="upgrade-cost" id="fireRateCost">80💰</div>
+                        <div class="upgrade-cost" id="fireRateCost">10💰</div>
                         <button class="btn btn-upgrade" id="fireRateBtn" onclick="buyUpgrade('fireRate')">升级</button>
                     </div>
                 </div>
@@ -428,7 +431,7 @@
                         <div class="upgrade-level">等级: <span id="doubleShotLevel">0</span>/1</div>
                     </div>
                     <div style="display: flex; align-items: center;">
-                        <div class="upgrade-cost" id="doubleShotCost">200💰</div>
+                        <div class="upgrade-cost" id="doubleShotCost">30💰</div>
                         <button class="btn btn-upgrade" id="doubleShotBtn" onclick="buyUpgrade('doubleShot')">解锁</button>
                     </div>
                 </div>
@@ -871,13 +874,17 @@
                 }
             });
 
-            // 绘制玩家
+            // 绘制玩家（水平翻转，车头向右）
             ctx.font = '50px Arial';
             ctx.textAlign = 'center';
             
             // 无敌闪烁
             if (player.invincible <= 0 || Math.floor(frame / 5) % 2 === 0) {
-                ctx.fillText(VEHICLES[player.vehicle].emoji, player.x, player.y);
+                ctx.save();
+                ctx.translate(player.x, player.y);
+                ctx.scale(-1, 1);
+                ctx.fillText(VEHICLES[player.vehicle].emoji, 0, 0);
+                ctx.restore();
             }
 
             // 绘制粒子
@@ -904,7 +911,7 @@
                 y: player.y,
                 speed: 10,
                 damage: damage,
-                emoji: '⚡',
+                emoji: '🟠',
                 hit: false
             });
 
@@ -914,7 +921,7 @@
                     y: player.y - 15,
                     speed: 10,
                     damage: damage,
-                    emoji: '⚡',
+                    emoji: '🟠',
                     hit: false
                 });
             }
@@ -1015,20 +1022,20 @@
 
         function updateShopUI() {
             document.getElementById('healthLevel').textContent = upgrades.health;
-            document.getElementById('healthCost').textContent = `${50 * upgrades.health}💰`;
-            document.getElementById('healthBtn').disabled = gold < 50 * upgrades.health;
+            document.getElementById('healthCost').textContent = `${10 * upgrades.health}💰`;
+            document.getElementById('healthBtn').disabled = gold < 10 * upgrades.health;
 
             document.getElementById('damageLevel').textContent = upgrades.damage;
-            document.getElementById('damageCost').textContent = `${60 * upgrades.damage}💰`;
-            document.getElementById('damageBtn').disabled = gold < 60 * upgrades.damage;
+            document.getElementById('damageCost').textContent = `${15 * upgrades.damage}💰`;
+            document.getElementById('damageBtn').disabled = gold < 15 * upgrades.damage;
 
             document.getElementById('fireRateLevel').textContent = upgrades.fireRate;
-            document.getElementById('fireRateCost').textContent = `${80 * upgrades.fireRate}💰`;
-            document.getElementById('fireRateBtn').disabled = gold < 80 * upgrades.fireRate;
+            document.getElementById('fireRateCost').textContent = `${10 * upgrades.fireRate}💰`;
+            document.getElementById('fireRateBtn').disabled = gold < 10 * upgrades.fireRate;
 
             document.getElementById('doubleShotLevel').textContent = upgrades.doubleShot;
-            document.getElementById('doubleShotCost').textContent = '200💰';
-            document.getElementById('doubleShotBtn').disabled = gold < 200 || upgrades.doubleShot >= 1;
+            document.getElementById('doubleShotCost').textContent = '30💰';
+            document.getElementById('doubleShotBtn').disabled = gold < 30 || upgrades.doubleShot >= 1;
             if (upgrades.doubleShot >= 1) {
                 document.getElementById('doubleShotBtn').textContent = '已解锁';
             }
@@ -1044,10 +1051,10 @@
 
         function buyUpgrade(type) {
             const costs = {
-                health: 50 * upgrades.health,
-                damage: 60 * upgrades.damage,
-                fireRate: 80 * upgrades.fireRate,
-                doubleShot: 200
+                health: 10 * upgrades.health,
+                damage: 15 * upgrades.damage,
+                fireRate: 10 * upgrades.fireRate,
+                doubleShot: 30
             };
 
             if (gold >= costs[type]) {
