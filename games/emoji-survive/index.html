@@ -359,6 +359,7 @@
             <div class="hud-item">💰 <span id="goldDisplay">0</span></div>
             <div class="hud-item">🌊 波次: <span id="waveDisplay">1</span>/20</div>
             <div class="hud-item">👹 <span id="enemyDisplay">0</span></div>
+            <div class="hud-item">🔴 <span id="bulletDisplay">0</span></div>
         </div>
     </div>
 
@@ -372,11 +373,12 @@
         <div style="color: #ff6600; font-size: 18px; margin-bottom: 20px;">废土生存战</div>
         <button class="btn btn-primary" onclick="startGame()">开始冒险</button>
         <div class="instructions">
-            👆 上下滑动或 W/S 键控制移动<br>
-            🔫 自动射击，击败怪物<br>
-            💰 拾取金币升级装备<br>
-            🚀 点击大招按钮清屏<br>
-            存活20波即可通关！
+            <b>🖥️ 电脑版：</b><br>
+            🖱️ 鼠标移动 = 瞄准方向 | ␣ 空格键 = 跳跃<br>
+            Q键 = 大招清屏<br><br>
+            <b>📱 手机版（横屏）：</b><br>
+            👆 左半屏点击 = 跳跃 | 👆 右半屏滑动 = 瞄准<br><br>
+            💰 拾取金币升级装备 | 存活20波通关！
         </div>
     </div>
 
@@ -463,6 +465,10 @@
             </div>
 
             <button class="btn btn-primary" onclick="nextWave()">✅ 升级完成，开始下一波</button>
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button class="btn btn-secondary" onclick="restartFromShop()">🔄 重新开始</button>
+                <button class="btn btn-secondary" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
+            </div>
         </div>
     </div>
 
@@ -506,11 +512,17 @@
         // 敌人类型
         const ENEMIES = {
             zombie: { emoji: '🧟', health: 30, speed: 1, damage: 10, gold: 1, type: 'ground' },
-            demon: { emoji: '👹', health: 40, speed: 2, damage: 15, gold: 2, type: 'air' },
+            demon: { 
+                emoji: '👹', health: 40, speed: 2, damage: 15, gold: 2, type: 'air',
+                canShoot: true, shootInterval: 90, bulletSpeed: 5, bulletDamage: 8, bulletEmoji: '🔴'
+            },
             runner: { emoji: '🏃', health: 25, speed: 3, damage: 8, gold: 2, type: 'ground' },
             tank: { emoji: '🐢', health: 100, speed: 0.5, damage: 20, gold: 5, type: 'ground' },
             bomber: { emoji: '💣', health: 20, speed: 2.5, damage: 30, gold: 3, type: 'ground' },
-            boss: { emoji: '👾', health: 500, speed: 0.8, damage: 50, gold: 50, type: 'ground', isBoss: true }
+            boss: { 
+                emoji: '👾', health: 500, speed: 0.8, damage: 50, gold: 50, type: 'ground', isBoss: true,
+                canShoot: true, shootInterval: 60, bulletSpeed: 7, bulletDamage: 15, bulletEmoji: '🔥'
+            }
         };
 
         // 游戏状态
@@ -521,10 +533,15 @@
         let frame = 0;
         let lastTime = 0;
 
+        // 地面高度
+        const GROUND_Y = GAME_HEIGHT - 120;
+        const GRAVITY = 0.8;
+        const JUMP_FORCE = 15;
+
         // 玩家
         let player = {
             x: 100,
-            y: GAME_HEIGHT / 2,
+            y: GROUND_Y,
             width: 50,
             height: 40,
             vehicle: 'truck',
@@ -535,7 +552,10 @@
             lastShot: 0,
             doubleShot: false,
             speed: 5,
-            invincible: 0
+            invincible: 0,
+            vy: 0,
+            isJumping: false,
+            aimAngle: 0 // 射击角度（弧度）
         };
 
         // 升级等级
@@ -551,6 +571,7 @@
 
         // 游戏对象
         let bullets = [];
+        let enemyBullets = [];
         let enemies = [];
         let golds = [];
         let particles = [];
@@ -561,7 +582,8 @@
 
         // 输入
         let keys = {};
-        let touchY = null;
+        let mousePos = { x: 0, y: 0 };
+        let touchAimY = null; // 手机右侧触摸瞄准
 
         // 初始化
         function init() {
@@ -573,39 +595,93 @@
             // 键盘输入
             document.addEventListener('keydown', (e) => {
                 keys[e.key] = true;
-                if (e.key === ' ' && gameState === 'playing') {
+                // 空格跳跃
+                if (e.key === ' ' && gameState === 'playing' && !player.isJumping) {
+                    jump();
+                }
+                // Q键大招
+                if ((e.key === 'q' || e.key === 'Q') && gameState === 'playing') {
                     useUltimate();
                 }
             });
             document.addEventListener('keyup', (e) => keys[e.key] = false);
 
-            // 触摸输入
+            // 鼠标移动控制瞄准
+            canvas.addEventListener('mousemove', (e) => {
+                if (gameState === 'playing') {
+                    const rect = canvas.getBoundingClientRect();
+                    const scaleX = canvas.width / rect.width;
+                    const scaleY = canvas.height / rect.height;
+                    mousePos.x = (e.clientX - rect.left) * scaleX;
+                    mousePos.y = (e.clientY - rect.top) * scaleY;
+                    updateAimAngle();
+                }
+            });
+
+            // 触摸输入（手机）
             canvas.addEventListener('touchstart', (e) => {
                 e.preventDefault();
-                touchY = e.touches[0].clientY;
+                handleTouch(e.touches, 'start');
             }, { passive: false });
 
             canvas.addEventListener('touchmove', (e) => {
                 e.preventDefault();
-                if (touchY !== null && gameState === 'playing') {
-                    const rect = canvas.getBoundingClientRect();
-                    const scaleY = canvas.height / rect.height;
-                    const newY = (e.touches[0].clientY - rect.top) * scaleY;
-                    player.y = newY - player.height / 2;
-                    touchY = e.touches[0].clientY;
-                }
+                handleTouch(e.touches, 'move');
             }, { passive: false });
 
-            canvas.addEventListener('touchend', () => touchY = null);
-
-            // 鼠标输入
-            canvas.addEventListener('mousemove', (e) => {
-                if (gameState === 'playing') {
-                    const rect = canvas.getBoundingClientRect();
-                    const scaleY = canvas.height / rect.height;
-                    player.y = (e.clientY - rect.top) * scaleY - player.height / 2;
+            canvas.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                if (e.touches.length === 0) {
+                    touchAimY = null;
                 }
-            });
+            }, { passive: false });
+        }
+
+        // 处理触摸
+        function handleTouch(touches, type) {
+            if (gameState !== 'playing') return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            for (let touch of touches) {
+                const x = (touch.clientX - rect.left) * scaleX;
+                const y = (touch.clientY - rect.top) * scaleY;
+                
+                // 左半屏 = 跳跃
+                if (x < GAME_WIDTH / 2) {
+                    if (type === 'start' && !player.isJumping) {
+                        jump();
+                    }
+                }
+                // 右半屏 = 瞄准
+                else {
+                    touchAimY = y;
+                    updateAimAngle();
+                }
+            }
+        }
+
+        // 更新瞄准角度
+        function updateAimAngle() {
+            let targetY;
+            if (touchAimY !== null) {
+                targetY = touchAimY;
+            } else {
+                targetY = mousePos.y;
+            }
+            player.aimAngle = Math.atan2(targetY - player.y, GAME_WIDTH - player.x);
+            // 限制角度范围（-60度到+60度）
+            player.aimAngle = Math.max(-Math.PI/3, Math.min(Math.PI/3, player.aimAngle));
+        }
+
+        // 跳跃
+        function jump() {
+            if (!player.isJumping) {
+                player.vy = -JUMP_FORCE;
+                player.isJumping = true;
+            }
         }
 
         // 开始游戏
@@ -625,14 +701,25 @@
             wave = 1;
             gold = 0;
             player.health = player.maxHealth;
-            player.y = GAME_HEIGHT / 2;
+            player.y = GROUND_Y;
+            player.vy = 0;
+            player.isJumping = false;
+            player.aimAngle = 0;
             bullets = [];
+            enemyBullets = [];
             enemies = [];
             golds = [];
             particles = [];
             ultCooldown = 0;
             upgrades = { health: 1, damage: 1, fireRate: 1, doubleShot: 0 };
             updateHUD();
+        }
+
+        // 从商店重新开始
+        function restartFromShop() {
+            document.getElementById('shopScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
+            gameState = 'start';
         }
 
         // 重新开始
@@ -696,12 +783,18 @@
 
         // 更新
         function update(deltaTime) {
-            // 玩家移动
-            if (keys['w'] || keys['W'] || keys['ArrowUp']) player.y -= player.speed;
-            if (keys['s'] || keys['S'] || keys['ArrowDown']) player.y += player.speed;
-
-            // 边界限制
-            player.y = Math.max(50, Math.min(GAME_HEIGHT - 50, player.y));
+            // 玩家跳跃物理
+            if (player.isJumping) {
+                player.vy += GRAVITY;
+                player.y += player.vy;
+                
+                // 落地检测
+                if (player.y >= GROUND_Y) {
+                    player.y = GROUND_Y;
+                    player.vy = 0;
+                    player.isJumping = false;
+                }
+            }
 
             // 无敌时间递减
             if (player.invincible > 0) player.invincible--;
@@ -713,10 +806,31 @@
                 player.lastShot = timestamp();
             }
 
-            // 更新子弹
+            // 更新玩家子弹（角度射击）
             bullets = bullets.filter(b => {
-                b.x += b.speed;
-                return b.x < GAME_WIDTH + 50;
+                b.x += Math.cos(b.angle) * b.speed;
+                b.y += Math.sin(b.angle) * b.speed;
+                return b.x < GAME_WIDTH + 50 && b.x > -50 && b.y > -50 && b.y < GAME_HEIGHT + 50;
+            });
+
+            // 更新敌人子弹
+            enemyBullets = enemyBullets.filter(b => {
+                b.x += Math.cos(b.angle) * b.speed;
+                b.y += Math.sin(b.angle) * b.speed;
+                
+                // 检测击中玩家
+                if (checkCollision(b, player) && player.invincible <= 0) {
+                    player.health -= b.damage;
+                    player.invincible = 60;
+                    createParticles(player.x, player.y, '💥', 5);
+                    b.hit = true;
+                    if (player.health <= 0) {
+                        gameOver();
+                    }
+                }
+                
+                return b.x > -50 && b.x < GAME_WIDTH + 50 && 
+                       b.y > -50 && b.y < GAME_HEIGHT + 50 && !b.hit;
             });
 
             // 生成敌人
@@ -743,6 +857,11 @@
                     e.speed = 5;
                 }
 
+                // 飞行怪物射击
+                if (ENEMIES[e.type].canShoot && frame % e.shootInterval === 0) {
+                    enemyShoot(e);
+                }
+
                 // 碰撞检测 - 敌人碰到玩家
                 if (checkCollision(e, player) && player.invincible <= 0) {
                     player.health -= e.damage;
@@ -759,6 +878,67 @@
                 }
 
                 return e.x > -50 && e.health > 0;
+            });
+
+            // 更新金币
+            golds = golds.filter(g => {
+                g.x -= 0.5;
+                
+                const dx = g.x - player.x;
+                const dy = g.y - player.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist < 50) {
+                    gold += g.value;
+                    createParticles(g.x, g.y, '✨', 3);
+                    updateHUD();
+                    return false;
+                }
+                
+                return g.x > -20;
+            });
+
+            // 玩家子弹击中检测
+            bullets.forEach(b => {
+                enemies.forEach(e => {
+                    if (checkCollision(b, e)) {
+                        e.health -= b.damage;
+                        b.hit = true;
+                        createParticles(e.x, e.y, '💥', 2);
+                        
+                        if (e.health <= 0) {
+                            dropGold(e.x, e.y, ENEMIES[e.type].gold);
+                        }
+                    }
+                });
+            });
+
+            bullets = bullets.filter(b => !b.hit);
+
+            // 更新粒子
+            particles = particles.filter(p => {
+                p.life--;
+                p.x += p.vx;
+                p.y += p.vy;
+                return p.life > 0;
+            });
+
+            // 大招冷却
+            if (ultCooldown > 0) ultCooldown--;
+            updateUltButton();
+
+            // 检查波次结束
+            if (enemiesToSpawn.length === 0 && enemies.length === 0 && waveInProgress) {
+                waveInProgress = false;
+                if (wave >= FINAL_WAVE) {
+                    victory();
+                } else {
+                    setTimeout(openShop, 500);
+                }
+            }
+
+            updateHUD();
+        }
             });
 
             // 更新金币
@@ -850,9 +1030,16 @@
                 ctx.fillText('💰', g.x, g.y);
             });
 
-            // 绘制子弹
+            // 绘制玩家子弹
             bullets.forEach(b => {
                 ctx.font = '20px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(b.emoji, b.x, b.y);
+            });
+
+            // 绘制敌人子弹
+            enemyBullets.forEach(b => {
+                ctx.font = '18px Arial';
                 ctx.textAlign = 'center';
                 ctx.fillText(b.emoji, b.x, b.y);
             });
@@ -864,9 +1051,10 @@
                 ctx.fillText(ENEMIES[e.type].emoji, e.x, e.y);
                 
                 // 血条
-                if (ENEMIES[e.type].isBoss || e.health < ENEMIES[e.type].health) {
+                const config = ENEMIES[e.type];
+                if (config.isBoss || e.health < config.health) {
                     const barWidth = 40;
-                    const healthPercent = e.health / ENEMIES[e.type].health;
+                    const healthPercent = Math.max(0, e.health / (config.health * (1 + wave * 0.1)));
                     ctx.fillStyle = '#333';
                     ctx.fillRect(e.x - barWidth/2, e.y - 35, barWidth, 5);
                     ctx.fillStyle = healthPercent > 0.5 ? '#0f0' : '#f00';
@@ -886,6 +1074,20 @@
                 ctx.fillText(VEHICLES[player.vehicle].emoji, 0, 0);
                 ctx.restore();
             }
+
+            // 绘制瞄准线
+            ctx.save();
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            ctx.moveTo(player.x + 30, player.y);
+            ctx.lineTo(
+                player.x + 30 + Math.cos(player.aimAngle) * 100,
+                player.y + Math.sin(player.aimAngle) * 100
+            );
+            ctx.stroke();
+            ctx.restore();
 
             // 绘制粒子
             particles.forEach(p => {
@@ -909,22 +1111,39 @@
             bullets.push({
                 x: player.x + 30,
                 y: player.y,
-                speed: 10,
+                speed: 12,
                 damage: damage,
                 emoji: '🟠',
+                angle: player.aimAngle,
                 hit: false
             });
 
             if (player.doubleShot || upgrades.doubleShot > 0) {
                 bullets.push({
                     x: player.x + 30,
-                    y: player.y - 15,
-                    speed: 10,
+                    y: player.y,
+                    speed: 12,
                     damage: damage,
                     emoji: '🟠',
+                    angle: player.aimAngle - 0.15,
                     hit: false
                 });
             }
+        }
+
+        // 敌人射击
+        function enemyShoot(enemy) {
+            const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
+            
+            enemyBullets.push({
+                x: enemy.x,
+                y: enemy.y,
+                speed: enemy.bulletSpeed,
+                damage: enemy.bulletDamage,
+                emoji: enemy.bulletEmoji,
+                angle: angle,
+                hit: false
+            });
         }
 
         function spawnEnemy(type) {
@@ -937,7 +1156,7 @@
                 y = GAME_HEIGHT - 100 - Math.random() * 50;
             }
 
-            enemies.push({
+            const enemy = {
                 type: type,
                 x: GAME_WIDTH + 50,
                 y: y,
@@ -945,7 +1164,18 @@
                 health: config.health * (1 + wave * 0.1),
                 damage: config.damage,
                 emoji: config.emoji
-            });
+            };
+
+            // 添加射击属性
+            if (config.canShoot) {
+                enemy.canShoot = true;
+                enemy.shootInterval = config.shootInterval;
+                enemy.bulletSpeed = config.bulletSpeed * (1 + wave * 0.03);
+                enemy.bulletDamage = config.bulletDamage + Math.floor(wave / 3);
+                enemy.bulletEmoji = config.bulletEmoji;
+            }
+
+            enemies.push(enemy);
         }
 
         function dropGold(x, y, value) {
@@ -1006,6 +1236,7 @@
             document.getElementById('goldDisplay').textContent = gold;
             document.getElementById('waveDisplay').textContent = wave;
             document.getElementById('enemyDisplay').textContent = enemies.length + enemiesToSpawn.length;
+            document.getElementById('bulletDisplay').textContent = enemyBullets.length;
         }
 
         function openShop() {
