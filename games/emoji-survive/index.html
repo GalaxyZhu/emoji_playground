@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>🛻 Emoji Survive - 废土生存</title>
     <style>
         * {
@@ -11,22 +11,32 @@
             box-sizing: border-box;
             touch-action: none;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            position: fixed;
+            overscroll-behavior: none;
         }
 
         body {
             background: linear-gradient(180deg, #2d1f1f 0%, #1a1a1a 50%, #0d0d0d 100%);
-            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            overflow: hidden;
         }
 
         #gameCanvas {
             background: linear-gradient(180deg, #3d2817 0%, #2a1a1a 50%, #1a1a1a 100%);
             box-shadow: 0 0 50px rgba(255, 100, 0, 0.3);
             border: 2px solid #444;
+            max-width: 100vw;
+            max-height: 100vh;
+            display: block;
         }
 
         .ui-overlay {
@@ -605,6 +615,18 @@
                 }
             });
             document.addEventListener('keyup', (e) => keys[e.key] = false);
+
+            // 防止页面滚动和抖动
+            document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
+            document.addEventListener('gesturestart', (e) => e.preventDefault());
+            document.addEventListener('gesturechange', (e) => e.preventDefault());
+            document.addEventListener('gestureend', (e) => e.preventDefault());
+            window.addEventListener('resize', () => {
+                // 防止resize导致的布局抖动
+                if (document.activeElement) {
+                    document.activeElement.blur();
+                }
+            });
 
             // 鼠标移动控制瞄准
             canvas.addEventListener('mousemove', (e) => {
