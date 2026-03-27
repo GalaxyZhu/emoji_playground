@@ -12,6 +12,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Emoji Shooter V0.1.5 🗿</title>
+    
+    <!-- Vercel Speed Insights -->
+    <script type="module">
+        import { injectSpeedInsights } from 'https://cdn.jsdelivr.net/npm/@vercel/speed-insights@latest/dist/index.mjs';
+        injectSpeedInsights();
+    </script>
+    
     <style>
         * {
             margin: 0;
@@ -524,7 +531,7 @@
         const CONFIG = {
             version: '0.1.2',
             playerEmoji: '🗿',
-            bulletEmoji: '⚡',
+            bulletEmoji: '���',
             explosionEmoji: '💥',
             // 广告配置 - 修改这里更换广告
             ads: {
@@ -910,7 +917,7 @@
                 return p.life > 0;
             });
             
-            // 碰撞检测 - 子弹vs敌人/BOSS
+            // 碰撞检测 - ��弹vs敌人/BOSS
             bullets.forEach((b, bi) => {
                 // 打BOSS
                 if (currentBoss) {
