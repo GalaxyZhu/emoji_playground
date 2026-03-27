@@ -69,6 +69,24 @@
     <!-- Preconnect for Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-XXXXXXXXXX');
+    </script>
+    
+    <!-- Google Ads -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-XXXXXXXXXX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'AW-XXXXXXXXXX');
+    </script>
 </head>
 <body>
     <!-- 背景动画 -->
@@ -383,6 +401,13 @@
         function launchGame(game) {
             if (game.status !== 'ready') {
                 alert('🎮 游戏开发中，敬请期待！');
+                // 追踪：点击了未完成的游戏
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'click_coming_soon', {
+                        'game_id': game.id,
+                        'game_name': game.name
+                    });
+                }
                 return;
             }
             
@@ -400,11 +425,31 @@
             
             // 保存当前游戏
             Storage.set('current_game', game.id);
+            
+            // 追踪：游戏启动
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'game_launch', {
+                    'game_id': game.id,
+                    'game_name': game.name,
+                    'game_category': game.category || 'casual'
+                });
+            }
         }
         
         function closeGame() {
             const container = document.getElementById('gameContainer');
             const frame = document.getElementById('gameFrame');
+            const currentGame = Storage.get('current_game');
+            
+            // 追踪：游戏关闭
+            if (typeof gtag !== 'undefined' && currentGame) {
+                const record = Storage.getGameRecord(currentGame);
+                gtag('event', 'game_close', {
+                    'game_id': currentGame,
+                    'play_count': record.playCount
+                });
+            }
+            
             container.classList.remove('active');
             frame.src = '';
             Storage.set('current_game', null);
@@ -442,6 +487,13 @@
             detectLanguage();
             initUserSystem();
             loadGames();
+            
+            // 追踪：页面完全加载
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'page_ready', {
+                    'load_time': Math.round(performance.now())
+                });
+            }
         });
         
         // ==================== 预留：消息接收（游戏内分数上报）====================
@@ -449,9 +501,20 @@
             if (e.data.type === 'GAME_SCORE') {
                 const { gameId, score } = e.data;
                 const record = Storage.getGameRecord(gameId);
-                if (score > record.highScore) {
+                const isHighScore = score > record.highScore;
+                
+                if (isHighScore) {
                     record.highScore = score;
                     Storage.setGameRecord(gameId, record);
+                }
+                
+                // 追踪：游戏分数
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'game_score', {
+                        'game_id': gameId,
+                        'score': score,
+                        'is_high_score': isHighScore
+                    });
                 }
             }
         });
