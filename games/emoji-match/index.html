@@ -245,6 +245,16 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 20px rgba(0, 245, 255, 0.4);
         }
+
+        .btn-home {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            margin-top: 10px;
+        }
+
+        .btn-home:hover {
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
         
         /* 游戏结束弹窗 */
         .modal {
@@ -411,6 +421,7 @@
             </div>
             
             <button class="btn btn-primary" onclick="closeModal(); newGame();">再玩一局</button>
+            <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
         </div>
     </div>
 

@@ -49,6 +49,13 @@
         }
         .btn:hover { transform: scale(1.05); }
         .btn:active { transform: scale(0.95); }
+        .btn-home {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+            font-size: 18px;
+            padding: 12px 30px;
+            margin-top: 10px;
+        }
         .instructions {
             color: #888;
             margin-top: 30px;
@@ -113,6 +120,7 @@
         <div style="color: #ffd700; font-size: 18px; margin-bottom: 10px;">最高分: <span id="highScore">0</span>m</div>
         <div style="color: #888; font-size: 14px; margin-bottom: 30px;"><span id="crashReason"></span></div>
         <button class="btn" id="restartBtn">再来一局</button>
+        <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
     </div>
 
     <script>

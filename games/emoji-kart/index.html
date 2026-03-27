@@ -48,6 +48,13 @@
             box-shadow: 0 4px 20px rgba(255, 0, 200, 0.5);
         }
         .btn:hover { transform: scale(1.05); }
+        .btn-home {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+            font-size: 18px;
+            padding: 12px 30px;
+            margin-top: 10px;
+        }
         .instructions {
             color: #888;
             margin-top: 30px;
@@ -116,6 +123,7 @@
         <div style="color: #fff; font-size: 24px; margin-bottom: 10px;">最终排名: <span id="finalPosition">1</span></div>
         <div style="color: #ffd700; font-size: 18px; margin-bottom: 30px;"><span id="bestPosition"></span></div>
         <button class="btn" id="restartBtn">再来一局</button>
+        <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
     </div>
 
     <script>

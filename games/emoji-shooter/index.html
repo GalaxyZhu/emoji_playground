@@ -188,6 +188,16 @@
             box-shadow: 0 6px 20px rgba(233, 69, 96, 0.6);
         }
         
+        .btn-home {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            margin-top: 10px;
+        }
+        
+        .btn-home:hover {
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
         .score-display {
             font-size: 20px;
             color: #fff;
@@ -485,6 +495,7 @@
                     <div class="high-score">最高分: <span id="finalHighScore">0</span></div>
                     <div class="stats" id="gameStats"></div>
                     <button class="btn" onclick="restartGame()">再来一局</button>
+                    <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
                 </div>
                 
                 <!-- 暂停对话框 -->
