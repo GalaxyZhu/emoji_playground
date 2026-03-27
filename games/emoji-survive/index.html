@@ -30,6 +30,61 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
+        /* 游戏容器 */
+        #gameContainer {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            max-width: 1400px;
+        }
+
+        /* 广告位 */
+        .ad-slot {
+            width: 15%;
+            min-width: 80px;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+            border: 2px dashed #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #444;
+            font-size: 14px;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .ad-slot .ad-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+            opacity: 0.3;
+        }
+
+        .ad-slot .ad-text {
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            letter-spacing: 4px;
+        }
+
+        /* 响应式 - 小屏幕隐藏广告位 */
+        @media (max-width: 768px) {
+            .ad-slot {
+                display: none;
+            }
+            #gameMain {
+                width: 100%;
+            }
+        }
+
+        /* 游戏主区域 */
+        #gameMain {
+            flex: 1;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
         #gameCanvas {
             background: linear-gradient(180deg, #3d2817 0%, #2a1a1a 50%, #1a1a1a 100%);
             box-shadow: 0 0 50px rgba(255, 100, 0, 0.3);
@@ -356,7 +411,16 @@
     </style>
 </head>
 <body>
-    <canvas id="gameCanvas"></canvas>
+    <div id="gameContainer">
+        <!-- 左广告位 -->
+        <div class="ad-slot" id="adLeft">
+            <div class="ad-icon">📢</div>
+            <div class="ad-text">广告位招租</div>
+        </div>
+        
+        <!-- 游戏主区域 -->
+        <div id="gameMain">
+            <canvas id="gameCanvas"></canvas>
 
     <!-- HUD -->
     <div class="hud hidden" id="hud">
@@ -1377,5 +1441,14 @@
         // 初始化
         init();
     </script>
+    
+        </div>
+        
+        <!-- 右广告位 -->
+        <div class="ad-slot" id="adRight">
+            <div class="ad-icon">📢</div>
+            <div class="ad-text">广告位招租</div>
+        </div>
+    </div>
 </body>
 </html>
