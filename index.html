@@ -111,13 +111,13 @@
         <!-- Hero Section -->
         <section class="hero">
             <h1>🎮 EMOJI ARCADE</h1>
-            <p id="heroSubtitleZh">随身街机厅，点开就能玩<br>手机电脑通吃，随时随地开黑</p>
+            <p id="heroSubtitleZh">随身街机厅，点开就能玩<br>摸鱼神器，带薪快乐</p>
             <p id="heroSubtitleEn" style="font-size: 14px; color: #666; margin-top: 8px; display: none;">Pocket Arcade, Instant Play<br>Mobile & Desktop · Play Anytime, Anywhere</p>
         </section>
 
         <!-- Games List -->
         <section class="games-section">
-            <h2 class="section-title">🎯 Hot Games</h2>
+            <h2 class="section-title">🎯 上头专区</h2>
             <div class="games-grid" id="gamesGrid">
                 <!-- 游戏卡片由 JS 动态生成 -->
             </div>
@@ -125,8 +125,8 @@
 
         <!-- Emoji for Speed 赛车系列 -->
         <section class="games-section">
-            <h2 class="section-title">🏎️ Emoji for Speed</h2>
-            <p id="speedSubtitleZh" style="color: #888; margin-bottom: 20px; font-size: 14px;">Emoji赛车专区 · 速度与激情 · 用表情包飙车才是正经事</p>
+            <h2 class="section-title">🏎️ 速度与表情包</h2>
+            <p id="speedSubtitleZh" style="color: #888; margin-bottom: 20px; font-size: 14px;">用表情包飙车才是正经事 · 油门踩到底 · 翻车也快乐</p>
             <p id="speedSubtitleEn" style="color: #666; margin-bottom: 20px; font-size: 14px; display: none;">Racing with Emojis · Speed & Passion · Drive with Attitude</p>
             <div class="games-grid" id="racingGamesGrid">
                 <!-- Racing games will be rendered by JS -->
@@ -135,7 +135,7 @@
 
         <!-- Coming Soon -->
         <section class="games-section">
-            <h2 class="section-title">🔜 Coming Soon</h2>
+            <h2 class="section-title">🔜 酝酿中</h2>
             <div class="games-grid" id="comingSoonGrid">
                 <!-- Coming soon games will be rendered by JS -->
             </div>
@@ -170,74 +170,74 @@
         // 游戏数据配置（双语）
         const gameConfigs = {
             'emoji-survive': {
-                name: 'Emoji Survive',
+                name: { zh: '废土求生', en: 'Emoji Survive' },
                 emoji: '🛻',
-                tagline: { zh: '🛻 废土生存 · 改装货车杀出20波', en: '🛻 Wasteland Survival · Mod your truck and survive 20 waves' },
+                tagline: { zh: '🛻 改装破皮卡，干翻20波怪', en: '🛻 Wasteland Survival · Mod your truck and survive 20 waves' },
                 difficulty: { zh: '中等', en: 'Medium' },
-                tags: { zh: ['射击', '生存', '升级'], en: ['Shooter', 'Survival', 'Upgrade'] },
+                tags: { zh: ['突突突', '活下去', '变强'], en: ['Shooter', 'Survival', 'Upgrade'] },
                 players: { zh: '1人', en: '1 Player' },
                 playTime: { zh: '10-20分钟', en: '10-20 min' }
             },
             'emoji-shooter': {
-                name: 'Emoji Shooter',
+                name: { zh: '表情大乱射', en: 'Emoji Shooter' },
                 emoji: '🗿',
-                tagline: { zh: '消灭搞怪Emoji敌人', en: 'Destroy quirky Emoji enemies' },
+                tagline: { zh: '各种沙雕表情怪，通通给爷死', en: 'Destroy quirky Emoji enemies' },
                 difficulty: { zh: '中等', en: 'Medium' },
-                tags: { zh: ['射击', '街机', 'Boss战'], en: ['Shooter', 'Arcade', 'Boss Battle'] },
+                tags: { zh: ['射击', '街机', '干Boss'], en: ['Shooter', 'Arcade', 'Boss Battle'] },
                 players: { zh: '1人', en: '1 Player' },
                 playTime: { zh: '5-10分钟', en: '5-10 min' }
             },
             'emoji-match': {
-                name: 'Emoji Match',
+                name: { zh: '记忆翻翻天', en: 'Emoji Match' },
                 emoji: '🧩',
-                tagline: { zh: '记忆翻牌，双人对战', en: 'Memory matching, 2-player battle' },
+                tagline: { zh: '考验记忆力，还能双人对战坑朋友', en: 'Memory matching, 2-player battle' },
                 difficulty: { zh: '简单', en: 'Easy' },
-                tags: { zh: ['记忆', '益智', '双人'], en: ['Memory', 'Puzzle', '2P'] },
+                tags: { zh: ['记忆', '益智', '坑队友'], en: ['Memory', 'Puzzle', '2P'] },
                 players: { zh: '2人', en: '2 Players' },
                 playTime: { zh: '3-8分钟', en: '3-8 min' }
             },
             'emoji-rush': {
-                name: 'Emoji Rush',
+                name: { zh: '油门焊死', en: 'Emoji Rush' },
                 emoji: '🏎️',
-                tagline: { zh: '极简直线狂飙，单手操作', en: 'Minimalist speed run, one-hand control' },
+                tagline: { zh: '只管踩油门，其他交给命运', en: 'Minimalist speed run, one-hand control' },
                 difficulty: { zh: '简单', en: 'Easy' },
-                tags: { zh: ['竞速', '极简'], en: ['Racing', 'Minimal'] },
+                tags: { zh: ['竞速', '爽'], en: ['Racing', 'Minimal'] },
                 players: { zh: '1人', en: '1 Player' },
                 playTime: { zh: '3分钟', en: '3 min' }
             },
             'emoji-drift': {
-                name: 'Emoji Drift',
+                name: { zh: '漂移狂魔', en: 'Emoji Drift' },
                 emoji: '🚗',
-                tagline: { zh: '三车道跑酷，反应力挑战', en: 'Three-lane parkour, reflex challenge' },
+                tagline: { zh: '三车道疯狂切换，手残慎入', en: 'Three-lane parkour, reflex challenge' },
                 difficulty: { zh: '中等', en: 'Medium' },
                 tags: { zh: ['跑酷', '反应', '竖屏'], en: ['Parkour', 'Reflex', 'Portrait'] },
                 players: { zh: '1人', en: '1 Player' },
                 playTime: { zh: '5分钟', en: '5 min' }
             },
             'emoji-kart': {
-                name: 'Emoji Kart',
+                name: { zh: '道具互坑赛', en: 'Emoji Kart' },
                 emoji: '🏎️',
-                tagline: { zh: '道具乱斗，欢乐互坑', en: 'Item chaos, fun and trolling' },
+                tagline: { zh: '道具乱丢，互相伤害，欢乐无穷', en: 'Item chaos, fun and trolling' },
                 difficulty: { zh: '中等', en: 'Medium' },
-                tags: { zh: ['道具', '乱斗', '社交'], en: ['Items', 'Chaos', 'Social'] },
+                tags: { zh: ['道具', '乱斗', '欢乐'], en: ['Items', 'Chaos', 'Social'] },
                 players: { zh: '1人', en: '1 Player' },
                 playTime: { zh: '5分钟', en: '5 min' }
             },
             'emoji-climb': {
-                name: 'Emoji Climb',
+                name: { zh: '翻车模拟器', en: 'Emoji Climb' },
                 emoji: '🚜',
-                tagline: { zh: '魔性物理，翻车即笑点', en: 'Wacky physics, crashes are fun' },
+                tagline: { zh: '物理引擎超魔性，翻车比过关还搞笑', en: 'Wacky physics, crashes are fun' },
                 difficulty: { zh: '困难', en: 'Hard' },
                 tags: { zh: ['物理', '爬坡', '魔性'], en: ['Physics', 'Climb', 'Wacky'] },
                 players: { zh: '1人', en: '1 Player' },
                 playTime: { zh: '5分钟', en: '5 min' }
             },
             'emoji-jump': {
-                name: 'Emoji Jump',
+                name: { zh: '跳跳蛙大冒险', en: 'Emoji Jump' },
                 emoji: '🐸',
-                tagline: { zh: '跳跃闯关，手速挑战', en: 'Jump and dash, speed challenge' },
+                tagline: { zh: '按住跳，松开落，手速决定高度', en: 'Jump and dash, speed challenge' },
                 difficulty: { zh: '简单', en: 'Easy' },
-                tags: { zh: ['跳跃', '动作'], en: ['Jump', 'Action'] },
+                tags: { zh: ['跳跃', '手速'], en: ['Jump', 'Action'] },
                 players: { zh: '1人', en: '1 Player' },
                 playTime: { zh: '5分钟', en: '5 min' }
             }
@@ -376,7 +376,7 @@
                     <span class="game-status ${id === 'emoji-climb' ? 'soon' : 'beta'}">${statusText}</span>
                 </div>
                 <div class="game-info">
-                    <div class="game-title">${game.emoji} ${game.name}</div>
+                    <div class="game-title">${game.emoji} ${game.name[lang]}</div>
                     <div class="game-tagline">${tagline}</div>
                     <div class="tags">
                         ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
@@ -418,7 +418,7 @@
                     <span class="game-status soon">${statusText}</span>
                 </div>
                 <div class="game-info">
-                    <div class="game-title">${game.emoji} ${game.name}</div>
+                    <div class="game-title">${game.emoji} ${game.name[lang]}</div>
                     <div class="game-tagline">${tagline}</div>
                     <div class="tags">
                         ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
@@ -476,7 +476,7 @@
                     <span class="game-status ${game.status}">${statusText}</span>
                 </div>
                 <div class="game-info">
-                    <div class="game-title">${game.emoji} ${game.name}</div>
+                    <div class="game-title">${game.emoji} ${game.name[lang]}</div>
                     <div class="game-tagline">${tagline}</div>
                     <div class="game-meta">
                         <span>⚡ ${difficulty}</span>
