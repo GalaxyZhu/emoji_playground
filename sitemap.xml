@@ -1,43 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://emojiarcade.vercel.app/</loc>
+    <loc>https://emojiarcade.app/</loc>
     <lastmod>2026-03-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://emojiarcade.vercel.app/games/emoji-shooter/</loc>
+    <loc>https://emojiarcade.app/games/emoji-shooter/</loc>
     <lastmod>2026-03-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://emojiarcade.vercel.app/games/emoji-match/</loc>
+    <loc>https://emojiarcade.app/games/emoji-match/</loc>
     <lastmod>2026-03-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://emojiarcade.vercel.app/games/emoji-drift/</loc>
+    <loc>https://emojiarcade.app/games/emoji-drift/</loc>
     <lastmod>2026-03-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://emojiarcade.vercel.app/games/emoji-rush/</loc>
+    <loc>https://emojiarcade.app/games/emoji-rush/</loc>
     <lastmod>2026-03-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://emojiarcade.vercel.app/games/emoji-climb/</loc>
+    <loc>https://emojiarcade.app/games/emoji-climb/</loc>
     <lastmod>2026-03-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://emojiarcade.vercel.app/games/emoji-kart/</loc>
+    <loc>https://emojiarcade.app/games/emoji-kart/</loc>
     <lastmod>2026-03-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
