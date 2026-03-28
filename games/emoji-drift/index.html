@@ -145,6 +145,12 @@
         .low-health-warning.show { opacity: 1; animation: pulse 0.5s infinite; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
     </style>
+    
+    <!-- Vercel Web Analytics -->
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
