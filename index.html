@@ -435,15 +435,21 @@
             return lang.startsWith('zh') ? 'zh' : 'en';
         }
         
-        // 渲染动态游戏卡片
+        // 渲染动态游戏卡片 (Hot Games - 只显示核心3款)
         function renderGames() {
             const grid = document.getElementById('gamesGrid');
             const lang = getCurrentLang();
             
-            gamesData.filter(g => g.status === 'ready').forEach(game => {
-                const record = Storage.getGameRecord(game.id);
-                const card = createGameCard(game, record, lang);
-                grid.appendChild(card);
+            // Hot Games 只显示：match, shooter, survive
+            const hotGames = ['emoji-match', 'emoji-shooter', 'emoji-survive'];
+            
+            hotGames.forEach(id => {
+                const game = gamesData.find(g => g.id === id);
+                if (game && game.status === 'ready') {
+                    const record = Storage.getGameRecord(game.id);
+                    const card = createGameCard(game, record, lang);
+                    grid.appendChild(card);
+                }
             });
         }
         
