@@ -87,31 +87,31 @@
             <span>EMOJI ARCADE</span>
         </div>
         
-        <!-- 用户区域（预留用户系统） -->
+        <!-- User Area (reserved for user system) -->
         <div class="user-section" id="userSection">
-            <!-- 未登录状态 -->
+            <!-- Not logged in -->
             <div class="user-placeholder" id="loginBtn" onclick="showLoginModal()">
-                <span id="loginText">登录</span>
+                <span id="loginText">Login</span>
             </div>
-            <!-- 登录后显示（默认隐藏） -->
+            <!-- Logged in (hidden by default) -->
             <div class="user-avatar" id="userAvatar" style="display: none;" onclick="showUserMenu()">
                 🎮
             </div>
         </div>
     </header>
 
-    <!-- 主内容 -->
+    <!-- Main Content -->
     <main class="main-content">
-        <!-- 英雄区 -->
+        <!-- Hero Section -->
         <section class="hero">
             <h1>🎮 EMOJI ARCADE</h1>
-            <p id="heroSubtitle">随身街机厅，点开就能玩<br>手机电脑通吃，随时随地开黑</p>
+            <p id="heroSubtitle">Pocket Arcade, Instant Play<br>Mobile & Desktop · Play Anytime, Anywhere</p>
             <p id="heroSubtitleEn" style="font-size: 14px; color: #666; margin-top: 8px; display: none;">Pocket Arcade, Instant Play<br>Mobile & Desktop · Anytime, Anywhere</p>
         </section>
 
-        <!-- 游戏列表 -->
+        <!-- Games List -->
         <section class="games-section">
-            <h2 class="section-title">🎯 热门游戏</h2>
+            <h2 class="section-title">🎯 Hot Games</h2>
             <div class="games-grid" id="gamesGrid">
                 <!-- 游戏卡片由 JS 动态生成 -->
             </div>
@@ -120,78 +120,78 @@
         <!-- Emoji for Speed 赛车系列 -->
         <section class="games-section">
             <h2 class="section-title">🏎️ Emoji for Speed</h2>
-            <p id="speedSubtitle" style="color: #888; margin-bottom: 20px; font-size: 14px;">Emoji赛车专区 · 速度与激情 · 用表情包飙车才是正经事</p>
+            <p id="speedSubtitle" style="color: #888; margin-bottom: 20px; font-size: 14px;">Racing with Emojis · Speed & Passion · Drive with Attitude</p>
             <p id="speedSubtitleEn" style="color: #666; margin-bottom: 20px; font-size: 14px; display: none;">Racing with Emojis · Speed & Passion · Drive with Attitude</p>
             <div class="games-grid">
-                <div class="game-card" style="opacity: 0.6;" onclick="launchGame({id:'emoji-rush',name:'Emoji Rush',emoji:'🏎️',tagline:'极简直线狂飙，单手操作',version:'0.1.0',status:'ready',path:'games/emoji-rush/index.html',difficulty:'简单',tags:['竞速','极简'],players:'1人',playTime:'3分钟'})">
+                <div class="game-card" style="opacity: 0.6;" onclick="launchGame({id:'emoji-rush',name:'Emoji Rush',emoji:'🏎️',tagline:'Minimalist speed run, one-hand control',version:'0.1.0',status:'ready',path:'games/emoji-rush/index.html',difficulty:'Easy',tags:['Racing','Minimal'],players:'1 Player',playTime:'3 min'})">
                     <div class="game-cover">
                         🏎️
                         <span class="game-status beta">Beta</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">🏎️ Emoji Rush</div>
-                        <div class="game-tagline">极简直线狂飙，单手操作</div>
+                        <div class="game-tagline">Minimalist speed run, one-hand control</div>
                         <div class="tags">
-                            <span class="tag">竞速</span>
-                            <span class="tag">极简</span>
-                            <span class="tag">3分钟</span>
+                            <span class="tag">Racing</span>
+                            <span class="tag">Minimal</span>
+                            <span class="tag">3 min</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="game-card" style="opacity: 0.6;" onclick="launchGame({id:'emoji-drift',name:'Emoji Drift',emoji:'🚗',tagline:'三车道跑酷，反应力挑战',version:'0.1.0',status:'ready',path:'games/emoji-drift/index.html',difficulty:'中等',tags:['跑酷','反应'],players:'1人',playTime:'5分钟'})">
+                <div class="game-card" style="opacity: 0.6;" onclick="launchGame({id:'emoji-drift',name:'Emoji Drift',emoji:'🚗',tagline:'Three-lane parkour, reflex challenge',version:'0.1.0',status:'ready',path:'games/emoji-drift/index.html',difficulty:'Medium',tags:['Parkour','Reflex'],players:'1 Player',playTime:'5 min'})">
                     <div class="game-cover">
                         🚗
                         <span class="game-status beta">Beta</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">🚗 Emoji Drift</div>
-                        <div class="game-tagline">三车道跑酷，反应力挑战</div>
+                        <div class="game-tagline">Three-lane parkour, reflex challenge</div>
                         <div class="tags">
-                            <span class="tag">跑酷</span>
-                            <span class="tag">反应</span>
-                            <span class="tag">竖屏</span>
+                            <span class="tag">Parkour</span>
+                            <span class="tag">Reflex</span>
+                            <span class="tag">Portrait</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="game-card" style="opacity: 0.6;" onclick="launchGame({id:'emoji-kart',name:'Emoji Kart',emoji:'🏎️',tagline:'道具乱斗，欢乐互坑',version:'0.1.0',status:'ready',path:'games/emoji-kart/index.html',difficulty:'中等',tags:['道具','乱斗'],players:'1人',playTime:'5分钟'})">
+                <div class="game-card" style="opacity: 0.6;" onclick="launchGame({id:'emoji-kart',name:'Emoji Kart',emoji:'🏎️',tagline:'Item chaos, fun and trolling',version:'0.1.0',status:'ready',path:'games/emoji-kart/index.html',difficulty:'Medium',tags:['Items','Chaos'],players:'1 Player',playTime:'5 min'})">
                     <div class="game-cover">
                         🏎️
                         <span class="game-status beta">Beta</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">🏎️ Emoji Kart</div>
-                        <div class="game-tagline">道具乱斗，欢乐互坑</div>
+                        <div class="game-tagline">Item chaos, fun and trolling</div>
                         <div class="tags">
-                            <span class="tag">道具</span>
-                            <span class="tag">乱斗</span>
-                            <span class="tag">社交</span>
+                            <span class="tag">Items</span>
+                            <span class="tag">Chaos</span>
+                            <span class="tag">Social</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="game-card" style="opacity: 0.6;" onclick="launchGame({id:'emoji-climb',name:'Emoji Climb',emoji:'🚜',tagline:'魔性物理，翻车即笑点',version:'0.1.0',status:'ready',path:'games/emoji-climb/index.html',difficulty:'困难',tags:['物理','爬坡'],players:'1人',playTime:'5分钟'})">
+                <div class="game-card" style="opacity: 0.6;" onclick="launchGame({id:'emoji-climb',name:'Emoji Climb',emoji:'🚜',tagline:'Wacky physics, crashes are fun',version:'0.1.0',status:'ready',path:'games/emoji-climb/index.html',difficulty:'Hard',tags:['Physics','Climb'],players:'1 Player',playTime:'5 min'})">
                     <div class="game-cover">
                         🚜
                         <span class="game-status soon">Coming Soon</span>
                     </div>
                     <div class="game-info">
                         <div class="game-title">🚜 Emoji Climb</div>
-                        <div class="game-tagline">魔性物理，翻车即笑点</div>
+                        <div class="game-tagline">Wacky physics, crashes are fun</div>
                         <div class="tags">
-                            <span class="tag">物理</span>
-                            <span class="tag">爬坡</span>
-                            <span class="tag">魔性</span>
+                            <span class="tag">Physics</span>
+                            <span class="tag">Climb</span>
+                            <span class="tag">Wacky</span>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 即将上线 -->
+        <!-- Coming Soon -->
         <section class="games-section">
-            <h2 class="section-title">🔜 即将上线</h2>
+            <h2 class="section-title">🔜 Coming Soon</h2>
             <div class="games-grid">
                 <div class="game-card" style="opacity: 0.6;">
                     <div class="game-cover">
@@ -200,10 +200,10 @@
                     </div>
                     <div class="game-info">
                         <div class="game-title">🐸 Emoji Jump</div>
-                        <div class="game-tagline">跳跃闯关，手速挑战</div>
+                        <div class="game-tagline">Jump and dash, speed challenge</div>
                         <div class="tags">
-                            <span class="tag">跳跃</span>
-                            <span class="tag">动作</span>
+                            <span class="tag">Jump</span>
+                            <span class="tag">Action</span>
                         </div>
                     </div>
                 </div>
@@ -211,29 +211,29 @@
         </section>
     </main>
 
-    <!-- 页脚 -->
+    <!-- Footer -->
     <footer class="footer">
         <p>🎮 Emoji Arcade v0.2.0 | Made with ❤️ by Galaxy + AI</p>
         <p style="margin-top: 8px; font-size: 11px;">
-            🏆 用户系统即将上线 | 📊 排行榜开发中 | 🏅 成就系统规划中
+            🏆 User system coming soon | 📊 Leaderboard in development | 🏅 Achievements planned
         </p>
     </footer>
 
-    <!-- 游戏内嵌容器 -->
+    <!-- Game Embed Container -->
     <div class="game-container" id="gameContainer">
         <iframe class="game-frame" id="gameFrame" src=""></iframe>
     </div>
 
-    <!-- 登录弹窗（预留） -->
+    <!-- Login Modal (reserved) -->
     <div id="loginModal" style="display: none;">
-        <!-- 用户系统上线后实现 -->
+        <!-- User system to be implemented -->
     </div>
 
     <script>
-        // ==================== 游戏数据 ====================
+        // ==================== Game Data ====================
         let gamesData = [];
         
-        // 本地存储封装（预留用户系统）
+        // Local storage wrapper (reserved for user system)
         const Storage = {
             prefix: 'emoji_arcade_',
             
@@ -249,7 +249,7 @@
                 localStorage.setItem(this.prefix + key, JSON.stringify(value));
             },
             
-            // 用户相关（预留）
+            // User related (reserved)
             getUser() {
                 return this.get('user');
             },
@@ -258,7 +258,7 @@
                 this.set('user', user);
             },
             
-            // 游戏记录
+            // Game records
             getGameRecord(gameId) {
                 const records = this.get('game_records') || {};
                 return records[gameId] || { highScore: 0, playCount: 0, lastPlayed: null };
@@ -271,7 +271,7 @@
             }
         };
         
-        // ==================== 用户系统（预留） ====================
+        // ==================== User System (reserved) ====================
         let currentUser = null;
         
         function initUserSystem() {
@@ -287,13 +287,13 @@
         }
         
         function showLoginModal() {
-            // 预留：登录弹窗
-            alert('🎮 用户系统即将上线！\n\n现在可以匿名游玩，所有分数保存在本地。');
+            // Reserved: login modal
+            alert('🎮 User system coming soon!\n\nPlay anonymously for now. All scores saved locally.');
         }
         
         function showUserMenu() {
-            // 预留：用户菜单
-            alert('🎮 用户中心即将上线！');
+            // Reserved: user menu
+            alert('🎮 User center coming soon!');
         }
         
         // ==================== 游戏加载 ====================
@@ -303,38 +303,38 @@
                 id: 'emoji-survive',
                 name: 'Emoji Survive',
                 emoji: '🛻',
-                tagline: '🛻 废土生存 · 改装货车杀出20波',
+                tagline: '🛻 Wasteland Survival · Mod your truck and survive 20 waves',
                 version: '0.1.0',
                 status: 'ready',
                 path: 'games/emoji-survive/index.html',
-                difficulty: '中等',
-                tags: ['射击', '生存', '升级'],
-                players: '1人',
-                playTime: '10-20分钟'
+                difficulty: 'Medium',
+                tags: ['Shooter', 'Survival', 'Upgrade'],
+                players: '1 Player',
+                playTime: '10-20 min'
             }, {
                 id: 'emoji-shooter',
                 name: 'Emoji Shooter',
                 emoji: '🗿',
-                tagline: '消灭搞怪Emoji敌人',
+                tagline: 'Destroy quirky Emoji enemies',
                 version: '0.1.5',
                 status: 'ready',
                 path: 'games/emoji-shooter/index.html',
-                difficulty: '中等',
-                tags: ['射击', '街机', 'Boss战'],
-                players: '1人',
-                playTime: '5-10分钟'
+                difficulty: 'Medium',
+                tags: ['Shooter', 'Arcade', 'Boss Battle'],
+                players: '1 Player',
+                playTime: '5-10 min'
             }, {
                 id: 'emoji-match',
                 name: 'Emoji Match',
                 emoji: '🧩',
-                tagline: '记忆翻牌，双人对战',
+                tagline: 'Memory matching, 2-player battle',
                 version: '1.0.0',
                 status: 'ready',
                 path: 'games/emoji-match/index.html',
-                difficulty: '简单',
-                tags: ['记忆', '益智', '双人'],
-                players: '2人',
-                playTime: '3-8分钟'
+                difficulty: 'Easy',
+                tags: ['Memory', 'Puzzle', '2P'],
+                players: '2 Players',
+                playTime: '3-8 min'
             }];
             renderGames();
         }
@@ -355,8 +355,8 @@
             card.onclick = () => launchGame(game);
             
             const highScoreText = record.highScore > 0 
-                ? `🏆 最高分: ${record.highScore}` 
-                : '🎮 点击开始';
+                ? `🏆 High Score: ${record.highScore}` 
+                : '🎮 Tap to Play';
             
             card.innerHTML = `
                 <div class="game-cover">
@@ -383,11 +383,11 @@
             return card;
         }
         
-        // ==================== 启动游戏 ====================
+        // ==================== Launch Game ====================
         function launchGame(game) {
             if (game.status !== 'ready') {
-                alert('🎮 游戏开发中，敬请期待！');
-                // 追踪：点击了未完成的游戏
+                alert('🎮 Game in development, stay tuned!');
+                // Track: clicked on unfinished game
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'click_coming_soon', {
                         'game_id': game.id,
@@ -458,23 +458,23 @@
             const isChinese = lang.startsWith('zh');
             
             if (!isChinese) {
-                // 显示英文，隐藏中文
+                // Show English, hide Chinese
                 document.getElementById('heroSubtitle').style.display = 'none';
                 document.getElementById('heroSubtitleEn').style.display = 'block';
                 document.getElementById('speedSubtitle').style.display = 'none';
                 document.getElementById('speedSubtitleEn').style.display = 'block';
-                // 切换登录按钮文字为英文
+                // Switch login button text to English
                 document.getElementById('loginText').textContent = 'Login';
             }
         }
         
-        // ==================== 初始化 ====================
+        // ==================== Init ====================
         document.addEventListener('DOMContentLoaded', () => {
             detectLanguage();
             initUserSystem();
             loadGames();
             
-            // 追踪：页面完全加载
+            // Track: page fully loaded
             if (typeof gtag !== 'undefined') {
                 gtag('event', 'page_ready', {
                     'load_time': Math.round(performance.now())
