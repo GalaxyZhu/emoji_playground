@@ -128,91 +128,16 @@
             <h2 class="section-title">🏎️ Emoji for Speed</h2>
             <p id="speedSubtitleZh" style="color: #888; margin-bottom: 20px; font-size: 14px;">Emoji赛车专区 · 速度与激情 · 用表情包飙车才是正经事</p>
             <p id="speedSubtitleEn" style="color: #666; margin-bottom: 20px; font-size: 14px; display: none;">Racing with Emojis · Speed & Passion · Drive with Attitude</p>
-            <div class="games-grid">
-                <div class="game-card" style="opacity: 0.6;" onclick="launchGame({id:'emoji-rush',name:'Emoji Rush',emoji:'🏎️',tagline:'Minimalist speed run, one-hand control',version:'0.1.0',status:'ready',path:'games/emoji-rush/index.html',difficulty:'Easy',tags:['Racing','Minimal'],players:'1 Player',playTime:'3 min'})">
-                    <div class="game-cover">
-                        🏎️
-                        <span class="game-status beta">Beta</span>
-                    </div>
-                    <div class="game-info">
-                        <div class="game-title">🏎️ Emoji Rush</div>
-                        <div class="game-tagline">Minimalist speed run, one-hand control</div>
-                        <div class="tags">
-                            <span class="tag">Racing</span>
-                            <span class="tag">Minimal</span>
-                            <span class="tag">3 min</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="game-card" style="opacity: 0.6;" onclick="launchGame({id:'emoji-drift',name:'Emoji Drift',emoji:'🚗',tagline:'Three-lane parkour, reflex challenge',version:'0.1.0',status:'ready',path:'games/emoji-drift/index.html',difficulty:'Medium',tags:['Parkour','Reflex'],players:'1 Player',playTime:'5 min'})">
-                    <div class="game-cover">
-                        🚗
-                        <span class="game-status beta">Beta</span>
-                    </div>
-                    <div class="game-info">
-                        <div class="game-title">🚗 Emoji Drift</div>
-                        <div class="game-tagline">Three-lane parkour, reflex challenge</div>
-                        <div class="tags">
-                            <span class="tag">Parkour</span>
-                            <span class="tag">Reflex</span>
-                            <span class="tag">Portrait</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="game-card" style="opacity: 0.6;" onclick="launchGame({id:'emoji-kart',name:'Emoji Kart',emoji:'🏎️',tagline:'Item chaos, fun and trolling',version:'0.1.0',status:'ready',path:'games/emoji-kart/index.html',difficulty:'Medium',tags:['Items','Chaos'],players:'1 Player',playTime:'5 min'})">
-                    <div class="game-cover">
-                        🏎️
-                        <span class="game-status beta">Beta</span>
-                    </div>
-                    <div class="game-info">
-                        <div class="game-title">🏎️ Emoji Kart</div>
-                        <div class="game-tagline">Item chaos, fun and trolling</div>
-                        <div class="tags">
-                            <span class="tag">Items</span>
-                            <span class="tag">Chaos</span>
-                            <span class="tag">Social</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="game-card" style="opacity: 0.6;" onclick="launchGame({id:'emoji-climb',name:'Emoji Climb',emoji:'🚜',tagline:'Wacky physics, crashes are fun',version:'0.1.0',status:'ready',path:'games/emoji-climb/index.html',difficulty:'Hard',tags:['Physics','Climb'],players:'1 Player',playTime:'5 min'})">
-                    <div class="game-cover">
-                        🚜
-                        <span class="game-status soon">Coming Soon</span>
-                    </div>
-                    <div class="game-info">
-                        <div class="game-title">🚜 Emoji Climb</div>
-                        <div class="game-tagline">Wacky physics, crashes are fun</div>
-                        <div class="tags">
-                            <span class="tag">Physics</span>
-                            <span class="tag">Climb</span>
-                            <span class="tag">Wacky</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="games-grid" id="racingGamesGrid">
+                <!-- Racing games will be rendered by JS -->
             </div>
         </section>
 
         <!-- Coming Soon -->
         <section class="games-section">
             <h2 class="section-title">🔜 Coming Soon</h2>
-            <div class="games-grid">
-                <div class="game-card" style="opacity: 0.6;">
-                    <div class="game-cover">
-                        🐸
-                        <span class="game-status soon">Coming Soon</span>
-                    </div>
-                    <div class="game-info">
-                        <div class="game-title">🐸 Emoji Jump</div>
-                        <div class="game-tagline">Jump and dash, speed challenge</div>
-                        <div class="tags">
-                            <span class="tag">Jump</span>
-                            <span class="tag">Action</span>
-                        </div>
-                    </div>
-                </div>
+            <div class="games-grid" id="comingSoonGrid">
+                <!-- Coming soon games will be rendered by JS -->
             </div>
         </section>
     </main>
@@ -220,7 +145,10 @@
     <!-- Footer -->
     <footer class="footer">
         <p>🎮 Emoji Arcade v0.2.0 | Made with ❤️ by Galaxy + AI</p>
-        <p style="margin-top: 8px; font-size: 11px;">
+        <p id="footerZh" style="margin-top: 8px; font-size: 11px;">
+            🏆 用户系统即将上线 | 📊 排行榜开发中 | 🏅 成就系统规划中
+        </p>
+        <p id="footerEn" style="margin-top: 8px; font-size: 11px; display: none;">
             🏆 User system coming soon | 📊 Leaderboard in development | 🏅 Achievements planned
         </p>
     </footer>
@@ -236,8 +164,84 @@
     </div>
 
     <script>
-        // ==================== Game Data ====================
+        // ==================== 游戏数据（支持双语） ====================
         let gamesData = [];
+        
+        // 游戏数据配置（双语）
+        const gameConfigs = {
+            'emoji-survive': {
+                name: 'Emoji Survive',
+                emoji: '🛻',
+                tagline: { zh: '🛻 废土生存 · 改装货车杀出20波', en: '🛻 Wasteland Survival · Mod your truck and survive 20 waves' },
+                difficulty: { zh: '中等', en: 'Medium' },
+                tags: { zh: ['射击', '生存', '升级'], en: ['Shooter', 'Survival', 'Upgrade'] },
+                players: { zh: '1人', en: '1 Player' },
+                playTime: { zh: '10-20分钟', en: '10-20 min' }
+            },
+            'emoji-shooter': {
+                name: 'Emoji Shooter',
+                emoji: '🗿',
+                tagline: { zh: '消灭搞怪Emoji敌人', en: 'Destroy quirky Emoji enemies' },
+                difficulty: { zh: '中等', en: 'Medium' },
+                tags: { zh: ['射击', '街机', 'Boss战'], en: ['Shooter', 'Arcade', 'Boss Battle'] },
+                players: { zh: '1人', en: '1 Player' },
+                playTime: { zh: '5-10分钟', en: '5-10 min' }
+            },
+            'emoji-match': {
+                name: 'Emoji Match',
+                emoji: '🧩',
+                tagline: { zh: '记忆翻牌，双人对战', en: 'Memory matching, 2-player battle' },
+                difficulty: { zh: '简单', en: 'Easy' },
+                tags: { zh: ['记忆', '益智', '双人'], en: ['Memory', 'Puzzle', '2P'] },
+                players: { zh: '2人', en: '2 Players' },
+                playTime: { zh: '3-8分钟', en: '3-8 min' }
+            },
+            'emoji-rush': {
+                name: 'Emoji Rush',
+                emoji: '🏎️',
+                tagline: { zh: '极简直线狂飙，单手操作', en: 'Minimalist speed run, one-hand control' },
+                difficulty: { zh: '简单', en: 'Easy' },
+                tags: { zh: ['竞速', '极简'], en: ['Racing', 'Minimal'] },
+                players: { zh: '1人', en: '1 Player' },
+                playTime: { zh: '3分钟', en: '3 min' }
+            },
+            'emoji-drift': {
+                name: 'Emoji Drift',
+                emoji: '🚗',
+                tagline: { zh: '三车道跑酷，反应力挑战', en: 'Three-lane parkour, reflex challenge' },
+                difficulty: { zh: '中等', en: 'Medium' },
+                tags: { zh: ['跑酷', '反应', '竖屏'], en: ['Parkour', 'Reflex', 'Portrait'] },
+                players: { zh: '1人', en: '1 Player' },
+                playTime: { zh: '5分钟', en: '5 min' }
+            },
+            'emoji-kart': {
+                name: 'Emoji Kart',
+                emoji: '🏎️',
+                tagline: { zh: '道具乱斗，欢乐互坑', en: 'Item chaos, fun and trolling' },
+                difficulty: { zh: '中等', en: 'Medium' },
+                tags: { zh: ['道具', '乱斗', '社交'], en: ['Items', 'Chaos', 'Social'] },
+                players: { zh: '1人', en: '1 Player' },
+                playTime: { zh: '5分钟', en: '5 min' }
+            },
+            'emoji-climb': {
+                name: 'Emoji Climb',
+                emoji: '🚜',
+                tagline: { zh: '魔性物理，翻车即笑点', en: 'Wacky physics, crashes are fun' },
+                difficulty: { zh: '困难', en: 'Hard' },
+                tags: { zh: ['物理', '爬坡', '魔性'], en: ['Physics', 'Climb', 'Wacky'] },
+                players: { zh: '1人', en: '1 Player' },
+                playTime: { zh: '5分钟', en: '5 min' }
+            },
+            'emoji-jump': {
+                name: 'Emoji Jump',
+                emoji: '🐸',
+                tagline: { zh: '跳跃闯关，手速挑战', en: 'Jump and dash, speed challenge' },
+                difficulty: { zh: '简单', en: 'Easy' },
+                tags: { zh: ['跳跃', '动作'], en: ['Jump', 'Action'] },
+                players: { zh: '1人', en: '1 Player' },
+                playTime: { zh: '5分钟', en: '5 min' }
+            }
+        };
         
         // Local storage wrapper (reserved for user system)
         const Storage = {
@@ -293,92 +297,188 @@
         }
         
         function showLoginModal() {
-            // Reserved: login modal
-            alert('🎮 User system coming soon!\n\nPlay anonymously for now. All scores saved locally.');
+            const lang = getCurrentLang();
+            if (lang === 'zh') {
+                alert('🎮 用户系统即将上线！\n\n现在可以匿名游玩，所有分数保存在本地。');
+            } else {
+                alert('🎮 User system coming soon!\n\nPlay anonymously for now. All scores saved locally.');
+            }
         }
         
         function showUserMenu() {
-            // Reserved: user menu
-            alert('🎮 User center coming soon!');
+            const lang = getCurrentLang();
+            if (lang === 'zh') {
+                alert('🎮 用户中心即将上线！');
+            } else {
+                alert('🎮 User center coming soon!');
+            }
         }
         
-        // ==================== 游戏加载 ====================
+        // ==================== 游戏加载（支持双语）====================
         async function loadGames() {
-            // 硬编码游戏数据
-            gamesData = [{
-                id: 'emoji-survive',
-                name: 'Emoji Survive',
-                emoji: '🛻',
-                tagline: '🛻 Wasteland Survival · Mod your truck and survive 20 waves',
+            // 构建游戏数据
+            gamesData = Object.keys(gameConfigs).map(id => ({
+                id,
+                ...gameConfigs[id],
                 version: '0.1.0',
-                status: 'ready',
-                path: 'games/emoji-survive/index.html',
-                difficulty: 'Medium',
-                tags: ['Shooter', 'Survival', 'Upgrade'],
-                players: '1 Player',
-                playTime: '10-20 min'
-            }, {
-                id: 'emoji-shooter',
-                name: 'Emoji Shooter',
-                emoji: '🗿',
-                tagline: 'Destroy quirky Emoji enemies',
-                version: '0.1.5',
-                status: 'ready',
-                path: 'games/emoji-shooter/index.html',
-                difficulty: 'Medium',
-                tags: ['Shooter', 'Arcade', 'Boss Battle'],
-                players: '1 Player',
-                playTime: '5-10 min'
-            }, {
-                id: 'emoji-match',
-                name: 'Emoji Match',
-                emoji: '🧩',
-                tagline: 'Memory matching, 2-player battle',
-                version: '1.0.0',
-                status: 'ready',
-                path: 'games/emoji-match/index.html',
-                difficulty: 'Easy',
-                tags: ['Memory', 'Puzzle', '2P'],
-                players: '2 Players',
-                playTime: '3-8 min'
-            }];
+                status: id === 'emoji-jump' ? 'soon' : 'ready',
+                path: `games/${id}/index.html`
+            }));
+            
             renderGames();
+            renderRacingGames();
+            renderComingSoonGames();
         }
         
+        // 渲染赛车游戏
+        function renderRacingGames() {
+            const grid = document.getElementById('racingGamesGrid');
+            const lang = getCurrentLang();
+            
+            const racingGames = ['emoji-rush', 'emoji-drift', 'emoji-kart', 'emoji-climb'];
+            racingGames.forEach(id => {
+                const game = gameConfigs[id];
+                if (game) {
+                    const card = createStaticGameCard(id, game, lang);
+                    grid.appendChild(card);
+                }
+            });
+        }
+        
+        // 创建静态游戏卡片
+        function createStaticGameCard(id, game, lang) {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.style.opacity = '0.6';
+            card.onclick = () => launchGame({
+                id,
+                name: game.name,
+                emoji: game.emoji,
+                tagline: game.tagline[lang],
+                version: '0.1.0',
+                status: id === 'emoji-climb' ? 'soon' : 'ready',
+                path: `games/${id}/index.html`,
+                difficulty: game.difficulty[lang],
+                tags: game.tags[lang],
+                players: game.players[lang],
+                playTime: game.playTime[lang]
+            });
+            
+            const tagline = game.tagline[lang];
+            const tags = game.tags[lang];
+            const statusText = id === 'emoji-climb' ? 
+                (lang === 'zh' ? '即将上线' : 'Coming Soon') : 
+                (lang === 'zh' ? '测试版' : 'Beta');
+            
+            card.innerHTML = `
+                <div class="game-cover">
+                    ${game.emoji}
+                    <span class="game-status ${id === 'emoji-climb' ? 'soon' : 'beta'}">${statusText}</span>
+                </div>
+                <div class="game-info">
+                    <div class="game-title">${game.emoji} ${game.name}</div>
+                    <div class="game-tagline">${tagline}</div>
+                    <div class="tags">
+                        ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // 渲染即将上线游戏
+        function renderComingSoonGames() {
+            const grid = document.getElementById('comingSoonGrid');
+            const lang = getCurrentLang();
+            
+            const comingSoonGames = ['emoji-jump'];
+            comingSoonGames.forEach(id => {
+                const game = gameConfigs[id];
+                if (game) {
+                    const card = createComingSoonCard(game, lang);
+                    grid.appendChild(card);
+                }
+            });
+        }
+        
+        // 创建即将上线卡片
+        function createComingSoonCard(game, lang) {
+            const card = document.createElement('div');
+            card.className = 'game-card';
+            card.style.opacity = '0.6';
+            
+            const tagline = game.tagline[lang];
+            const tags = game.tags[lang];
+            const statusText = lang === 'zh' ? '即将上线' : 'Coming Soon';
+            
+            card.innerHTML = `
+                <div class="game-cover">
+                    ${game.emoji}
+                    <span class="game-status soon">${statusText}</span>
+                </div>
+                <div class="game-info">
+                    <div class="game-title">${game.emoji} ${game.name}</div>
+                    <div class="game-tagline">${tagline}</div>
+                    <div class="tags">
+                        ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        // 获取当前语言
+        function getCurrentLang() {
+            const lang = navigator.language || navigator.userLanguage;
+            return lang.startsWith('zh') ? 'zh' : 'en';
+        }
+        
+        // 渲染动态游戏卡片
         function renderGames() {
             const grid = document.getElementById('gamesGrid');
+            const lang = getCurrentLang();
             
-            gamesData.forEach(game => {
+            gamesData.filter(g => g.status === 'ready').forEach(game => {
                 const record = Storage.getGameRecord(game.id);
-                const card = createGameCard(game, record);
+                const card = createGameCard(game, record, lang);
                 grid.appendChild(card);
             });
         }
         
-        function createGameCard(game, record) {
+        // 创建游戏卡片
+        function createGameCard(game, record, lang) {
             const card = document.createElement('div');
             card.className = 'game-card';
             card.onclick = () => launchGame(game);
             
             const highScoreText = record.highScore > 0 
-                ? `🏆 High Score: ${record.highScore}` 
-                : '🎮 Tap to Play';
+                ? (lang === 'zh' ? `🏆 最高分: ${record.highScore}` : `🏆 High Score: ${record.highScore}`)
+                : (lang === 'zh' ? '🎮 点击开始' : '🎮 Tap to Play');
+            
+            const tagline = game.tagline[lang];
+            const difficulty = game.difficulty[lang];
+            const players = game.players[lang];
+            const playTime = game.playTime[lang];
+            const tags = game.tags[lang];
+            const statusText = game.status === 'ready' ? (lang === 'zh' ? '热门' : 'HOT') : game.status;
             
             card.innerHTML = `
                 <div class="game-cover">
                     ${game.emoji}
-                    <span class="game-status ${game.status}">${game.status === 'ready' ? 'HOT' : game.status}</span>
+                    <span class="game-status ${game.status}">${statusText}</span>
                 </div>
                 <div class="game-info">
                     <div class="game-title">${game.emoji} ${game.name}</div>
-                    <div class="game-tagline">${game.tagline}</div>
+                    <div class="game-tagline">${tagline}</div>
                     <div class="game-meta">
-                        <span>⚡ ${game.difficulty}</span>
-                        <span>👤 ${game.players}</span>
-                        <span>⏱️ ${game.playTime}</span>
+                        <span>⚡ ${difficulty}</span>
+                        <span>👤 ${players}</span>
+                        <span>⏱️ ${playTime}</span>
                     </div>
                     <div class="tags">
-                        ${game.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                        ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
                     </div>
                     <div style="margin-top: 12px; font-size: 13px; color: var(--neon-yellow);">
                         ${highScoreText}
@@ -392,7 +492,12 @@
         // ==================== Launch Game ====================
         function launchGame(game) {
             if (game.status !== 'ready') {
-                alert('🎮 Game in development, stay tuned!');
+                const lang = getCurrentLang();
+                if (lang === 'zh') {
+                    alert('🎮 游戏开发中，敬请期待！');
+                } else {
+                    alert('🎮 Game in development, stay tuned!');
+                }
                 // Track: clicked on unfinished game
                 if (typeof gtag !== 'undefined') {
                     gtag('event', 'click_coming_soon', {
@@ -463,10 +568,21 @@
             const lang = navigator.language || navigator.userLanguage;
             const isChinese = lang.startsWith('zh');
             
+            // Hero section
             const heroSubtitleZh = document.getElementById('heroSubtitleZh');
             const heroSubtitleEn = document.getElementById('heroSubtitleEn');
             const speedSubtitleZh = document.getElementById('speedSubtitleZh');
             const speedSubtitleEn = document.getElementById('speedSubtitleEn');
+            
+            // Section titles
+            const hotGamesTitleZh = document.getElementById('hotGamesTitleZh');
+            const hotGamesTitleEn = document.getElementById('hotGamesTitleEn');
+            const comingSoonTitleZh = document.getElementById('comingSoonTitleZh');
+            const comingSoonTitleEn = document.getElementById('comingSoonTitleEn');
+            
+            // Footer
+            const footerZh = document.getElementById('footerZh');
+            const footerEn = document.getElementById('footerEn');
             
             if (isChinese) {
                 // Show Chinese, hide English
@@ -474,6 +590,15 @@
                 if (heroSubtitleEn) heroSubtitleEn.style.display = 'none';
                 if (speedSubtitleZh) speedSubtitleZh.style.display = 'block';
                 if (speedSubtitleEn) speedSubtitleEn.style.display = 'none';
+                
+                if (hotGamesTitleZh) hotGamesTitleZh.style.display = 'block';
+                if (hotGamesTitleEn) hotGamesTitleEn.style.display = 'none';
+                if (comingSoonTitleZh) comingSoonTitleZh.style.display = 'block';
+                if (comingSoonTitleEn) comingSoonTitleEn.style.display = 'none';
+                
+                if (footerZh) footerZh.style.display = 'block';
+                if (footerEn) footerEn.style.display = 'none';
+                
                 document.getElementById('loginText').textContent = '登录';
             } else {
                 // Show English, hide Chinese
@@ -481,6 +606,15 @@
                 if (heroSubtitleEn) heroSubtitleEn.style.display = 'block';
                 if (speedSubtitleZh) speedSubtitleZh.style.display = 'none';
                 if (speedSubtitleEn) speedSubtitleEn.style.display = 'block';
+                
+                if (hotGamesTitleZh) hotGamesTitleZh.style.display = 'none';
+                if (hotGamesTitleEn) hotGamesTitleEn.style.display = 'block';
+                if (comingSoonTitleZh) comingSoonTitleZh.style.display = 'none';
+                if (comingSoonTitleEn) comingSoonTitleEn.style.display = 'block';
+                
+                if (footerZh) footerZh.style.display = 'none';
+                if (footerEn) footerEn.style.display = 'block';
+                
                 document.getElementById('loginText').textContent = 'Login';
             }
         }
