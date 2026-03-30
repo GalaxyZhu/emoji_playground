@@ -201,9 +201,18 @@
         /* 开始屏幕按钮组 */
         .start-buttons {
             display: flex;
-            gap: 15px;
+            flex-direction: column;
+            gap: 12px;
             margin-bottom: 15px;
-            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .start-buttons .btn {
+            width: 180px;
+            height: 50px;
+            padding: 0;
+            display: flex;
+            align-items: center;
             justify-content: center;
         }
         .score-display {
