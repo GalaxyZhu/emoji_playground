@@ -96,10 +96,12 @@
         #gameCanvas {
             background: linear-gradient(180deg, #3d2817 0%, #2a1a1a 50%, #1a1a1a 100%);
             box-shadow: 0 0 50px rgba(255, 100, 0, 0.3);
-            width: 100vw;
-            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             display: block;
-            object-fit: contain;
         }
 
         .ui-overlay {
@@ -1476,8 +1478,7 @@
         // 初始化
         init();
     </script>
-    
-        </div>
+    </div>  <!-- 关闭 gameMain -->
         
         <!-- 右广告位 - AdSense -->
         <div class="ad-slot" id="adRight">
