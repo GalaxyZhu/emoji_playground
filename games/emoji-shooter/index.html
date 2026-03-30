@@ -198,6 +198,14 @@
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
         }
         
+        /* 开始屏幕按钮组 */
+        .start-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
         .score-display {
             font-size: 20px;
             color: #fff;
@@ -487,7 +495,10 @@
                     <div class="emoji-title">🗿</div>
                     <h1>EMOJI SHOOTER V0.1.5</h1>
                     <div class="high-score">最高分: <span id="startHighScore">0</span></div>
-                    <button class="btn" onclick="startGame()">开始游戏</button>
+                    <div class="start-buttons">
+                        <button class="btn" onclick="startGame()">开始游戏</button>
+                        <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
+                    </div>
                     <div class="instructions">
                         移动鼠标控制🗿，自动射击消灭敌人<br>
                         到<b>左边奖励区</b>击破奖励包获取强力加成<br>
