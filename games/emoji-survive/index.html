@@ -236,35 +236,54 @@ function resizeCanvas() {
 // ==================== 平台生成 ====================
 function generateMap(waveNum) {
     platforms = []; groundSegments = [];
-    const mapWidth = 2000 + waveNum * 500; // 地图长度随波次增加
-    const gapChance = Math.min(0.15 + waveNum * 0.025, 0.5);
+    const mapWidth = 2000 + waveNum * 500;
+    const gapChance = Math.min(0.12 + waveNum * 0.02, 0.35); // 降低坑的概率
     
-    // 生成地面（带坑）
+    // 生成地面（带坑），记录坑的位置用于生成过桥平台
     let currentX = 0;
+    const gapPositions = []; // 记录每个坑的中心位置
+    
     while (currentX < mapWidth) {
-        if (Math.random() < gapChance && currentX > 300) {
-            currentX += 40 + Math.random() * 50; // 坑的宽度：40-90像素，可跳过
+        if (Math.random() < gapChance && currentX > 400) {
+            const gapWidth = 50 + Math.random() * 60; // 50-110像素坑宽
+            gapPositions.push({ x: currentX + gapWidth/2, width: gapWidth });
+            currentX += gapWidth;
         } else {
-            const segWidth = 150 + Math.random() * 250;
+            const segWidth = 180 + Math.random() * 220;
             groundSegments.push({ x: currentX, y: PLATFORM_LAYERS.bottom.y, width: segWidth, height: 100 });
             currentX += segWidth;
         }
     }
     
-    // 生成中层平台
-    for (let i = 0; i < 4 + waveNum; i++) {
-        const x = 300 + i * 400 + Math.random() * 150;
-        if (x < mapWidth - 200) {
-            platforms.push({ x: x, y: PLATFORM_LAYERS.middle.y, width: 120 + Math.random() * 100, height: 20 });
+    // 在每个坑的位置生成中层平台（过桥平台）
+    gapPositions.forEach(gap => {
+        const platWidth = gap.width + 40; // 平台比坑宽一点，确保能跳上去
+        platforms.push({ 
+            x: gap.x - platWidth/2, 
+            y: PLATFORM_LAYERS.middle.y, 
+            width: platWidth, 
+            height: 20,
+            isBridge: true // 标记为桥接平台
+        });
+    });
+    
+    // 额外生成一些中层平台（间隔更大，避免重叠）
+    for (let i = 0; i < 2 + Math.floor(waveNum/2); i++) {
+        const x = 600 + i * 700 + Math.random() * 200;
+        // 确保不与桥接平台重叠
+        const tooClose = gapPositions.some(gap => Math.abs(gap.x - x) < 200);
+        if (x < mapWidth - 200 && !tooClose) {
+            platforms.push({ x: x, y: PLATFORM_LAYERS.middle.y, width: 100 + Math.random() * 80, height: 20 });
         }
     }
     
     // 生成顶层平台（难度较高）
     if (waveNum > 2) {
-        for (let i = 0; i < 2 + Math.floor(waveNum / 3); i++) {
-            const x = 600 + i * 600 + Math.random() * 200;
-            if (x < mapWidth - 200) {
-                platforms.push({ x: x, y: PLATFORM_LAYERS.top.y, width: 80 + Math.random() * 60, height: 20 });
+        for (let i = 0; i < 2 + Math.floor(waveNum / 4); i++) {
+            const x = 800 + i * 800 + Math.random() * 200;
+            const tooClose = gapPositions.some(gap => Math.abs(gap.x - x) < 150);
+            if (x < mapWidth - 200 && !tooClose) {
+                platforms.push({ x: x, y: PLATFORM_LAYERS.top.y, width: 70 + Math.random() * 50, height: 20 });
             }
         }
     }
