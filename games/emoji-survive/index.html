@@ -243,7 +243,7 @@ function generateMap(waveNum) {
     let currentX = 0;
     while (currentX < mapWidth) {
         if (Math.random() < gapChance && currentX > 300) {
-            currentX += 60 + Math.random() * 100; // 坑的宽度
+            currentX += 40 + Math.random() * 50; // 坑的宽度：40-90像素，可跳过
         } else {
             const segWidth = 150 + Math.random() * 250;
             groundSegments.push({ x: currentX, y: PLATFORM_LAYERS.bottom.y, width: segWidth, height: 100 });
