@@ -4,323 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>🛻 Emoji Survive - 废土生存 (Platformer)</title>
-    
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3968599850270461"
-         crossorigin="anonymous"></script>
-    
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3968599850270461" crossorigin="anonymous"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            touch-action: none;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            position: fixed;
-            overscroll-behavior: none;
-        }
-
-        body {
-            background: linear-gradient(180deg, #2d1f1f 0%, #1a1a1a 50%, #0d0d0d 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
-
-        #gameContainer {
-            display: flex;
-            width: 100%;
-            max-width: 1200px;
-            min-width: 640px;
-            height: 100vh;
-            min-height: 600px;
-            background: #0d0d0d;
-        }
-
-        .ad-slot {
-            width: 15%;
-            min-width: 96px;
-            background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
-            border: 2px dashed #333;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: #444;
-            font-size: 14px;
-            text-align: center;
-            padding: 10px;
-        }
-
-        .ad-slot .ad-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-            opacity: 0.3;
-        }
-
-        @media (max-width: 768px) {
-            .ad-slot { display: none; }
-            #gameMain { width: 100%; }
-        }
-
-        #gameMain {
-            flex: 1;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
-
-        #gameCanvas {
-            background: linear-gradient(180deg, #3d2817 0%, #2a1a1a 50%, #1a1a1a 100%);
-            box-shadow: 0 0 50px rgba(255, 100, 0, 0.3);
-            display: block;
-            max-width: 100%;
-            max-height: 100%;
-        }
-
-        .ui-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 100;
-            overflow-y: auto;
-            padding: 20px 0;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+        html, body { width: 100%; height: 100%; overflow: hidden; position: fixed; overscroll-behavior: none; }
+        body { background: linear-gradient(180deg, #2d1f1f 0%, #1a1a1a 50%, #0d0d0d 100%); display: flex; justify-content: center; align-items: center; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+        #gameContainer { display: flex; width: 100%; max-width: 1200px; min-width: 640px; height: 100vh; min-height: 600px; background: #0d0d0d; }
+        .ad-slot { width: 15%; min-width: 96px; background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%); border: 2px dashed #333; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #444; font-size: 14px; text-align: center; padding: 10px; }
+        .ad-slot .ad-icon { font-size: 32px; margin-bottom: 10px; opacity: 0.3; }
+        @media (max-width: 768px) { .ad-slot { display: none; } #gameMain { width: 100%; } }
+        #gameMain { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        #gameCanvas { background: linear-gradient(180deg, #3d2817 0%, #2a1a1a 50%, #1a1a1a 100%); box-shadow: 0 0 50px rgba(255, 100, 0, 0.3); display: block; max-width: 100%; max-height: 100%; }
+        .ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.9); z-index: 100; overflow-y: auto; padding: 20px 0; }
         .hidden { display: none !important; }
-
-        h1 {
-            font-size: 48px;
-            color: #fff;
-            text-shadow: 0 0 20px #ff6600;
-            margin-bottom: 10px;
-        }
-
-        .emoji-title {
-            font-size: 72px;
-            margin-bottom: 20px;
-            animation: bounce 1s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .btn {
-            padding: 15px 40px;
-            font-size: 20px;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 10px 0;
-            font-weight: 600;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #ff6600 0%, #ff3300 100%);
-            color: white;
-            box-shadow: 0 4px 20px rgba(255, 102, 0, 0.5);
-        }
-
-        .btn-primary:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 25px rgba(255, 102, 0, 0.7);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
-        }
-
-        .start-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-bottom: 15px;
-            align-items: center;
-        }
-
-        .start-buttons .btn {
-            width: 180px;
-            height: 50px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0;
-        }
-
-        .instructions {
-            color: #888;
-            margin-top: 30px;
-            text-align: center;
-            font-size: 14px;
-            line-height: 1.8;
-            max-width: 500px;
-        }
-
-        .hud {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            display: flex;
-            justify-content: space-between;
-            color: #fff;
-            font-size: 16px;
-            z-index: 50;
-            pointer-events: none;
-        }
-
-        .hud-item {
-            background: rgba(0, 0, 0, 0.6);
-            padding: 8px 15px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .health-bar {
-            width: 150px;
-            height: 20px;
-            background: rgba(0, 0, 0, 0.6);
-            border-radius: 10px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .health-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ff4444 0%, #ff6600 100%);
-            transition: width 0.3s;
-        }
-
-        .shop-container {
-            background: rgba(20, 20, 20, 0.95);
-            border: 2px solid #ff6600;
-            border-radius: 20px;
-            padding: 20px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 85vh;
-            overflow-y: auto;
-        }
-
-        .shop-title {
-            font-size: 32px;
-            color: #ff6600;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .upgrade-list {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .upgrade-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 10px;
-        }
-
-        .btn-upgrade {
-            background: linear-gradient(135deg, #00c853 0%, #00a344 100%);
-            color: white;
-            padding: 10px 25px;
-            font-size: 16px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-        }
-
-        .btn-upgrade:disabled {
-            background: #444;
-            cursor: not-allowed;
-        }
-
-        .ult-button {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 70px;
-            height: 70px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%);
-            border: 3px solid #fff;
-            font-size: 30px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 20px rgba(156, 39, 176, 0.5);
-            z-index: 60;
-        }
-
-        .ult-button:disabled {
-            background: #444;
-            border-color: #666;
-            cursor: not-allowed;
-        }
-
-        .ult-cooldown {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 14px;
-        }
+        h1 { font-size: 48px; color: #fff; text-shadow: 0 0 20px #ff6600; margin-bottom: 10px; }
+        .emoji-title { font-size: 72px; margin-bottom: 20px; animation: bounce 1s infinite; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .btn { padding: 15px 40px; font-size: 20px; border: none; border-radius: 50px; cursor: pointer; transition: all 0.3s; margin: 10px 0; font-weight: 600; }
+        .btn-primary { background: linear-gradient(135deg, #ff6600 0%, #ff3300 100%); color: white; box-shadow: 0 4px 20px rgba(255, 102, 0, 0.5); }
+        .btn-primary:hover { transform: scale(1.05); box-shadow: 0 6px 25px rgba(255, 102, 0, 0.7); }
+        .btn-secondary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5); }
+        .start-buttons { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; align-items: center; }
+        .start-buttons .btn { width: 180px; height: 50px; padding: 0; display: flex; align-items: center; justify-content: center; margin: 0; }
+        .instructions { color: #888; margin-top: 30px; text-align: center; font-size: 14px; line-height: 1.8; max-width: 500px; }
+        .hud { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; color: #fff; font-size: 16px; z-index: 50; pointer-events: none; }
+        .hud-item { background: rgba(0, 0, 0, 0.6); padding: 8px 15px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .health-bar { width: 150px; height: 20px; background: rgba(0, 0, 0, 0.6); border-radius: 10px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .health-fill { height: 100%; background: linear-gradient(90deg, #ff4444 0%, #ff6600 100%); transition: width 0.3s; }
+        .shop-container { background: rgba(20, 20, 20, 0.95); border: 2px solid #ff6600; border-radius: 20px; padding: 20px; max-width: 520px; width: 90%; max-height: 90vh; overflow-y: auto; }
+        .shop-title { font-size: 32px; color: #ff6600; text-align: center; margin-bottom: 15px; }
+        .upgrade-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .upgrade-item { display: flex; justify-content: space-between; align-items: center; background: rgba(255, 255, 255, 0.05); padding: 12px 15px; border-radius: 10px; }
+        .btn-upgrade { background: linear-gradient(135deg, #00c853 0%, #00a344 100%); color: white; padding: 8px 20px; font-size: 14px; border: none; border-radius: 20px; cursor: pointer; }
+        .btn-upgrade:disabled { background: #444; cursor: not-allowed; }
+        .vehicle-select { display: flex; gap: 12px; justify-content: center; margin: 15px 0; flex-wrap: wrap; }
+        .vehicle-option { width: 70px; height: 70px; background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; font-size: 28px; }
+        .vehicle-option:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.05); }
+        .vehicle-option.selected { border-color: #ff6600; background: rgba(255, 102, 0, 0.2); box-shadow: 0 0 15px rgba(255, 102, 0, 0.5); }
+        .vehicle-option.locked { opacity: 0.5; cursor: not-allowed; }
+        .vehicle-name { font-size: 10px; color: #888; margin-top: 2px; }
+        .vehicle-lock { font-size: 11px; color: #ffd700; }
+        .ult-button { position: absolute; bottom: 20px; right: 20px; width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%); border: 3px solid #fff; font-size: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(156, 39, 176, 0.5); z-index: 60; }
+        .ult-button:disabled { background: #444; border-color: #666; cursor: not-allowed; }
+        .ult-cooldown { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; }
     </style>
 </head>
 <body>
     <div id="gameContainer">
-        <div class="ad-slot" id="adLeft">
-            <ins class="adsbygoogle" style="display:block;width:100%;height:100%;"
-                 data-ad-client="ca-pub-3968599850270461" data-ad-slot="LEFT_AD_SLOT_ID"
-                 data-ad-format="vertical" data-full-width-responsive="false"></ins>
-            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-        </div>
+        <div class="ad-slot" id="adLeft"><ins class="adsbygoogle" style="display:block;width:100%;height:100%;" data-ad-client="ca-pub-3968599850270461" data-ad-slot="LEFT_AD_SLOT_ID" data-ad-format="vertical" data-full-width-responsive="false"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
         
         <div id="gameMain">
             <canvas id="gameCanvas"></canvas>
-
             <div class="hud hidden" id="hud">
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <div class="hud-item"><span>❤️ </span><span id="healthText">100/100</span></div>
-                    <div class="health-bar">
-                        <div class="health-fill" id="healthBar" style="width: 100%;"></div>
-                    </div>
+                    <div class="health-bar"><div class="health-fill" id="healthBar" style="width: 100%;"></div></div>
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <div class="hud-item">💰 <span id="goldDisplay">0</span></div>
@@ -328,71 +66,84 @@
                     <div class="hud-item">👹 <span id="enemyDisplay">0</span></div>
                 </div>
             </div>
-
             <button class="ult-button hidden" id="ultButton" onclick="useUltimate()">🚀</button>
 
             <div class="ui-overlay" id="startScreen">
                 <div class="emoji-title">🛻</div>
                 <h1>EMOJI SURVIVE</h1>
-                <div style="color: #ff6600; font-size: 18px; margin-bottom: 20px;">废土平台生存战 (Preview)</div>
+                <div style="color: #ff6600; font-size: 18px; margin-bottom: 20px;">废土平台生存战 v2.0</div>
                 <div class="start-buttons">
                     <button class="btn btn-primary" onclick="startGame()">开始冒险</button>
                     <button class="btn btn-secondary" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
                 </div>
                 <div class="instructions">
-                    <b>🆕 新玩法 - 平台跳跃版</b><br><br>
-                    <b>🖥️ 电脑版：</b><br>
-                    🖱️ 鼠标移动 = 瞄准 | ␣ 空格 = 跳跃<br>
-                    Q键 = 大招清屏<br><br>
-                    <b>📱 手机版：</b><br>
-                    👆 左半屏 = 跳跃 | 👆 右半屏滑动 = 瞄准<br><br>
-                    ⚠️ <b>小心地面的坑！掉下去就死了！</b><br>
-                    🎯 脆皮敌人一炮死，精英有血条
+                    <b>🎮 平台跳跃版 v2.0</b><br><br>
+                    🖥️ <b>电脑：</b>鼠标瞄准 | 空格跳跃 | Q大招<br>
+                    📱 <b>手机：</b>左半屏跳跃 | 右半屏瞄准<br><br>
+                    ⚠️ <b>地图自动滚动！小心地面的坑！</b><br>
+                    🎯 脆皮1炮死，精英有血条
                 </div>
             </div>
 
             <div class="ui-overlay hidden" id="shopScreen">
                 <div class="shop-container">
                     <div class="shop-title">🔧 废土工坊</div>
-                    <div style="text-align: center; color: #888; margin-bottom: 20px;">第 <span id="shopWave">1</span> 波完成</div>
-                    <div style="text-align: center; font-size: 28px; color: #ffd700; margin-bottom: 30px;">💰 <span id="shopGold">0</span></div>
+                    <div style="text-align: center; color: #888; margin-bottom: 10px;">第 <span id="shopWave">1</span> 波完成</div>
+                    <div style="text-align: center; font-size: 26px; color: #ffd700; margin-bottom: 20px;">💰 <span id="shopGold">0</span></div>
 
                     <div class="upgrade-list">
                         <div class="upgrade-item">
-                            <div>
-                                <div style="font-size: 16px; color: #fff;">❤️ 装甲加固</div>
-                                <div style="font-size: 12px; color: #888;">最大生命值 +50</div>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="color: #ffd700;" id="healthCost">10💰</div>
+                            <div><div style="font-size: 15px; color: #fff;">❤️ 装甲加固</div><div style="font-size: 11px; color: #888;">最大生命值 +50</div></div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="color: #ffd700; font-size: 14px;" id="healthCost">10💰</div>
                                 <button class="btn-upgrade" id="healthBtn" onclick="buyUpgrade('health')">升级</button>
                             </div>
                         </div>
                         <div class="upgrade-item">
-                            <div>
-                                <div style="font-size: 16px; color: #fff;">⚡ 火力增强</div>
-                                <div style="font-size: 12px; color: #888;">子弹伤害 +5</div>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="color: #ffd700;" id="damageCost">15💰</div>
+                            <div><div style="font-size: 15px; color: #fff;">⚡ 火力增强</div><div style="font-size: 11px; color: #888;">子弹伤害 +5</div></div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="color: #ffd700; font-size: 14px;" id="damageCost">15💰</div>
                                 <button class="btn-upgrade" id="damageBtn" onclick="buyUpgrade('damage')">升级</button>
                             </div>
                         </div>
                         <div class="upgrade-item">
-                            <div>
-                                <div style="font-size: 16px; color: #fff;">🔫 射速提升</div>
-                                <div style="font-size: 12px; color: #888;">射击速度 +15%</div>
-                            </div>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="color: #ffd700;" id="fireRateCost">10💰</div>
+                            <div><div style="font-size: 15px; color: #fff;">🔫 射速提升</div><div style="font-size: 11px; color: #888;">射击速度 +15%</div></div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="color: #ffd700; font-size: 14px;" id="fireRateCost">10💰</div>
                                 <button class="btn-upgrade" id="fireRateBtn" onclick="buyUpgrade('fireRate')">升级</button>
+                            </div>
+                        </div>
+                        <div class="upgrade-item">
+                            <div><div style="font-size: 15px; color: #fff;">🎯 双管炮塔</div><div style="font-size: 11px; color: #888;">同时射出两发子弹</div></div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <div style="color: #ffd700; font-size: 14px;" id="doubleShotCost">30💰</div>
+                                <button class="btn-upgrade" id="doubleShotBtn" onclick="buyUpgrade('doubleShot')">解锁</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; margin-bottom: 15px;">
+                        <div style="color: #888; margin-bottom: 10px; text-align: center; font-size: 14px;">选择载具</div>
+                        <div class="vehicle-select">
+                            <div class="vehicle-option selected" onclick="selectVehicle('truck', 0)">
+                                🛻<div class="vehicle-name">皮卡</div>
+                            </div>
+                            <div class="vehicle-option" id="vehicle-sports" onclick="selectVehicle('sports', 500)">
+                                🏎️<div class="vehicle-name">跑车</div><div class="vehicle-lock">500💰</div>
+                            </div>
+                            <div class="vehicle-option" id="vehicle-ambulance" onclick="selectVehicle('ambulance', 1000)">
+                                🚑<div class="vehicle-name">救护车</div><div class="vehicle-lock">1000💰</div>
+                            </div>
+                            <div class="vehicle-option" id="vehicle-tractor" onclick="selectVehicle('tractor', 2000)">
+                                🚜<div class="vehicle-name">拖拉机</div><div class="vehicle-lock">2000💰</div>
                             </div>
                         </div>
                     </div>
 
                     <button class="btn btn-primary" onclick="nextWave()">✅ 升级完成，开始下一波</button>
-                    <div style="margin-top: 15px;">
-                        <button class="btn btn-secondary" onclick="restartFromShop()">🔄 重新开始</button>
+                    <div style="margin-top: 12px; display: flex; gap: 10px; justify-content: center;">
+                        <button class="btn btn-secondary" onclick="restartFromShop()" style="padding: 10px 30px; font-size: 16px;">🔄 重新开始</button>
+                        <button class="btn btn-secondary" onclick="location.href='../../index.html'" style="padding: 10px 30px; font-size: 16px;">🏠 回街机厅</button>
                     </div>
                 </div>
             </div>
@@ -417,916 +168,419 @@
             </div>
         </div>
         
-        <div class="ad-slot" id="adRight">
-            <ins class="adsbygoogle" style="display:block;width:100%;height:100%;"
-                 data-ad-client="ca-pub-3968599850270461" data-ad-slot="RIGHT_AD_SLOT_ID"
-                 data-ad-format="vertical" data-full-width-responsive="false"></ins>
-            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-        </div>
+        <div class="ad-slot" id="adRight"><ins class="adsbygoogle" style="display:block;width:100%;height:100%;" data-ad-client="ca-pub-3968599850270461" data-ad-slot="RIGHT_AD_SLOT_ID" data-ad-format="vertical" data-full-width-responsive="false"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
     </div>
 
 <script>
-// ==================== 游戏配置 ====================
-const GAME_WIDTH = 960;
-const GAME_HEIGHT = 540;
-const FINAL_WAVE = 20;
-const GRAVITY = 0.6;
-const JUMP_FORCE = -12;
+// ==================== 配置 ====================
+const GAME_WIDTH = 960, GAME_HEIGHT = 540, FINAL_WAVE = 20;
+const GRAVITY = 0.6, JUMP_FORCE = -12;
+const MAP_SCROLL_SPEED = 1.2; // 地图向左滚动速度
+const PLAYER_SCREEN_X = 200; // 玩家在屏幕上的固定X位置
 
-// 平台层级配置
-const PLATFORM_LAYERS = {
-    bottom: { y: 440, hasGaps: true },    // 底层有坑
-    middle: { y: 320, hasGaps: false },   // 中层完整平台
-    top: { y: 200, hasGaps: false }       // 顶层小平台
-};
+const PLATFORM_LAYERS = { bottom: { y: 440 }, middle: { y: 320 }, top: { y: 200 } };
 
-// 敌人配置 - 分级生命值系统
-const ENEMIES = {
-    // 脆皮杂兵 - 1炮即死
-    zombie: { 
-        emoji: '🧟', health: 1, speed: 0.8, damage: 10, gold: 1, type: 'ground', 
-        isFragile: true,  // 脆皮标记
-        hitFlash: false   // 无受击闪烁
-    },
-    runner: { 
-        emoji: '🏃', health: 1, speed: 2.5, damage: 8, gold: 2, type: 'ground',
-        isFragile: true,
-        hitFlash: false
-    },
-    
-    // 精英怪 - 有血条
-    tank: { 
-        emoji: '🐢', health: 5, speed: 0.4, damage: 15, gold: 5, type: 'ground',
-        isFragile: false,
-        hitFlash: true,
-        barWidth: 40
-    },
-    bomber: { 
-        emoji: '💣', health: 3, speed: 2, damage: 25, gold: 3, type: 'ground',
-        isFragile: false,
-        hitFlash: true,
-        barWidth: 35
-    },
-    
-    // 飞行怪
-    demon: { 
-        emoji: '👹', health: 3, speed: 1.5, damage: 12, gold: 3, type: 'air',
-        isFragile: false,
-        hitFlash: true,
-        canShoot: true, shootInterval: 90, bulletSpeed: 4, bulletDamage: 8, bulletEmoji: '🔴',
-        barWidth: 35
-    },
-    
-    // Boss
-    boss: { 
-        emoji: '👾', health: 60, speed: 0.6, damage: 40, gold: 50, type: 'ground',
-        isFragile: false,
-        hitFlash: true,
-        canShoot: true, shootInterval: 50, bulletSpeed: 6, bulletDamage: 12, bulletEmoji: '🔥',
-        isBoss: true,
-        barWidth: 80
-    }
-};
-
-// 载具配置
 const VEHICLES = {
-    truck: { emoji: '🛻', maxHealth: 100, damage: 10, speed: 5 }
+    truck: { emoji: '🛻', maxHealth: 100, damage: 10, speed: 5 },
+    sports: { emoji: '🏎️', maxHealth: 80, damage: 12, speed: 7 },
+    ambulance: { emoji: '🚑', maxHealth: 150, damage: 8, speed: 4 },
+    tractor: { emoji: '🚜', maxHealth: 200, damage: 15, speed: 3 }
 };
 
-// ==================== 游戏状态 ====================
-let canvas, ctx;
-let gameState = 'start';
-let wave = 1;
-let gold = 0;
-let frame = 0;
-
-// 平台系统
-let platforms = [];
-let groundSegments = [];  // 地面段（带坑）
-
-// 玩家
-let player = {
-    x: 150,
-    y: 350,
-    width: 40,
-    height: 35,
-    vehicle: 'truck',
-    health: 100,
-    maxHealth: 100,
-    damage: 10,
-    fireRate: 3,
-    lastShot: 0,
-    speed: 5,
-    invincible: 0,
-    vy: 0,
-    isJumping: false,
-    aimAngle: 0,
-    onPlatform: null  // 当前站立的平台
+const ENEMIES = {
+    zombie: { emoji: '🧟', health: 1, speed: 0.8, damage: 10, gold: 1, type: 'ground', isFragile: true, hitFlash: false },
+    runner: { emoji: '🏃', health: 1, speed: 2.5, damage: 8, gold: 2, type: 'ground', isFragile: true, hitFlash: false },
+    tank: { emoji: '🐢', health: 5, speed: 0.4, damage: 15, gold: 5, type: 'ground', isFragile: false, hitFlash: true, barWidth: 40 },
+    bomber: { emoji: '💣', health: 3, speed: 2, damage: 25, gold: 3, type: 'ground', isFragile: false, hitFlash: true, barWidth: 35 },
+    demon: { emoji: '👹', health: 3, speed: 1.5, damage: 12, gold: 3, type: 'air', isFragile: false, hitFlash: true, canShoot: true, shootInterval: 90, bulletSpeed: 4, bulletDamage: 8, bulletEmoji: '🔴', barWidth: 35 },
+    boss: { emoji: '👾', health: 60, speed: 0.6, damage: 40, gold: 50, type: 'ground', isFragile: false, hitFlash: true, canShoot: true, shootInterval: 50, bulletSpeed: 6, bulletDamage: 12, bulletEmoji: '🔥', isBoss: true, barWidth: 80 }
 };
 
-// 升级
-let upgrades = { health: 1, damage: 1, fireRate: 1 };
-
-// 游戏对象
-let bullets = [];
-let enemyBullets = [];
-let enemies = [];
-let golds = [];
-let particles = [];
-let ultCooldown = 0;
-let waveInProgress = false;
-let enemiesToSpawn = [];
-
-// 输入
-let keys = {};
-let mousePos = { x: 0, y: 0 };
-let touchAimY = null;
+// ==================== 状态 ====================
+let canvas, ctx, gameState = 'start', wave = 1, gold = 0, frame = 0;
+let cameraX = 0; // 相机偏移（地图滚动）
+let platforms = [], groundSegments = [];
+let player = { x: 0, y: 350, width: 40, height: 35, vehicle: 'truck', health: 100, maxHealth: 100, damage: 10, fireRate: 3, lastShot: 0, invincible: 0, vy: 0, isJumping: false, aimAngle: 0, onPlatform: null };
+let upgrades = { health: 1, damage: 1, fireRate: 1, doubleShot: 0 };
+let unlockedVehicles = ['truck'];
+let bullets = [], enemyBullets = [], enemies = [], golds = [], particles = [];
+let ultCooldown = 0, waveInProgress = false, enemiesToSpawn = [];
+let keys = {}, mousePos = { x: 0, y: 0 }, touchAimY = null;
 
 // ==================== 初始化 ====================
 function init() {
     canvas = document.getElementById('gameCanvas');
     ctx = canvas.getContext('2d');
-    
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
-
-    // 键盘
-    document.addEventListener('keydown', (e) => {
-        keys[e.key] = true;
-        if (e.key === ' ' && gameState === 'playing') {
-            jump();
-        }
-        if ((e.key === 'q' || e.key === 'Q') && gameState === 'playing') {
-            useUltimate();
-        }
-    });
+    document.addEventListener('keydown', (e) => { keys[e.key] = true; if (e.key === ' ' && gameState === 'playing') jump(); if ((e.key === 'q' || e.key === 'Q') && gameState === 'playing') useUltimate(); });
     document.addEventListener('keyup', (e) => keys[e.key] = false);
-
-    // 防止滚动
     document.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
-
-    // 鼠标瞄准
-    canvas.addEventListener('mousemove', (e) => {
-        if (gameState === 'playing') {
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            mousePos.x = (e.clientX - rect.left) * scaleX;
-            mousePos.y = (e.clientY - rect.top) * scaleY;
-            updateAimAngle();
-        }
-    });
-
-    // 触摸
-    canvas.addEventListener('touchstart', (e) => {
-        e.preventDefault();
-        handleTouch(e.touches, 'start');
-    }, { passive: false });
-    canvas.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        handleTouch(e.touches, 'move');
-    }, { passive: false });
-    canvas.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        if (e.touches.length === 0) touchAimY = null;
-    }, { passive: false });
+    canvas.addEventListener('mousemove', (e) => { if (gameState === 'playing') { const rect = canvas.getBoundingClientRect(); mousePos.x = (e.clientX - rect.left) * (canvas.width / rect.width); mousePos.y = (e.clientY - rect.top) * (canvas.height / rect.height); updateAimAngle(); }});
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleTouch(e.touches, 'start'); }, { passive: false });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handleTouch(e.touches, 'move'); }, { passive: false });
+    canvas.addEventListener('touchend', (e) => { e.preventDefault(); if (e.touches.length === 0) touchAimY = null; }, { passive: false });
 }
 
 function resizeCanvas() {
     const container = document.getElementById('gameMain');
-    const containerWidth = container.clientWidth;
-    const containerHeight = container.clientHeight;
-    const containerRatio = containerWidth / containerHeight;
-    const gameRatio = GAME_WIDTH / GAME_HEIGHT;
-    
-    let canvasWidth, canvasHeight;
-    
-    if (containerRatio > gameRatio) {
-        canvasHeight = containerHeight;
-        canvasWidth = canvasHeight * gameRatio;
-    } else {
-        canvasWidth = containerWidth;
-        canvasHeight = canvasWidth / gameRatio;
-    }
-    
-    canvas.width = GAME_WIDTH;
-    canvas.height = GAME_HEIGHT;
-    canvas.style.width = canvasWidth + 'px';
-    canvas.style.height = canvasHeight + 'px';
+    const ratio = GAME_WIDTH / GAME_HEIGHT;
+    let w = container.clientWidth, h = container.clientHeight;
+    if (w / h > ratio) { w = h * ratio; } else { h = w / ratio; }
+    canvas.width = GAME_WIDTH; canvas.height = GAME_HEIGHT;
+    canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
 }
 
 // ==================== 平台生成 ====================
-function generatePlatforms(waveNum) {
-    platforms = [];
-    groundSegments = [];
+function generateMap(waveNum) {
+    platforms = []; groundSegments = [];
+    const mapWidth = 2000 + waveNum * 500; // 地图长度随波次增加
+    const gapChance = Math.min(0.15 + waveNum * 0.025, 0.5);
     
-    // 生成地面层（带坑）
-    const gapChance = Math.min(0.1 + waveNum * 0.02, 0.4);  // 随波次增加坑的概率
-    const minGapWidth = 60;
-    const maxGapWidth = 120;
-    
+    // 生成地面（带坑）
     let currentX = 0;
-    while (currentX < GAME_WIDTH + 200) {
-        if (Math.random() < gapChance && currentX > 200) {
-            // 生成坑
-            const gapWidth = minGapWidth + Math.random() * (maxGapWidth - minGapWidth);
-            currentX += gapWidth;
+    while (currentX < mapWidth) {
+        if (Math.random() < gapChance && currentX > 300) {
+            currentX += 60 + Math.random() * 100; // 坑的宽度
         } else {
-            // 生成地面段
-            const segmentWidth = 100 + Math.random() * 200;
-            groundSegments.push({
-                x: currentX,
-                y: PLATFORM_LAYERS.bottom.y,
-                width: segmentWidth,
-                height: 100
-            });
-            currentX += segmentWidth;
+            const segWidth = 150 + Math.random() * 250;
+            groundSegments.push({ x: currentX, y: PLATFORM_LAYERS.bottom.y, width: segWidth, height: 100 });
+            currentX += segWidth;
         }
     }
     
-    // 生成中层平台（完整，用于跳跃过渡）
-    for (let i = 0; i < 3; i++) {
-        platforms.push({
-            x: 200 + i * 300,
-            y: PLATFORM_LAYERS.middle.y,
-            width: 150,
-            height: 20
-        });
+    // 生成中层平台
+    for (let i = 0; i < 4 + waveNum; i++) {
+        const x = 300 + i * 400 + Math.random() * 150;
+        if (x < mapWidth - 200) {
+            platforms.push({ x: x, y: PLATFORM_LAYERS.middle.y, width: 120 + Math.random() * 100, height: 20 });
+        }
     }
     
-    // 生成顶层平台（小平台，难度较高）
-    if (waveNum > 3) {
-        for (let i = 0; i < 2; i++) {
-            platforms.push({
-                x: 400 + i * 400,
-                y: PLATFORM_LAYERS.top.y,
-                width: 100,
-                height: 20
-            });
+    // 生成顶层平台（难度较高）
+    if (waveNum > 2) {
+        for (let i = 0; i < 2 + Math.floor(waveNum / 3); i++) {
+            const x = 600 + i * 600 + Math.random() * 200;
+            if (x < mapWidth - 200) {
+                platforms.push({ x: x, y: PLATFORM_LAYERS.top.y, width: 80 + Math.random() * 60, height: 20 });
+            }
         }
     }
 }
 
-// ==================== 核心玩法 ====================
-function jump() {
-    if (!player.isJumping) {
-        player.vy = JUMP_FORCE;
-        player.isJumping = true;
-        player.onPlatform = null;
-    }
-}
-
+// ==================== 游戏逻辑 ====================
+function jump() { if (!player.isJumping) { player.vy = JUMP_FORCE; player.isJumping = true; player.onPlatform = null; } }
 function handleTouch(touches, type) {
     if (gameState !== 'playing') return;
-    
-    const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
-    
+    const rect = canvas.getBoundingClientRect(), scaleX = canvas.width / rect.width, scaleY = canvas.height / rect.height;
     for (let touch of touches) {
-        const x = (touch.clientX - rect.left) * scaleX;
-        const y = (touch.clientY - rect.top) * scaleY;
-        
-        if (x < GAME_WIDTH / 2) {
-            if (type === 'start') jump();
-        } else {
-            touchAimY = y;
-            updateAimAngle();
-        }
+        const x = (touch.clientX - rect.left) * scaleX, y = (touch.clientY - rect.top) * scaleY;
+        if (x < GAME_WIDTH / 2) { if (type === 'start') jump(); }
+        else { touchAimY = y; updateAimAngle(); }
     }
 }
-
-function updateAimAngle() {
-    let targetY = touchAimY !== null ? touchAimY : mousePos.y;
-    player.aimAngle = Math.atan2(targetY - player.y, GAME_WIDTH - player.x);
-}
+function updateAimAngle() { const targetY = touchAimY !== null ? touchAimY : mousePos.y; player.aimAngle = Math.atan2(targetY - player.y, GAME_WIDTH - PLAYER_SCREEN_X); }
 
 function startGame() {
     document.getElementById('startScreen').classList.add('hidden');
     document.getElementById('hud').classList.remove('hidden');
     document.getElementById('ultButton').classList.remove('hidden');
-    
-    resetGame();
-    gameState = 'playing';
-    startWave();
-    requestAnimationFrame(gameLoop);
+    resetGame(); gameState = 'playing'; startWave(); requestAnimationFrame(gameLoop);
 }
 
 function resetGame() {
-    wave = 1;
-    gold = 0;
-    player.health = player.maxHealth;
-    player.y = PLATFORM_LAYERS.middle.y - 35;
-    player.vy = 0;
-    player.isJumping = false;
-    player.aimAngle = 0;
-    bullets = [];
-    enemyBullets = [];
-    enemies = [];
-    golds = [];
-    particles = [];
-    ultCooldown = 0;
-    upgrades = { health: 1, damage: 1, fireRate: 1 };
-    generatePlatforms(1);
-    updateHUD();
+    wave = 1; gold = 0; cameraX = 0; 
+    player.x = 0; player.y = PLATFORM_LAYERS.middle.y - 35; player.vy = 0; player.isJumping = false;
+    player.health = VEHICLES[player.vehicle].maxHealth; player.maxHealth = VEHICLES[player.vehicle].maxHealth;
+    player.aimAngle = 0; player.invincible = 0;
+    bullets = []; enemyBullets = []; enemies = []; golds = []; particles = [];
+    ultCooldown = 0; upgrades = { health: 1, damage: 1, fireRate: 1, doubleShot: 0 };
+    unlockedVehicles = ['truck']; player.vehicle = 'truck';
+    generateMap(1); updateHUD();
 }
 
-function startWave() {
-    waveInProgress = true;
-    generatePlatforms(wave);
-    enemiesToSpawn = generateWaveEnemies(wave);
-}
+function startWave() { waveInProgress = true; generateMap(wave); enemiesToSpawn = generateWaveEnemies(wave); }
 
 function generateWaveEnemies(waveNum) {
-    let list = [];
-    let count = 5 + waveNum * 2;
-    
-    // 难度递进：脆皮比例随波次降低
-    const fragileRatio = Math.max(0.3, 0.8 - waveNum * 0.03);
-    
+    let list = [], count = 6 + waveNum * 2;
+    const fragileRatio = Math.max(0.35, 0.75 - waveNum * 0.025);
     for (let i = 0; i < count; i++) {
-        let type;
-        const rand = Math.random();
-        
-        if (rand < fragileRatio) {
-            // 脆皮
-            type = Math.random() < 0.5 ? 'zombie' : 'runner';
-        } else if (rand < fragileRatio + 0.3) {
-            // 精英地面
-            type = Math.random() < 0.5 ? 'tank' : 'bomber';
-        } else {
-            // 飞行
-            type = 'demon';
-        }
-        
-        // 后期波次加入更多精英
-        if (waveNum >= 10 && Math.random() < 0.2) type = 'tank';
-        
-        list.push({ type, delay: i * 70 + Math.random() * 40 });
+        let type; const rand = Math.random();
+        if (rand < fragileRatio) type = Math.random() < 0.5 ? 'zombie' : 'runner';
+        else if (rand < fragileRatio + 0.35) type = Math.random() < 0.5 ? 'tank' : 'bomber';
+        else type = 'demon';
+        if (waveNum >= 8 && Math.random() < 0.15) type = 'tank';
+        list.push({ type, delay: i * 60 + Math.random() * 30, x: 1000 + i * 300 });
     }
-
-    // BOSS波
-    if (waveNum % 5 === 0) {
-        list.push({ type: 'boss', delay: list.length * 70 + 100 });
-    }
-
+    if (waveNum % 5 === 0) list.push({ type: 'boss', delay: list.length * 60 + 80, x: 1500 + list.length * 200 });
     return list;
 }
 
 // ==================== 游戏循环 ====================
-let lastTime = 0;
 let spawnTimer = 0;
-
-function gameLoop(timestamp) {
+function gameLoop() {
     if (gameState !== 'playing') return;
-
-    frame++;
-    spawnTimer++;
-    
-    update();
-    render();
-
+    frame++; spawnTimer++;
+    update(); render();
     requestAnimationFrame(gameLoop);
 }
 
 function update() {
+    // 地图自动滚动
+    cameraX += MAP_SCROLL_SPEED;
+    player.x += MAP_SCROLL_SPEED; // 玩家随地图一起向右移动（相对世界坐标）
+    
     // 玩家物理
-    player.vy += GRAVITY;
-    player.y += player.vy;
+    player.vy += GRAVITY; player.y += player.vy;
     
-    // 平台碰撞检测
-    player.onPlatform = null;
+    // 平台碰撞（使用世界坐标）
+    player.onPlatform = null; let onGround = false;
+    const playerWorldX = player.x;
     
-    // 检查地面段碰撞
-    let onGround = false;
+    // 地面碰撞
     for (let seg of groundSegments) {
-        if (player.x >= seg.x && player.x <= seg.x + seg.width &&
-            player.y + player.height/2 >= seg.y &&
-            player.y + player.height/2 <= seg.y + seg.height + 10 &&
-            player.vy >= 0) {
-            player.y = seg.y - player.height/2;
-            player.vy = 0;
-            player.isJumping = false;
-            player.onPlatform = seg;
-            onGround = true;
-            break;
+        if (playerWorldX >= seg.x && playerWorldX <= seg.x + seg.width &&
+            player.y + player.height/2 >= seg.y && player.y + player.height/2 <= seg.y + seg.height + 15 && player.vy >= 0) {
+            player.y = seg.y - player.height/2; player.vy = 0; player.isJumping = false; player.onPlatform = seg; onGround = true; break;
         }
     }
-    
-    // 检查平台碰撞
+    // 平台碰撞
     if (!onGround) {
         for (let plat of platforms) {
-            if (player.x >= plat.x && player.x <= plat.x + plat.width &&
-                player.y + player.height/2 >= plat.y &&
-                player.y + player.height/2 <= plat.y + plat.height + 10 &&
-                player.vy >= 0) {
-                player.y = plat.y - player.height/2;
-                player.vy = 0;
-                player.isJumping = false;
-                player.onPlatform = plat;
-                onGround = true;
-                break;
+            if (playerWorldX >= plat.x && playerWorldX <= plat.x + plat.width &&
+                player.y + player.height/2 >= plat.y && player.y + player.height/2 <= plat.y + plat.height + 15 && player.vy >= 0) {
+                player.y = plat.y - player.height/2; player.vy = 0; player.isJumping = false; player.onPlatform = plat; onGround = true; break;
             }
         }
     }
     
     // 掉坑检测
-    if (player.y > GAME_HEIGHT + 50) {
-        gameOver('fall');
-        return;
-    }
+    if (player.y > GAME_HEIGHT + 60) { gameOver('fall'); return; }
     
     // 无敌时间
     if (player.invincible > 0) player.invincible--;
     
     // 射击
     const fireInterval = 1000 / (player.fireRate * (1 + (upgrades.fireRate - 1) * 0.15));
-    if (performance.now() - player.lastShot > fireInterval) {
-        shoot();
-        player.lastShot = performance.now();
-    }
+    if (performance.now() - player.lastShot > fireInterval) { shoot(); player.lastShot = performance.now(); }
     
-    // 更新子弹
-    bullets = bullets.filter(b => {
-        b.x += Math.cos(b.angle) * b.speed;
-        b.y += Math.sin(b.angle) * b.speed;
-        return b.x < GAME_WIDTH + 50 && b.x > -50 && b.y > -50 && b.y < GAME_HEIGHT + 50;
-    });
+    // 更新子弹（相对于相机）
+    bullets = bullets.filter(b => { b.worldX += Math.cos(b.angle) * b.speed; b.x = b.worldX - cameraX; b.y += Math.sin(b.angle) * b.speed; return b.x < GAME_WIDTH + 100 && b.x > -100; });
     
     // 敌人子弹
     enemyBullets = enemyBullets.filter(b => {
-        b.x += Math.cos(b.angle) * b.speed;
-        b.y += Math.sin(b.angle) * b.speed;
-        
-        if (checkCollision(b, player) && player.invincible <= 0) {
-            player.health -= b.damage;
-            player.invincible = 40;
-            createParticles(player.x, player.y, '💥', 5);
-            b.hit = true;
+        b.worldX += Math.cos(b.angle) * b.speed; b.x = b.worldX - cameraX; b.y += Math.sin(b.angle) * b.speed;
+        if (checkCollision(b, {x: PLAYER_SCREEN_X, y: player.y}) && player.invincible <= 0) {
+            player.health -= b.damage; player.invincible = 40; createParticles(PLAYER_SCREEN_X, player.y, '💥', 5); b.hit = true;
             if (player.health <= 0) gameOver('damage');
         }
-        
-        return b.x > -50 && b.x < GAME_WIDTH + 50 && !b.hit;
+        return b.x > -100 && b.x < GAME_WIDTH + 100 && !b.hit;
     });
     
-    // 生成敌人
+    // 生成敌人（基于世界坐标）
     enemiesToSpawn = enemiesToSpawn.filter(e => {
-        if (spawnTimer >= e.delay) {
-            spawnEnemy(e.type);
-            return false;
+        if (spawnTimer >= e.delay && e.x - cameraX < GAME_WIDTH + 100) {
+            spawnEnemy(e.type, e.x); return false;
         }
         return true;
     });
     
     // 更新敌人
     enemies = enemies.filter(e => {
-        e.x -= e.speed;
-        
-        // 飞行怪上下移动
-        if (e.type === 'demon') {
-            e.y += Math.sin(frame * 0.05 + e.x * 0.01) * 1.5;
-        }
-        
-        // 自爆怪冲刺
-        if (e.type === 'bomber' && e.x - player.x < 200) {
-            e.speed = Math.min(e.speed + 0.1, 5);
-        }
-        
-        // 敌人射击
-        if (ENEMIES[e.type].canShoot && frame % e.shootInterval === 0) {
-            enemyShoot(e);
-        }
-        
-        // 受击闪烁递减
+        e.worldX -= e.speed; e.x = e.worldX - cameraX;
+        if (e.type === 'demon') e.y += Math.sin(frame * 0.05 + e.worldX * 0.005) * 1.5;
+        if (e.type === 'bomber' && e.worldX - player.x < 250) e.speed = Math.min(e.speed + 0.15, 6);
+        if (ENEMIES[e.type].canShoot && frame % e.shootInterval === 0) enemyShoot(e);
         if (e.flash > 0) e.flash--;
-        
-        // 碰撞玩家
-        if (checkCollision(e, player) && player.invincible <= 0) {
-            player.health -= e.damage;
-            player.invincible = 40;
-            createParticles(player.x, player.y, '💥', 5);
+        if (checkCollision(e, {x: PLAYER_SCREEN_X, y: player.y}) && player.invincible <= 0) {
+            player.health -= e.damage; player.invincible = 40; createParticles(PLAYER_SCREEN_X, player.y, '💥', 5);
             if (e.type === 'bomber') e.health = 0;
             if (player.health <= 0) gameOver('damage');
         }
-        
-        return e.x > -50 && e.health > 0;
+        return e.x > -100 && e.health > 0;
     });
     
     // 金币
     golds = golds.filter(g => {
-        g.x -= 0.5;
-        const dx = g.x - player.x;
-        const dy = g.y - player.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 40) {
-            gold += g.value;
-            createParticles(g.x, g.y, '✨', 3);
-            updateHUD();
-            return false;
-        }
-        return g.x > -20;
+        g.worldX -= MAP_SCROLL_SPEED; g.x = g.worldX - cameraX;
+        const dx = g.x - PLAYER_SCREEN_X, dy = g.y - player.y;
+        if (Math.sqrt(dx*dx + dy*dy) < 45) { gold += g.value; createParticles(g.x, g.y, '✨', 3); updateHUD(); return false; }
+        return g.x > -50;
     });
     
-    // 子弹击中敌人
+    // 子弹击中
     bullets.forEach(b => {
         enemies.forEach(e => {
             if (checkCollision(b, e) && !b.hit) {
-                const config = ENEMIES[e.type];
-                e.health -= b.damage;
-                b.hit = true;
-                
-                // 受击效果
-                if (config.hitFlash) {
-                    e.flash = 5;  // 闪烁帧数
-                }
-                
-                // 脆皮直接爆炸
-                if (config.isFragile) {
-                    createParticles(e.x, e.y, '💥', 8);
-                } else {
-                    createParticles(e.x, e.y, '💥', 3);
-                }
-                
-                if (e.health <= 0) {
-                    dropGold(e.x, e.y, config.gold);
-                    // 击杀特效
-                    createParticles(e.x, e.y, config.isFragile ? '💀' : '💥', config.isFragile ? 5 : 8);
-                }
+                const config = ENEMIES[e.type]; e.health -= b.damage; b.hit = true;
+                if (config.hitFlash) e.flash = 5;
+                createParticles(e.x, e.y, '💥', config.isFragile ? 6 : 3);
+                if (e.health <= 0) { dropGold(e.worldX, e.y, config.gold); createParticles(e.x, e.y, config.isFragile ? '💀' : '💥', config.isFragile ? 5 : 8); }
             }
         });
     });
-    
     bullets = bullets.filter(b => !b.hit);
     
     // 粒子
-    particles = particles.filter(p => {
-        p.life--;
-        p.x += p.vx;
-        p.y += p.vy;
-        return p.life > 0;
-    });
+    particles = particles.filter(p => { p.life--; p.x += p.vx; p.y += p.vy; return p.life > 0; });
     
     // 大招冷却
-    if (ultCooldown > 0) ultCooldown--;
-    updateUltButton();
+    if (ultCooldown > 0) ultCooldown--; updateUltButton();
     
-    // 波次结束
+    // 波次结束检测
     if (enemiesToSpawn.length === 0 && enemies.length === 0 && waveInProgress) {
-        waveInProgress = false;
-        if (wave >= FINAL_WAVE) victory();
-        else setTimeout(openShop, 500);
+        waveInProgress = false; if (wave >= FINAL_WAVE) victory(); else setTimeout(openShop, 600);
     }
-    
     updateHUD();
 }
 
 // ==================== 渲染 ====================
 function render() {
-    // 清空
-    ctx.fillStyle = '#1a1510';
-    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    ctx.fillStyle = '#1a1510'; ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
     
-    // 绘制背景层（废弃城市剪影）
+    // 背景（随相机轻微移动）
     ctx.fillStyle = '#0d0a08';
-    for (let i = 0; i < 5; i++) {
-        const h = 80 + Math.sin(i * 1.5) * 40;
-        ctx.fillRect(i * 220, GAME_HEIGHT - 150 - h, 60 + Math.random() * 40, h);
+    for (let i = 0; i < 8; i++) {
+        const bx = (i * 250 - cameraX * 0.2) % (GAME_WIDTH + 300);
+        const drawX = bx < -100 ? bx + GAME_WIDTH + 300 : bx;
+        ctx.fillRect(drawX, GAME_HEIGHT - 180 - Math.sin(i * 2) * 30, 80 + Math.sin(i) * 20, 150);
     }
     
-    // 绘制地面段（带坑）
-    ctx.fillStyle = '#3d3028';
-    ctx.strokeStyle = '#4d4038';
-    ctx.lineWidth = 3;
-    
+    // 地面（带坑）
+    ctx.fillStyle = '#3d3028'; ctx.strokeStyle = '#5d5048'; ctx.lineWidth = 3;
     for (let seg of groundSegments) {
-        // 地面主体
-        ctx.fillRect(seg.x, seg.y, seg.width, seg.height);
-        // 边缘高光
-        ctx.beginPath();
-        ctx.moveTo(seg.x, seg.y);
-        ctx.lineTo(seg.x + seg.width, seg.y);
-        ctx.stroke();
-        
-        // 地面纹理
-        ctx.strokeStyle = '#2d2018';
-        ctx.lineWidth = 1;
-        for (let i = 0; i < seg.width; i += 40) {
-            ctx.beginPath();
-            ctx.moveTo(seg.x + i, seg.y + 10);
-            ctx.lineTo(seg.x + i + 20, seg.y + seg.height - 10);
-            ctx.stroke();
+        const sx = seg.x - cameraX;
+        if (sx + seg.width > -50 && sx < GAME_WIDTH + 50) {
+            ctx.fillRect(sx, seg.y, seg.width, seg.height);
+            ctx.beginPath(); ctx.moveTo(sx, seg.y); ctx.lineTo(sx + seg.width, seg.y); ctx.stroke();
+            // 纹理
+            ctx.strokeStyle = '#2d2018'; ctx.lineWidth = 1;
+            for (let i = 0; i < seg.width; i += 50) { ctx.beginPath(); ctx.moveTo(sx + i, seg.y + 15); ctx.lineTo(sx + i + 25, seg.y + seg.height - 15); ctx.stroke(); }
+            ctx.strokeStyle = '#5d5048'; ctx.lineWidth = 3;
         }
     }
     
-    // 绘制平台
-    ctx.fillStyle = '#4d4035';
-    ctx.strokeStyle = '#6d6055';
-    ctx.lineWidth = 2;
-    
+    // 平台
+    ctx.fillStyle = '#4d4035'; ctx.strokeStyle = '#7d7065'; ctx.lineWidth = 2;
     for (let plat of platforms) {
-        // 平台主体
-        ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
-        // 顶部高光
-        ctx.beginPath();
-        ctx.moveTo(plat.x, plat.y);
-        ctx.lineTo(plat.x + plat.width, plat.y);
-        ctx.stroke();
-        
-        // 平台支撑（视觉装饰）
-        ctx.fillStyle = '#2d2520';
-        ctx.fillRect(plat.x + 10, plat.y + plat.height, 8, PLATFORM_LAYERS.bottom.y - plat.y - plat.height);
-        ctx.fillRect(plat.x + plat.width - 18, plat.y + plat.height, 8, PLATFORM_LAYERS.bottom.y - plat.y - plat.height);
-        ctx.fillStyle = '#4d4035';
+        const px = plat.x - cameraX;
+        if (px + plat.width > -50 && px < GAME_WIDTH + 50) {
+            ctx.fillRect(px, plat.y, plat.width, plat.height);
+            ctx.beginPath(); ctx.moveTo(px, plat.y); ctx.lineTo(px + plat.width, plat.y); ctx.stroke();
+            // 支撑
+            ctx.fillStyle = '#2d2520'; ctx.fillRect(px + 8, plat.y + plat.height, 6, PLATFORM_LAYERS.bottom.y - plat.y - plat.height);
+            ctx.fillRect(px + plat.width - 14, plat.y + plat.height, 6, PLATFORM_LAYERS.bottom.y - plat.y - plat.height);
+            ctx.fillStyle = '#4d4035';
+        }
     }
     
-    // 绘制金币
-    golds.forEach(g => {
-        ctx.font = '24px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('💰', g.x, g.y);
-    });
+    // 金币
+    golds.forEach(g => { if (g.x > -30 && g.x < GAME_WIDTH + 30) { ctx.font = '24px Arial'; ctx.textAlign = 'center'; ctx.fillText('💰', g.x, g.y); } });
     
-    // 绘制子弹
-    bullets.forEach(b => {
-        ctx.font = '18px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('🟠', b.x, b.y);
-    });
+    // 子弹
+    ctx.font = '18px Arial'; ctx.textAlign = 'center';
+    bullets.forEach(b => { if (b.x > -20 && b.x < GAME_WIDTH + 20) ctx.fillText('🟠', b.x, b.y); });
+    enemyBullets.forEach(b => { if (b.x > -20 && b.x < GAME_WIDTH + 20) { ctx.font = '16px Arial'; ctx.fillText(b.emoji, b.x, b.y); } });
     
-    enemyBullets.forEach(b => {
-        ctx.font = '16px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText(b.emoji, b.x, b.y);
-    });
-    
-    // 绘制敌人
+    // 敌人
     enemies.forEach(e => {
+        if (e.x < -50 || e.x > GAME_WIDTH + 50) return;
         const config = ENEMIES[e.type];
-        
-        // 受击闪烁
-        if (e.flash > 0) {
-            ctx.save();
-            ctx.globalCompositeOperation = 'source-over';
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-        }
-        
-        ctx.font = config.isBoss ? '56px Arial' : '40px Arial';
-        ctx.textAlign = 'center';
+        if (e.flash > 0) { ctx.save(); ctx.fillStyle = 'rgba(255, 255, 255, 0.7)'; }
+        ctx.font = config.isBoss ? '54px Arial' : '38px Arial'; ctx.textAlign = 'center';
         ctx.fillText(config.emoji, e.x, e.y);
+        if (e.flash > 0) ctx.restore();
         
-        if (e.flash > 0) {
-            ctx.restore();
-        }
-        
-        // 血条（仅精英和Boss）
+        // 血条
         if (!config.isFragile) {
-            const maxHealth = config.health * (1 + wave * 0.1);
-            const healthPercent = Math.max(0, e.health / maxHealth);
-            const barWidth = config.barWidth || 40;
-            
-            // 血条背景
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-            ctx.fillRect(e.x - barWidth/2, e.y - 45, barWidth, 6);
-            
-            // 血条颜色（绿→黄→红）
-            let barColor;
-            if (healthPercent > 0.6) barColor = '#0f0';
-            else if (healthPercent > 0.3) barColor = '#ff0';
-            else barColor = '#f00';
-            
-            ctx.fillStyle = barColor;
-            ctx.fillRect(e.x - barWidth/2, e.y - 45, barWidth * healthPercent, 6);
+            const maxH = config.health * (1 + wave * 0.1), pct = Math.max(0, e.health / maxH), bw = config.barWidth || 40;
+            ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(e.x - bw/2, e.y - 42, bw, 6);
+            ctx.fillStyle = pct > 0.6 ? '#0f0' : pct > 0.3 ? '#ff0' : '#f00';
+            ctx.fillRect(e.x - bw/2, e.y - 42, bw * pct, 6);
         }
     });
     
-    // 绘制玩家
-    ctx.font = '48px Arial';
-    ctx.textAlign = 'center';
-    
+    // 玩家（固定在屏幕左侧）
+    ctx.font = '48px Arial'; ctx.textAlign = 'center';
     if (player.invincible <= 0 || Math.floor(frame / 4) % 2 === 0) {
-        ctx.save();
-        ctx.translate(player.x, player.y);
-        ctx.scale(-1, 1);
-        ctx.fillText(VEHICLES[player.vehicle].emoji, 0, 0);
-        ctx.restore();
+        ctx.save(); ctx.translate(PLAYER_SCREEN_X, player.y); ctx.scale(-1, 1); ctx.fillText(VEHICLES[player.vehicle].emoji, 0, 0); ctx.restore();
     }
     
     // 瞄准线
-    ctx.save();
-    ctx.strokeStyle = 'rgba(255, 200, 100, 0.4)';
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
-    ctx.beginPath();
-    ctx.moveTo(player.x + 25, player.y);
-    ctx.lineTo(player.x + 25 + Math.cos(player.aimAngle) * 80, player.y + Math.sin(player.aimAngle) * 80);
-    ctx.stroke();
-    ctx.restore();
+    ctx.save(); ctx.strokeStyle = 'rgba(255, 200, 100, 0.5)'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+    ctx.beginPath(); ctx.moveTo(PLAYER_SCREEN_X + 25, player.y); ctx.lineTo(PLAYER_SCREEN_X + 25 + Math.cos(player.aimAngle) * 100, player.y + Math.sin(player.aimAngle) * 100); ctx.stroke(); ctx.restore();
     
     // 粒子
-    particles.forEach(p => {
-        ctx.font = `${p.size}px Arial`;
-        ctx.globalAlpha = p.life / 30;
-        ctx.fillText(p.emoji, p.x, p.y);
-    });
+    particles.forEach(p => { ctx.font = `${p.size}px Arial`; ctx.globalAlpha = p.life / 30; ctx.fillText(p.emoji, p.x, p.y); });
     ctx.globalAlpha = 1;
 }
 
 // ==================== 辅助函数 ====================
 function shoot() {
     const damage = player.damage + (upgrades.damage - 1) * 5;
-    bullets.push({
-        x: player.x + 25,
-        y: player.y,
-        speed: 10,
-        damage: damage,
-        emoji: '🟠',
-        angle: player.aimAngle,
-        hit: false
-    });
-}
-
-function enemyShoot(enemy) {
-    const angle = Math.atan2(player.y - enemy.y, player.x - enemy.x);
-    enemyBullets.push({
-        x: enemy.x,
-        y: enemy.y,
-        speed: enemy.bulletSpeed,
-        damage: enemy.bulletDamage,
-        emoji: enemy.bulletEmoji,
-        angle: angle,
-        hit: false
-    });
-}
-
-function spawnEnemy(type) {
-    const config = ENEMIES[type];
-    
-    // 根据类型选择生成位置
-    let y;
-    if (config.type === 'air') {
-        y = 120 + Math.random() * 150;
-    } else {
-        // 地面怪可能出现在不同层级
-        const layerRand = Math.random();
-        if (layerRand < 0.5) {
-            y = PLATFORM_LAYERS.bottom.y - 25;
-        } else if (layerRand < 0.8) {
-            y = PLATFORM_LAYERS.middle.y - 25;
-        } else {
-            y = PLATFORM_LAYERS.top.y - 25;
-        }
-    }
-
-    enemies.push({
-        type: type,
-        x: GAME_WIDTH + 50,
-        y: y,
-        speed: config.speed * (1 + wave * 0.04),
-        health: config.health * (1 + wave * 0.1),
-        damage: config.damage,
-        flash: 0,
-        shootInterval: config.shootInterval,
-        bulletSpeed: config.bulletSpeed,
-        bulletDamage: config.bulletDamage,
-        bulletEmoji: config.bulletEmoji
-    });
-}
-
-function checkCollision(a, b) {
-    return Math.abs(a.x - b.x) < 30 && Math.abs(a.y - b.y) < 30;
-}
-
-function dropGold(x, y, value) {
-    golds.push({ x, y, value });
-}
-
-function createParticles(x, y, emoji, count) {
-    for (let i = 0; i < count; i++) {
-        particles.push({
-            x, y,
-            vx: (Math.random() - 0.5) * 6,
-            vy: (Math.random() - 0.5) * 6 - 2,
-            life: 25 + Math.random() * 15,
-            emoji,
-            size: 16 + Math.random() * 12
-        });
+    bullets.push({ worldX: player.x + 25, x: PLAYER_SCREEN_X + 25, y: player.y, speed: 12, damage, emoji: '🟠', angle: player.aimAngle, hit: false });
+    if (upgrades.doubleShot > 0) {
+        bullets.push({ worldX: player.x + 25, x: PLAYER_SCREEN_X + 25, y: player.y - 10, speed: 12, damage, emoji: '🟠', angle: player.aimAngle - 0.1, hit: false });
     }
 }
-
-function useUltimate() {
-    if (ultCooldown > 0 || gameState !== 'playing') return;
-    
-    enemies.forEach(e => {
-        e.health -= 100;
-        if (e.health <= 0) dropGold(e.x, e.y, ENEMIES[e.type].gold);
-        createParticles(e.x, e.y, '💥', 5);
-    });
-    
-    ultCooldown = 600;
+function enemyShoot(enemy) { const angle = Math.atan2(player.y - enemy.y, PLAYER_SCREEN_X - enemy.x); enemyBullets.push({ worldX: enemy.worldX, x: enemy.x, y: enemy.y, speed: enemy.bulletSpeed, damage: enemy.bulletDamage, emoji: enemy.bulletEmoji, angle, hit: false }); }
+function spawnEnemy(type, worldX) {
+    const config = ENEMIES[type]; let y;
+    if (config.type === 'air') y = 120 + Math.random() * 130;
+    else { const r = Math.random(); if (r < 0.5) y = PLATFORM_LAYERS.bottom.y - 25; else if (r < 0.8) y = PLATFORM_LAYERS.middle.y - 25; else y = PLATFORM_LAYERS.top.y - 25; }
+    enemies.push({ type, worldX, x: worldX - cameraX, y, speed: config.speed * (1 + wave * 0.04), health: config.health * (1 + wave * 0.1), damage: config.damage, flash: 0, shootInterval: config.shootInterval, bulletSpeed: config.bulletSpeed * (1 + wave * 0.03), bulletDamage: config.bulletDamage + Math.floor(wave / 3), bulletEmoji: config.bulletEmoji });
 }
-
-function updateUltButton() {
-    const btn = document.getElementById('ultButton');
-    if (ultCooldown > 0) {
-        btn.disabled = true;
-        btn.innerHTML = `<div class="ult-cooldown">${Math.ceil(ultCooldown / 60)}</div>🚀`;
-    } else {
-        btn.disabled = false;
-        btn.innerHTML = '🚀';
-    }
-}
-
-function updateHUD() {
-    document.getElementById('healthText').textContent = `${Math.max(0, Math.floor(player.health))}/${player.maxHealth}`;
-    document.getElementById('healthBar').style.width = `${(player.health / player.maxHealth) * 100}%`;
-    document.getElementById('goldDisplay').textContent = gold;
-    document.getElementById('waveDisplay').textContent = wave;
-    document.getElementById('enemyDisplay').textContent = enemies.length + enemiesToSpawn.length;
-}
+function checkCollision(a, b) { return Math.abs(a.x - b.x) < 30 && Math.abs(a.y - b.y) < 30; }
+function dropGold(worldX, y, value) { golds.push({ worldX, x: worldX - cameraX, y, value }); }
+function createParticles(x, y, emoji, count) { for (let i = 0; i < count; i++) particles.push({ x, y, vx: (Math.random() - 0.5) * 7, vy: (Math.random() - 0.5) * 7 - 2, life: 25 + Math.random() * 15, emoji, size: 16 + Math.random() * 12 }); }
+function useUltimate() { if (ultCooldown > 0 || gameState !== 'playing') return; enemies.forEach(e => { e.health -= 80; if (e.health <= 0) dropGold(e.worldX, e.y, ENEMIES[e.type].gold); createParticles(e.x, e.y, '💥', 5); }); ultCooldown = 600; }
+function updateUltButton() { const btn = document.getElementById('ultButton'); if (ultCooldown > 0) { btn.disabled = true; btn.innerHTML = `<div class="ult-cooldown">${Math.ceil(ultCooldown / 60)}</div>🚀`; } else { btn.disabled = false; btn.innerHTML = '🚀'; } }
+function updateHUD() { document.getElementById('healthText').textContent = `${Math.max(0, Math.floor(player.health))}/${player.maxHealth}`; document.getElementById('healthBar').style.width = `${(player.health / player.maxHealth) * 100}%`; document.getElementById('goldDisplay').textContent = gold; document.getElementById('waveDisplay').textContent = wave; document.getElementById('enemyDisplay').textContent = enemies.length + enemiesToSpawn.length; }
 
 function openShop() {
-    gameState = 'shop';
-    document.getElementById('shopScreen').classList.remove('hidden');
-    document.getElementById('hud').classList.add('hidden');
-    document.getElementById('ultButton').classList.add('hidden');
-    document.getElementById('shopWave').textContent = wave;
-    document.getElementById('shopGold').textContent = gold;
+    gameState = 'shop'; document.getElementById('shopScreen').classList.remove('hidden');
+    document.getElementById('hud').classList.add('hidden'); document.getElementById('ultButton').classList.add('hidden');
+    document.getElementById('shopWave').textContent = wave; document.getElementById('shopGold').textContent = gold;
     updateShopUI();
 }
-
 function updateShopUI() {
-    document.getElementById('healthCost').textContent = `${10 * upgrades.health}💰`;
-    document.getElementById('healthBtn').disabled = gold < 10 * upgrades.health;
-    document.getElementById('damageCost').textContent = `${15 * upgrades.damage}💰`;
-    document.getElementById('damageBtn').disabled = gold < 15 * upgrades.damage;
-    document.getElementById('fireRateCost').textContent = `${10 * upgrades.fireRate}💰`;
-    document.getElementById('fireRateBtn').disabled = gold < 10 * upgrades.fireRate;
+    document.getElementById('healthCost').textContent = `${10 * upgrades.health}💰`; document.getElementById('healthBtn').disabled = gold < 10 * upgrades.health;
+    document.getElementById('damageCost').textContent = `${15 * upgrades.damage}💰`; document.getElementById('damageBtn').disabled = gold < 15 * upgrades.damage;
+    document.getElementById('fireRateCost').textContent = `${10 * upgrades.fireRate}💰`; document.getElementById('fireRateBtn').disabled = gold < 10 * upgrades.fireRate;
+    document.getElementById('doubleShotCost').textContent = '30💰'; 
+    const dsBtn = document.getElementById('doubleShotBtn'); dsBtn.disabled = gold < 30 || upgrades.doubleShot >= 1; dsBtn.textContent = upgrades.doubleShot >= 1 ? '已解锁' : '解锁';
+    
+    // 载具
+    document.querySelectorAll('.vehicle-option').forEach(el => { el.classList.remove('selected', 'locked'); });
+    document.querySelector(`.vehicle-option[onclick*="'${player.vehicle}'"]`).classList.add('selected');
+    ['sports', 'ambulance', 'tractor'].forEach(v => {
+        const el = document.getElementById(`vehicle-${v}`);
+        if (!unlockedVehicles.includes(v)) el.classList.add('locked');
+    });
 }
-
 function buyUpgrade(type) {
-    const costs = { health: 10 * upgrades.health, damage: 15 * upgrades.damage, fireRate: 10 * upgrades.fireRate };
+    const costs = { health: 10 * upgrades.health, damage: 15 * upgrades.damage, fireRate: 10 * upgrades.fireRate, doubleShot: 30 };
     if (gold >= costs[type]) {
-        gold -= costs[type];
-        upgrades[type]++;
-        if (type === 'health') {
-            player.maxHealth += 50;
-            player.health = player.maxHealth;
-        }
-        updateShopUI();
-        updateHUD();
+        gold -= costs[type]; upgrades[type]++;
+        if (type === 'health') { player.maxHealth += 50; player.health = player.maxHealth; }
+        updateShopUI(); updateHUD();
     }
 }
-
-function nextWave() {
-    wave++;
-    spawnTimer = 0;
-    document.getElementById('shopScreen').classList.add('hidden');
-    document.getElementById('hud').classList.remove('hidden');
-    document.getElementById('ultButton').classList.remove('hidden');
-    gameState = 'playing';
-    startWave();
-    requestAnimationFrame(gameLoop);
+function selectVehicle(type, cost) {
+    if (unlockedVehicles.includes(type) || gold >= cost) {
+        if (!unlockedVehicles.includes(type)) { gold -= cost; unlockedVehicles.push(type); }
+        player.vehicle = type; const v = VEHICLES[type];
+        player.maxHealth = v.maxHealth + (upgrades.health - 1) * 50; player.health = player.maxHealth;
+        player.damage = v.damage + (upgrades.damage - 1) * 5;
+        updateShopUI(); updateHUD();
+    }
 }
+function nextWave() { wave++; spawnTimer = 0; cameraX = 0; player.x = 0; document.getElementById('shopScreen').classList.add('hidden'); document.getElementById('hud').classList.remove('hidden'); document.getElementById('ultButton').classList.remove('hidden'); gameState = 'playing'; startWave(); requestAnimationFrame(gameLoop); }
+function gameOver(reason) { gameState = 'gameover'; document.getElementById('gameOverScreen').classList.remove('hidden'); document.getElementById('hud').classList.add('hidden'); document.getElementById('ultButton').classList.add('hidden'); document.getElementById('finalWave').textContent = wave; document.getElementById('finalGold').textContent = gold; document.getElementById('endMessage').textContent = reason === 'fall' ? '小心脚下的路...废土的坑比僵尸更致命。' : '废土上的又一位英雄倒下了...'; }
+function victory() { gameState = 'victory'; document.getElementById('victoryScreen').classList.remove('hidden'); document.getElementById('hud').classList.add('hidden'); document.getElementById('ultButton').classList.add('hidden'); document.getElementById('victoryGold').textContent = gold; }
+function restartFromShop() { document.getElementById('shopScreen').classList.add('hidden'); document.getElementById('startScreen').classList.remove('hidden'); gameState = 'start'; }
+function restartGame() { document.getElementById('gameOverScreen').classList.add('hidden'); document.getElementById('victoryScreen').classList.add('hidden'); document.getElementById('startScreen').classList.remove('hidden'); document.getElementById('hud').classList.add('hidden'); document.getElementById('ultButton').classList.add('hidden'); gameState = 'start'; }
 
-function gameOver(reason) {
-    gameState = 'gameover';
-    document.getElementById('gameOverScreen').classList.remove('hidden');
-    document.getElementById('hud').classList.add('hidden');
-    document.getElementById('ultButton').classList.add('hidden');
-    
-    document.getElementById('finalWave').textContent = wave;
-    document.getElementById('finalGold').textContent = gold;
-    
-    const msg = reason === 'fall' 
-        ? '小心脚下的路...废土的坑比僵尸更致命。' 
-        : '废土上的又一位英雄倒下了...';
-    document.getElementById('endMessage').textContent = msg;
-}
-
-function victory() {
-    gameState = 'victory';
-    document.getElementById('victoryScreen').classList.remove('hidden');
-    document.getElementById('hud').classList.add('hidden');
-    document.getElementById('ultButton').classList.add('hidden');
-    document.getElementById('victoryGold').textContent = gold;
-}
-
-function restartFromShop() {
-    document.getElementById('shopScreen').classList.add('hidden');
-    document.getElementById('startScreen').classList.remove('hidden');
-    gameState = 'start';
-}
-
-function restartGame() {
-    document.getElementById('gameOverScreen').classList.add('hidden');
-    document.getElementById('victoryScreen').classList.add('hidden');
-    document.getElementById('startScreen').classList.remove('hidden');
-    document.getElementById('hud').classList.add('hidden');
-    document.getElementById('ultButton').classList.add('hidden');
-    gameState = 'start';
-}
-
-// 启动
 init();
 </script>
 </body>
