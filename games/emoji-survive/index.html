@@ -292,7 +292,7 @@ function startGame() {
 
 function resetGame() {
     wave = 1; gold = 0; cameraX = 0; 
-    player.x = 0; player.y = PLATFORM_LAYERS.middle.y - 35; player.vy = 0; player.isJumping = false;
+    player.x = PLAYER_SCREEN_X; player.y = PLATFORM_LAYERS.middle.y - 35; player.vy = 0; player.isJumping = false;
     player.health = VEHICLES[player.vehicle].maxHealth; player.maxHealth = VEHICLES[player.vehicle].maxHealth;
     player.aimAngle = 0; player.invincible = 0;
     bullets = []; enemyBullets = []; enemies = []; golds = []; particles = [];
@@ -330,12 +330,13 @@ function gameLoop() {
 function update() {
     // 地图自动滚动
     cameraX += MAP_SCROLL_SPEED;
-    player.x += MAP_SCROLL_SPEED; // 玩家随地图一起向右移动（相对世界坐标）
+    // 玩家视觉上固定，世界坐标跟随相机偏移保持相对位置
+    player.x = cameraX + PLAYER_SCREEN_X;
     
     // 玩家物理
     player.vy += GRAVITY; player.y += player.vy;
     
-    // 平台碰撞（使用世界坐标）
+    // 平台碰撞（使用世界坐标 - 玩家世界坐标 = 相机位置 + 屏幕固定偏移）
     player.onPlatform = null; let onGround = false;
     const playerWorldX = player.x;
     
@@ -577,7 +578,7 @@ function selectVehicle(type, cost) {
         updateShopUI(); updateHUD();
     }
 }
-function nextWave() { wave++; spawnTimer = 0; cameraX = 0; player.x = 0; document.getElementById('shopScreen').classList.add('hidden'); document.getElementById('hud').classList.remove('hidden'); document.getElementById('ultButton').classList.remove('hidden'); gameState = 'playing'; startWave(); requestAnimationFrame(gameLoop); }
+function nextWave() { wave++; spawnTimer = 0; cameraX = 0; player.x = PLAYER_SCREEN_X; document.getElementById('shopScreen').classList.add('hidden'); document.getElementById('hud').classList.remove('hidden'); document.getElementById('ultButton').classList.remove('hidden'); gameState = 'playing'; startWave(); requestAnimationFrame(gameLoop); }
 function gameOver(reason) { gameState = 'gameover'; document.getElementById('gameOverScreen').classList.remove('hidden'); document.getElementById('hud').classList.add('hidden'); document.getElementById('ultButton').classList.add('hidden'); document.getElementById('finalWave').textContent = wave; document.getElementById('finalGold').textContent = gold; document.getElementById('endMessage').textContent = reason === 'fall' ? '小心脚下的路...废土的坑比僵尸更致命。' : '废土上的又一位英雄倒下了...'; }
 function victory() { gameState = 'victory'; document.getElementById('victoryScreen').classList.remove('hidden'); document.getElementById('hud').classList.add('hidden'); document.getElementById('ultButton').classList.add('hidden'); document.getElementById('victoryGold').textContent = gold; }
 function restartFromShop() { document.getElementById('shopScreen').classList.add('hidden'); document.getElementById('startScreen').classList.remove('hidden'); gameState = 'start'; }
