@@ -190,12 +190,20 @@ const VEHICLES = {
 };
 
 const ENEMIES = {
-    zombie: { emoji: '🧟', health: 1, speed: 0.8, damage: 10, gold: 1, type: 'ground', isFragile: true, hitFlash: false },
-    runner: { emoji: '🏃', health: 1, speed: 2.5, damage: 8, gold: 2, type: 'ground', isFragile: true, hitFlash: false },
-    tank: { emoji: '🐢', health: 5, speed: 0.4, damage: 15, gold: 5, type: 'ground', isFragile: false, hitFlash: true, barWidth: 40 },
-    bomber: { emoji: '💣', health: 3, speed: 2, damage: 25, gold: 3, type: 'ground', isFragile: false, hitFlash: true, barWidth: 35 },
-    demon: { emoji: '👹', health: 3, speed: 1.5, damage: 12, gold: 3, type: 'air', isFragile: false, hitFlash: true, canShoot: true, shootInterval: 90, bulletSpeed: 4, bulletDamage: 8, bulletEmoji: '🔴', barWidth: 35 },
-    boss: { emoji: '👾', health: 60, speed: 0.6, damage: 40, gold: 50, type: 'ground', isFragile: false, hitFlash: true, canShoot: true, shootInterval: 50, bulletSpeed: 6, bulletDamage: 12, bulletEmoji: '🔥', isBoss: true, barWidth: 80 }
+    // 脆皮近战
+    zombie: { emoji: '🧟', health: 1, speed: 0.8, damage: 10, gold: 1, type: 'ground', isFragile: true, hitFlash: false,
+              canShoot: true, shootInterval: 120, bulletSpeed: 3, bulletDamage: 5, bulletEmoji: '🦴' },
+    runner: { emoji: '🏃', health: 1, speed: 2.5, damage: 8, gold: 2, type: 'ground', isFragile: true, hitFlash: false,
+              canShoot: true, shootInterval: 100, bulletSpeed: 4, bulletDamage: 4, bulletEmoji: '⭐' },
+    // 精英怪（都有血条和射击）
+    tank: { emoji: '🐢', health: 20, speed: 0.4, damage: 15, gold: 5, type: 'ground', isFragile: false, hitFlash: true, barWidth: 40,
+            canShoot: true, shootInterval: 150, bulletSpeed: 2.5, bulletDamage: 8, bulletEmoji: '🛡️' },
+    bomber: { emoji: '💣', health: 8, speed: 2, damage: 25, gold: 3, type: 'ground', isFragile: false, hitFlash: true, barWidth: 35,
+              canShoot: true, shootInterval: 80, bulletSpeed: 5, bulletDamage: 10, bulletEmoji: '💥' },
+    demon: { emoji: '👹', health: 12, speed: 1.5, damage: 12, gold: 3, type: 'air', isFragile: false, hitFlash: true, barWidth: 35,
+             canShoot: true, shootInterval: 70, bulletSpeed: 4.5, bulletDamage: 8, bulletEmoji: '🔴' },
+    boss: { emoji: '👾', health: 80, speed: 0.6, damage: 40, gold: 50, type: 'ground', isFragile: false, hitFlash: true, isBoss: true, barWidth: 80,
+            canShoot: true, shootInterval: 40, bulletSpeed: 6, bulletDamage: 15, bulletEmoji: '🔥' }
 };
 
 // ==================== 状态 ====================
@@ -336,17 +344,28 @@ function resetGame() {
 function startWave() { waveInProgress = true; generateMap(wave); enemiesToSpawn = generateWaveEnemies(wave); }
 
 function generateWaveEnemies(waveNum) {
-    let list = [], count = 6 + waveNum * 2;
-    const fragileRatio = Math.max(0.35, 0.75 - waveNum * 0.025);
+    // 增加怪物数量：基础更多，增长更快
+    let list = [], count = 10 + waveNum * 3;
+    const fragileRatio = Math.max(0.25, 0.6 - waveNum * 0.02); // 后期脆皮比例更低
+    
     for (let i = 0; i < count; i++) {
         let type; const rand = Math.random();
         if (rand < fragileRatio) type = Math.random() < 0.5 ? 'zombie' : 'runner';
-        else if (rand < fragileRatio + 0.35) type = Math.random() < 0.5 ? 'tank' : 'bomber';
+        else if (rand < fragileRatio + 0.3) type = Math.random() < 0.4 ? 'tank' : 'bomber';
         else type = 'demon';
-        if (waveNum >= 8 && Math.random() < 0.15) type = 'tank';
-        list.push({ type, delay: i * 60 + Math.random() * 30, x: 1000 + i * 300 });
+        if (waveNum >= 5 && Math.random() < 0.2) type = 'tank'; // 早期就有坦克
+        
+        // 减少生成间隔，出现更频繁
+        const spawnDelay = i * 35 + Math.random() * 20; // 原来是 i * 60
+        const spawnX = 900 + i * 180 + Math.random() * 100; // 更密集
+        list.push({ type, delay: spawnDelay, x: spawnX });
     }
-    if (waveNum % 5 === 0) list.push({ type: 'boss', delay: list.length * 60 + 80, x: 1500 + list.length * 200 });
+    
+    // Boss 波次更早出现，且中间也有小 boss
+    if (waveNum % 4 === 0) { // 每4波一个 boss（原来是5波）
+        list.push({ type: 'boss', delay: list.length * 35 + 60, x: 1200 + list.length * 150 });
+    }
+    
     return list;
 }
 
