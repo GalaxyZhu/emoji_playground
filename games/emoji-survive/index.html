@@ -277,6 +277,19 @@ function generateMap(waveNum) {
         }
     }
     
+    // 修复：确保地图右边界有地面，避免玩家滚到尽头掉下去
+    const lastSegment = groundSegments[groundSegments.length - 1];
+    const mapEndX = lastSegment ? lastSegment.x + lastSegment.width : 0;
+    if (mapEndX < mapWidth + 400) {
+        // 在地图末尾添加一段足够长的地面，确保玩家不会掉下去
+        groundSegments.push({ 
+            x: mapEndX, 
+            y: PLATFORM_LAYERS.bottom.y, 
+            width: mapWidth + 800 - mapEndX, 
+            height: 100 
+        });
+    }
+    
     // 生成顶层平台（难度较高）
     if (waveNum > 2) {
         for (let i = 0; i < 2 + Math.floor(waveNum / 4); i++) {
