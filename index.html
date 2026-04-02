@@ -232,8 +232,8 @@
                 players: { zh: '1人', en: '1 Player' },
                 playTime: { zh: '5分钟', en: '5 min' }
             },
-            'emoji-jump': {
-                name: { zh: '跳跳蛙大冒险', en: 'Emoji Jump' },
+            'emoji-frog': {
+                name: { zh: '跳跳蛙大冒险', en: 'Emoji Frog' },
                 emoji: '🐸',
                 tagline: { zh: '按住跳，松开落，手速决定高度', en: 'Jump and dash, speed challenge' },
                 difficulty: { zh: '简单', en: 'Easy' },
@@ -321,7 +321,7 @@
                 id,
                 ...gameConfigs[id],
                 version: '0.1.0',
-                status: id === 'emoji-jump' ? 'soon' : 'ready',
+                status: 'ready',
                 path: `games/${id}/index.html`
             }));
             
@@ -392,7 +392,8 @@
             const grid = document.getElementById('comingSoonGrid');
             const lang = getCurrentLang();
             
-            const comingSoonGames = ['emoji-jump'];
+            // 暂时为空，有需要再添加
+            const comingSoonGames = [];
             comingSoonGames.forEach(id => {
                 const game = gameConfigs[id];
                 if (game) {
@@ -435,13 +436,13 @@
             return lang.startsWith('zh') ? 'zh' : 'en';
         }
         
-        // 渲染动态游戏卡片 (Hot Games - 只显示核心3款)
+        // 渲染动态游戏卡片 (Hot Games)
         function renderGames() {
             const grid = document.getElementById('gamesGrid');
             const lang = getCurrentLang();
             
-            // Hot Games 只显示：match, shooter, survive
-            const hotGames = ['emoji-match', 'emoji-shooter', 'emoji-survive'];
+            // Hot Games：match, shooter, survive, frog
+            const hotGames = ['emoji-match', 'emoji-shooter', 'emoji-survive', 'emoji-frog'];
             
             hotGames.forEach(id => {
                 const game = gamesData.find(g => g.id === id);
