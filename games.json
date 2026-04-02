@@ -16,6 +16,20 @@
       "tags": ["射击", "街机", "Boss战"],
       "players": "1人",
       "playTime": "5-10分钟"
+    },
+    {
+      "id": "emoji-frog",
+      "name": "跳跳蛙大冒险",
+      "emoji": "🐸",
+      "tagline": "向上跳跃，挑战极限高度",
+      "version": "0.1.0",
+      "status": "beta",
+      "path": "games/emoji-frog/index.html",
+      "cover": "assets/images/frog-cover.svg",
+      "difficulty": "简单",
+      "tags": ["跳跃", "无尽", "休闲"],
+      "players": "1人",
+      "playTime": "3-5分钟"
     }
   ],
   "features": {

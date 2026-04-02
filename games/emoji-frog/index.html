@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🐸 跳跳蛙原型 V0.1</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
+        body {
+            background: #0d1f15;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            overflow: hidden;
+        }
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            max-height: 800px;
+        }
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, #87CEEB 0%, #4ade80 50%, #0d1f15 100%);
+            display: block;
+        }
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.85);
+            z-index: 100;
+        }
+        .hidden { display: none !important; }
+        h1 { 
+            font-size: 42px; 
+            color: #4ade80; 
+            text-shadow: 0 0 20px #4ade80;
+            margin-bottom: 10px;
+        }
+        .emoji-title { 
+            font-size: 80px; 
+            margin-bottom: 20px;
+            animation: bounce 0.6s infinite alternate;
+        }
+        @keyframes bounce {
+            from { transform: translateY(0) scale(1); }
+            to { transform: translateY(-10px) scale(1.1); }
+        }
+        .btn {
+            padding: 15px 40px;
+            font-size: 22px;
+            background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 20px rgba(74, 222, 128, 0.5);
+        }
+        .btn:hover { transform: scale(1.05); }
+        .btn:active { transform: scale(0.95); }
+        .instructions {
+            color: #aaa;
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .score-display {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            z-index: 50;
+        }
+        .height-display {
+            position: absolute;
+            top: 55px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #4ade80;
+            font-size: 16px;
+            z-index: 50;
+        }
+        .controls-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
+            text-align: center;
+            z-index: 50;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        
+        <div class="score-display hidden" id="scoreDisplay">0m</div>
+        <div class="height-display hidden" id="heightDisplay">最高: 0m</div>
+        <div class="controls-hint hidden" id="controlsHint">点击 / 空格 跳跃 | A/D 或 ←→ 移动</div>
+        
+        <div class="ui-overlay" id="startScreen">
+            <div class="emoji-title">🐸</div>
+            <h1>跳跳蛙</h1>
+            <button class="btn" id="startBtn">开始跳跃</button>
+            <div class="instructions">
+                点击屏幕或按空格键跳跃<br>
+                A/D 或方向键控制左右<br>
+                跳得越高，分数越高！
+            </div>
+        </div>
+        
+        <div class="ui-overlay hidden" id="gameOverScreen">
+            <div class="emoji-title">💀</div>
+            <h1>游戏结束</h1>
+            <div class="instructions" style="font-size: 18px; margin-bottom: 20px;">
+                高度: <span id="finalScore" style="color: #4ade80; font-weight: bold;">0</span>m
+            </div>
+            <button class="btn" id="restartBtn">再跳一次</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置画布尺寸
+        function resize() {
+            const container = document.getElementById('gameContainer');
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+        
+        // 游戏状态
+        let gameState = 'start'; // start, playing, gameover
+        let score = 0;
+        let maxHeight = localStorage.getItem('frogMaxHeight') || 0;
+        
+        // 相机
+        let camera = { y: 0, targetY: 0 };
+        
+        // 物理参数（核心手感调这里）
+        const GRAVITY = 0.4;        // 重力
+        const JUMP_FORCE = -11;     // 跳跃力度（负值向上）
+        const MOVE_SPEED = 5;       // 水平移动速度
+        const FRICTION = 0.85;      // 摩擦力（空中惯性）
+        
+        // 玩家（青蛙）
+        const player = {
+            x: 0,
+            y: 0,
+            vx: 0,
+            vy: 0,
+            width: 40,
+            height: 40,
+            emoji: '🐸',
+            grounded: false,
+            facingRight: true
+        };
+        
+        // 平台
+        let platforms = [];
+        const PLATFORM_WIDTH = 80;
+        const PLATFORM_HEIGHT = 20;
+        const PLATFORM_SPACING_MIN = 80;
+        const PLATFORM_SPACING_MAX = 130;
+        
+        // 输入状态
+        const keys = { left: false, right: false, jump: false };
+        let jumpPressed = false;
+        
+        // 初始化平台
+        function initPlatforms() {
+            platforms = [];
+            // 起始平台在底部
+            platforms.push({
+                x: canvas.width / 2 - PLATFORM_WIDTH / 2,
+                y: canvas.height - 100,
+                width: PLATFORM_WIDTH,
+                height: PLATFORM_HEIGHT,
+                type: 'normal',
+                emoji: '🍃'
+            });
+            
+            // 生成初始平台
+            let currentY = canvas.height - 100;
+            while (currentY > -canvas.height) {
+                currentY -= randomRange(PLATFORM_SPACING_MIN, PLATFORM_SPACING_MAX);
+                platforms.push(generatePlatform(currentY));
+            }
+        }
+        
+        function generatePlatform(y) {
+            const margin = 60;
+            const types = [
+                { type: 'normal', emoji: '🍃', chance: 0.7 },
+                { type: 'lily', emoji: '🪷', chance: 0.15 },
+                { type: 'cloud', emoji: '☁️', chance: 0.15 }
+            ];
+            
+            const rand = Math.random();
+            let selected = types[0];
+            let cumChance = 0;
+            for (const t of types) {
+                cumChance += t.chance;
+                if (rand <= cumChance) {
+                    selected = t;
+                    break;
+                }
+            }
+            
+            return {
+                x: randomRange(margin, canvas.width - PLATFORM_WIDTH - margin),
+                y: y,
+                width: PLATFORM_WIDTH,
+                height: PLATFORM_HEIGHT,
+                type: selected.type,
+                emoji: selected.emoji
+            };
+        }
+        
+        function randomRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+        
+        // 初始化玩家
+        function initPlayer() {
+            player.x = canvas.width / 2 - player.width / 2;
+            player.y = canvas.height - 150;
+            player.vx = 0;
+            player.vy = 0;
+            player.grounded = false;
+        }
+        
+        // 开始游戏
+        function startGame() {
+            gameState = 'playing';
+            score = 0;
+            camera.y = 0;
+            camera.targetY = 0;
+            initPlatforms();
+            initPlayer();
+            
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('scoreDisplay').classList.remove('hidden');
+            document.getElementById('heightDisplay').classList.remove('hidden');
+            document.getElementById('controlsHint').classList.remove('hidden');
+            document.getElementById('heightDisplay').textContent = `最高: ${Math.floor(maxHeight)}m`;
+            
+            gameLoop();
+        }
+        
+        // 游戏结束
+        function gameOver() {
+            gameState = 'gameover';
+            
+            if (score > maxHeight) {
+                maxHeight = score;
+                localStorage.setItem('frogMaxHeight', maxHeight);
+            }
+            
+            document.getElementById('finalScore').textContent = Math.floor(score);
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+            document.getElementById('scoreDisplay').classList.add('hidden');
+            document.getElementById('heightDisplay').classList.add('hidden');
+            document.getElementById('controlsHint').classList.add('hidden');
+        }
+        
+        // 更新物理
+        function updatePhysics() {
+            // 水平移动
+            if (keys.left) {
+                player.vx -= 1;
+                player.facingRight = false;
+            }
+            if (keys.right) {
+                player.vx += 1;
+                player.facingRight = true;
+            }
+            
+            // 摩擦力
+            player.vx *= FRICTION;
+            
+            // 限制最大速度
+            player.vx = Math.max(-MOVE_SPEED, Math.min(MOVE_SPEED, player.vx));
+            
+            // 应用重力
+            player.vy += GRAVITY;
+            
+            // 更新位置
+            player.x += player.vx;
+            player.y += player.vy;
+            
+            // 屏幕边界循环（左右穿墙）
+            if (player.x + player.width < 0) {
+                player.x = canvas.width;
+            } else if (player.x > canvas.width) {
+                player.x = -player.width;
+            }
+            
+            // 跳跃（只有在地面或按住跳跃键时）
+            if (jumpPressed && player.grounded) {
+                player.vy = JUMP_FORCE;
+                player.grounded = false;
+                jumpPressed = false;
+            }
+        }
+        
+        // 碰撞检测
+        function checkCollisions() {
+            player.grounded = false;
+            
+            // 只检测下降时的碰撞
+            if (player.vy > 0) {
+                for (const plat of platforms) {
+                    // 检测是否落在平台上
+                    if (player.x + player.width * 0.3 < plat.x + plat.width &&
+                        player.x + player.width * 0.7 > plat.x &&
+                        player.y + player.height >= plat.y &&
+                        player.y + player.height <= plat.y + plat.height + player.vy + 2) {
+                        
+                        player.y = plat.y - player.height;
+                        player.vy = 0;
+                        player.grounded = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        // 更新相机
+        function updateCamera() {
+            // 目标：玩家位于屏幕下方1/3处
+            const targetY = player.y - canvas.height * 0.6;
+            
+            // 平滑跟随
+            camera.targetY = Math.min(camera.targetY, targetY);
+            camera.y += (camera.targetY - camera.y) * 0.1;
+            
+            // 相机不能向下移动（不能回到已经跳过的区域）
+            camera.y = Math.min(camera.y, targetY);
+        }
+        
+        // 生成新平台
+        function generateNewPlatforms() {
+            const topPlatform = platforms[platforms.length - 1];
+            const spawnThreshold = camera.y - canvas.height;
+            
+            // 在相机上方生成新平台
+            while (topPlatform.y > spawnThreshold) {
+                const newY = topPlatform.y - randomRange(PLATFORM_SPACING_MIN, PLATFORM_SPACING_MAX);
+                platforms.push(generatePlatform(newY));
+                
+                // 移除屏幕下方的旧平台
+                if (platforms.length > 20) {
+                    platforms.shift();
+                }
+            }
+        }
+        
+        // 检查死亡
+        function checkDeath() {
+            // 掉到屏幕底部以下
+            if (player.y - camera.y > canvas.height + 50) {
+                gameOver();
+            }
+        }
+        
+        // 更新分数
+        function updateScore() {
+            const height = Math.max(0, Math.floor((canvas.height - 100 - player.y) / 10));
+            score = Math.max(score, height);
+            document.getElementById('scoreDisplay').textContent = score + 'm';
+        }
+        
+        // 绘制
+        function draw() {
+            // 清空画布
+            ctx.fillStyle = '#0d1f15';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 绘制渐变背景（随高度变化）
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            const skyOffset = Math.max(0, Math.min(1, -camera.y / 5000));
+            gradient.addColorStop(0, `hsl(${200 + skyOffset * 60}, 70%, ${20 + skyOffset * 30}%)`);
+            gradient.addColorStop(0.5, `hsl(${150 + skyOffset * 40}, 60%, ${30 + skyOffset * 20}%)`);
+            gradient.addColorStop(1, '#0d1f15');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.save();
+            ctx.translate(0, -camera.y);
+            
+            // 绘制平台
+            for (const plat of platforms) {
+                // 平台背景
+                ctx.fillStyle = plat.type === 'cloud' ? 'rgba(200, 220, 255, 0.3)' : 'rgba(0, 50, 30, 0.3)';
+                ctx.beginPath();
+                ctx.roundRect(plat.x, plat.y, plat.width, plat.height, 10);
+                ctx.fill();
+                
+                // 平台表情
+                ctx.font = '30px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(plat.emoji, plat.x + plat.width / 2, plat.y + 5);
+            }
+            
+            // 绘制玩家（青蛙）
+            ctx.font = '40px Arial';
+            ctx.textAlign = 'center';
+            ctx.save();
+            ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
+            if (!player.facingRight) {
+                ctx.scale(-1, 1);
+            }
+            // 跳跃时旋转
+            const rotation = Math.min(Math.PI / 4, Math.max(-Math.PI / 4, player.vy * 0.05));
+            ctx.rotate(rotation);
+            ctx.fillText(player.emoji, 0, 10);
+            ctx.restore();
+            
+            ctx.restore();
+        }
+        
+        // 游戏循环
+        function gameLoop() {
+            if (gameState !== 'playing') return;
+            
+            updatePhysics();
+            checkCollisions();
+            updateCamera();
+            generateNewPlatforms();
+            updateScore();
+            checkDeath();
+            
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // 事件监听
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+        
+        // 键盘控制
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                jumpPressed = true;
+            }
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+        });
+        
+        window.addEventListener('keyup', (e) => {
+            if (e.code === 'Space') {
+                jumpPressed = false;
+            }
+            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+        });
+        
+        // 触摸/点击控制
+        let touchStartX = 0;
+        
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            touchStartX = e.touches[0].clientX;
+            jumpPressed = true;
+        }, { passive: false });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touchX = e.touches[0].clientX;
+            const diff = touchX - touchStartX;
+            
+            if (diff < -30) {
+                keys.left = true;
+                keys.right = false;
+            } else if (diff > 30) {
+                keys.right = true;
+                keys.left = false;
+            } else {
+                keys.left = false;
+                keys.right = false;
+            }
+        }, { passive: false });
+        
+        canvas.addEventListener('touchend', () => {
+            jumpPressed = false;
+            keys.left = false;
+            keys.right = false;
+        });
+        
+        // 鼠标点击也触发跳跃
+        canvas.addEventListener('mousedown', () => {
+            jumpPressed = true;
+        });
+        
+        canvas.addEventListener('mouseup', () => {
+            jumpPressed = false;
+        });
+        
+        // 初始化显示最高分
+        document.querySelector('.instructions').innerHTML += `<br><br>历史最高: ${Math.floor(maxHeight)}m`;
+    </script>
+</body>
+</html>
