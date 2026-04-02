@@ -351,38 +351,43 @@
         
         // 更新相机
         function updateCamera() {
-            // 目标：玩家位于屏幕下方1/3处
-            const targetY = player.y - canvas.height * 0.6;
+            // 目标：玩家位于屏幕中间偏下
+            const targetY = player.y - canvas.height * 0.5;
             
-            // 平滑跟随
-            camera.targetY = Math.min(camera.targetY, targetY);
-            camera.y += (camera.targetY - camera.y) * 0.1;
+            // 平滑跟随（双向）
+            camera.y += (targetY - camera.y) * 0.15;
             
-            // 相机不能向下移动（不能回到已经跳过的区域）
-            camera.y = Math.min(camera.y, targetY);
+            // 限制相机不能低于起始位置（防止看到水面以下太多）
+            const minCameraY = -100;
+            if (camera.y < minCameraY) camera.y = minCameraY;
         }
         
         // 生成新平台
         function generateNewPlatforms() {
             const topPlatform = platforms[platforms.length - 1];
-            const spawnThreshold = camera.y - canvas.height;
+            // 在相机上方生成新平台（提前生成，避免玩家看到空白）
+            const spawnThreshold = camera.y - canvas.height * 0.5;
             
             // 在相机上方生成新平台
             while (topPlatform.y > spawnThreshold) {
                 const newY = topPlatform.y - randomRange(PLATFORM_SPACING_MIN, PLATFORM_SPACING_MAX);
                 platforms.push(generatePlatform(newY));
                 
-                // 移除屏幕下方的旧平台
-                if (platforms.length > 20) {
-                    platforms.shift();
+                // 移除屏幕下方的旧平台（相机下方1.5屏）
+                if (platforms.length > 25) {
+                    platforms = platforms.filter(p => p.y < camera.y + canvas.height * 1.5);
                 }
             }
         }
         
         // 检查死亡
         function checkDeath() {
-            // 掉到屏幕底部以下
-            if (player.y - camera.y > canvas.height + 50) {
+            // 掉到相机下方一定距离（给玩家一些容错空间）
+            if (player.y - camera.y > canvas.height + 100) {
+                gameOver();
+            }
+            // 或者掉到初始水面以下
+            if (player.y > canvas.height + 200) {
                 gameOver();
             }
         }
