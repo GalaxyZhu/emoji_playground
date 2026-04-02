@@ -115,15 +115,15 @@
         
         <div class="score-display hidden" id="scoreDisplay">0m</div>
         <div class="height-display hidden" id="heightDisplay">最高: 0m</div>
-        <div class="controls-hint hidden" id="controlsHint">点击 / 空格 跳跃 | A/D 或 ←→ 移动</div>
+        <div class="controls-hint hidden" id="controlsHint">A/D 或 ←→ 控制左右方向 | 左右穿墙</div>
         
         <div class="ui-overlay" id="startScreen">
             <div class="emoji-title">🐸</div>
             <h1>跳跳蛙</h1>
             <button class="btn" id="startBtn">开始跳跃</button>
             <div class="instructions">
-                点击屏幕或按空格键跳跃<br>
-                A/D 或方向键控制左右<br>
+                青蛙自动跳跃，你只需要控制左右方向<br>
+                A/D 或 ←→ 移动，左右穿墙<br>
                 跳得越高，分数越高！
             </div>
         </div>
@@ -319,11 +319,10 @@
                 player.x = -player.width;
             }
             
-            // 跳跃（只有在地面或按住跳跃键时）
-            if (jumpPressed && player.grounded) {
+            // 跳跃（自动模式：落地后立即起跳）
+            if (player.grounded) {
                 player.vy = JUMP_FORCE;
                 player.grounded = false;
-                jumpPressed = false;
             }
         }
         
