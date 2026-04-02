@@ -360,7 +360,7 @@
         
         // 生成新平台
         function generateNewPlatforms() {
-            const topPlatform = platforms[platforms.length - 1];
+            let topPlatform = platforms[platforms.length - 1];
             // 在相机上方生成新平台（提前生成，避免玩家看到空白）
             const spawnThreshold = camera.y - canvas.height * 0.5;
             
@@ -368,10 +368,11 @@
             while (topPlatform.y > spawnThreshold) {
                 const newY = topPlatform.y - randomRange(PLATFORM_SPACING_MIN, PLATFORM_SPACING_MAX);
                 platforms.push(generatePlatform(newY));
+                topPlatform = platforms[platforms.length - 1];
                 
-                // 移除屏幕下方的旧平台（相机下方1.5屏）
-                if (platforms.length > 25) {
-                    platforms = platforms.filter(p => p.y < camera.y + canvas.height * 1.5);
+                // 移除屏幕下方的旧平台（相机下方超过1屏的平台）
+                if (platforms.length > 20) {
+                    platforms = platforms.filter(p => p.y > camera.y - canvas.height);
                 }
             }
         }
