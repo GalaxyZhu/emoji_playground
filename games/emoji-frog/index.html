@@ -356,10 +356,6 @@
             
             // 平滑跟随（双向）
             camera.y += (targetY - camera.y) * 0.15;
-            
-            // 限制相机不能低于起始位置（防止看到水面以下太多）
-            const minCameraY = -100;
-            if (camera.y < minCameraY) camera.y = minCameraY;
         }
         
         // 生成新平台
