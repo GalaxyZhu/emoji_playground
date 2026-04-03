@@ -460,6 +460,9 @@
                 }
             }
         }
+
+        // 生成新平台
+        function generateNewPlatforms() {
             let topPlatform = platforms[platforms.length - 1];
             // 在相机上方生成新平台（提前生成，避免玩家看到空白）
             const spawnThreshold = camera.y - canvas.height * 0.5;
