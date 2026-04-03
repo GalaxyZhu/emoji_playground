@@ -116,14 +116,81 @@
     <div class="ui-overlay hidden" id="gameOverScreen">
         <div class="emoji-title" id="crashEmoji">💥</div>
         <h1 id="crashTitle">翻车了！</h1>
-        <div style="color: #fff; font-size: 24px; margin-bottom: 10px;">行驶距离: <span id="finalDistance">0</span>m</div>
-        <div style="color: #ffd700; font-size: 18px; margin-bottom: 10px;">最高分: <span id="highScore">0</span>m</div>
+        <div style="color: #fff; font-size: 24px; margin-bottom: 10px;"><span id="distanceLabel">行驶距离</span>: <span id="finalDistance">0</span>m</div>
+        <div style="color: #ffd700; font-size: 18px; margin-bottom: 10px;"><span id="highScoreLabel">最高分</span>: <span id="highScore">0</span>m</div>
         <div style="color: #888; font-size: 14px; margin-bottom: 30px;"><span id="crashReason"></span></div>
         <button class="btn" id="restartBtn">再来一局</button>
         <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
     </div>
 
     <script>
+        // 多语言支持
+        const i18n = {
+            zh: {
+                startGame: '开始爬坡',
+                gameOver: '翻车了！',
+                outOfFuel: '没油了！',
+                crashed: '撞毁了！',
+                distance: '行驶距离',
+                highScore: '最高分',
+                backToArcade: '🏠 回到街机厅',
+                playAgain: '再来一局',
+                controlsHint: '按住 = 油门 | 松开 = 刹车',
+                instructions: `
+                    🔴 按住屏幕/鼠标 = 油门加速<br>
+                    ⚫ 松开 = 刹车减速<br>
+                    ⚖️ 保持平衡，别翻车！<br>
+                    ⛽ 收集油桶补充燃料<br>
+                    💰 金币加分<br>
+                    看你能爬多远！
+                `,
+                crashReason: '车辆损毁',
+                fuel: '⛽',
+                accelerate: '🔥 加速中',
+                brake: '⚫ 刹车'
+            },
+            en: {
+                startGame: 'Start Game',
+                gameOver: 'Game Over!',
+                outOfFuel: 'Out of Fuel!',
+                crashed: 'Crashed!',
+                distance: 'Distance',
+                highScore: 'High Score',
+                backToArcade: '🏠 Back to Arcade',
+                playAgain: 'Play Again',
+                controlsHint: 'Hold = Accelerate | Release = Brake',
+                instructions: `
+                    🔴 Hold screen/mouse = Accelerate<br>
+                    ⚫ Release = Brake<br>
+                    ⚖️ Keep balance, don't flip!<br>
+                    ⛽ Collect fuel cans<br>
+                    💰 Coins for bonus points<br>
+                    How far can you climb?
+                `,
+                crashReason: 'Vehicle Destroyed',
+                fuel: '⛽',
+                accelerate: '🔥 Accelerating',
+                brake: '⚫ Braking'
+            }
+        };
+
+        // 检测语言
+        const lang = navigator.language.toLowerCase().startsWith('en') ? 'en' : 'zh';
+        const t = i18n[lang];
+
+        // 应用翻译
+        function applyTranslations() {
+            document.getElementById('startBtn').textContent = t.startGame;
+            document.getElementById('controlsHint').textContent = t.controlsHint;
+            document.querySelector('.instructions').innerHTML = t.instructions;
+            document.querySelector('.btn-home').innerHTML = t.backToArcade;
+            document.getElementById('restartBtn').textContent = t.playAgain;
+            document.getElementById('distanceLabel').textContent = t.distance;
+            document.getElementById('highScoreLabel').textContent = t.highScore;
+        }
+
+        // 页面加载时应用翻译
+        document.addEventListener('DOMContentLoaded', applyTranslations);
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
@@ -244,18 +311,20 @@
             
             if (reason === 'fuel') {
                 crashEmoji.textContent = '⛽';
-                crashTitle.textContent = '没油了！';
+                crashTitle.textContent = t.outOfFuel;
             } else if (Math.abs(player.angle) > Math.PI / 2) {
                 crashEmoji.textContent = '🙃';
-                crashTitle.textContent = '翻车了！';
+                crashTitle.textContent = t.gameOver;
             } else {
                 crashEmoji.textContent = '💥';
-                crashTitle.textContent = '撞毁了！';
+                crashTitle.textContent = t.crashed;
             }
             
+            document.getElementById('distanceLabel').textContent = t.distance;
             document.getElementById('finalDistance').textContent = Math.floor(distance);
+            document.getElementById('highScoreLabel').textContent = t.highScore;
             document.getElementById('highScore').textContent = Math.floor(highScore);
-            document.getElementById('crashReason').textContent = reason || '车辆损毁';
+            document.getElementById('crashReason').textContent = reason === 'fuel' ? t.outOfFuel : (reason === 'fall' ? t.crashed : t.crashReason);
             document.getElementById('gameOverScreen').classList.remove('hidden');
             document.getElementById('controlsHint').style.display = 'none';
         }
@@ -524,7 +593,7 @@
                 ctx.fillRect(GAME_WIDTH / 2 - 100, GAME_HEIGHT - 80, 200, 40);
                 ctx.fillStyle = isAccelerating ? '#00ff64' : '#fff';
                 ctx.font = '16px sans-serif';
-                ctx.fillText(isAccelerating ? '🔥 加速中' : '⚫ 刹车', GAME_WIDTH / 2, GAME_HEIGHT - 60);
+                ctx.fillText(isAccelerating ? t.accelerate : t.brake, GAME_WIDTH / 2, GAME_HEIGHT - 60);
             }
         }
         
