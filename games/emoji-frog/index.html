@@ -646,6 +646,7 @@
             // 绘制玩家（青蛙）
             ctx.font = '40px Arial';
             ctx.textAlign = 'center';
+            ctx.fillStyle = '#000';  // 重置填充颜色，避免被粒子颜色污染
             ctx.save();
             ctx.translate(player.x + player.width / 2, player.y + player.height / 2);
             if (!player.facingRight) {
