@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>🛻 Emoji Survive - 废土生存 (Platformer)</title>
+    <title>🛻 Emoji Survive</title>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3968599850270461" crossorigin="anonymous"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -71,102 +71,102 @@
             <div class="ui-overlay" id="startScreen">
                 <div class="emoji-title">🛻</div>
                 <h1>EMOJI SURVIVE</h1>
-                <div style="color: #ff6600; font-size: 18px; margin-bottom: 20px;">废土平台生存战 v2.0</div>
+                <div style="color: #ff6600; font-size: 18px; margin-bottom: 20px;" data-i18n="subtitle">废土平台生存战 v2.0</div>
                 <div class="start-buttons">
-                    <button class="btn btn-primary" onclick="startGame()">开始冒险</button>
-                    <button class="btn btn-secondary" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
+                    <button class="btn btn-primary" onclick="startGame()" data-i18n="startGame">开始冒险</button>
+                    <button class="btn btn-secondary" onclick="location.href='../../index.html'" data-i18n="backToArcade">🏠 回到街机厅</button>
                 </div>
                 <div class="instructions">
-                    <b>🎮 平台跳跃版 v2.0</b><br><br>
-                    🖥️ <b>电脑：</b>鼠标瞄准 | 空格跳跃 | Q大招<br>
-                    📱 <b>手机：</b>左半屏跳跃 | 右半屏瞄准<br><br>
-                    ⚠️ <b>地图自动滚动！小心地面的坑！</b><br>
-                    🎯 脆皮1炮死，精英有血条
+                    <b data-i18n="versionTitle">🎮 平台跳跃版 v2.0</b><br><br>
+                    <span data-i18n="pcControls">🖥️ <b>电脑：</b>鼠标瞄准 | 空格跳跃 | Q大招</span><br>
+                    <span data-i18n="mobileControls">📱 <b>手机：</b>左半屏跳跃 | 右半屏瞄准</span><br><br>
+                    <span data-i18n="warningText" style="color: #ff6600;">⚠️ <b>地图自动滚动！小心地面的坑！</b></span><br>
+                    <span data-i18n="enemyTip">🎯 脆皮1炮死，精英有血条</span>
                 </div>
             </div>
 
             <div class="ui-overlay hidden" id="shopScreen">
                 <div class="shop-container">
-                    <div class="shop-title">🔧 废土工坊</div>
-                    <div style="text-align: center; color: #888; margin-bottom: 10px;">第 <span id="shopWave">1</span> 波完成</div>
+                    <div class="shop-title" data-i18n="workshopTitle">🔧 废土工坊</div>
+                    <div style="text-align: center; color: #888; margin-bottom: 10px;" data-i18n="waveComplete">第 <span id="shopWave">1</span> 波完成</div>
                     <div style="text-align: center; font-size: 26px; color: #ffd700; margin-bottom: 20px;">💰 <span id="shopGold">0</span></div>
 
                     <div class="upgrade-list">
                         <div class="upgrade-item">
-                            <div><div style="font-size: 15px; color: #fff;">❤️ 装甲加固</div><div style="font-size: 11px; color: #888;">最大生命值 +50</div></div>
+                            <div><div style="font-size: 15px; color: #fff;">❤️ <span data-i18n="upgradeHealth">装甲加固</span></div><div style="font-size: 11px; color: #888;" data-i18n="upgradeHealthDesc">最大生命值 +50</div></div>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <div style="color: #ffd700; font-size: 14px;" id="healthCost">10💰</div>
-                                <button class="btn-upgrade" id="healthBtn" onclick="buyUpgrade('health')">升级</button>
+                                <button class="btn-upgrade" id="healthBtn" onclick="buyUpgrade('health')" data-i18n="upgradeBtn">升级</button>
                             </div>
                         </div>
                         <div class="upgrade-item">
-                            <div><div style="font-size: 15px; color: #fff;">⚡ 火力增强</div><div style="font-size: 11px; color: #888;">子弹伤害 +5</div></div>
+                            <div><div style="font-size: 15px; color: #fff;">⚡ <span data-i18n="upgradeDamage">火力增强</span></div><div style="font-size: 11px; color: #888;" data-i18n="upgradeDamageDesc">子弹伤害 +5</div></div>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <div style="color: #ffd700; font-size: 14px;" id="damageCost">15💰</div>
-                                <button class="btn-upgrade" id="damageBtn" onclick="buyUpgrade('damage')">升级</button>
+                                <button class="btn-upgrade" id="damageBtn" onclick="buyUpgrade('damage')" data-i18n="upgradeBtn">升级</button>
                             </div>
                         </div>
                         <div class="upgrade-item">
-                            <div><div style="font-size: 15px; color: #fff;">🔫 射速提升</div><div style="font-size: 11px; color: #888;">射击速度 +15%</div></div>
+                            <div><div style="font-size: 15px; color: #fff;">🔫 <span data-i18n="upgradeFireRate">射速提升</span></div><div style="font-size: 11px; color: #888;" data-i18n="upgradeFireRateDesc">射击速度 +15%</div></div>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <div style="color: #ffd700; font-size: 14px;" id="fireRateCost">10💰</div>
-                                <button class="btn-upgrade" id="fireRateBtn" onclick="buyUpgrade('fireRate')">升级</button>
+                                <button class="btn-upgrade" id="fireRateBtn" onclick="buyUpgrade('fireRate')" data-i18n="upgradeBtn">升级</button>
                             </div>
                         </div>
                         <div class="upgrade-item">
-                            <div><div style="font-size: 15px; color: #fff;">🎯 双管炮塔</div><div style="font-size: 11px; color: #888;">同时射出两发子弹</div></div>
+                            <div><div style="font-size: 15px; color: #fff;">🎯 <span data-i18n="upgradeDoubleShot">双管炮塔</span></div><div style="font-size: 11px; color: #888;" data-i18n="upgradeDoubleShotDesc">同时射出两发子弹</div></div>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <div style="color: #ffd700; font-size: 14px;" id="doubleShotCost">30💰</div>
-                                <button class="btn-upgrade" id="doubleShotBtn" onclick="buyUpgrade('doubleShot')">解锁</button>
+                                <button class="btn-upgrade" id="doubleShotBtn" onclick="buyUpgrade('doubleShot')" data-i18n="unlockBtn">解锁</button>
                             </div>
                         </div>
                     </div>
 
                     <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; margin-bottom: 15px;">
-                        <div style="color: #888; margin-bottom: 10px; text-align: center; font-size: 14px;">选择载具</div>
+                        <div style="color: #888; margin-bottom: 10px; text-align: center; font-size: 14px;" data-i18n="selectVehicle">选择载具</div>
                         <div class="vehicle-select">
                             <div class="vehicle-option selected" onclick="selectVehicle('truck', 0)">
-                                🛻<div class="vehicle-name">皮卡</div>
+                                🛻<div class="vehicle-name" data-i18n="vehicleTruck">皮卡</div>
                             </div>
                             <div class="vehicle-option" id="vehicle-sports" onclick="selectVehicle('sports', 500)">
-                                🏎️<div class="vehicle-name">跑车</div><div class="vehicle-lock">500💰</div>
+                                🏎️<div class="vehicle-name" data-i18n="vehicleSports">跑车</div><div class="vehicle-lock">500💰</div>
                             </div>
                             <div class="vehicle-option" id="vehicle-ambulance" onclick="selectVehicle('ambulance', 1000)">
-                                🚑<div class="vehicle-name">救护车</div><div class="vehicle-lock">1000💰</div>
+                                🚑<div class="vehicle-name" data-i18n="vehicleAmbulance">救护车</div><div class="vehicle-lock">1000💰</div>
                             </div>
                             <div class="vehicle-option" id="vehicle-tractor" onclick="selectVehicle('tractor', 2000)">
-                                🚜<div class="vehicle-name">拖拉机</div><div class="vehicle-lock">2000💰</div>
+                                🚜<div class="vehicle-name" data-i18n="vehicleTractor">拖拉机</div><div class="vehicle-lock">2000💰</div>
                             </div>
                         </div>
                     </div>
 
                     <div style="display: flex; justify-content: center;">
-                        <button class="btn btn-primary" onclick="nextWave()">✅ 升级完成，开始下一波</button>
+                        <button class="btn btn-primary" onclick="nextWave()" data-i18n="nextWaveBtn">✅ 升级完成，开始下一波</button>
                     </div>
                     <div style="margin-top: 12px; display: flex; gap: 10px; justify-content: center;">
-                        <button class="btn btn-secondary" onclick="restartFromShop()" style="padding: 10px 30px; font-size: 16px;">🔄 重新开始</button>
-                        <button class="btn btn-secondary" onclick="location.href='../../index.html'" style="padding: 10px 30px; font-size: 16px;">🏠 回街机厅</button>
+                        <button class="btn btn-secondary" onclick="restartFromShop()" style="padding: 10px 30px; font-size: 16px;" data-i18n="restartBtn">🔄 重新开始</button>
+                        <button class="btn btn-secondary" onclick="location.href='../../index.html'" style="padding: 10px 30px; font-size: 16px;" data-i18n="backToArcadeShort">🏠 回街机厅</button>
                     </div>
                 </div>
             </div>
 
             <div class="ui-overlay hidden" id="gameOverScreen">
                 <div class="emoji-title" id="endEmoji">💀</div>
-                <h1 id="endTitle">游戏结束</h1>
-                <div style="color: #fff; font-size: 24px; margin-bottom: 10px;">存活波数: <span id="finalWave">0</span>/20</div>
-                <div style="color: #ffd700; font-size: 20px; margin-bottom: 10px;">收集金币: <span id="finalGold">0</span>💰</div>
-                <div style="color: #888; font-size: 16px; margin-bottom: 30px;" id="endMessage">废土上的又一位英雄倒下了...</div>
-                <button class="btn btn-primary" onclick="restartGame()">🔄 再来一局</button>
-                <button class="btn btn-secondary" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
+                <h1 id="endTitle" data-i18n="gameOverTitle">游戏结束</h1>
+                <div style="color: #fff; font-size: 24px; margin-bottom: 10px;"><span data-i18n="wavesSurvived">存活波数</span>: <span id="finalWave">0</span>/20</div>
+                <div style="color: #ffd700; font-size: 20px; margin-bottom: 10px;"><span data-i18n="goldCollected">收集金币</span>: <span id="finalGold">0</span>💰</div>
+                <div style="color: #888; font-size: 16px; margin-bottom: 30px;" id="endMessage" data-i18n="gameOverMessage">废土上的又一位英雄倒下了...</div>
+                <button class="btn btn-primary" onclick="restartGame()" data-i18n="playAgain">🔄 再来一局</button>
+                <button class="btn btn-secondary" onclick="location.href='../../index.html'" data-i18n="backToArcade">🏠 回到街机厅</button>
             </div>
 
             <div class="ui-overlay hidden" id="victoryScreen">
                 <div class="emoji-title">🏆</div>
-                <h1 style="color: #ffd700;">废土传奇！</h1>
-                <div style="color: #fff; font-size: 20px; margin-bottom: 20px;">你成功穿越了20波怪物潮！</div>
-                <div style="color: #ffd700; font-size: 24px; margin-bottom: 30px;">总金币: <span id="victoryGold">0</span>💰</div>
-                <button class="btn btn-primary" onclick="restartGame()">🔄 再玩一次</button>
-                <button class="btn btn-secondary" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
+                <h1 style="color: #ffd700;" data-i18n="victoryTitle">废土传奇！</h1>
+                <div style="color: #fff; font-size: 20px; margin-bottom: 20px;" data-i18n="victoryMessage">你成功穿越了20波怪物潮！</div>
+                <div style="color: #ffd700; font-size: 24px; margin-bottom: 30px;" data-i18n="totalGold">总金币: <span id="victoryGold">0</span>💰</div>
+                <button class="btn btn-primary" onclick="restartGame()" data-i18n="playAgain">🔄 再玩一次</button>
+                <button class="btn btn-secondary" onclick="location.href='../../index.html'" data-i18n="backToArcade">🏠 回到街机厅</button>
             </div>
         </div>
         
@@ -174,11 +174,128 @@
     </div>
 
 <script>
+// ==================== 国际化配置 ====================
+const i18n = {
+    zh: {
+        subtitle: '废土平台生存战 v2.0',
+        startGame: '开始冒险',
+        backToArcade: '🏠 回到街机厅',
+        backToArcadeShort: '🏠 回街机厅',
+        versionTitle: '🎮 平台跳跃版 v2.0',
+        pcControls: '🖥️ <b>电脑：</b>鼠标瞄准 | 空格跳跃 | Q大招',
+        mobileControls: '📱 <b>手机：</b>左半屏跳跃 | 右半屏瞄准',
+        warningText: '⚠️ <b>地图自动滚动！小心地面的坑！</b>',
+        enemyTip: '🎯 脆皮1炮死，精英有血条',
+        workshopTitle: '🔧 废土工坊',
+        waveComplete: '第 {0} 波完成',
+        upgradeHealth: '装甲加固',
+        upgradeHealthDesc: '最大生命值 +50',
+        upgradeDamage: '火力增强',
+        upgradeDamageDesc: '子弹伤害 +5',
+        upgradeFireRate: '射速提升',
+        upgradeFireRateDesc: '射击速度 +15%',
+        upgradeDoubleShot: '双管炮塔',
+        upgradeDoubleShotDesc: '同时射出两发子弹',
+        upgradeBtn: '升级',
+        unlockBtn: '解锁',
+        selectVehicle: '选择载具',
+        vehicleTruck: '皮卡',
+        vehicleSports: '跑车',
+        vehicleAmbulance: '救护车',
+        vehicleTractor: '拖拉机',
+        nextWaveBtn: '✅ 升级完成，开始下一波',
+        restartBtn: '🔄 重新开始',
+        gameOverTitle: '游戏结束',
+        wavesSurvived: '存活波数',
+        goldCollected: '收集金币',
+        gameOverMessage: '废土上的又一位英雄倒下了...',
+        gameOverFall: '小心脚下的路...废土的坑比僵尸更致命。',
+        playAgain: '🔄 再来一局',
+        victoryTitle: '废土传奇！',
+        victoryMessage: '你成功穿越了20波怪物潮！',
+        totalGold: '总金币: {0}',
+        unlocked: '已解锁'
+    },
+    en: {
+        subtitle: 'Wasteland Survival v2.0',
+        startGame: 'Start Game',
+        backToArcade: '🏠 Back to Arcade',
+        backToArcadeShort: '🏠 Arcade',
+        versionTitle: '🎮 Platformer v2.0',
+        pcControls: '🖥️ <b>PC:</b> Mouse aim | Space jump | Q Ultimate',
+        mobileControls: '📱 <b>Mobile:</b> Left half jump | Right half aim',
+        warningText: '⚠️ <b>Auto-scrolling! Watch out for pits!</b>',
+        enemyTip: '🎯 Fragile enemies die in 1 hit, elites have health bars',
+        workshopTitle: '🔧 Workshop',
+        waveComplete: 'Wave {0} Complete',
+        upgradeHealth: 'Armor Reinforcement',
+        upgradeHealthDesc: 'Max Health +50',
+        upgradeDamage: 'Firepower Boost',
+        upgradeDamageDesc: 'Bullet Damage +5',
+        upgradeFireRate: 'Fire Rate Upgrade',
+        upgradeFireRateDesc: 'Fire Rate +15%',
+        upgradeDoubleShot: 'Double Barrel',
+        upgradeDoubleShotDesc: 'Fire 2 bullets at once',
+        upgradeBtn: 'Upgrade',
+        unlockBtn: 'Unlock',
+        selectVehicle: 'Select Vehicle',
+        vehicleTruck: 'Truck',
+        vehicleSports: 'Sports Car',
+        vehicleAmbulance: 'Ambulance',
+        vehicleTractor: 'Tractor',
+        nextWaveBtn: '✅ Done, Start Next Wave',
+        restartBtn: '🔄 Restart',
+        gameOverTitle: 'Game Over',
+        wavesSurvived: 'Waves Survived',
+        goldCollected: 'Gold Collected',
+        gameOverMessage: 'Another hero falls in the wasteland...',
+        gameOverFall: 'Watch your step... The pits are deadlier than zombies.',
+        playAgain: '🔄 Play Again',
+        victoryTitle: 'Wasteland Legend!',
+        victoryMessage: 'You survived 20 waves of monsters!',
+        totalGold: 'Total Gold: {0}',
+        unlocked: 'Unlocked'
+    }
+};
+
+// 检测语言并应用
+let currentLang = 'zh';
+function detectLanguage() {
+    const navLang = navigator.language || navigator.userLanguage || 'zh-CN';
+    currentLang = navLang.toLowerCase().startsWith('en') ? 'en' : 'zh';
+    applyTranslations();
+}
+
+function t(key, ...args) {
+    const text = i18n[currentLang][key] || i18n['zh'][key] || key;
+    return args.reduce((str, arg, i) => str.replace(`{${i}}`, arg), text);
+}
+
+function applyTranslations() {
+    // 更新所有带 data-i18n 属性的元素
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (key === 'waveComplete') {
+            const waveNum = document.getElementById('shopWave')?.textContent || '1';
+            el.innerHTML = t('waveComplete', waveNum);
+        } else if (key === 'totalGold') {
+            const goldNum = document.getElementById('victoryGold')?.textContent || '0';
+            el.innerHTML = t('totalGold', goldNum);
+        } else {
+            el.innerHTML = t(key);
+        }
+    });
+    
+    // 更新文档标题
+    document.title = currentLang === 'en' ? '🛻 Emoji Survive' : '🛻 Emoji Survive - 废土生存';
+    document.documentElement.lang = currentLang === 'en' ? 'en' : 'zh-CN';
+}
+
 // ==================== 配置 ====================
 const GAME_WIDTH = 960, GAME_HEIGHT = 540, FINAL_WAVE = 20;
 const GRAVITY = 0.6, JUMP_FORCE = -12;
-const MAP_SCROLL_SPEED = 1.2; // 地图向左滚动速度
-const PLAYER_SCREEN_X = 200; // 玩家在屏幕上的固定X位置
+const MAP_SCROLL_SPEED = 1.2;
+const PLAYER_SCREEN_X = 200;
 
 const PLATFORM_LAYERS = { bottom: { y: 440 }, middle: { y: 320 }, top: { y: 200 } };
 
@@ -190,12 +307,10 @@ const VEHICLES = {
 };
 
 const ENEMIES = {
-    // 脆皮近战
     zombie: { emoji: '🧟', health: 1, speed: 0.8, damage: 10, gold: 1, type: 'ground', isFragile: true, hitFlash: false,
               canShoot: true, shootInterval: 120, bulletSpeed: 3, bulletDamage: 5, bulletEmoji: '🦴' },
     runner: { emoji: '🏃', health: 1, speed: 2.5, damage: 8, gold: 2, type: 'ground', isFragile: true, hitFlash: false,
               canShoot: true, shootInterval: 100, bulletSpeed: 4, bulletDamage: 4, bulletEmoji: '⭐' },
-    // 精英怪（都有血条和射击）
     tank: { emoji: '🐢', health: 20, speed: 0.4, damage: 15, gold: 5, type: 'ground', isFragile: false, hitFlash: true, barWidth: 40,
             canShoot: true, shootInterval: 150, bulletSpeed: 2.5, bulletDamage: 8, bulletEmoji: '🛡️' },
     bomber: { emoji: '💣', health: 8, speed: 2, damage: 25, gold: 3, type: 'ground', isFragile: false, hitFlash: true, barWidth: 35,
@@ -208,7 +323,7 @@ const ENEMIES = {
 
 // ==================== 状态 ====================
 let canvas, ctx, gameState = 'start', wave = 1, gold = 0, frame = 0;
-let cameraX = 0; // 相机偏移（地图滚动）
+let cameraX = 0;
 let platforms = [], groundSegments = [];
 let player = { x: 0, y: 350, width: 40, height: 35, vehicle: 'truck', health: 100, maxHealth: 100, damage: 10, fireRate: 3, lastShot: 0, invincible: 0, vy: 0, isJumping: false, aimAngle: 0, onPlatform: null };
 let upgrades = { health: 1, damage: 1, fireRate: 1, doubleShot: 0 };
@@ -230,6 +345,9 @@ function init() {
     canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleTouch(e.touches, 'start'); }, { passive: false });
     canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handleTouch(e.touches, 'move'); }, { passive: false });
     canvas.addEventListener('touchend', (e) => { e.preventDefault(); if (e.touches.length === 0) touchAimY = null; }, { passive: false });
+    
+    // 检测语言
+    detectLanguage();
 }
 
 function resizeCanvas() {
@@ -245,15 +363,14 @@ function resizeCanvas() {
 function generateMap(waveNum) {
     platforms = []; groundSegments = [];
     const mapWidth = 2000 + waveNum * 500;
-    const gapChance = Math.min(0.12 + waveNum * 0.02, 0.35); // 降低坑的概率
+    const gapChance = Math.min(0.12 + waveNum * 0.02, 0.35);
     
-    // 生成地面（带坑），记录坑的位置用于生成过桥平台
     let currentX = 0;
-    const gapPositions = []; // 记录每个坑的中心位置
+    const gapPositions = [];
     
     while (currentX < mapWidth) {
         if (Math.random() < gapChance && currentX > 400) {
-            const gapWidth = 50 + Math.random() * 60; // 50-110像素坑宽
+            const gapWidth = 50 + Math.random() * 60;
             gapPositions.push({ x: currentX + gapWidth/2, width: gapWidth });
             currentX += gapWidth;
         } else {
@@ -263,33 +380,28 @@ function generateMap(waveNum) {
         }
     }
     
-    // 在每个坑的位置生成中层平台（过桥平台）
     gapPositions.forEach(gap => {
-        const platWidth = gap.width + 40; // 平台比坑宽一点，确保能跳上去
+        const platWidth = gap.width + 40;
         platforms.push({ 
             x: gap.x - platWidth/2, 
             y: PLATFORM_LAYERS.middle.y, 
             width: platWidth, 
             height: 20,
-            isBridge: true // 标记为桥接平台
+            isBridge: true
         });
     });
     
-    // 额外生成一些中层平台（间隔更大，避免重叠）
     for (let i = 0; i < 2 + Math.floor(waveNum/2); i++) {
         const x = 600 + i * 700 + Math.random() * 200;
-        // 确保不与桥接平台重叠
         const tooClose = gapPositions.some(gap => Math.abs(gap.x - x) < 200);
         if (x < mapWidth - 200 && !tooClose) {
             platforms.push({ x: x, y: PLATFORM_LAYERS.middle.y, width: 100 + Math.random() * 80, height: 20 });
         }
     }
     
-    // 修复：确保地图右边界有地面，避免玩家滚到尽头掉下去
     const lastSegment = groundSegments[groundSegments.length - 1];
     const mapEndX = lastSegment ? lastSegment.x + lastSegment.width : 0;
     if (mapEndX < mapWidth + 400) {
-        // 在地图末尾添加一段足够长的地面，确保玩家不会掉下去
         groundSegments.push({ 
             x: mapEndX, 
             y: PLATFORM_LAYERS.bottom.y, 
@@ -298,7 +410,6 @@ function generateMap(waveNum) {
         });
     }
     
-    // 生成顶层平台（难度较高）
     if (waveNum > 2) {
         for (let i = 0; i < 2 + Math.floor(waveNum / 4); i++) {
             const x = 800 + i * 800 + Math.random() * 200;
@@ -344,25 +455,22 @@ function resetGame() {
 function startWave() { waveInProgress = true; generateMap(wave); enemiesToSpawn = generateWaveEnemies(wave); }
 
 function generateWaveEnemies(waveNum) {
-    // 增加怪物数量：基础更多，增长更快
     let list = [], count = 10 + waveNum * 3;
-    const fragileRatio = Math.max(0.25, 0.6 - waveNum * 0.02); // 后期脆皮比例更低
+    const fragileRatio = Math.max(0.25, 0.6 - waveNum * 0.02);
     
     for (let i = 0; i < count; i++) {
         let type; const rand = Math.random();
         if (rand < fragileRatio) type = Math.random() < 0.5 ? 'zombie' : 'runner';
         else if (rand < fragileRatio + 0.3) type = Math.random() < 0.4 ? 'tank' : 'bomber';
         else type = 'demon';
-        if (waveNum >= 5 && Math.random() < 0.2) type = 'tank'; // 早期就有坦克
+        if (waveNum >= 5 && Math.random() < 0.2) type = 'tank';
         
-        // 减少生成间隔，出现更频繁
-        const spawnDelay = i * 35 + Math.random() * 20; // 原来是 i * 60
-        const spawnX = 900 + i * 180 + Math.random() * 100; // 更密集
+        const spawnDelay = i * 35 + Math.random() * 20;
+        const spawnX = 900 + i * 180 + Math.random() * 100;
         list.push({ type, delay: spawnDelay, x: spawnX });
     }
     
-    // Boss 波次更早出现，且中间也有小 boss
-    if (waveNum % 4 === 0) { // 每4波一个 boss（原来是5波）
+    if (waveNum % 4 === 0) {
         list.push({ type: 'boss', delay: list.length * 35 + 60, x: 1200 + list.length * 150 });
     }
     
@@ -379,26 +487,20 @@ function gameLoop() {
 }
 
 function update() {
-    // 地图自动滚动
     cameraX += MAP_SCROLL_SPEED;
-    // 玩家视觉上固定，世界坐标跟随相机偏移保持相对位置
     player.x = cameraX + PLAYER_SCREEN_X;
     
-    // 玩家物理
     player.vy += GRAVITY; player.y += player.vy;
     
-    // 平台碰撞（使用世界坐标 - 玩家世界坐标 = 相机位置 + 屏幕固定偏移）
     player.onPlatform = null; let onGround = false;
     const playerWorldX = player.x;
     
-    // 地面碰撞
     for (let seg of groundSegments) {
         if (playerWorldX >= seg.x && playerWorldX <= seg.x + seg.width &&
             player.y + player.height/2 >= seg.y && player.y + player.height/2 <= seg.y + seg.height + 15 && player.vy >= 0) {
             player.y = seg.y - player.height/2; player.vy = 0; player.isJumping = false; player.onPlatform = seg; onGround = true; break;
         }
     }
-    // 平台碰撞
     if (!onGround) {
         for (let plat of platforms) {
             if (playerWorldX >= plat.x && playerWorldX <= plat.x + plat.width &&
@@ -408,20 +510,15 @@ function update() {
         }
     }
     
-    // 掉坑检测
     if (player.y > GAME_HEIGHT + 60) { gameOver('fall'); return; }
     
-    // 无敌时间
     if (player.invincible > 0) player.invincible--;
     
-    // 射击
     const fireInterval = 1000 / (player.fireRate * (1 + (upgrades.fireRate - 1) * 0.15));
     if (performance.now() - player.lastShot > fireInterval) { shoot(); player.lastShot = performance.now(); }
     
-    // 更新子弹（相对于相机）
     bullets = bullets.filter(b => { b.worldX += Math.cos(b.angle) * b.speed; b.x = b.worldX - cameraX; b.y += Math.sin(b.angle) * b.speed; return b.x < GAME_WIDTH + 100 && b.x > -100; });
     
-    // 敌人子弹
     enemyBullets = enemyBullets.filter(b => {
         b.worldX += Math.cos(b.angle) * b.speed; b.x = b.worldX - cameraX; b.y += Math.sin(b.angle) * b.speed;
         if (checkCollision(b, {x: PLAYER_SCREEN_X, y: player.y}) && player.invincible <= 0) {
@@ -431,7 +528,6 @@ function update() {
         return b.x > -100 && b.x < GAME_WIDTH + 100 && !b.hit;
     });
     
-    // 生成敌人（基于世界坐标）
     enemiesToSpawn = enemiesToSpawn.filter(e => {
         if (spawnTimer >= e.delay && e.x - cameraX < GAME_WIDTH + 100) {
             spawnEnemy(e.type, e.x); return false;
@@ -439,7 +535,6 @@ function update() {
         return true;
     });
     
-    // 更新敌人
     enemies = enemies.filter(e => {
         e.worldX -= e.speed; e.x = e.worldX - cameraX;
         if (e.type === 'demon') e.y += Math.sin(frame * 0.05 + e.worldX * 0.005) * 1.5;
@@ -454,7 +549,6 @@ function update() {
         return e.x > -100 && e.health > 0;
     });
     
-    // 金币
     golds = golds.filter(g => {
         g.worldX -= MAP_SCROLL_SPEED; g.x = g.worldX - cameraX;
         const dx = g.x - PLAYER_SCREEN_X, dy = g.y - player.y;
@@ -462,7 +556,6 @@ function update() {
         return g.x > -50;
     });
     
-    // 子弹击中
     bullets.forEach(b => {
         enemies.forEach(e => {
             if (checkCollision(b, e) && !b.hit) {
@@ -475,13 +568,10 @@ function update() {
     });
     bullets = bullets.filter(b => !b.hit);
     
-    // 粒子
     particles = particles.filter(p => { p.life--; p.x += p.vx; p.y += p.vy; return p.life > 0; });
     
-    // 大招冷却
     if (ultCooldown > 0) ultCooldown--; updateUltButton();
     
-    // 波次结束检测
     if (enemiesToSpawn.length === 0 && enemies.length === 0 && waveInProgress) {
         waveInProgress = false; if (wave >= FINAL_WAVE) victory(); else setTimeout(openShop, 600);
     }
@@ -492,7 +582,6 @@ function update() {
 function render() {
     ctx.fillStyle = '#1a1510'; ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
     
-    // 背景（随相机轻微移动）
     ctx.fillStyle = '#0d0a08';
     for (let i = 0; i < 8; i++) {
         const bx = (i * 250 - cameraX * 0.2) % (GAME_WIDTH + 300);
@@ -500,43 +589,36 @@ function render() {
         ctx.fillRect(drawX, GAME_HEIGHT - 180 - Math.sin(i * 2) * 30, 80 + Math.sin(i) * 20, 150);
     }
     
-    // 地面（带坑）
     ctx.fillStyle = '#3d3028'; ctx.strokeStyle = '#5d5048'; ctx.lineWidth = 3;
     for (let seg of groundSegments) {
         const sx = seg.x - cameraX;
         if (sx + seg.width > -50 && sx < GAME_WIDTH + 50) {
             ctx.fillRect(sx, seg.y, seg.width, seg.height);
             ctx.beginPath(); ctx.moveTo(sx, seg.y); ctx.lineTo(sx + seg.width, seg.y); ctx.stroke();
-            // 纹理
             ctx.strokeStyle = '#2d2018'; ctx.lineWidth = 1;
             for (let i = 0; i < seg.width; i += 50) { ctx.beginPath(); ctx.moveTo(sx + i, seg.y + 15); ctx.lineTo(sx + i + 25, seg.y + seg.height - 15); ctx.stroke(); }
             ctx.strokeStyle = '#5d5048'; ctx.lineWidth = 3;
         }
     }
     
-    // 平台
     ctx.fillStyle = '#4d4035'; ctx.strokeStyle = '#7d7065'; ctx.lineWidth = 2;
     for (let plat of platforms) {
         const px = plat.x - cameraX;
         if (px + plat.width > -50 && px < GAME_WIDTH + 50) {
             ctx.fillRect(px, plat.y, plat.width, plat.height);
             ctx.beginPath(); ctx.moveTo(px, plat.y); ctx.lineTo(px + plat.width, plat.y); ctx.stroke();
-            // 支撑
             ctx.fillStyle = '#2d2520'; ctx.fillRect(px + 8, plat.y + plat.height, 6, PLATFORM_LAYERS.bottom.y - plat.y - plat.height);
             ctx.fillRect(px + plat.width - 14, plat.y + plat.height, 6, PLATFORM_LAYERS.bottom.y - plat.y - plat.height);
             ctx.fillStyle = '#4d4035';
         }
     }
     
-    // 金币
     golds.forEach(g => { if (g.x > -30 && g.x < GAME_WIDTH + 30) { ctx.font = '24px Arial'; ctx.textAlign = 'center'; ctx.fillText('💰', g.x, g.y); } });
     
-    // 子弹
     ctx.font = '18px Arial'; ctx.textAlign = 'center';
     bullets.forEach(b => { if (b.x > -20 && b.x < GAME_WIDTH + 20) ctx.fillText('🟠', b.x, b.y); });
     enemyBullets.forEach(b => { if (b.x > -20 && b.x < GAME_WIDTH + 20) { ctx.font = '16px Arial'; ctx.fillText(b.emoji, b.x, b.y); } });
     
-    // 敌人
     enemies.forEach(e => {
         if (e.x < -50 || e.x > GAME_WIDTH + 50) return;
         const config = ENEMIES[e.type];
@@ -545,7 +627,6 @@ function render() {
         ctx.fillText(config.emoji, e.x, e.y);
         if (e.flash > 0) ctx.restore();
         
-        // 血条
         if (!config.isFragile) {
             const maxH = config.health * (1 + wave * 0.1), pct = Math.max(0, e.health / maxH), bw = config.barWidth || 40;
             ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(e.x - bw/2, e.y - 42, bw, 6);
@@ -554,17 +635,14 @@ function render() {
         }
     });
     
-    // 玩家（固定在屏幕左侧）
     ctx.font = '48px Arial'; ctx.textAlign = 'center';
     if (player.invincible <= 0 || Math.floor(frame / 4) % 2 === 0) {
         ctx.save(); ctx.translate(PLAYER_SCREEN_X, player.y); ctx.scale(-1, 1); ctx.fillText(VEHICLES[player.vehicle].emoji, 0, 0); ctx.restore();
     }
     
-    // 瞄准线
     ctx.save(); ctx.strokeStyle = 'rgba(255, 200, 100, 0.5)'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
     ctx.beginPath(); ctx.moveTo(PLAYER_SCREEN_X + 25, player.y); ctx.lineTo(PLAYER_SCREEN_X + 25 + Math.cos(player.aimAngle) * 100, player.y + Math.sin(player.aimAngle) * 100); ctx.stroke(); ctx.restore();
     
-    // 粒子
     particles.forEach(p => { ctx.font = `${p.size}px Arial`; ctx.globalAlpha = p.life / 30; ctx.fillText(p.emoji, p.x, p.y); });
     ctx.globalAlpha = 1;
 }
@@ -602,15 +680,18 @@ function updateShopUI() {
     document.getElementById('damageCost').textContent = `${15 * upgrades.damage}💰`; document.getElementById('damageBtn').disabled = gold < 15 * upgrades.damage;
     document.getElementById('fireRateCost').textContent = `${10 * upgrades.fireRate}💰`; document.getElementById('fireRateBtn').disabled = gold < 10 * upgrades.fireRate;
     document.getElementById('doubleShotCost').textContent = '30💰'; 
-    const dsBtn = document.getElementById('doubleShotBtn'); dsBtn.disabled = gold < 30 || upgrades.doubleShot >= 1; dsBtn.textContent = upgrades.doubleShot >= 1 ? '已解锁' : '解锁';
+    const dsBtn = document.getElementById('doubleShotBtn'); dsBtn.disabled = gold < 30 || upgrades.doubleShot >= 1; dsBtn.textContent = upgrades.doubleShot >= 1 ? t('unlocked') : t('unlockBtn');
     
-    // 载具
     document.querySelectorAll('.vehicle-option').forEach(el => { el.classList.remove('selected', 'locked'); });
     document.querySelector(`.vehicle-option[onclick*="'${player.vehicle}'"]`).classList.add('selected');
     ['sports', 'ambulance', 'tractor'].forEach(v => {
         const el = document.getElementById(`vehicle-${v}`);
         if (!unlockedVehicles.includes(v)) el.classList.add('locked');
     });
+    
+    // 更新波次显示文本
+    const waveCompleteEl = document.querySelector('[data-i18n="waveComplete"]');
+    if (waveCompleteEl) waveCompleteEl.innerHTML = t('waveComplete', wave);
 }
 function buyUpgrade(type) {
     const costs = { health: 10 * upgrades.health, damage: 15 * upgrades.damage, fireRate: 10 * upgrades.fireRate, doubleShot: 30 };
@@ -630,8 +711,25 @@ function selectVehicle(type, cost) {
     }
 }
 function nextWave() { wave++; spawnTimer = 0; cameraX = 0; player.x = PLAYER_SCREEN_X; document.getElementById('shopScreen').classList.add('hidden'); document.getElementById('hud').classList.remove('hidden'); document.getElementById('ultButton').classList.remove('hidden'); gameState = 'playing'; startWave(); requestAnimationFrame(gameLoop); }
-function gameOver(reason) { gameState = 'gameover'; document.getElementById('gameOverScreen').classList.remove('hidden'); document.getElementById('hud').classList.add('hidden'); document.getElementById('ultButton').classList.add('hidden'); document.getElementById('finalWave').textContent = wave; document.getElementById('finalGold').textContent = gold; document.getElementById('endMessage').textContent = reason === 'fall' ? '小心脚下的路...废土的坑比僵尸更致命。' : '废土上的又一位英雄倒下了...'; }
-function victory() { gameState = 'victory'; document.getElementById('victoryScreen').classList.remove('hidden'); document.getElementById('hud').classList.add('hidden'); document.getElementById('ultButton').classList.add('hidden'); document.getElementById('victoryGold').textContent = gold; }
+function gameOver(reason) { 
+    gameState = 'gameover'; 
+    document.getElementById('gameOverScreen').classList.remove('hidden'); 
+    document.getElementById('hud').classList.add('hidden'); 
+    document.getElementById('ultButton').classList.add('hidden'); 
+    document.getElementById('finalWave').textContent = wave; 
+    document.getElementById('finalGold').textContent = gold; 
+    document.getElementById('endMessage').textContent = reason === 'fall' ? t('gameOverFall') : t('gameOverMessage'); 
+}
+function victory() { 
+    gameState = 'victory'; 
+    document.getElementById('victoryScreen').classList.remove('hidden'); 
+    document.getElementById('hud').classList.add('hidden'); 
+    document.getElementById('ultButton').classList.add('hidden'); 
+    document.getElementById('victoryGold').textContent = gold; 
+    // 更新总金币显示
+    const totalGoldEl = document.querySelector('#victoryScreen [data-i18n="totalGold"]');
+    if (totalGoldEl) totalGoldEl.innerHTML = t('totalGold', gold);
+}
 function restartFromShop() { document.getElementById('shopScreen').classList.add('hidden'); document.getElementById('startScreen').classList.remove('hidden'); gameState = 'start'; }
 function restartGame() { document.getElementById('gameOverScreen').classList.add('hidden'); document.getElementById('victoryScreen').classList.add('hidden'); document.getElementById('startScreen').classList.remove('hidden'); document.getElementById('hud').classList.add('hidden'); document.getElementById('ultButton').classList.add('hidden'); gameState = 'start'; }
 
