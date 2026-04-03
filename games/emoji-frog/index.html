@@ -289,6 +289,7 @@
         function startGame() {
             gameState = 'playing';
             score = 0;
+            lastScoreUpdate = 0;
             camera.y = 0;
             camera.targetY = 0;
             initPlatforms();
@@ -464,16 +465,16 @@
 
         // 火箭火焰粒子效果
         function createRocketEffect(x, y) {
-            for (let i = 0; i < 15; i++) {
+            for (let i = 0; i < 8; i++) {  // 从15减少到8
                 particles.push({
                     x: x,
                     y: y,
                     vx: (Math.random() - 0.5) * 6,
                     vy: Math.random() * 5 + 2, // 向下喷射
-                    life: 40,
-                    maxLife: 40,
+                    life: 35,
+                    maxLife: 35,
                     color: Math.random() > 0.5 ? '#ff6600' : '#ffcc00', // 橙色和黄色火焰
-                    size: 6
+                    size: 5  // 从6减少到5
                 });
             }
         }
@@ -574,12 +575,11 @@
                 const newY = topPlatform.y - randomRange(PLATFORM_SPACING_MIN, PLATFORM_SPACING_MAX);
                 platforms.push(generatePlatform(newY));
                 topPlatform = platforms[platforms.length - 1];
-
-                // 移除屏幕下方的旧平台（相机下方超过1屏的平台）
-                if (platforms.length > 20) {
-                    platforms = platforms.filter(p => p.y > camera.y - canvas.height);
-                }
             }
+            
+            // 清理屏幕下方的旧平台（相机下方超过2屏的平台）
+            const cleanupThreshold = camera.y + canvas.height * 2;
+            platforms = platforms.filter(p => p.y < cleanupThreshold && !p.broken);
         }
 
         // 检查死亡
@@ -591,10 +591,18 @@
         }
 
         // 更新分数
+        let lastScoreUpdate = 0;
         function updateScore() {
             const height = Math.max(0, Math.floor((canvas.height - 100 - player.y) / 10));
-            score = Math.max(score, height);
-            document.getElementById('scoreDisplay').textContent = score + 'm';
+            if (height > score) {
+                score = height;
+                // 每10分或每秒更新一次DOM，减少重绘
+                const now = Date.now();
+                if (now - lastScoreUpdate > 200) {
+                    document.getElementById('scoreDisplay').textContent = score + 'm';
+                    lastScoreUpdate = now;
+                }
+            }
         }
 
         // 绘制
@@ -603,11 +611,13 @@
             ctx.fillStyle = '#0d1f15';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // 绘制渐变背景（随高度变化）
+            // 绘制简化背景（静态颜色，不每帧创建渐变）
+            const skyOffset = Math.floor(Math.max(0, Math.min(1, -camera.y / 5000)) * 10) / 10; // 量化减少变化
+            const topHue = 200 + Math.floor(skyOffset * 60);
+            const midHue = 150 + Math.floor(skyOffset * 40);
             const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            const skyOffset = Math.max(0, Math.min(1, -camera.y / 5000));
-            gradient.addColorStop(0, `hsl(${200 + skyOffset * 60}, 70%, ${20 + skyOffset * 30}%)`);
-            gradient.addColorStop(0.5, `hsl(${150 + skyOffset * 40}, 60%, ${30 + skyOffset * 20}%)`);
+            gradient.addColorStop(0, `hsl(${topHue}, 70%, ${20 + skyOffset * 30}%)`);
+            gradient.addColorStop(0.5, `hsl(${midHue}, 60%, ${30 + skyOffset * 20}%)`);
             gradient.addColorStop(1, '#0d1f15');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -615,10 +625,14 @@
             ctx.save();
             ctx.translate(0, -camera.y);
 
-            // 绘制平台
+            // 绘制平台 - 只绘制可见范围内的
+            const visibleTop = camera.y - 100;
+            const visibleBottom = camera.y + canvas.height + 100;
+            
             for (const plat of platforms) {
-                // 跳过已破碎的平台
+                // 跳过已破碎的和不可见的平台
                 if (plat.broken) continue;
+                if (plat.y < visibleTop || plat.y > visibleBottom) continue;
 
                 ctx.save();
                 ctx.globalAlpha = plat.opacity || 1;
