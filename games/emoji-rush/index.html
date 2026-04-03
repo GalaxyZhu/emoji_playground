@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🏎️ Emoji Rush V0.3.0 - QTE减速模式</title>
+    <title id="pageTitle">🏎️ Emoji Rush V0.3.0 - QTE减速模式</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
         body {
@@ -273,9 +273,9 @@
     <div class="ui-overlay" id="startScreen">
         <div class="emoji-title">🏎️</div>
         <h1>EMOJI RUSH</h1>
-        <div style="color: #e94560; font-size: 18px; margin-bottom: 20px;">⚠️ 速度失控 + QTE减速模式</div>
+        <div class="version-tag" style="color: #e94560; font-size: 18px; margin-bottom: 20px;">⚠️ 速度失控 + QTE减速模式</div>
         <button class="btn" id="startBtn">开始狂飙</button>
-        <div class="instructions">
+        <div class="instructions" id="instructions">
             ⚠️ 刹车坏了！车速只会越来越快！<br>
             👈 点击/触摸左侧 = 左变道 | 点击/触摸右侧 = 右变道 👉<br>
             🚧 躲避障碍物<br>
@@ -287,16 +287,114 @@
     
     <div class="ui-overlay hidden" id="gameOverScreen">
         <div class="emoji-title">💥</div>
-        <h1>撞车了！</h1>
-        <div style="color: #fff; font-size: 20px; margin-bottom: 5px;">行驶距离: <span id="finalScore">0</span>m</div>
-        <div style="color: #e94560; font-size: 18px; margin-bottom: 5px;">最高速度: <span id="finalSpeed">0</span>km/h</div>
-        <div style="color: #00d4ff; font-size: 16px; margin-bottom: 5px;">成功QTE: <span id="finalQTE">0</span>次</div>
-        <div style="color: #ffd700; font-size: 16px; margin-bottom: 30px;">最高分: <span id="highScore">0</span>m</div>
+        <h1 id="gameOverTitle">撞车了！</h1>
+        <div style="color: #fff; font-size: 20px; margin-bottom: 5px;"><span id="distanceLabel">行驶距离: </span><span id="finalScore">0</span>m</div>
+        <div style="color: #e94560; font-size: 18px; margin-bottom: 5px;"><span id="maxSpeedLabel">最高速度: </span><span id="finalSpeed">0</span>km/h</div>
+        <div style="color: #00d4ff; font-size: 16px; margin-bottom: 5px;"><span id="qteLabel">成功QTE: </span><span id="finalQTE">0</span>次</div>
+        <div style="color: #ffd700; font-size: 16px; margin-bottom: 30px;"><span id="highScoreLabel">最高分: </span><span id="highScore">0</span>m</div>
         <button class="btn" id="restartBtn">再来一局</button>
         <button class="btn btn-home" id="homeBtn" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
     </div>
 
     <script>
+        // 语言检测和翻译系统
+        const i18n = {
+            zh: {
+                startGame: '开始狂飙',
+                gameOver: '撞车了！',
+                distance: '行驶距离',
+                highScore: '最高分',
+                speed: '速度',
+                maxSpeed: '最高速度',
+                backToArcade: '🏠 回到街机厅',
+                restart: '再来一局',
+                qteSuccess: '成功QTE',
+                speedOutOfControl: '🔥 速度失控!',
+                slowdownEffect: '⏱️ -50km/h!',
+                qteReady: '⚡ QTE就绪！速度超过140km/h时会出现',
+                speedLabel: 'km/h',
+                pageTitle: '🏎️ Emoji Rush V0.3.0 - QTE减速模式',
+                versionTag: '⚠️ 速度失控 + QTE减速模式',
+                instructions: [
+                    '⚠️ 刹车坏了！车速只会越来越快！',
+                    '👈 点击/触摸左侧 = 左变道 | 点击/触摸右侧 = 右变道 👉',
+                    '🚧 躲避障碍物',
+                    '🔥 速度超过300km/h时画面会颤抖！',
+                    '⏱️ 速度超过140km/h时，会出现QTE制动机会！',
+                    '按下蓝色按钮即可减速50km/h，获得喘息机会！'
+                ],
+                qteIndicator: '🛑 紧急制动！',
+                qteButton: '👆'
+            },
+            en: {
+                startGame: 'Start Game',
+                gameOver: 'Crashed!',
+                distance: 'Distance',
+                highScore: 'High Score',
+                speed: 'Speed',
+                maxSpeed: 'Max Speed',
+                backToArcade: '🏠 Back to Arcade',
+                restart: 'Try Again',
+                qteSuccess: 'QTE Success',
+                speedOutOfControl: '🔥 Speed Out of Control!',
+                slowdownEffect: '⏱️ -50km/h!',
+                qteReady: '⚡ QTE Ready! Appears when speed >140km/h',
+                speedLabel: 'km/h',
+                pageTitle: '🏎️ Emoji Rush V0.3.0 - QTE Slowdown Mode',
+                versionTag: '⚠️ Speed Rush + QTE Slowdown Mode',
+                instructions: [
+                    '⚠️ Brakes broken! Speed keeps increasing!',
+                    '👈 Tap/click left = Left lane | Tap/click right = Right lane 👉',
+                    '🚧 Dodge obstacles',
+                    '🔥 Screen shakes when speed >300km/h!',
+                    '⏱️ QTE braking chance appears when speed >140km/h!',
+                    'Tap the blue button to reduce speed by 50km/h!'
+                ],
+                qteIndicator: '🛑 Emergency Brake!',
+                qteButton: '👆'
+            }
+        };
+
+        // 检测浏览器语言
+        function detectLanguage() {
+            const lang = navigator.language || navigator.userLanguage || 'zh';
+            return lang.toLowerCase().startsWith('en') ? 'en' : 'zh';
+        }
+
+        const currentLang = detectLanguage();
+        const t = i18n[currentLang];
+
+        // 应用翻译到UI
+        function applyTranslations() {
+            document.getElementById('pageTitle').textContent = t.pageTitle;
+            document.getElementById('startBtn').textContent = t.startGame;
+            document.getElementById('restartBtn').textContent = t.restart;
+            document.getElementById('homeBtn').textContent = t.backToArcade;
+            document.querySelector('.speed-label').textContent = t.speedLabel;
+            document.getElementById('warning').textContent = t.speedOutOfControl;
+            document.getElementById('slowdownEffect').textContent = t.slowdownEffect;
+            document.getElementById('speedHint').textContent = t.qteReady;
+            document.getElementById('qteIndicator').textContent = t.qteIndicator;
+            document.getElementById('qteButton').textContent = t.qteButton;
+            document.querySelector('.version-tag').textContent = t.versionTag;
+            
+            // 更新游戏结束界面标签
+            document.getElementById('distanceLabel').textContent = t.distance + ': ';
+            document.getElementById('maxSpeedLabel').textContent = t.maxSpeed + ': ';
+            document.getElementById('qteLabel').textContent = t.qteSuccess + ': ';
+            document.getElementById('highScoreLabel').textContent = t.highScore + ': ';
+            
+            // 更新操作说明
+            const instructionsEl = document.getElementById('instructions');
+            instructionsEl.innerHTML = t.instructions.map(line => 
+                line.startsWith('⏱️') ? `<span style="color: #00d4ff;">${line}</span>` : line
+            ).join('<br>');
+            
+            // 更新游戏标题
+            const gameOverTitle = document.getElementById('gameOverTitle');
+            if (gameOverTitle) gameOverTitle.textContent = t.gameOver;
+        }
+
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
@@ -515,6 +613,12 @@
             document.getElementById('finalQTE').textContent = qteSuccessCount;
             document.getElementById('highScore').textContent = Math.floor(highScore);
             document.getElementById('gameOverScreen').classList.remove('hidden');
+            
+            // 更新游戏结束界面标签（保持语言一致性）
+            document.getElementById('distanceLabel').textContent = t.distance + ': ';
+            document.getElementById('maxSpeedLabel').textContent = t.maxSpeed + ': ';
+            document.getElementById('qteLabel').textContent = t.qteSuccess + ': ';
+            document.getElementById('highScoreLabel').textContent = t.highScore + ': ';
         }
         
         function spawnObstacle() {
@@ -766,6 +870,9 @@
         
         document.getElementById('startBtn').addEventListener('click', startGame);
         document.getElementById('restartBtn').addEventListener('click', startGame);
+        
+        // 应用翻译
+        applyTranslations();
         
         draw();
     </script>
