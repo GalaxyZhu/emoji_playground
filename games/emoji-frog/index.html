@@ -180,7 +180,7 @@
                 <canvas id="gameCanvas"></canvas>
 
                 <div class="score-display hidden" id="scoreDisplay">0m</div>
-                <div class="height-display hidden" id="heightDisplay">最高: 0m</div>
+                <div class="height-display hidden" id="heightDisplay"><span id="highScoreLabel">最高</span>: 0m</div>
                 <div class="controls-hint hidden" id="controlsHint">A/D 或 ←→ 控制左右方向 | 左右穿墙</div>
 
                 <div class="ui-overlay" id="startScreen">
@@ -198,7 +198,7 @@
                     <div class="emoji-title">💀</div>
                     <h1>游戏结束</h1>
                     <div class="instructions" style="font-size: 18px; margin-bottom: 20px;">
-                        高度: <span id="finalScore" style="color: #4ade80; font-weight: bold;">0</span>m
+                        <span id="heightLabel">高度</span>: <span id="finalScore" style="color: #4ade80; font-weight: bold;">0</span>m
                     </div>
                     <button class="btn" id="restartBtn">再跳一次</button>
                     <button class="btn" id="backToArcadeBtn" style="margin-top: 15px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">🏠 回到街机厅</button>
@@ -220,6 +220,51 @@
     </div>
 
     <script>
+        // 语言检测
+        const userLang = navigator.language || navigator.userLanguage;
+        const isEnglish = userLang.startsWith('en');
+
+        // 多语言文本
+        const i18n = {
+            zh: {
+                title: '跳跳蛙',
+                startBtn: '开始跳跃',
+                instructions: '青蛙自动跳跃，你只需要控制左右方向<br>A/D 或 ←→ 移动，左右穿墙<br>跳得越高，分数越高！',
+                score: '分数',
+                highScore: '最高',
+                controlsHint: 'A/D 或 ←→ 控制左右方向 | 左右穿墙',
+                gameOver: '游戏结束',
+                height: '高度',
+                restartBtn: '再跳一次',
+                backToArcade: '🏠 回到街机厅'
+            },
+            en: {
+                title: 'Jumping Frog',
+                startBtn: 'Start Jumping',
+                instructions: 'The frog jumps automatically, you just control left/right<br>A/D or ←→ to move, wrap-around edges<br>Higher jump = higher score!',
+                score: 'Score',
+                highScore: 'Best',
+                controlsHint: 'A/D or ←→ to move | Wrap-around edges',
+                gameOver: 'Game Over',
+                height: 'Height',
+                restartBtn: 'Jump Again',
+                backToArcade: '🏠 Back to Arcade'
+            }
+        };
+
+        const t = isEnglish ? i18n.en : i18n.zh;
+
+        // 应用翻译
+        document.getElementById('startScreen').querySelector('h1').textContent = t.title;
+        document.getElementById('startBtn').textContent = t.startBtn;
+        document.getElementById('startScreen').querySelector('.instructions').innerHTML = t.instructions;
+        document.getElementById('gameOverScreen').querySelector('h1').textContent = t.gameOver;
+        document.getElementById('heightLabel').textContent = t.height;
+        document.getElementById('highScoreLabel').textContent = t.highScore;
+        document.getElementById('restartBtn').textContent = t.restartBtn;
+        document.getElementById('backToArcadeBtn').textContent = t.backToArcade;
+        document.getElementById('controlsHint').textContent = t.controlsHint;
+
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
 
@@ -380,7 +425,7 @@
             document.getElementById('scoreDisplay').classList.remove('hidden');
             document.getElementById('heightDisplay').classList.remove('hidden');
             document.getElementById('controlsHint').classList.remove('hidden');
-            document.getElementById('heightDisplay').textContent = `最高: ${Math.floor(maxHeight)}m`;
+            document.getElementById('heightDisplay').textContent = `${t.highScore}: ${Math.floor(maxHeight)}m`;
 
             gameLoop();
         }
@@ -883,7 +928,8 @@
         });
 
         // 初始化显示最高分
-        document.querySelector('.instructions').innerHTML += `<br><br>历史最高: ${Math.floor(maxHeight)}m`;
+        const historyHighText = isEnglish ? 'Personal Best' : '历史最高';
+        document.querySelector('#startScreen .instructions').innerHTML += `<br><br>${historyHighText}: ${Math.floor(maxHeight)}m`;
     </script>
 </body>
 </html>
