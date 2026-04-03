@@ -547,9 +547,8 @@
 
         // 检查死亡
         function checkDeath() {
-            // 掉到当前屏幕底部下方（相机位置 + 屏幕高度）
-            // 给玩家极小的容错空间（+20px）
-            if (player.y > camera.y + canvas.height + 20) {
+            // 掉到当前屏幕底部下方即游戏结束（无容错）
+            if (player.y > camera.y + canvas.height) {
                 gameOver();
             }
         }
