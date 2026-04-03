@@ -107,7 +107,7 @@
         <div class="emoji-title">🏎️</div>
         <h1>EMOJI KART</h1>
         <button class="btn" id="startBtn">开始比赛</button>
-        <div class="instructions"
+        <div class="instructions" id="instructions">
             👈 左滑 / A键 = 左转<br>
             👉 右滑 / D键 = 右转<br>
             💨 漂移积攒氮气<br>
@@ -120,13 +120,77 @@
     <div class="ui-overlay hidden" id="gameOverScreen">
         <div class="emoji-title" id="resultEmoji">🏆</div>
         <h1 id="resultTitle">比赛结束！</h1>
-        <div style="color: #fff; font-size: 24px; margin-bottom: 10px;">最终排名: <span id="finalPosition">1</span></div>
+        <div style="color: #fff; font-size: 24px; margin-bottom: 10px;"><span id="finalRankLabel">最终排名</span>: <span id="finalPosition">1</span></div>
         <div style="color: #ffd700; font-size: 18px; margin-bottom: 30px;"><span id="bestPosition"></span></div>
         <button class="btn" id="restartBtn">再来一局</button>
-        <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
+        <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 <span id="backToArcade">回到街机厅</span></button>
     </div>
 
     <script>
+        // 语言检测和翻译系统
+        const i18n = {
+            lang: 'zh',
+            texts: {
+                zh: {
+                    lap: '圈数',
+                    startGame: '开始比赛',
+                    gameOver: '比赛结束！',
+                    finalRank: '最终排名',
+                    restart: '再来一局',
+                    backToArcade: '回到街机厅',
+                    champion: '冠军！',
+                    runnerUp: '亚军！',
+                    thirdPlace: '季军！',
+                    keepTrying: '再接再厉！',
+                    instructions: `👈 左滑 / A键 = 左转<br>
+👉 右滑 / D键 = 右转<br>
+💨 漂移积攒氮气<br>
+🎁 撞道具箱获得道具<br>
+🚀 点击使用道具攻击对手<br>
+拿下第一名！`
+                },
+                en: {
+                    lap: 'Lap',
+                    startGame: 'Start Game',
+                    gameOver: 'Game Over!',
+                    finalRank: 'Final Rank',
+                    restart: 'Play Again',
+                    backToArcade: 'Back to Arcade',
+                    champion: 'Champion!',
+                    runnerUp: 'Runner-up!',
+                    thirdPlace: 'Third Place!',
+                    keepTrying: 'Keep Trying!',
+                    instructions: `👈 Swipe Left / A = Turn Left<br>
+👉 Swipe Right / D = Turn Right<br>
+💨 Drift to build nitro<br>
+🎁 Hit item boxes for power-ups<br>
+🚀 Tap to use items against rivals<br>
+Get the first place!`
+                }
+            },
+            t(key) {
+                return this.texts[this.lang][key] || key;
+            },
+            detect() {
+                const navLang = navigator.language || navigator.userLanguage || 'zh-CN';
+                this.lang = navLang.toLowerCase().startsWith('en') ? 'en' : 'zh';
+                document.documentElement.lang = this.lang === 'en' ? 'en' : 'zh-CN';
+            },
+            apply() {
+                // 应用翻译
+                document.getElementById('startBtn').textContent = this.t('startGame');
+                document.getElementById('instructions').innerHTML = this.t('instructions');
+                document.getElementById('restartBtn').textContent = this.t('restart');
+                document.getElementById('backToArcade').textContent = this.t('backToArcade');
+                document.getElementById('finalRankLabel').textContent = this.t('finalRank');
+                updateLapDisplay();
+            }
+        };
+
+        // 初始化语言
+        i18n.detect();
+        i18n.apply();
+
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
@@ -241,6 +305,10 @@
             currentItem = null;
             document.getElementById('itemSlot').textContent = '❓';
         }
+
+        function updateLapDisplay() {
+            document.getElementById('lapDisplay').textContent = i18n.t('lap') + ': ' + lap + '/' + TOTAL_LAPS;
+        }
         
         function startGame() {
             gameState = 'playing';
@@ -275,6 +343,7 @@
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
             document.getElementById('itemSlot').textContent = '❓';
+            updateLapDisplay();
             requestAnimationFrame(gameLoop);
         }
         
@@ -286,16 +355,16 @@
             
             if (position === 1) {
                 resultDiv.textContent = '🥇';
-                titleDiv.textContent = '冠军！';
+                titleDiv.textContent = i18n.t('champion');
             } else if (position === 2) {
                 resultDiv.textContent = '🥈';
-                titleDiv.textContent = '亚军！';
+                titleDiv.textContent = i18n.t('runnerUp');
             } else if (position === 3) {
                 resultDiv.textContent = '🥉';
-                titleDiv.textContent = '季军！';
+                titleDiv.textContent = i18n.t('thirdPlace');
             } else {
                 resultDiv.textContent = '😅';
-                titleDiv.textContent = '再接再厉！';
+                titleDiv.textContent = i18n.t('keepTrying');
             }
             
             document.getElementById('finalPosition').textContent = position;
@@ -341,7 +410,7 @@
                     gameOver();
                     return;
                 }
-                document.getElementById('lapDisplay').textContent = '圈数: ' + lap + '/' + TOTAL_LAPS;
+                updateLapDisplay();
             }
             
             // 更新护盾
