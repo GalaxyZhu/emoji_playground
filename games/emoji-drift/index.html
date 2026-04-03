@@ -175,16 +175,95 @@
     
     <div class="ui-overlay hidden" id="gameOverScreen">
         <div class="emoji-title">💥</div>
-        <h1 id="gameOverTitle">撞墙了！</h1>
-        <div style="color: #fff; font-size: 20px; margin-bottom: 5px;">得分: <span id="finalScore">0</span></div>
-        <div style="color: #ffd700; font-size: 16px; margin-bottom: 5px;">最高连击: <span id="finalCombo">0</span></div>
-        <div style="color: #ff4444; font-size: 16px; margin-bottom: 5px;">剩余生命: <span id="finalHealth">0</span></div>
-        <div style="color: #00c8ff; font-size: 14px; margin-bottom: 30px;">最高分: <span id="highScore">0</span></div>
-        <button class="btn" id="restartBtn">再来一局</button>
-        <button class="btn btn-home" id="homeBtn" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
+        <h1 id="gameOverTitle"></h1>
+        <div style="color: #fff; font-size: 20px; margin-bottom: 5px;"></div>
+        <div style="color: #ffd700; font-size: 16px; margin-bottom: 5px;"></div>
+        <div style="color: #ff4444; font-size: 16px; margin-bottom: 5px;"></div>
+        <div style="color: #00c8ff; font-size: 14px; margin-bottom: 30px;"></div>
+        <button class="btn" id="restartBtn"></button>
+        <button class="btn btn-home" id="homeBtn" onclick="location.href='../../index.html'"></button>
     </div>
 
     <script>
+        // 语言检测与翻译
+        const i18n = {
+            zh: {
+                startGame: '开始漂移',
+                gameOver: '撞墙了！',
+                gameOverNoHealth: '生命耗尽！',
+                score: '得分',
+                highScore: '最高分',
+                combo: '连击',
+                drift: '漂移',
+                backToArcade: '🏠 回到街机厅',
+                restart: '再来一局',
+                rhythmMode: '🎵 节奏漂移模式 V0.3.0',
+                instructions: [
+                    '🎵 弯道会在道路上出现',
+                    '🎯 当车进入弯道判定区时',
+                    '👈 点击左侧 = 左漂移',
+                    '👉 点击右侧 = 右漂移',
+                    '💚 Perfect = 最高速 + 连击+1',
+                    '💙 Good = 正常',
+                    '❌ Miss = 扣1血 + 连击重置',
+                    '<span style="color: #00ff88;">🔥 每10连击恢复1点生命！</span>'
+                ],
+                perfect: 'PERFECT!',
+                good: 'GOOD!',
+                miss: 'MISS!',
+                health: '生命',
+                comboBonus: '+❤️ 连击奖励!',
+                lowHealthWarning: '⚠️ 血量危险!',
+                finalCombo: '最高连击',
+                remainingHealth: '剩余生命'
+            },
+            en: {
+                startGame: 'Start Game',
+                gameOver: 'Crashed!',
+                gameOverNoHealth: 'Game Over!',
+                score: 'Score',
+                highScore: 'High Score',
+                combo: 'Combo',
+                drift: 'Drift',
+                backToArcade: '🏠 Back to Arcade',
+                restart: 'Play Again',
+                rhythmMode: '🎵 Rhythm Drift V0.3.0',
+                instructions: [
+                    '🎵 Curves will appear on the road',
+                    '🎯 When car enters the curve zone',
+                    '👈 Tap left = Left drift',
+                    '👉 Tap right = Right drift',
+                    '💚 Perfect = Max speed + Combo+1',
+                    '💙 Good = Normal',
+                    '❌ Miss = -1 HP + Combo reset',
+                    '<span style="color: #00ff88;">🔥 Recover 1 HP every 10 combos!</span>'
+                ],
+                perfect: 'PERFECT!',
+                good: 'GOOD!',
+                miss: 'MISS!',
+                health: 'HP',
+                comboBonus: '+❤️ Combo Bonus!',
+                lowHealthWarning: '⚠️ Low Health!',
+                finalCombo: 'Max Combo',
+                remainingHealth: 'HP Left'
+            }
+        };
+
+        // 检测浏览器语言
+        const userLang = navigator.language || navigator.userLanguage || 'zh-CN';
+        const lang = userLang.toLowerCase().startsWith('en') ? 'en' : 'zh';
+        const t = i18n[lang];
+
+        // 更新页面语言属性
+        document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
+
+        // 应用翻译
+        document.getElementById('startBtn').textContent = t.startGame;
+        document.getElementById('restartBtn').textContent = t.restart;
+        document.getElementById('homeBtn').innerHTML = t.backToArcade;
+        document.querySelector('#startScreen .instructions').innerHTML = t.instructions.join('<br>');
+        document.querySelector('#startScreen div:nth-child(3)').textContent = t.rhythmMode;
+
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
@@ -313,13 +392,18 @@
         
         function showJudgment(text, type) {
             const el = document.getElementById('judgment');
-            el.textContent = text;
+            // 使用翻译后的文本
+            if (text === 'PERFECT!') el.textContent = t.perfect;
+            else if (text === 'GOOD!') el.textContent = t.good;
+            else if (text === 'MISS!') el.textContent = t.miss;
+            else el.textContent = text;
             el.className = 'judgment ' + type + ' show';
             setTimeout(() => el.classList.remove('show'), 300);
         }
         
         function showComboBonus() {
             const el = document.getElementById('comboBonus');
+            el.textContent = t.comboBonus;
             el.classList.add('show');
             setTimeout(() => el.classList.remove('show'), 1000);
         }
@@ -329,6 +413,7 @@
             
             // 低血量警告
             const warning = document.getElementById('lowHealthWarning');
+            warning.textContent = t.lowHealthWarning;
             if (health <= 3 && health > 0) {
                 warning.classList.add('show');
             } else {
@@ -442,6 +527,8 @@
             document.getElementById('gameOverScreen').classList.add('hidden');
             updateComboUI();
             updateHealthUI();
+            // 初始化得分显示
+            document.getElementById('scoreDisplay').textContent = t.score + ': 0';
             requestAnimationFrame(gameLoop);
         }
         
@@ -453,13 +540,20 @@
             }
             
             // 判断游戏结束原因
-            const title = health <= 0 ? '生命耗尽！' : '撞墙了！';
+            const title = health <= 0 ? t.gameOverNoHealth : t.gameOver;
             document.getElementById('gameOverTitle').textContent = title;
             
             document.getElementById('finalScore').textContent = Math.floor(score);
             document.getElementById('finalCombo').textContent = maxCombo;
             document.getElementById('finalHealth').textContent = health;
             document.getElementById('highScore').textContent = Math.floor(highScore);
+            
+            // 更新标签文本
+            document.querySelector('#gameOverScreen div:nth-child(3)').innerHTML = t.score + ': <span id="finalScore">' + Math.floor(score) + '</span>';
+            document.querySelector('#gameOverScreen div:nth-child(4)').innerHTML = t.finalCombo + ': <span id="finalCombo">' + maxCombo + '</span>';
+            document.querySelector('#gameOverScreen div:nth-child(5)').innerHTML = t.remainingHealth + ': <span id="finalHealth">' + health + '</span>';
+            document.querySelector('#gameOverScreen div:nth-child(6)').innerHTML = t.highScore + ': <span id="highScore">' + Math.floor(highScore) + '</span>';
+            
             document.getElementById('gameOverScreen').classList.remove('hidden');
         }
         
@@ -537,7 +631,7 @@
             });
             
             // 更新UI
-            document.getElementById('scoreDisplay').textContent = '得分: ' + Math.floor(score);
+            document.getElementById('scoreDisplay').textContent = t.score + ': ' + Math.floor(score);
         }
         
         function draw() {
