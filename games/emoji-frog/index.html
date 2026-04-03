@@ -471,8 +471,17 @@
             // 目标：玩家位于屏幕中间偏下
             const targetY = player.y - canvas.height * 0.5;
 
-            // 平滑跟随（双向）
-            camera.y += (targetY - camera.y) * 0.15;
+            // 计算相机需要移动的距离
+            const deltaY = (targetY - camera.y) * 0.15;
+
+            // 向下掉时限制跟随：最多跟随20px
+            if (deltaY > 0) {
+                // 玩家在下落，相机最多跟随20px
+                camera.y += Math.min(deltaY, 20);
+            } else {
+                // 玩家在上跳，相机正常跟随
+                camera.y += deltaY;
+            }
         }
 
         // 更新平台状态
