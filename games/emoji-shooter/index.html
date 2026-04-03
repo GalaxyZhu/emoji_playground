@@ -86,7 +86,7 @@
         }
         
         #powerupZone::before {
-            content: '奖励区';
+            content: attr(data-label);
             position: absolute;
             top: 10px;
             left: 50%;
@@ -105,7 +105,7 @@
         }
         
         #combatZone::before {
-            content: '战斗区';
+            content: attr(data-label);
             position: absolute;
             top: 10px;
             left: 50%;
@@ -473,7 +473,7 @@
             <!-- 游戏内UI -->
             <div id="gameUI">
                 <div class="ui-panel">
-                    <div class="label">当前加成</div>
+                    <div class="label" data-i18n="activePowerups">当前加成</div>
                     <div class="powerup-indicator" id="activePowerups">
                         <span class="powerup-badge" id="badgeSpeed">⚡</span>
                         <span class="powerup-badge" id="badgePower">💪</span>
@@ -481,19 +481,19 @@
                     </div>
                 </div>
                 <div class="ui-panel">
-                    <div class="label">生命值</div>
+                    <div class="label" data-i18n="health">生命值</div>
                     <div id="healthDisplay" style="color: #ff6b6b; font-size: 14px;">❤️❤️❤️❤️❤️❤️❤️❤️❤️❤️</div>
                 </div>
                 <div class="ui-panel">
-                    <div class="label">得分</div>
+                    <div class="label" data-i18n="score">得分</div>
                     <div id="scoreDisplay">0</div>
                 </div>
                 <div class="ui-panel">
-                    <div class="label">波次</div>
+                    <div class="label" data-i18n="wave">波次</div>
                     <div id="waveDisplay">1</div>
                 </div>
                 <div class="ui-panel">
-                    <div class="label">最高分</div>
+                    <div class="label" data-i18n="highScore">最高分</div>
                     <div id="highScoreDisplay" style="color: #ffd700;">0</div>
                 </div>
             </div>
@@ -503,12 +503,12 @@
                 <div id="startScreen" class="screen">
                     <div class="emoji-title">🗿</div>
                     <h1>EMOJI SHOOTER V0.1.5</h1>
-                    <div class="high-score">最高分: <span id="startHighScore">0</span></div>
+                    <div class="high-score"><span data-i18n="highScoreLabel">最高分</span>: <span id="startHighScore">0</span></div>
                     <div class="start-buttons">
-                        <button class="btn" onclick="startGame()">开始游戏</button>
-                        <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
+                        <button class="btn" onclick="startGame()" data-i18n="startGame">开始游戏</button>
+                        <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 <span data-i18n="backToArcade">回到街机厅</span></button>
                     </div>
-                    <div class="instructions">
+                    <div class="instructions" data-i18n="instructions">
                         移动鼠标控制🗿，自动射击消灭敌人<br>
                         到<b>左边奖励区</b>击破奖励包获取强力加成<br>
                         ⚡极速 💪强力 🛡️护盾<br>
@@ -518,22 +518,22 @@
                 
                 <div id="gameOverScreen" class="screen hidden">
                     <div class="emoji-title">💀</div>
-                    <h1>游戏结束</h1>
-                    <div class="score-display">得分: <span id="finalScore">0</span></div>
-                    <div class="high-score">最高分: <span id="finalHighScore">0</span></div>
+                    <h1 data-i18n="gameOver">游戏结束</h1>
+                    <div class="score-display"><span data-i18n="scoreLabel">得分</span>: <span id="finalScore">0</span></div>
+                    <div class="high-score"><span data-i18n="highScoreLabel">最高分</span>: <span id="finalHighScore">0</span></div>
                     <div class="stats" id="gameStats"></div>
-                    <button class="btn" onclick="restartGame()">再来一局</button>
-                    <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
+                    <button class="btn" onclick="restartGame()" data-i18n="playAgain">再来一局</button>
+                    <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 <span data-i18n="backToArcade">回到街机厅</span></button>
                 </div>
                 
                 <!-- 暂停对话框 -->
                 <div id="pauseScreen" class="screen hidden">
-                    <h2>⏸️ 游戏暂停</h2>
+                    <h2 data-i18n="gamePaused">⏸️ 游戏暂停</h2>
                     <div class="pause-buttons">
-                        <button class="pause-btn continue" onclick="resumeGame()">▶️ 继续游戏</button>
-                        <button class="pause-btn restart" onclick="restartFromPause()">🔄 重新开始</button>
+                        <button class="pause-btn continue" onclick="resumeGame()" data-i18n="resume">▶️ 继续游戏</button>
+                        <button class="pause-btn restart" onclick="restartFromPause()" data-i18n="restart">🔄 重新开始</button>
                     </div>
-                    <div style="color: #888; margin-top: 20px; font-size: 12px;">
+                    <div style="color: #888; margin-top: 20px; font-size: 12px;" data-i18n="pauseHint">
                         按 ESC 键也可以继续游戏
                     </div>
                 </div>
@@ -553,6 +553,113 @@
     </div>
 
     <script>
+        // 多语言配置
+        const i18n = {
+            zh: {
+                startGame: '开始游戏',
+                backToArcade: '回到街机厅',
+                gameOver: '游戏结束',
+                playAgain: '再来一局',
+                score: '得分',
+                scoreLabel: '得分',
+                highScore: '最高分',
+                highScoreLabel: '最高分',
+                health: '生命值',
+                wave: '波次',
+                activePowerups: '当前加成',
+                gamePaused: '⏸️ 游戏暂停',
+                resume: '▶️ 继续游戏',
+                restart: '🔄 重新开始',
+                pauseHint: '按 ESC 键也可以继续游戏',
+                instructions: '移动鼠标控制🗿，自动射击消灭敌人<br>到<b>左边奖励区</b>击破奖励包获取强力加成<br>⚡极速 💪强力 🛡️护盾<br><b>每5关有BOSS战！</b>躲避BOSS攻击并反击！',
+                powerupZone: '奖励区',
+                combatZone: '战斗区',
+                // 道具名称
+                powerupSpeed: '极速',
+                powerupPower: '强力',
+                powerupShield: '护盾',
+                powerupHealth: '生命',
+                // 道具描述
+                descSpeed: '2倍射速',
+                descPower: '3倍伤害',
+                descShield: '抵挡1次碰撞',
+                descHealth: '生命+5',
+                // 统计信息
+                statsKilled: '击杀敌人',
+                statsWave: '生存波次'
+            },
+            en: {
+                startGame: 'Start Game',
+                backToArcade: 'Back to Arcade',
+                gameOver: 'Game Over',
+                playAgain: 'Play Again',
+                score: 'Score',
+                scoreLabel: 'Score',
+                highScore: 'High Score',
+                highScoreLabel: 'High Score',
+                health: 'Health',
+                wave: 'Wave',
+                activePowerups: 'Active Powerups',
+                gamePaused: '⏸️ Game Paused',
+                resume: '▶️ Resume',
+                restart: '🔄 Restart',
+                pauseHint: 'Press ESC to resume',
+                instructions: 'Move mouse to control 🗿, auto-shoot to destroy enemies<br>Go to <b>left bonus zone</b> to break powerup crates<br>⚡Speed 💪Power 🛡️Shield<br><b>Boss battle every 5 waves!</b> Dodge and fight back!',
+                powerupZone: 'Bonus Zone',
+                combatZone: 'Combat Zone',
+                // 道具名称
+                powerupSpeed: 'Speed',
+                powerupPower: 'Power',
+                powerupShield: 'Shield',
+                powerupHealth: 'Health',
+                // 道具描述
+                descSpeed: '2x Fire Rate',
+                descPower: '3x Damage',
+                descShield: 'Block 1 Hit',
+                descHealth: 'Health +5',
+                // 统计信息
+                statsKilled: 'Enemies Killed',
+                statsWave: 'Waves Survived'
+            }
+        };
+
+        // 检测语言
+        let currentLang = 'zh';
+        function detectLanguage() {
+            const lang = navigator.language || navigator.userLanguage || 'zh-CN';
+            if (lang.toLowerCase().startsWith('en')) {
+                currentLang = 'en';
+            } else {
+                currentLang = 'zh';
+            }
+            return currentLang;
+        }
+
+        // 获取翻译文本
+        function t(key) {
+            return i18n[currentLang]?.[key] || i18n['zh'][key] || key;
+        }
+
+        // 应用翻译到DOM
+        function applyTranslations() {
+            // 翻译带 data-i18n 属性的元素
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[currentLang]?.[key]) {
+                    el.innerHTML = i18n[currentLang][key];
+                }
+            });
+
+            // 翻译区域标签
+            const powerupZone = document.getElementById('powerupZone');
+            const combatZone = document.getElementById('combatZone');
+            if (powerupZone) powerupZone.setAttribute('data-label', t('powerupZone'));
+            if (combatZone) combatZone.setAttribute('data-label', t('combatZone'));
+
+            // 更新页面语言属性
+            document.documentElement.lang = currentLang === 'en' ? 'en' : 'zh-CN';
+        }
+
         // 游戏配置
         const CONFIG = {
             version: '0.1.2',
@@ -584,10 +691,10 @@
             },
             // 奖励包配置
             powerups: [
-                { emoji: '⚡', hp: 20, maxHp: 20, type: 'speed', name: '极速', duration: 10000, multiplier: 2, desc: '2倍射速' },
-                { emoji: '💪', hp: 20, maxHp: 20, type: 'power', name: '强力', duration: 8000, multiplier: 3, desc: '3倍伤害' },
-                { emoji: '🛡️', hp: 15, maxHp: 15, type: 'shield', name: '护盾', duration: null, desc: '抵挡1次碰撞' },
-                { emoji: '❤️', hp: 10, maxHp: 10, type: 'health', name: '生命', duration: null, desc: '生命+5' }
+                { emoji: '⚡', hp: 20, maxHp: 20, type: 'speed', nameKey: 'powerupSpeed', duration: 10000, multiplier: 2, descKey: 'descSpeed' },
+                { emoji: '💪', hp: 20, maxHp: 20, type: 'power', nameKey: 'powerupPower', duration: 8000, multiplier: 3, descKey: 'descPower' },
+                { emoji: '🛡️', hp: 15, maxHp: 15, type: 'shield', nameKey: 'powerupShield', duration: null, descKey: 'descShield' },
+                { emoji: '❤️', hp: 10, maxHp: 10, type: 'health', nameKey: 'powerupHealth', duration: null, descKey: 'descHealth' }
             ],
             // 普通敌人配置
             enemies: [
@@ -599,48 +706,48 @@
             // 远程敌人配置
             rangedEnemies: [
                 { 
-                    emoji: '🎯', name: '弓箭手', hp: 2, speed: 0.8, score: 40, size: 32, 
+                    emoji: '🎯', name: 'Archer', nameZh: '弓箭手', hp: 2, speed: 0.8, score: 40, size: 32, 
                     ranged: true, attackInterval: 2500, bulletEmoji: '🏹', bulletSpeed: 4
                 },
                 { 
-                    emoji: '🔥', name: '法师', hp: 3, speed: 0.5, score: 80, size: 36, 
+                    emoji: '🔥', name: 'Mage', nameZh: '法师', hp: 3, speed: 0.5, score: 80, size: 36, 
                     ranged: true, attackInterval: 2000, bulletEmoji: '🔥', bulletSpeed: 5
                 }
             ],
             // BOSS配置 - 每5关一个
             bosses: [
                 { 
-                    emoji: '👹', name: '红脸恶魔', hp: 100, maxHp: 100, 
+                    emoji: '👹', name: 'Red Demon', nameZh: '红脸恶魔', hp: 100, maxHp: 100, 
                     speed: 0.8, score: 500, size: 60, 
                     attackInterval: 2000, attackPattern: 'fireball',
                     bulletEmoji: '🔥', bulletSpeed: 3, bulletDamage: 1
                 },
                 { 
-                    emoji: '🤡', name: '疯狂小丑', hp: 200, maxHp: 200, 
+                    emoji: '🤡', name: 'Mad Clown', nameZh: '疯狂小丑', hp: 200, maxHp: 200, 
                     speed: 1.0, score: 1000, size: 65, 
                     attackInterval: 1800, attackPattern: 'bounce',
                     bulletEmoji: '🎈', bulletSpeed: 4, bulletDamage: 1
                 },
                 { 
-                    emoji: '👾', name: '外星入侵者', hp: 350, maxHp: 350, 
+                    emoji: '👾', name: 'Alien Invader', nameZh: '外星入侵者', hp: 350, maxHp: 350, 
                     speed: 1.2, score: 1500, size: 70, 
                     attackInterval: 1500, attackPattern: 'laser',
                     bulletEmoji: '⚡', bulletSpeed: 6, bulletDamage: 2
                 },
                 { 
-                    emoji: '🎃', name: '南瓜魔王', hp: 500, maxHp: 500, 
+                    emoji: '🎃', name: 'Pumpkin King', nameZh: '南瓜魔王', hp: 500, maxHp: 500, 
                     speed: 0.6, score: 2000, size: 75, 
                     attackInterval: 2000, attackPattern: 'spread',
                     bulletEmoji: '🦇', bulletSpeed: 3.5, bulletDamage: 1
                 },
                 { 
-                    emoji: '👽', name: '外星统领', hp: 750, maxHp: 750, 
+                    emoji: '👽', name: 'Alien Leader', nameZh: '外星统领', hp: 750, maxHp: 750, 
                     speed: 1.0, score: 3000, size: 80, 
                     attackInterval: 1200, attackPattern: 'split',
                     bulletEmoji: '🛸', bulletSpeed: 4, bulletDamage: 2
                 },
                 { 
-                    emoji: '🗿', name: '摩艾化身', hp: 1000, maxHp: 1000, 
+                    emoji: '🗿', name: 'Moai Avatar', nameZh: '摩艾化身', hp: 1000, maxHp: 1000, 
                     speed: 0.5, score: 5000, size: 90, 
                     attackInterval: 1500, attackPattern: 'chaos',
                     bulletEmoji: '💀', bulletSpeed: 5, bulletDamage: 3
@@ -694,6 +801,10 @@
         
         // 初始化
         function init() {
+            // 检测并应用语言
+            detectLanguage();
+            applyTranslations();
+
             canvas = document.getElementById('gameCanvas');
             ctx = canvas.getContext('2d');
             
@@ -801,8 +912,8 @@
             document.getElementById('finalScore').textContent = score;
             document.getElementById('finalHighScore').textContent = highScore;
             document.getElementById('gameStats').innerHTML = `
-                击杀敌人: ${enemiesKilled}<br>
-                生存波次: ${wave}
+                ${t('statsKilled')}: ${enemiesKilled}<br>
+                ${t('statsWave')}: ${wave}
             `;
             document.getElementById('gameOverScreen').classList.remove('hidden');
         }
@@ -1246,7 +1357,8 @@
         function showBossUI() {
             if (!currentBoss) return;
             const ui = document.getElementById('bossUI');
-            document.getElementById('bossName').textContent = `${currentBoss.emoji} ${currentBoss.name}`;
+            const bossName = currentLang === 'en' ? currentBoss.name : currentBoss.nameZh;
+            document.getElementById('bossName').textContent = `${currentBoss.emoji} ${bossName}`;
             updateBossUI();
             ui.classList.add('active');
         }
@@ -1408,6 +1520,7 @@
                     }
                     
                     ctx.fillText(currentBoss.emoji, currentBoss.x, currentBoss.y);
+
                     ctx.filter = 'none';
                     
                     // 狂暴模式特效
@@ -1432,11 +1545,12 @@
                     ctx.fillStyle = '#4caf50';
                     ctx.fillRect(p.x - bw/2, p.y - p.size/2 - 10, bw * (p.hp / p.maxHp), bh);
                     
-                    // 名称
+                    // 名称 - 使用翻译
                     ctx.fillStyle = '#fff';
                     ctx.font = '10px sans-serif';
                     ctx.textAlign = 'center';
-                    ctx.fillText(`${p.name} ${p.hp}/${p.maxHp}`, p.x, p.y + p.size/2 + 12);
+                    const powerupName = t(p.nameKey);
+                    ctx.fillText(`${powerupName} ${p.hp}/${p.maxHp}`, p.x, p.y + p.size/2 + 12);
                 });
                 
                 // 绘制粒子
