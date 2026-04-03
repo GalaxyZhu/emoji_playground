@@ -194,6 +194,7 @@
         const MUSHROOM_KNOCKBACK = 8;         // 蘑菇弹飞力度
         const LOG_DRIFT_SPEED = 1;            // 木桩漂移速度
         const LOG_DRIFT_RANGE = 80;           // 木桩漂移范围
+        const ROCKET_BOOST = 3.0;             // 火箭平台弹跳倍数（超强力）
 
         // 输入状态
         const keys = { left: false, right: false, jump: false };
@@ -223,11 +224,12 @@
         function generatePlatform(y) {
             const margin = 60;
             const types = [
-                { type: 'normal', emoji: '🍃', chance: 0.55 },
+                { type: 'normal', emoji: '🍃', chance: 0.50 },
                 { type: 'lily', emoji: '🪷', chance: 0.12 },
                 { type: 'cloud', emoji: '☁️', chance: 0.12 },
                 { type: 'mushroom', emoji: '🍄', chance: 0.10 },
-                { type: 'log', emoji: '🪵', chance: 0.11 }
+                { type: 'log', emoji: '🪵', chance: 0.10 },
+                { type: 'rocket', emoji: '🚀', chance: 0.06 }
             ];
 
             const rand = Math.random();
@@ -280,6 +282,7 @@
             player.grounded = false;
             player.hasLilyBounce = false;
             player.hasMushroomBounce = false;
+            player.hasRocketBounce = false;
         }
 
         // 开始游戏
@@ -349,13 +352,14 @@
                 player.x = -player.width;
             }
 
-            // 跳跃（自动模式：落地后立即起跳，除非刚触发睡莲弹跳或蘑菇弹飞）
-            if (player.grounded && !player.hasLilyBounce && !player.hasMushroomBounce) {
+            // 跳跃（自动模式：落地后立即起跳，除非刚触发特殊弹跳）
+            if (player.grounded && !player.hasLilyBounce && !player.hasMushroomBounce && !player.hasRocketBounce) {
                 player.vy = JUMP_FORCE;
                 player.grounded = false;
             }
             player.hasLilyBounce = false; // 重置标记
             player.hasMushroomBounce = false; // 重置标记
+            player.hasRocketBounce = false; // 重置标记
         }
 
         // 碰撞检测
@@ -430,6 +434,14 @@
                     player.vy = 0;
                     player.grounded = true;
                     break;
+                    
+                case 'rocket': // 🚀 火箭平台 - 超强弹跳
+                    player.vy = JUMP_FORCE * ROCKET_BOOST;
+                    player.grounded = false;
+                    player.hasRocketBounce = true;
+                    // 火焰粒子效果
+                    createRocketEffect(plat.x + plat.width/2, plat.y);
+                    break;
             }
         }
 
@@ -446,6 +458,22 @@
                     maxLife: 30,
                     color: '#4ade80',
                     size: 3
+                });
+            }
+        }
+
+        // 火箭火焰粒子效果
+        function createRocketEffect(x, y) {
+            for (let i = 0; i < 15; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 6,
+                    vy: Math.random() * 5 + 2, // 向下喷射
+                    life: 40,
+                    maxLife: 40,
+                    color: Math.random() > 0.5 ? '#ff6600' : '#ffcc00', // 橙色和黄色火焰
+                    size: 6
                 });
             }
         }
@@ -600,6 +628,7 @@
                 if (plat.type === 'cloud') bgColor = 'rgba(200, 220, 255, 0.3)';
                 if (plat.type === 'mushroom') bgColor = 'rgba(255, 100, 100, 0.3)';
                 if (plat.type === 'log') bgColor = 'rgba(139, 90, 43, 0.4)';
+                if (plat.type === 'rocket') bgColor = 'rgba(255, 100, 0, 0.4)';
                 ctx.fillStyle = bgColor;
                 ctx.beginPath();
                 ctx.roundRect(plat.x, plat.y, plat.width, plat.height, 10);
@@ -633,6 +662,16 @@
                     const pulse = Math.sin(Date.now() / 200) * 0.3 + 0.7;
                     ctx.fillStyle = `rgba(255, 0, 0, ${0.2 * pulse})`;
                     ctx.fill();
+                }
+
+                // 火箭平台：橙色发光脉冲
+                if (plat.type === 'rocket') {
+                    const pulse = Math.sin(Date.now() / 150) * 0.4 + 0.6;
+                    ctx.shadowColor = '#ff6600';
+                    ctx.shadowBlur = 15 * pulse;
+                    ctx.fillStyle = `rgba(255, 100, 0, ${0.3 * pulse})`;
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
                 }
 
                 ctx.restore();
