@@ -474,10 +474,10 @@
             // 计算相机需要移动的距离
             const deltaY = (targetY - camera.y) * 0.15;
 
-            // 向下掉时限制跟随：最多跟随20px
+            // 向下掉时限制跟随：最多跟随10px
             if (deltaY > 0) {
-                // 玩家在下落，相机最多跟随20px
-                camera.y += Math.min(deltaY, 20);
+                // 玩家在下落，相机最多跟随10px
+                camera.y += Math.min(deltaY, 10);
             } else {
                 // 玩家在上跳，相机正常跟随
                 camera.y += deltaY;
