@@ -7,19 +7,19 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://emojiarcade.app/pages/about.html</loc>
+    <loc>https://emojiarcade.app/about.html</loc>
     <lastmod>2026-04-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://emojiarcade.app/pages/privacy.html</loc>
+    <loc>https://emojiarcade.app/privacy.html</loc>
     <lastmod>2026-04-08</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://emojiarcade.app/pages/terms.html</loc>
+    <loc>https://emojiarcade.app/terms.html</loc>
     <lastmod>2026-04-08</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
