@@ -240,10 +240,12 @@
         // 生成地形
         function generateTerrain() {
             terrain = [];
-            for (let x = 0; x < GAME_WIDTH + 200; x += 10) {
-                const height = Math.sin(x * 0.01) * 30 + Math.sin(x * 0.03) * 15;
+            for (let i = 0; i < (GAME_WIDTH + 200) / 10; i++) {
+                const x = i * 10;
+                const worldX = terrainOffset + x;
+                const height = Math.sin(worldX * 0.01) * 30 + Math.sin(worldX * 0.03) * 15;
                 terrain.push({
-                    x: x,
+                    x: x,  // 相对坐标
                     y: groundY - height
                 });
             }
@@ -331,7 +333,11 @@
         }
         
         function getGroundY(x) {
-            const index = Math.floor((x + terrainOffset) / 10) % terrain.length;
+            // x 是玩家相对于屏幕的坐标
+            // 地形数组存储的是相对于 terrainOffset 的地形
+            // 所以玩家对应的 terrain 索引应该是 (x + terrainOffset - terrainOffset) / 10 = x / 10
+            // 但由于地形数组不断更新，我们需要使用 x 作为索引
+            const index = Math.floor(x / 10);
             if (index >= 0 && index < terrain.length) {
                 return terrain[index].y;
             }
@@ -339,10 +345,10 @@
         }
         
         function getGroundAngle(x) {
-            const index = Math.floor((x + terrainOffset) / 10) % terrain.length;
-            const nextIndex = (index + 1) % terrain.length;
+            const index = Math.floor(x / 10);
+            const nextIndex = index + 1;
             if (index >= 0 && index < terrain.length && nextIndex < terrain.length) {
-                const dx = 10;
+                const dx = terrain[nextIndex].x - terrain[index].x;
                 const dy = terrain[nextIndex].y - terrain[index].y;
                 return Math.atan2(dy, dx);
             }
@@ -445,12 +451,14 @@
                 // 生成新地形
                 if (terrainOffset > 100) {
                     terrain.shift();
-                    const lastX = terrain[terrain.length - 1].x;
-                    const height = Math.sin((lastX + terrainOffset) * 0.01) * 30 + 
-                                   Math.sin((lastX + terrainOffset) * 0.03) * 15 +
+                    const lastPoint = terrain[terrain.length - 1];
+                    // 使用相对于 terrainOffset 的坐标计算新地形高度
+                    const worldX = lastPoint.x + terrainOffset + 10;
+                    const height = Math.sin(worldX * 0.01) * 30 + 
+                                   Math.sin(worldX * 0.03) * 15 +
                                    Math.random() * 20 - 10;
                     terrain.push({
-                        x: lastX + 10,
+                        x: lastPoint.x + 10,  // 相对坐标，保持连续
                         y: groundY - height
                     });
                     terrainOffset -= 10;
