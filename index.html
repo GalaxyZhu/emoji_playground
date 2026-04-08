@@ -676,35 +676,3 @@
     </script>
 </body>
 </html>
-         if (typeof gtag !== 'undefined') {
-                gtag('event', 'page_ready', {
-                    'load_time': Math.round(performance.now())
-                });
-            }
-        });
-        
-        // ==================== 预留：消息接收（游戏内分数上报）====================
-        window.addEventListener('message', (e) => {
-            if (e.data.type === 'GAME_SCORE') {
-                const { gameId, score } = e.data;
-                const record = Storage.getGameRecord(gameId);
-                const isHighScore = score > record.highScore;
-                
-                if (isHighScore) {
-                    record.highScore = score;
-                    Storage.setGameRecord(gameId, record);
-                }
-                
-                // 追踪：游戏分数
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'game_score', {
-                        'game_id': gameId,
-                        'score': score,
-                        'is_high_score': isHighScore
-                    });
-                }
-            }
-        });
-    </script>
-</body>
-</html>
