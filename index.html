@@ -411,17 +411,30 @@
             comingSoonGames.forEach(id => {
                 const game = gameConfigs[id];
                 if (game) {
-                    const card = createComingSoonCard(game, lang);
+                    const card = createComingSoonCard(id, game, lang);
                     grid.appendChild(card);
                 }
             });
         }
         
         // 创建即将上线卡片
-        function createComingSoonCard(game, lang) {
+        function createComingSoonCard(id, game, lang) {
             const card = document.createElement('div');
             card.className = 'game-card';
             card.style.opacity = '0.6';
+            card.onclick = () => launchGame({
+                id,
+                name: game.name,
+                emoji: game.emoji,
+                tagline: game.tagline[lang],
+                version: '0.1.0',
+                status: 'ready',
+                path: `games/${id}/index.html`,
+                difficulty: game.difficulty[lang],
+                tags: game.tags[lang],
+                players: game.players[lang],
+                playTime: game.playTime[lang]
+            });
             
             const tagline = game.tagline[lang];
             const tags = game.tags[lang];
