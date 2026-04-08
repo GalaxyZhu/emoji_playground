@@ -155,9 +155,12 @@
             🏆 User system coming soon | 📊 Leaderboard in development | 🏅 Achievements planned
         </p>
         <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
-            <a href="about.html" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">关于我们</a>
-            <a href="privacy.html" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">隐私政策</a>
-            <a href="terms.html" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">使用条款</a>
+            <a href="about.html" id="footerAboutZh" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">关于我们</a>
+            <a href="about.html" id="footerAboutEn" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px; display: none;">About</a>
+            <a href="privacy.html" id="footerPrivacyZh" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">隐私政策</a>
+            <a href="privacy.html" id="footerPrivacyEn" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px; display: none;">Privacy</a>
+            <a href="terms.html" id="footerTermsZh" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">使用条款</a>
+            <a href="terms.html" id="footerTermsEn" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px; display: none;">Terms</a>
             <span style="color: #666; margin: 0 10px; font-size: 12px;">|</span>
             <a href="https://github.com/GalaxyZhu/emoji_playground" target="_blank" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">GitHub</a>
             <a href="https://twitter.com/EmojiArcade" target="_blank" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">Twitter</a>
@@ -603,6 +606,12 @@
             // Footer
             const footerZh = document.getElementById('footerZh');
             const footerEn = document.getElementById('footerEn');
+            const footerAboutZh = document.getElementById('footerAboutZh');
+            const footerAboutEn = document.getElementById('footerAboutEn');
+            const footerPrivacyZh = document.getElementById('footerPrivacyZh');
+            const footerPrivacyEn = document.getElementById('footerPrivacyEn');
+            const footerTermsZh = document.getElementById('footerTermsZh');
+            const footerTermsEn = document.getElementById('footerTermsEn');
             
             if (isChinese) {
                 // Show Chinese, hide English
@@ -620,6 +629,12 @@
                 
                 if (footerZh) footerZh.style.display = 'block';
                 if (footerEn) footerEn.style.display = 'none';
+                if (footerAboutZh) footerAboutZh.style.display = 'inline';
+                if (footerAboutEn) footerAboutEn.style.display = 'none';
+                if (footerPrivacyZh) footerPrivacyZh.style.display = 'inline';
+                if (footerPrivacyEn) footerPrivacyEn.style.display = 'none';
+                if (footerTermsZh) footerTermsZh.style.display = 'inline';
+                if (footerTermsEn) footerTermsEn.style.display = 'none';
                 
                 document.getElementById('loginText').textContent = '登录';
             } else {
@@ -638,6 +653,12 @@
                 
                 if (footerZh) footerZh.style.display = 'none';
                 if (footerEn) footerEn.style.display = 'block';
+                if (footerAboutZh) footerAboutZh.style.display = 'none';
+                if (footerAboutEn) footerAboutEn.style.display = 'inline';
+                if (footerPrivacyZh) footerPrivacyZh.style.display = 'none';
+                if (footerPrivacyEn) footerPrivacyEn.style.display = 'inline';
+                if (footerTermsZh) footerTermsZh.style.display = 'none';
+                if (footerTermsEn) footerTermsEn.style.display = 'inline';
                 
                 document.getElementById('loginText').textContent = 'Login';
             }
