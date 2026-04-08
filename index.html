@@ -117,7 +117,8 @@
 
         <!-- Games List -->
         <section class="games-section">
-            <h2 class="section-title">🎯 上头专区</h2>
+            <h2 class="section-title" id="hotGamesTitleZh">🎯 上头专区</h2>
+            <h2 class="section-title" id="hotGamesTitleEn" style="display: none;">🎯 Hot Games</h2>
             <div class="games-grid" id="gamesGrid">
                 <!-- 游戏卡片由 JS 动态生成 -->
             </div>
@@ -125,7 +126,8 @@
 
         <!-- Emoji for Speed 赛车系列 -->
         <section class="games-section">
-            <h2 class="section-title">🏎️ 速度与表情包</h2>
+            <h2 class="section-title" id="speedGamesTitleZh">🏎️ 速度与表情包</h2>
+            <h2 class="section-title" id="speedGamesTitleEn" style="display: none;">🏎️ Emoji for Speed</h2>
             <p id="speedSubtitleZh" style="color: #888; margin-bottom: 20px; font-size: 14px;">用表情包飙车才是正经事 · 油门踩到底 · 翻车也快乐</p>
             <p id="speedSubtitleEn" style="color: #666; margin-bottom: 20px; font-size: 14px; display: none;">Racing with Emojis · Speed & Passion · Drive with Attitude</p>
             <div class="games-grid" id="racingGamesGrid">
@@ -135,7 +137,8 @@
 
         <!-- Coming Soon -->
         <section class="games-section">
-            <h2 class="section-title">🔜 酝酿中</h2>
+            <h2 class="section-title" id="comingSoonTitleZh">🔜 酝酿中</h2>
+            <h2 class="section-title" id="comingSoonTitleEn" style="display: none;">🔜 Coming Soon</h2>
             <div class="games-grid" id="comingSoonGrid">
                 <!-- Coming soon games will be rendered by JS -->
             </div>
@@ -592,6 +595,8 @@
             // Section titles
             const hotGamesTitleZh = document.getElementById('hotGamesTitleZh');
             const hotGamesTitleEn = document.getElementById('hotGamesTitleEn');
+            const speedGamesTitleZh = document.getElementById('speedGamesTitleZh');
+            const speedGamesTitleEn = document.getElementById('speedGamesTitleEn');
             const comingSoonTitleZh = document.getElementById('comingSoonTitleZh');
             const comingSoonTitleEn = document.getElementById('comingSoonTitleEn');
             
@@ -608,6 +613,8 @@
                 
                 if (hotGamesTitleZh) hotGamesTitleZh.style.display = 'block';
                 if (hotGamesTitleEn) hotGamesTitleEn.style.display = 'none';
+                if (speedGamesTitleZh) speedGamesTitleZh.style.display = 'block';
+                if (speedGamesTitleEn) speedGamesTitleEn.style.display = 'none';
                 if (comingSoonTitleZh) comingSoonTitleZh.style.display = 'block';
                 if (comingSoonTitleEn) comingSoonTitleEn.style.display = 'none';
                 
@@ -624,6 +631,8 @@
                 
                 if (hotGamesTitleZh) hotGamesTitleZh.style.display = 'none';
                 if (hotGamesTitleEn) hotGamesTitleEn.style.display = 'block';
+                if (speedGamesTitleZh) speedGamesTitleZh.style.display = 'none';
+                if (speedGamesTitleEn) speedGamesTitleEn.style.display = 'block';
                 if (comingSoonTitleZh) comingSoonTitleZh.style.display = 'none';
                 if (comingSoonTitleEn) comingSoonTitleEn.style.display = 'block';
                 
