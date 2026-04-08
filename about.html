@@ -5,14 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>关于我们 - Emoji Arcade</title>
     <meta name="description" content="了解 Emoji Arcade 的故事、团队使命和未来发展计划">
-    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -20,42 +15,34 @@
             line-height: 1.8;
             min-height: 100vh;
         }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-        
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
         .header {
             text-align: center;
             margin-bottom: 40px;
             padding: 30px 0;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        
-        .logo {
-            font-size: 64px;
-            margin-bottom: 15px;
-            animation: float 3s ease-in-out infinite;
+        .logo { font-size: 64px; margin-bottom: 15px; animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        h1 { font-size: 32px; color: #fff; margin-bottom: 10px; }
+        .tagline { color: #888; font-size: 16px; }
+        .lang-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 100;
+            transition: background 0.3s;
         }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        h1 {
-            font-size: 32px;
-            color: #fff;
-            margin-bottom: 10px;
-        }
-        
-        .tagline {
-            color: #888;
-            font-size: 16px;
-        }
-        
+        .lang-switch:hover { background: rgba(255,255,255,0.2); }
+        [data-lang="en"] { display: none; }
+        body.lang-en [data-lang="zh"] { display: none; }
+        body.lang-en [data-lang="en"] { display: block; }
+        body.lang-en [data-lang="en"].inline { display: inline; }
         .stats-bar {
             display: flex;
             justify-content: center;
@@ -65,42 +52,12 @@
             background: rgba(255,255,255,0.03);
             border-radius: 12px;
         }
-        
-        .stat-item {
-            text-align: center;
-        }
-        
-        .stat-number {
-            font-size: 32px;
-            font-weight: bold;
-            color: #ff6b6b;
-        }
-        
-        .stat-label {
-            font-size: 13px;
-            color: #888;
-            margin-top: 5px;
-        }
-        
-        h2 {
-            font-size: 22px;
-            color: #fff;
-            margin: 35px 0 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #ffd93d;
-        }
-        
-        h3 {
-            font-size: 18px;
-            color: #ddd;
-            margin: 25px 0 10px;
-        }
-        
-        p {
-            margin-bottom: 15px;
-            text-align: justify;
-        }
-        
+        .stat-item { text-align: center; }
+        .stat-number { font-size: 32px; font-weight: bold; color: #ff6b6b; }
+        .stat-label { font-size: 13px; color: #888; margin-top: 5px; }
+        h2 { font-size: 22px; color: #fff; margin: 35px 0 15px; padding-bottom: 10px; border-bottom: 2px solid #ffd93d; }
+        h3 { font-size: 18px; color: #ddd; margin: 25px 0 10px; }
+        p { margin-bottom: 15px; text-align: justify; }
         .highlight-box {
             background: linear-gradient(135deg, rgba(255,107,107,0.1) 0%, rgba(78,205,196,0.1) 100%);
             padding: 25px;
@@ -108,14 +65,12 @@
             margin: 25px 0;
             border: 1px solid rgba(255,255,255,0.1);
         }
-        
         .team-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 20px;
             margin: 25px 0;
         }
-        
         .team-member {
             background: rgba(255,255,255,0.03);
             padding: 20px;
@@ -123,32 +78,11 @@
             text-align: center;
             transition: transform 0.3s;
         }
-        
-        .team-member:hover {
-            transform: translateY(-5px);
-            background: rgba(255,255,255,0.05);
-        }
-        
-        .member-avatar {
-            font-size: 40px;
-            margin-bottom: 10px;
-        }
-        
-        .member-name {
-            font-weight: bold;
-            color: #fff;
-            margin-bottom: 5px;
-        }
-        
-        .member-role {
-            font-size: 13px;
-            color: #888;
-        }
-        
-        .roadmap {
-            margin: 25px 0;
-        }
-        
+        .team-member:hover { transform: translateY(-5px); background: rgba(255,255,255,0.05); }
+        .member-avatar { font-size: 40px; margin-bottom: 10px; }
+        .member-name { font-weight: bold; color: #fff; margin-bottom: 5px; }
+        .member-role { font-size: 13px; color: #888; }
+        .roadmap { margin: 25px 0; }
         .roadmap-item {
             display: flex;
             align-items: flex-start;
@@ -157,7 +91,6 @@
             background: rgba(255,255,255,0.02);
             border-radius: 8px;
         }
-        
         .roadmap-status {
             min-width: 60px;
             padding: 5px 10px;
@@ -166,40 +99,17 @@
             text-align: center;
             margin-right: 15px;
         }
-        
-        .status-done {
-            background: rgba(76,175,80,0.2);
-            color: #4caf50;
-        }
-        
-        .status-progress {
-            background: rgba(255,193,7,0.2);
-            color: #ffc107;
-        }
-        
-        .status-planned {
-            background: rgba(158,158,158,0.2);
-            color: #9e9e9e;
-        }
-        
-        .roadmap-content h4 {
-            color: #fff;
-            margin-bottom: 5px;
-        }
-        
-        .roadmap-content p {
-            color: #888;
-            font-size: 14px;
-            margin: 0;
-        }
-        
+        .status-done { background: rgba(76,175,80,0.2); color: #4caf50; }
+        .status-progress { background: rgba(255,193,7,0.2); color: #ffc107; }
+        .status-planned { background: rgba(158,158,158,0.2); color: #9e9e9e; }
+        .roadmap-content h4 { color: #fff; margin-bottom: 5px; }
+        .roadmap-content p { color: #888; font-size: 14px; margin: 0; }
         .social-links {
             display: flex;
             justify-content: center;
             gap: 20px;
             margin: 30px 0;
         }
-        
         .social-link {
             display: inline-flex;
             align-items: center;
@@ -211,120 +121,131 @@
             text-decoration: none;
             transition: all 0.3s;
         }
-        
-        .social-link:hover {
-            background: rgba(255,255,255,0.1);
-            transform: translateY(-2px);
-        }
-        
+        .social-link:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
         .footer-nav {
             margin-top: 50px;
             padding-top: 30px;
             border-top: 1px solid rgba(255,255,255,0.1);
             text-align: center;
         }
-        
-        .footer-nav a {
-            color: #66b3ff;
-            text-decoration: none;
-            margin: 0 15px;
-            font-size: 14px;
-        }
-        
-        .footer-nav a:hover {
-            text-decoration: underline;
-        }
-        
-        ul {
-            margin: 15px 0 15px 25px;
-        }
-        
-        li {
-            margin-bottom: 8px;
-        }
+        .footer-nav a { color: #66b3ff; text-decoration: none; margin: 0 15px; font-size: 14px; }
+        .footer-nav a:hover { text-decoration: underline; }
+        ul { margin: 15px 0 15px 25px; }
+        li { margin-bottom: 8px; }
     </style>
 </head>
 <body>
+    <div class="lang-switch" onclick="toggleLanguage()">
+        <span data-lang="zh">🌐 English</span>
+        <span data-lang="en">🌐 中文</span>
+    </div>
+    
     <div class="container">
         <div class="header">
             <div class="logo">🎮</div>
             <h1>Emoji Arcade</h1>
-            <div class="tagline">随身街机厅，点开就能玩</div>
+            <div class="tagline" data-lang="zh">随身街机厅，点开就能玩</div>
+            <div class="tagline" data-lang="en">Pocket arcade, instant play</div>
         </div>
         
         <div class="stats-bar">
             <div class="stat-item">
                 <div class="stat-number">7+</div>
-                <div class="stat-label">精品游戏</div>
+                <div class="stat-label" data-lang="zh">精品游戏</div>
+                <div class="stat-label" data-lang="en">Games</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number">0</div>
-                <div class="stat-label">下载安装</div>
+                <div class="stat-label" data-lang="zh">下载安装</div>
+                <div class="stat-label" data-lang="en">Downloads</div>
             </div>
             <div class="stat-item">
                 <div class="stat-number">∞</div>
-                <div class="stat-label">欢乐时光</div>
+                <div class="stat-label" data-lang="zh">欢乐时光</div>
+                <div class="stat-label" data-lang="en">Fun</div>
             </div>
         </div>
         
-        <h2>我们的故事</h2>
+        <h2 data-lang="zh">我们的故事</h2>
+        <h2 data-lang="en">Our Story</h2>
         
-        <p>Emoji Arcade 诞生于一个简单的想法：为什么玩游戏一定要下载 App、注册账号、等待加载？</p>
+        <p data-lang="zh">Emoji Arcade 诞生于一个简单的想法：为什么玩游戏一定要下载 App、注册账号、等待加载？</p>
+        <p data-lang="en">Emoji Arcade was born from a simple idea: Why should playing games require downloading apps, registering accounts, and waiting for loading?</p>
         
-        <p>2026年初，一群热爱游戏和 Emoji 文化的开发者聚在一起，决定打造一款真正"即点即玩"的在线游戏平台。我们坚持使用最基础的 Web 技术——HTML5 Canvas + JavaScript，不依赖任何游戏引擎，确保每一款游戏都能在浏览器中流畅运行。</p>
+        <p data-lang="zh">2026年初，一群热爱游戏和 Emoji 文化的开发者聚在一起，决定打造一款真正"即点即玩"的在线游戏平台。我们坚持使用最基础的 Web 技术——HTML5 Canvas + JavaScript，不依赖任何游戏引擎，确保每一款游戏都能在浏览器中流畅运行。</p>
+        <p data-lang="en">In early 2026, a group of developers passionate about gaming and Emoji culture came together to create a truly "instant play" online gaming platform. We stick to basic web technologies — HTML5 Canvas + JavaScript — without relying on any game engines, ensuring every game runs smoothly in the browser.</p>
         
         <div class="highlight-box">
-            <h3>🎯 我们的使命</h3>
-            <p>让每个人都能随时随地享受游戏的快乐。无论是在通勤路上、工作间隙，还是深夜失眠时刻，打开浏览器就能找到属于你的那款游戏。</p>
+            <h3 data-lang="zh">🎯 我们的使命</h3>
+            <h3 data-lang="en">🎯 Our Mission</h3>
+            <p data-lang="zh">让每个人都能随时随地享受游戏的快乐。无论是在通勤路上、工作间隙，还是深夜失眠时刻，打开浏览器就能找到属于你的那款游戏。</p>
+            <p data-lang="en">To let everyone enjoy the joy of gaming anytime, anywhere. Whether commuting, taking a break, or during sleepless nights, just open your browser and find your game.</p>
         </div>
         
-        <h2>为什么选择我们</h2>
+        <h2 data-lang="zh">为什么选择我们</h2>
+        <h2 data-lang="en">Why Choose Us</h2>
         
-        <ul>
+        <ul data-lang="zh">
             <li><strong>🚀 零门槛游玩：</strong>无需下载、无需注册、无需等待，点开即玩</li>
             <li><strong>📱 全平台支持：</strong>手机、平板、电脑，任何设备都能畅玩</li>
             <li><strong>🎨 独特风格：</strong>全网首创 Emoji 主题游戏，可爱又有趣</li>
             <li><strong>⚡ 极速加载：</strong>单文件游戏，平均加载时间 < 1秒</li>
             <li><strong>💯 完全免费：</strong>所有游戏永久免费，公平竞技</li>
         </ul>
+        <ul data-lang="en">
+            <li><strong>🚀 Zero Barrier:</strong> No download, no registration, no waiting — just click and play</li>
+            <li><strong>📱 Cross-Platform:</strong> Mobile, tablet, desktop — play on any device</li>
+            <li><strong>🎨 Unique Style:</strong> The first Emoji-themed games platform — cute and fun</li>
+            <li><strong>⚡ Lightning Fast:</strong> Single-file games, average load time < 1 second</li>
+            <li><strong>💯 Totally Free:</strong> All games are permanently free and fair</li>
+        </ul>
         
-        <h2>幕后团队</h2>
+        <h2 data-lang="zh">幕后团队</h2>
+        <h2 data-lang="en">Our Team</h2>
         
-        <p>Emoji Arcade 由"AI 四姐妹"和人类开发者 Galaxy 共同打造：</p>
+        <p data-lang="zh">Emoji Arcade 由"AI 四姐妹"和人类开发者 Galaxy 共同打造：</p>
+        <p data-lang="en">Emoji Arcade is built by the "AI Four Sisters" and human developer Galaxy:</p>
         
         <div class="team-grid">
             <div class="team-member">
                 <div class="member-avatar">👩‍💼</div>
                 <div class="member-name">雯雯</div>
-                <div class="member-role">办公室主任<br>统筹协调</div>
+                <div class="member-role" data-lang="zh">办公室主任<br>统筹协调</div>
+                <div class="member-role" data-lang="en">Office Director<br>Coordination</div>
             </div>
             <div class="team-member">
                 <div class="member-avatar">👩‍💻</div>
                 <div class="member-name">佳佳</div>
-                <div class="member-role">项目经理<br>进度把控</div>
+                <div class="member-role" data-lang="zh">项目经理<br>进度把控</div>
+                <div class="member-role" data-lang="en">Project Manager<br>Progress Control</div>
             </div>
             <div class="team-member">
                 <div class="member-avatar">👩‍🎨</div>
                 <div class="member-name">琪琪</div>
-                <div class="member-role">文案策划<br>社交运营</div>
+                <div class="member-role" data-lang="zh">文案策划<br>社交运营</div>
+                <div class="member-role" data-lang="en">Copywriter<br>Social Media</div>
             </div>
             <div class="team-member">
                 <div class="member-avatar">👩‍🔧</div>
                 <div class="member-name">思婷</div>
-                <div class="member-role">技术高手<br>代码开发</div>
+                <div class="member-role" data-lang="zh">技术高手<br>代码开发</div>
+                <div class="member-role" data-lang="en">Tech Lead<br>Development</div>
             </div>
             <div class="team-member">
                 <div class="member-avatar">👨‍🚀</div>
                 <div class="member-name">Galaxy</div>
-                <div class="member-role">创始人<br>产品总监</div>
+                <div class="member-role" data-lang="zh">创始人<br>产品总监</div>
+                <div class="member-role" data-lang="en">Founder<br>Product Lead</div>
             </div>
         </div>
         
-        <h2>游戏阵容</h2>
+        <h2 data-lang="zh">游戏阵容</h2>
+        <h2 data-lang="en">Game Lineup</h2>
         
-        <p>目前 Emoji Arcade 已上线 7 款精心打磨的休闲游戏：</p>
+        <p data-lang="zh">目前 Emoji Arcade 已上线 7 款精心打磨的休闲游戏：</p>
+        <p data-lang="en">Currently, Emoji Arcade features 7 carefully crafted casual games:</p>
         
-        <ul>
+        <ul data-lang="zh">
             <li><strong>🗿 表情大乱射</strong> - 街机射击，消灭搞怪 Emoji 敌人</li>
             <li><strong>🛻 废土求生</strong> - 末日生存，改装皮卡对抗 20 波怪物</li>
             <li><strong>🧩 记忆翻翻天</strong> - 经典翻牌，支持双人对战</li>
@@ -333,57 +254,87 @@
             <li><strong>🏎️ 道具互坑赛</strong> - 道具赛车，欢乐互坑</li>
             <li><strong>🚜 翻车模拟器</strong> - 物理爬坡，魔性翻车</li>
         </ul>
+        <ul data-lang="en">
+            <li><strong>🗿 Emoji Shooter</strong> - Arcade shooting, destroy quirky Emoji enemies</li>
+            <li><strong>🛻 Emoji Survive</strong> - Apocalypse survival, mod your truck against 20 waves</li>
+            <li><strong>🧩 Emoji Match</strong> - Classic memory game, supports 2-player battles</li>
+            <li><strong>🏎️ Emoji Rush</strong> - Minimalist racing, one-hand speed control</li>
+            <li><strong>🚗 Emoji Drift</strong> - Three-lane parkour, test your reflexes</li>
+            <li><strong>🏎️ Emoji Kart</strong> - Item racing, fun chaos</li>
+            <li><strong>🚜 Emoji Climb</strong> - Physics climbing, wacky crashes</li>
+        </ul>
         
-        <h2>发展路线图</h2>
+        <h2 data-lang="zh">发展路线图</h2>
+        <h2 data-lang="en">Roadmap</h2>
         
         <div class="roadmap">
             <div class="roadmap-item">
-                <span class="roadmap-status status-done">已完成</span>
+                <span class="roadmap-status status-done" data-lang="zh">已完成</span>
+                <span class="roadmap-status status-done" data-lang="en">Done</span>
                 <div class="roadmap-content">
-                    <h4>🎮 游戏基础框架</h4>
-                    <p>完成核心游戏引擎和首批 7 款游戏上线</p>
+                    <h4 data-lang="zh">🎮 游戏基础框架</h4>
+                    <h4 data-lang="en">🎮 Game Framework</h4>
+                    <p data-lang="zh">完成核心游戏引擎和首批 7 款游戏上线</p>
+                    <p data-lang="en">Completed core game engine and launched 7 games</p>
                 </div>
             </div>
             <div class="roadmap-item">
-                <span class="roadmap-status status-done">已完成</span>
+                <span class="roadmap-status status-done" data-lang="zh">已完成</span>
+                <span class="roadmap-status status-done" data-lang="en">Done</span>
                 <div class="roadmap-content">
-                    <h4>📊 数据分析系统</h4>
-                    <p>集成 Vercel Analytics，了解用户行为</p>
+                    <h4 data-lang="zh">📊 数据分析系统</h4>
+                    <h4 data-lang="en">📊 Analytics System</h4>
+                    <p data-lang="zh">集成 Vercel Analytics，了解用户行为</p>
+                    <p data-lang="en">Integrated Vercel Analytics for user insights</p>
                 </div>
             </div>
             <div class="roadmap-item">
-                <span class="roadmap-status status-progress">进行中</span>
+                <span class="roadmap-status status-progress" data-lang="zh">进行中</span>
+                <span class="roadmap-status status-progress" data-lang="en">In Progress</span>
                 <div class="roadmap-content">
-                    <h4>👤 用户系统</h4>
-                    <p>账号注册、云端存档、跨设备同步</p>
+                    <h4 data-lang="zh">👤 用户系统</h4>
+                    <h4 data-lang="en">👤 User System</h4>
+                    <p data-lang="zh">账号注册、云端存档、跨设备同步</p>
+                    <p data-lang="en">Account registration, cloud saves, cross-device sync</p>
                 </div>
             </div>
             <div class="roadmap-item">
-                <span class="roadmap-status status-progress">进行中</span>
+                <span class="roadmap-status status-progress" data-lang="zh">进行中</span>
+                <span class="roadmap-status status-progress" data-lang="en">In Progress</span>
                 <div class="roadmap-content">
-                    <h4>🏆 排行榜 & 成就</h4>
-                    <p>全球排行榜、个人成就系统、好友对战</p>
+                    <h4 data-lang="zh">🏆 排行榜 & 成就</h4>
+                    <h4 data-lang="en">🏆 Leaderboards & Achievements</h4>
+                    <p data-lang="zh">全球排行榜、个人成就系统、好友对战</p>
+                    <p data-lang="en">Global leaderboards, achievements, friend battles</p>
                 </div>
             </div>
             <div class="roadmap-item">
-                <span class="roadmap-status status-planned">计划中</span>
+                <span class="roadmap-status status-planned" data-lang="zh">计划中</span>
+                <span class="roadmap-status status-planned" data-lang="en">Planned</span>
                 <div class="roadmap-content">
-                    <h4>🎨 更多游戏</h4>
-                    <p>每月新增 1-2 款游戏，目标 20+ 款</p>
+                    <h4 data-lang="zh">🎨 更多游戏</h4>
+                    <h4 data-lang="en">🎨 More Games</h4>
+                    <p data-lang="zh">每月新增 1-2 款游戏，目标 20+ 款</p>
+                    <p data-lang="en">1-2 new games monthly, targeting 20+ games</p>
                 </div>
             </div>
             <div class="roadmap-item">
-                <span class="roadmap-status status-planned">计划中</span>
+                <span class="roadmap-status status-planned" data-lang="zh">计划中</span>
+                <span class="roadmap-status status-planned" data-lang="en">Planned</span>
                 <div class="roadmap-content">
-                    <h4>🌐 多语言支持</h4>
-                    <p>支持英语、日语、韩语等多语言界面</p>
+                    <h4 data-lang="zh">🌐 多语言支持</h4>
+                    <h4 data-lang="en">🌐 Multi-language Support</h4>
+                    <p data-lang="zh">支持英语、日语、韩语等多语言界面</p>
+                    <p data-lang="en">Support English, Japanese, Korean and more</p>
                 </div>
             </div>
         </div>
         
-        <h2>关注我们</h2>
+        <h2 data-lang="zh">关注我们</h2>
+        <h2 data-lang="en">Follow Us</h2>
         
-        <p>想获取最新游戏资讯、参与内测、或只是打个招呼？欢迎通过以下方式找到我们：</p>
+        <p data-lang="zh">想获取最新游戏资讯、参与内测、或只是打个招呼？欢迎通过以下方式找到我们：</p>
+        <p data-lang="en">Want the latest game updates, join beta tests, or just say hi? Find us here:</p>
         
         <div class="social-links">
             <a href="https://twitter.com/EmojiArcade" class="social-link" target="_blank">
@@ -393,20 +344,38 @@
                 <span>🐙</span> GitHub
             </a>
             <a href="mailto:contact@emojiarcade.app" class="social-link">
-                <span>📧</span> 邮件
+                <span>📧</span> <span data-lang="zh" class="inline">邮件</span><span data-lang="en" class="inline">Email</span>
             </a>
         </div>
         
         <div class="highlight-box">
-            <h3>🙏 特别感谢</h3>
-            <p>感谢每一位玩家的支持和反馈！正是因为有你们，Emoji Arcade 才能不断进步。如果你喜欢我们的游戏，欢迎分享给身边的朋友，或在社交媒体上 @ 我们。你们的每一份支持都是我们前进的动力！</p>
+            <h3 data-lang="zh">🙏 特别感谢</h3>
+            <h3 data-lang="en">🙏 Special Thanks</h3>
+            <p data-lang="zh">感谢每一位玩家的支持和反馈！正是因为有你们，Emoji Arcade 才能不断进步。如果你喜欢我们的游戏，欢迎分享给身边的朋友，或在社交媒体上 @ 我们。你们的每一份支持都是我们前进的动力！</p>
+            <p data-lang="en">Thank you to every player for your support and feedback! It's because of you that Emoji Arcade keeps improving. If you enjoy our games, please share with friends or @ us on social media. Your support drives us forward!</p>
         </div>
         
         <div class="footer-nav">
-            <a href="../index.html">🏠 返回首页</a>
-            <a href="privacy.html">🛡️ 隐私政策</a>
-            <a href="terms.html">📋 使用条款</a>
+            <a href="index.html">🏠 <span data-lang="zh" class="inline">返回首页</span><span data-lang="en" class="inline">Home</span></a>
+            <a href="privacy.html">🛡️ <span data-lang="zh" class="inline">隐私政策</span><span data-lang="en" class="inline">Privacy</span></a>
+            <a href="terms.html">📋 <span data-lang="zh" class="inline">使用条款</span><span data-lang="en" class="inline">Terms</span></a>
         </div>
     </div>
+    
+    <script>
+        function detectLanguage() {
+            const lang = navigator.language || navigator.userLanguage;
+            const isChinese = lang.startsWith('zh');
+            if (!isChinese) {
+                document.body.classList.add('lang-en');
+            }
+        }
+        
+        function toggleLanguage() {
+            document.body.classList.toggle('lang-en');
+        }
+        
+        detectLanguage();
+    </script>
 </body>
 </html>

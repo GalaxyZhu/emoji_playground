@@ -5,14 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>使用条款 - Emoji Arcade</title>
     <meta name="description" content="Emoji Arcade 使用条款 - 了解使用我们服务的规则和条件">
-    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
@@ -20,36 +15,33 @@
             line-height: 1.8;
             min-height: 100vh;
         }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-        
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
         .header {
             text-align: center;
             margin-bottom: 40px;
             padding: 30px 0;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        
-        .logo {
-            font-size: 48px;
-            margin-bottom: 10px;
-        }
-        
-        h1 {
-            font-size: 28px;
-            color: #fff;
-            margin-bottom: 10px;
-        }
-        
-        .subtitle {
-            color: #888;
+        .logo { font-size: 48px; margin-bottom: 10px; }
+        h1 { font-size: 28px; color: #fff; margin-bottom: 10px; }
+        .subtitle { color: #888; font-size: 14px; }
+        .lang-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
             font-size: 14px;
+            z-index: 100;
+            transition: background 0.3s;
         }
-        
+        .lang-switch:hover { background: rgba(255,255,255,0.2); }
+        [data-lang="en"] { display: none; }
+        body.lang-en [data-lang="zh"] { display: none; }
+        body.lang-en [data-lang="en"] { display: block; }
+        body.lang-en [data-lang="en"].inline { display: inline; }
         .last-updated {
             background: rgba(255,255,255,0.05);
             padding: 15px 20px;
@@ -58,34 +50,11 @@
             font-size: 14px;
             color: #aaa;
         }
-        
-        h2 {
-            font-size: 20px;
-            color: #fff;
-            margin: 30px 0 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #4ecdc4;
-        }
-        
-        h3 {
-            font-size: 16px;
-            color: #ddd;
-            margin: 20px 0 10px;
-        }
-        
-        p {
-            margin-bottom: 15px;
-            text-align: justify;
-        }
-        
-        ul {
-            margin: 15px 0 15px 25px;
-        }
-        
-        li {
-            margin-bottom: 8px;
-        }
-        
+        h2 { font-size: 20px; color: #fff; margin: 30px 0 15px; padding-bottom: 10px; border-bottom: 2px solid #4ecdc4; }
+        h3 { font-size: 16px; color: #ddd; margin: 20px 0 10px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        ul { margin: 15px 0 15px 25px; }
+        li { margin-bottom: 8px; }
         .highlight {
             background: rgba(78,205,196,0.1);
             padding: 15px 20px;
@@ -93,7 +62,6 @@
             margin: 20px 0;
             border-radius: 0 8px 8px 0;
         }
-        
         .warning {
             background: rgba(255,193,7,0.1);
             padding: 15px 20px;
@@ -101,62 +69,84 @@
             margin: 20px 0;
             border-radius: 0 8px 8px 0;
         }
-        
         .footer-nav {
             margin-top: 50px;
             padding-top: 30px;
             border-top: 1px solid rgba(255,255,255,0.1);
             text-align: center;
         }
-        
-        .footer-nav a {
-            color: #66b3ff;
-            text-decoration: none;
-            margin: 0 15px;
-            font-size: 14px;
-        }
-        
-        .footer-nav a:hover {
-            text-decoration: underline;
-        }
+        .footer-nav a { color: #66b3ff; text-decoration: none; margin: 0 15px; font-size: 14px; }
+        .footer-nav a:hover { text-decoration: underline; }
     </style>
 </head>
 <body>
+    <div class="lang-switch" onclick="toggleLanguage()">
+        <span data-lang="zh">🌐 English</span>
+        <span data-lang="en">🌐 中文</span>
+    </div>
+    
     <div class="container">
         <div class="header">
             <div class="logo">📋</div>
-            <h1>使用条款</h1>
-            <div class="subtitle">使用 Emoji Arcade 服务的规则和条件</div>
+            <h1 data-lang="zh">使用条款</h1>
+            <h1 data-lang="en">Terms of Use</h1>
+            <div class="subtitle" data-lang="zh">使用 Emoji Arcade 服务的规则和条件</div>
+            <div class="subtitle" data-lang="en">Rules and conditions for using Emoji Arcade services</div>
         </div>
         
         <div class="last-updated">
-            <strong>最后更新日期：</strong>2026年4月8日 | <strong>生效日期：</strong>2026年4月8日
+            <span data-lang="zh"><strong>最后更新日期：</strong>2026年4月8日 | <strong>生效日期：</strong>2026年4月8日</span>
+            <span data-lang="en"><strong>Last Updated:</strong> April 8, 2026 | <strong>Effective Date:</strong> April 8, 2026</span>
         </div>
         
-        <p>欢迎使用 Emoji Arcade！请仔细阅读以下使用条款。访问或使用我们的网站和服务，即表示您同意受这些条款的约束。如果您不同意这些条款，请不要使用我们的服务。</p>
+        <p data-lang="zh">欢迎使用 Emoji Arcade！请仔细阅读以下使用条款。访问或使用我们的网站和服务，即表示您同意受这些条款的约束。如果您不同意这些条款，请不要使用我们的服务。</p>
+        <p data-lang="en">Welcome to Emoji Arcade! Please read these Terms of Use carefully. By accessing or using our website and services, you agree to be bound by these terms. If you do not agree to these terms, please do not use our services.</p>
         
-        <h2>一、服务说明</h2>
+        <h2 data-lang="zh">一、服务说明</h2>
+        <h2 data-lang="en">1. Service Description</h2>
         
-        <h3>1.1 服务内容</h3>
-        <p>Emoji Arcade 是一个免费的在线 HTML5 小游戏平台，提供基于 Emoji 表情的休闲街机游戏。所有游戏均可直接在浏览器中运行，无需下载安装。</p>
+        <h3 data-lang="zh">1.1 服务内容</h3>
+        <h3 data-lang="en">1.1 Service Content</h3>
         
-        <h3>1.2 服务变更</h3>
-        <p>我们保留随时修改、暂停或终止服务（或其任何部分）的权利，恕不另行通知。我们对服务的任何修改、暂停或终止不承担任何责任。</p>
+        <p data-lang="zh">Emoji Arcade 是一个免费的在线 HTML5 小游戏平台，提供基于 Emoji 表情的休闲街机游戏。所有游戏均可直接在浏览器中运行，无需下载安装。</p>
+        <p data-lang="en">Emoji Arcade is a free online HTML5 mini-games platform offering casual arcade games based on Emoji characters. All games can run directly in your browser without downloading or installation.</p>
         
-        <h2>二、用户使用规则</h2>
+        <h3 data-lang="zh">1.2 服务变更</h3>
+        <h3 data-lang="en">1.2 Service Changes</h3>
         
-        <h3>2.1 允许的使用</h3>
-        <p>您可以在以下条件下使用我们的服务：</p>
-        <ul>
+        <p data-lang="zh">我们保留随时修改、暂停或终止服务（或其任何部分）的权利，恕不另行通知。我们对服务的任何修改、暂停或终止不承担任何责任。</p>
+        <p data-lang="en">We reserve the right to modify, suspend, or terminate the service (or any part thereof) at any time without prior notice. We are not liable for any modification, suspension, or termination of the service.</p>
+        
+        <h2 data-lang="zh">二、用户使用规则</h2>
+        <h2 data-lang="en">2. User Rules</h2>
+        
+        <h3 data-lang="zh">2.1 允许的使用</h3>
+        <h3 data-lang="en">2.1 Permitted Use</h3>
+        
+        <p data-lang="zh">您可以在以下条件下使用我们的服务：</p>
+        <p data-lang="en">You may use our services under the following conditions:</p>
+        
+        <ul data-lang="zh">
             <li>仅供个人娱乐和非商业用途</li>
             <li>遵守所有适用的法律法规</li>
             <li>不干扰或破坏服务的正常运行</li>
             <li>不尝试未经授权访问我们的系统或数据</li>
         </ul>
         
-        <h3>2.2 禁止的行为</h3>
-        <p>使用我们的服务时，您不得：</p>
-        <ul>
+        <ul data-lang="en">
+            <li>For personal entertainment and non-commercial purposes only</li>
+            <li>Comply with all applicable laws and regulations</li>
+            <li>Do not interfere with or disrupt the normal operation of the service</li>
+            <li>Do not attempt to access our systems or data without authorization</li>
+        </ul>
+        
+        <h3 data-lang="zh">2.2 禁止的行为</h3>
+        <h3 data-lang="en">2.2 Prohibited Conduct</h3>
+        
+        <p data-lang="zh">使用我们的服务时，您不得：</p>
+        <p data-lang="en">When using our services, you must not:</p>
+        
+        <ul data-lang="zh">
             <li>使用任何自动化工具、脚本或机器人访问服务</li>
             <li>试图破解、逆向工程或篡改游戏代码</li>
             <li>利用漏洞或错误获取不当优势</li>
@@ -166,18 +156,39 @@
             <li>骚扰、威胁或侵犯其他用户的权利</li>
         </ul>
         
+        <ul data-lang="en">
+            <li>Use any automated tools, scripts, or bots to access the service</li>
+            <li>Attempt to hack, reverse engineer, or tamper with game code</li>
+            <li>Exploit vulnerabilities or bugs to gain unfair advantages</li>
+            <li>Upload or distribute malware, viruses, or other harmful code</li>
+            <li>Impersonate others or provide false information</li>
+            <li>Engage in any illegal activities or encourage others to do so</li>
+            <li>Harass, threaten, or infringe upon the rights of other users</li>
+        </ul>
+        
         <div class="warning">
-            <strong>⚠️ 注意：</strong>如果发现任何作弊、黑客攻击或滥用行为，我们有权立即终止您访问服务的权限，无需事先通知。
+            <strong data-lang="zh">⚠️ 注意：</strong>
+            <strong data-lang="en">⚠️ Notice:</strong>
+            <span data-lang="zh">如果发现任何作弊、黑客攻击或滥用行为，我们有权立即终止您访问服务的权限，无需事先通知。</span>
+            <span data-lang="en">If any cheating, hacking, or abuse is detected, we reserve the right to immediately terminate your access to the service without prior notice.</span>
         </div>
         
-        <h2>三、知识产权</h2>
+        <h2 data-lang="zh">三、知识产权</h2>
+        <h2 data-lang="en">3. Intellectual Property</h2>
         
-        <h3>3.1 我们的权利</h3>
-        <p>Emoji Arcade 及其所有内容（包括但不限于游戏代码、图形、设计、文本、标志和商标）均受版权、商标和其他知识产权法律的保护。除非另有明确说明，否则所有权利均归我们所有。</p>
+        <h3 data-lang="zh">3.1 我们的权利</h3>
+        <h3 data-lang="en">3.1 Our Rights</h3>
         
-        <h3>3.2 许可授予</h3>
-        <p>我们授予您一项有限的、非排他性的、不可转让的许可，允许您出于个人非商业目的访问和使用我们的服务。此许可不包括：</p>
-        <ul>
+        <p data-lang="zh">Emoji Arcade 及其所有内容（包括但不限于游戏代码、图形、设计、文本、标志和商标）均受版权、商标和其他知识产权法律的保护。除非另有明确说明，否则所有权利均归我们所有。</p>
+        <p data-lang="en">Emoji Arcade and all its content (including but not limited to game code, graphics, designs, text, logos, and trademarks) are protected by copyright, trademark, and other intellectual property laws. Unless otherwise expressly stated, all rights are reserved by us.</p>
+        
+        <h3 data-lang="zh">3.2 许可授予</h3>
+        <h3 data-lang="en">3.2 License Grant</h3>
+        
+        <p data-lang="zh">我们授予您一项有限的、非排他性的、不可转让的许可，允许您出于个人非商业目的访问和使用我们的服务。此许可不包括：</p>
+        <p data-lang="en">We grant you a limited, non-exclusive, non-transferable license to access and use our services for personal, non-commercial purposes. This license does not include:</p>
+        
+        <ul data-lang="zh">
             <li>修改或复制网站内容</li>
             <li>将内容用于任何商业目的</li>
             <li>试图反编译或逆向工程任何软件</li>
@@ -185,64 +196,123 @@
             <li>将内容传输给第三方或"镜像"到任何其他服务器</li>
         </ul>
         
-        <h3>3.3 用户生成内容</h3>
-        <p>如果未来我们推出允许用户提交内容的功能（如评论、昵称、头像等），您将保留您内容的知识产权，但授予我们全球性的、非排他性的、免版税的许可，允许我们使用、复制、修改和展示该内容，以便运营和改进我们的服务。</p>
+        <ul data-lang="en">
+            <li>Modifying or copying website content</li>
+            <li>Using content for any commercial purpose</li>
+            <li>Attempting to decompile or reverse engineer any software</li>
+            <li>Removing any copyright or other proprietary notices</li>
+            <li>Transferring content to third parties or "mirroring" on any other server</li>
+        </ul>
         
-        <h2>四、免责声明</h2>
+        <h3 data-lang="zh">3.3 用户生成内容</h3>
+        <h3 data-lang="en">3.3 User-Generated Content</h3>
         
-        <h3>4.1 按"原样"提供</h3>
-        <p>我们的服务按"原样"和"可用"基础提供，不作任何明示或暗示的保证。我们不保证：</p>
-        <ul>
+        <p data-lang="zh">如果未来我们推出允许用户提交内容的功能（如评论、昵称、头像等），您将保留您内容的知识产权，但授予我们全球性的、非排他性的、免版税的许可，允许我们使用、复制、修改和展示该内容，以便运营和改进我们的服务。</p>
+        <p data-lang="en">If we introduce features allowing users to submit content (such as comments, nicknames, avatars, etc.) in the future, you will retain the intellectual property rights to your content, but grant us a worldwide, non-exclusive, royalty-free license to use, reproduce, modify, and display that content to operate and improve our services.</p>
+        
+        <h2 data-lang="zh">四、免责声明</h2>
+        <h2 data-lang="en">4. Disclaimer</h2>
+        
+        <h3 data-lang="zh">4.1 按"原样"提供</h3>
+        <h3 data-lang="en">4.1 Provided "As Is"</h3>
+        
+        <p data-lang="zh">我们的服务按"原样"和"可用"基础提供，不作任何明示或暗示的保证。我们不保证：</p>
+        <p data-lang="en">Our services are provided on an "as is" and "as available" basis without any express or implied warranties. We do not guarantee:</p>
+        
+        <ul data-lang="zh">
             <li>服务将始终可用或不间断</li>
             <li>服务将无错误或病毒</li>
             <li>任何缺陷都将得到纠正</li>
             <li>服务将满足您的特定要求</li>
         </ul>
         
-        <h3>4.2 责任限制</h3>
-        <p>在法律允许的最大范围内，我们不对任何间接、附带、特殊、后果性或惩罚性损害负责，包括但不限于利润损失、数据丢失或声誉损害，即使我们已被告知可能发生此类损害。</p>
+        <ul data-lang="en">
+            <li>The service will always be available or uninterrupted</li>
+            <li>The service will be error-free or virus-free</li>
+            <li>Any defects will be corrected</li>
+            <li>The service will meet your specific requirements</li>
+        </ul>
         
-        <h2>五、赔偿</h2>
+        <h3 data-lang="zh">4.2 责任限制</h3>
+        <h3 data-lang="en">4.2 Limitation of Liability</h3>
         
-        <p>您同意赔偿、保护并使 Emoji Arcade 及其开发者、关联方和合作伙伴免受任何及所有索赔、损害、损失、责任、成本和费用（包括合理的律师费）的损害，这些损害源于或与您使用服务、违反这些条款或侵犯任何第三方权利有关。</p>
+        <p data-lang="zh">在法律允许的最大范围内，我们不对任何间接、附带、特殊、后果性或惩罚性损害负责，包括但不限于利润损失、数据丢失或声誉损害，即使我们已被告知可能发生此类损害。</p>
+        <p data-lang="en">To the maximum extent permitted by law, we are not liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of profits, data loss, or reputational damage, even if we have been advised of the possibility of such damages.</p>
         
-        <h2>六、第三方链接</h2>
+        <h2 data-lang="zh">五、赔偿</h2>
+        <h2 data-lang="en">5. Indemnification</h2>
         
-        <p>我们的服务可能包含指向第三方网站或服务的链接。这些链接仅为方便您而提供。我们不控制、认可或对这些第三方网站的内容、隐私政策或做法负责。您访问这些第三方网站的风险由您自行承担。</p>
+        <p data-lang="zh">您同意赔偿、保护并使 Emoji Arcade 及其开发者、关联方和合作伙伴免受任何及所有索赔、损害、损失、责任、成本和费用（包括合理的律师费）的损害，这些损害源于或与您使用服务、违反这些条款或侵犯任何第三方权利有关。</p>
+        <p data-lang="en">You agree to indemnify, defend, and hold harmless Emoji Arcade and its developers, affiliates, and partners from any and all claims, damages, losses, liabilities, costs, and expenses (including reasonable attorneys' fees) arising from or related to your use of the service, violation of these terms, or infringement of any third-party rights.</p>
         
-        <h2>七、条款修改</h2>
+        <h2 data-lang="zh">六、第三方链接</h2>
+        <h2 data-lang="en">6. Third-Party Links</h2>
         
-        <p>我们保留随时修改这些使用条款的权利。修改后的条款将在本页面发布时生效。您继续使用我们的服务即表示您接受修改后的条款。建议您定期查看本页面以了解任何更改。</p>
+        <p data-lang="zh">我们的服务可能包含指向第三方网站或服务的链接。这些链接仅为方便您而提供。我们不控制、认可或对这些第三方网站的内容、隐私政策或做法负责。您访问这些第三方网站的风险由您自行承担。</p>
+        <p data-lang="en">Our services may contain links to third-party websites or services. These links are provided solely for your convenience. We do not control, endorse, or take responsibility for the content, privacy policies, or practices of these third-party websites. You access these third-party websites at your own risk.</p>
+        
+        <h2 data-lang="zh">七、条款修改</h2>
+        <h2 data-lang="en">7. Changes to Terms</h2>
+        
+        <p data-lang="zh">我们保留随时修改这些使用条款的权利。修改后的条款将在本页面发布时生效。您继续使用我们的服务即表示您接受修改后的条款。建议您定期查看本页面以了解任何更改。</p>
+        <p data-lang="en">We reserve the right to modify these Terms of Use at any time. Modified terms will take effect when posted on this page. Your continued use of our services constitutes acceptance of the modified terms. We recommend that you check this page regularly for any changes.</p>
         
         <div class="highlight">
-            <strong>💡 重要提示：</strong>如果我们做出重大变更，我们会在网站首页或游戏内显示通知。但您有责任定期查看这些条款以了解最新版本。
+            <strong data-lang="zh">💡 重要提示：</strong>
+            <strong data-lang="en">💡 Important:</strong>
+            <span data-lang="zh">如果我们做出重大变更，我们会在网站首页或游戏内显示通知。但您有责任定期查看这些条款以了解最新版本。</span>
+            <span data-lang="en">If we make significant changes, we will display a notice on the website homepage or in-game. However, you are responsible for regularly reviewing these terms to stay informed of the latest version.</span>
         </div>
         
-        <h2>八、终止</h2>
+        <h2 data-lang="zh">八、终止</h2>
+        <h2 data-lang="en">8. Termination</h2>
         
-        <p>我们可以出于任何原因（包括但不限于您违反这些条款）立即终止或暂停您访问我们服务的权限，恕不另行通知或承担任何责任。条款中所有依其性质应在终止后继续有效的条款（包括但不限于知识产权、免责声明和赔偿条款）将在终止后继续有效。</p>
+        <p data-lang="zh">我们可以出于任何原因（包括但不限于您违反这些条款）立即终止或暂停您访问我们服务的权限，恕不另行通知或承担任何责任。条款中所有依其性质应在终止后继续有效的条款（包括但不限于知识产权、免责声明和赔偿条款）将在终止后继续有效。</p>
+        <p data-lang="en">We may terminate or suspend your access to our services immediately for any reason (including but not limited to your violation of these terms) without prior notice or liability. All provisions of these terms which by their nature should survive termination (including but not limited to intellectual property, disclaimer, and indemnification provisions) shall survive termination.</p>
         
-        <h2>九、适用法律</h2>
+        <h2 data-lang="zh">九、适用法律</h2>
+        <h2 data-lang="en">9. Governing Law</h2>
         
-        <p>这些条款应受中华人民共和国法律管辖并依其解释，不考虑法律冲突原则。因这些条款或服务引起的任何争议应提交中国有管辖权的法院解决。</p>
+        <p data-lang="zh">这些条款应受中华人民共和国法律管辖并依其解释，不考虑法律冲突原则。因这些条款或服务引起的任何争议应提交中国有管辖权的法院解决。</p>
+        <p data-lang="en">These terms shall be governed by and construed in accordance with the laws of the People's Republic of China, without regard to conflict of law principles. Any dispute arising from these terms or the service shall be submitted to the competent courts in China for resolution.</p>
         
-        <h2>十、联系我们</h2>
+        <h2 data-lang="zh">十、联系我们</h2>
+        <h2 data-lang="en">10. Contact Us</h2>
         
-        <p>如果您对这些使用条款有任何疑问，请通过以下方式联系我们：</p>
+        <p data-lang="zh">如果您对这些使用条款有任何疑问，请通过以下方式联系我们：</p>
+        <p data-lang="en">If you have any questions about these Terms of Use, please contact us:</p>
+        
         <ul>
-            <li>📧 电子邮件：contact@emojiarcade.app</li>
-            <li>🐦 Twitter：@EmojiArcade</li>
+            <li>📧 Email: contact@emojiarcade.app</li>
+            <li>🐦 Twitter: @EmojiArcade</li>
         </ul>
         
         <div class="highlight">
-            感谢您选择 Emoji Arcade！我们希望您在这里玩得开心。🎮
+            <span data-lang="zh">感谢您选择 Emoji Arcade！我们希望您在这里玩得开心。🎮</span>
+            <span data-lang="en">Thank you for choosing Emoji Arcade! We hope you have fun here. 🎮</span>
         </div>
         
         <div class="footer-nav">
-            <a href="../index.html">🏠 返回首页</a>
-            <a href="privacy.html">🛡️ 隐私政策</a>
-            <a href="about.html">ℹ️ 关于我们</a>
+            <a href="index.html">🏠 <span data-lang="zh" class="inline">返回首页</span><span data-lang="en" class="inline">Home</span></a>
+            <a href="privacy.html">🛡️ <span data-lang="zh" class="inline">隐私政策</span><span data-lang="en" class="inline">Privacy</span></a>
+            <a href="about.html">ℹ️ <span data-lang="zh" class="inline">关于我们</span><span data-lang="en" class="inline">About</span></a>
         </div>
     </div>
+    
+    <script>
+        function detectLanguage() {
+            const lang = navigator.language || navigator.userLanguage;
+            const isChinese = lang.startsWith('zh');
+            if (!isChinese) {
+                document.body.classList.add('lang-en');
+            }
+        }
+        
+        function toggleLanguage() {
+            document.body.classList.toggle('lang-en');
+        }
+        
+        detectLanguage();
+    </script>
 </body>
 </html>
