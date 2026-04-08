@@ -161,6 +161,7 @@
         <h1>EMOJI DRIFT</h1>
         <div style="color: #00c8ff; font-size: 18px; margin-bottom: 20px;">🎵 节奏漂移模式 V0.3.0</div>
         <button class="btn" id="startBtn">开始漂移</button>
+        <button class="btn btn-home" id="homeBtn" onclick="location.href='../../index.html'" style="margin-top: 15px;">🏠 回到街机厅</button>
         <div class="instructions">
             🎵 弯道会在道路上出现<br>
             🎯 当车进入弯道判定区时<br>
@@ -260,7 +261,7 @@
         // 应用翻译
         document.getElementById('startBtn').textContent = t.startGame;
         document.getElementById('restartBtn').textContent = t.restart;
-        document.getElementById('homeBtn').innerHTML = t.backToArcade;
+        document.getElementById('homeBtn').textContent = t.backToArcade;
         document.querySelector('#startScreen .instructions').innerHTML = t.instructions.join('<br>');
         document.querySelector('#startScreen div:nth-child(3)').textContent = t.rhythmMode;
 
