@@ -103,7 +103,8 @@
         <div class="emoji-title">🚜</div>
         <h1>EMOJI CLIMB</h1>
         <button class="btn" id="startBtn">开始爬坡</button>
-        <div class="instructions"
+        <button class="btn btn-home" id="homeBtn" onclick="location.href='../../index.html'" style="margin-top: 15px;">🏠 回到街机厅</button>
+        <div class="instructions">
             🔴 按住屏幕/鼠标 = 油门加速<br>
             ⚫ 松开 = 刹车减速<br>
             ⚖️ 保持平衡，别翻车！<br>
@@ -183,7 +184,7 @@
             document.getElementById('startBtn').textContent = t.startGame;
             document.getElementById('controlsHint').textContent = t.controlsHint;
             document.querySelector('.instructions').innerHTML = t.instructions;
-            document.querySelector('.btn-home').innerHTML = t.backToArcade;
+            document.querySelectorAll('.btn-home').forEach(btn => btn.innerHTML = t.backToArcade);
             document.getElementById('restartBtn').textContent = t.playAgain;
             document.getElementById('distanceLabel').textContent = t.distance;
             document.getElementById('highScoreLabel').textContent = t.highScore;
