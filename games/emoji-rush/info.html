@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>油门焊死 Emoji Rush - 游戏详情 | Emoji Arcade</title>
+    <meta name="description" content="油门焊死是一款极简风格的竞速游戏。只有一个按键控制，全速前进躲避障碍，挑战你的反应极限。简单上瘾，停不下来！">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+        .game-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(0,150,136,0.2) 0%, rgba(0,200,180,0.1) 100%);
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+        .game-emoji { font-size: 80px; margin-bottom: 15px; }
+        h1 { font-size: 32px; color: #fff; margin-bottom: 10px; }
+        .tagline { color: #888; font-size: 16px; margin-bottom: 20px; }
+        .meta-tags {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+        .meta-tag {
+            background: rgba(255,255,255,0.1);
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        .play-btn {
+            display: inline-block;
+            padding: 15px 50px;
+            background: linear-gradient(135deg, #009688 0%, #00796b 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .play-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,150,136,0.3);
+        }
+        h2 {
+            font-size: 22px;
+            color: #fff;
+            margin: 35px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #009688;
+        }
+        h3 { font-size: 18px; color: #ddd; margin: 25px 0 10px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #009688;
+        }
+        .feature-icon { font-size: 28px; margin-bottom: 10px; }
+        .controls-box {
+            background: rgba(0,150,136,0.1);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            text-align: center;
+            border: 2px solid rgba(0,150,136,0.3);
+        }
+        .control-key {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #009688 0%, #00796b 100%);
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .tips-box {
+            background: linear-gradient(135deg, rgba(255,193,7,0.1) 0%, rgba(255,152,0,0.1) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .footer-nav {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        .footer-nav a {
+            color: #66b3ff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        ul { margin: 15px 0 15px 25px; }
+        li { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="game-header">
+            <div class="game-emoji">🏎️</div>
+            <h1>油门焊死</h1>
+            <div class="tagline">Emoji Rush - 只管踩油门，其他交给命运</div>
+            <div class="meta-tags">
+                <span class="meta-tag">🏎️ 极简竞速</span>
+                <span class="meta-tag">👤 单人游戏</span>
+                <span class="meta-tag">⏱️ 3分钟</span>
+                <span class="meta-tag">📱 单手操作</span>
+            </div>
+            <a href="index.html" class="play-btn">🎮 立即开玩</a>
+        </div>
+        
+        <h2>🎮 游戏简介</h2>
+        
+        <p>《油门焊死》是一款极简风格的竞速游戏。在这个游戏里，你不需要考虑换挡、刹车、漂移，只需要做一件事——<strong>全速前进</strong>！</p>
+        
+        <p>驾驶你的 Emoji 赛车，在无尽的赛道上飞驰。赛道充满了各种障碍物和陷阱，你需要凭借超快的反应速度来躲避它们。速度会越来越快，挑战会越来越难，你能坚持多久？</p>
+        
+        <p>游戏采用「一键式」操作设计，单指即可游玩，是通勤路上、排队等候、工作间隙的最佳选择。简单到极致，却会上瘾到停不下来！</p>
+        
+        <h2>✨ 游戏特色</h2>
+        
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon">🎮</div>
+                <strong>一键操作</strong>
+                <p>只需要一个按键，上手零门槛</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">⚡</div>
+                <strong>节奏爽快</strong>
+                <p>速度感拉满，越玩越刺激</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🎨</div>
+                <strong>霓虹风格</strong>
+                <p>炫酷的赛博朋克视觉体验</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">📱</div>
+                <strong>单手游玩</strong>
+                <p>专为手机设计的竖屏操作</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🎵</div>
+                <strong>动感音乐</strong>
+                <p>电子音乐配合速度感满分</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🏆</div>
+                <strong>挑战记录</strong>
+                <p>不断突破自己的最远距离</p>
+            </div>
+        </div>
+        
+        <h2>🕹️ 操作说明</h2>
+        
+        <p>游戏操作极简，真正做到了"有手就会"：</p>
+        
+        <div class="controls-box">
+            <h3>🖱️ 电脑端</h3>
+            <div class="control-key">鼠标左键按住</div>
+            <p style="margin-top:15px;">按住 = 冲刺 / 松开 = 躲避</p>
+            
+            <h3 style="margin-top:25px;">📱 手机端</h3>
+            <div class="control-key">按住屏幕</div>
+            <p style="margin-top:15px;">按住加速 / 松手减速躲避障碍</p>
+        </div>
+        
+        <h3>游戏机制</h3>
+        
+        <ul>
+            <li><strong>自动前进：</strong>车辆会自动向前行驶</li>
+            <li><strong>按住冲刺：</strong>按住时车辆切换到冲刺车道，速度提升</li>
+            <li><strong>松开躲避：</strong>松开时车辆回到普通车道，可以躲避高处的障碍</li>
+            <li><strong>速度递增：</strong>随着时间推移，车速会越来越快</li>
+            <li><strong>一击必杀：</strong>撞到任何障碍物游戏结束</li>
+        </ul>
+        
+        <h2>🚧 障碍类型</h2>
+        
+        <p>赛道上会出现各种 Emoji 障碍物，需要灵活应对：</p>
+        
+        <ul>
+            <li><strong>🚧 路障：</strong>最常见障碍，需要切换车道躲避</li>
+            <li><strong>🕳️ 坑洞：</strong>突然出现的坑洞，需要快速反应</li>
+            <li><strong>🚗 慢车：</strong>前方较慢的车辆，需要从旁边超越</li>
+            <li><strong>⚠️ 警示牌：</strong>提示前方有危险，提前做好准备</li>
+        </ul>
+        
+        <h2>💡 高分技巧</h2>
+        
+        <div class="tips-box">
+            <strong>🏎️ 车神养成指南：</strong>
+            <ul>
+                <li><strong>节奏感：</strong>找到适合自己的按键节奏，不要一直按住不放</li>
+                <li><strong>提前预判：</strong>看到远处有障碍就开始调整车道</li>
+                <li><strong>保持冷静：</strong>速度越快越要保持冷静，慌乱容易失误</li>
+                <li><strong>熟悉模式：</strong>障碍出现有一定规律，多玩几次就能摸清</li>
+                <li><strong>抓准时机：</strong>在冲刺和躲避之间找到最佳平衡点</li>
+            </ul>
+        </div>
+        
+        <h2>📊 游戏数据</h2>
+        
+        <ul>
+            <li><strong>版本：</strong>V0.1.0</li>
+            <li><strong>难度：</strong>简单上手，但挑战极限很难</li>
+            <li><strong>平均游戏时长：</strong>3分钟（取决于能坚持多久）</li>
+            <li><strong>推荐场景：</strong>通勤、排队、摸鱼、睡前</li>
+        </ul>
+        
+        <div style="text-align: center; margin: 40px 0;">
+            <a href="index.html" class="play-btn">🚀 踩下油门</a>
+        </div>
+        
+        <div class="footer-nav">
+            <a href="../../index.html">🏠 返回大厅</a>
+            <a href="../../pages/privacy.html">🛡️ 隐私政策</a>
+            <a href="../../pages/about.html">ℹ️ 关于我们</a>
+        </div>
+    </div>
+</body>
+</html>

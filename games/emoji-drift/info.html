@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>漂移狂魔 Emoji Drift - 游戏详情 | Emoji Arcade</title>
+    <meta name="description" content="漂移狂魔是一款三车道跑酷游戏。疯狂切换车道躲避障碍，考验你的反应极限。手残慎入，高手请进！">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+        .game-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(63,81,181,0.2) 0%, rgba(33,150,243,0.1) 100%);
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+        .game-emoji { font-size: 80px; margin-bottom: 15px; }
+        h1 { font-size: 32px; color: #fff; margin-bottom: 10px; }
+        .tagline { color: #888; font-size: 16px; margin-bottom: 20px; }
+        .meta-tags {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+        .meta-tag {
+            background: rgba(255,255,255,0.1);
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        .play-btn {
+            display: inline-block;
+            padding: 15px 50px;
+            background: linear-gradient(135deg, #3f51b5 0%, #2196f3 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .play-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(63,81,181,0.3);
+        }
+        h2 {
+            font-size: 22px;
+            color: #fff;
+            margin: 35px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #3f51b5;
+        }
+        h3 { font-size: 18px; color: #ddd; margin: 25px 0 10px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #2196f3;
+        }
+        .feature-icon { font-size: 28px; margin-bottom: 10px; }
+        .controls-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .controls-table th, .controls-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .controls-table th {
+            background: rgba(255,255,255,0.05);
+            font-weight: bold;
+            color: #fff;
+        }
+        .lane-diagram {
+            background: rgba(63,81,181,0.1);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            text-align: center;
+            border: 2px solid rgba(63,81,181,0.3);
+        }
+        .lane {
+            display: inline-block;
+            width: 80px;
+            height: 120px;
+            background: rgba(255,255,255,0.05);
+            border: 2px dashed rgba(255,255,255,0.2);
+            margin: 0 5px;
+            border-radius: 8px;
+            vertical-align: middle;
+            line-height: 120px;
+            font-size: 40px;
+        }
+        .lane.active {
+            background: rgba(33,150,243,0.2);
+            border: 2px solid #2196f3;
+        }
+        .tips-box {
+            background: linear-gradient(135deg, rgba(255,193,7,0.1) 0%, rgba(255,152,0,0.1) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .footer-nav {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        .footer-nav a {
+            color: #66b3ff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        ul { margin: 15px 0 15px 25px; }
+        li { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="game-header">
+            <div class="game-emoji">🚗</div>
+            <h1>漂移狂魔</h1>
+            <div class="tagline">Emoji Drift - 三车道疯狂切换，手残慎入</div>
+            <div class="meta-tags">
+                <span class="meta-tag">🚗 跑酷竞速</span>
+                <span class="meta-tag">👤 单人游戏</span>
+                <span class="meta-tag">⏱️ 5分钟</span>
+                <span class="meta-tag">📱 竖屏</span>
+            </div>
+            <a href="index.html" class="play-btn">🎮 立即开玩</a>
+        </div>
+        
+        <h2>🎮 游戏简介</h2>
+        
+        <p>《漂移狂魔》是一款快节奏的三车道跑酷游戏。在这个游戏中，你将驾驶一辆速度极快的赛车，在三条车道之间疯狂切换，躲避迎面而来的各种障碍物。</p>
+        
+        <p>游戏的核心是「极致反应」。随着游戏进行，车速会越来越快，障碍出现的频率越来越高，你需要在电光火石之间做出判断。一个失误，就会车毁人亡。这不仅仅是一款游戏，更是对你反应神经的极限挑战！</p>
+        
+        <h2>✨ 游戏特色</h2>
+        
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon">⚡</div>
+                <strong>极速反应</strong>
+                <p>毫秒级响应，真正考验手速和反应</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🛣️</div>
+                <strong>三车道设计</strong>
+                <p>经典跑酷玩法，上手容易精通难</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">📱</div>
+                <strong>竖屏优化</strong>
+                <p>专为手机单手操作设计</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🎨</div>
+                <strong>霓虹夜景</strong>
+                <p>炫酷的城市夜景赛道，视觉体验一流</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🚧</div>
+                <strong>丰富障碍</strong>
+                <p>多种Emoji障碍物，随机组合生成</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🏆</div>
+                <strong>距离挑战</strong>
+                <p>挑战最远距离，成为漂移之王</p>
+            </div>
+        </div>
+        
+        <h2>🕹️ 操作说明</h2>
+        
+        <h3>车道示意</h3>
+        <div class="lane-diagram">
+            <div class="lane">⬆️</div>
+            <div class="lane active">🚗</div>
+            <div class="lane">⬆️</div>
+            <p style="margin-top:15px;">点击屏幕左侧 ← 向左变道 | 点击屏幕右侧 → 向右变道</p>
+        </div>
+        
+        <h3>电脑端</h3>
+        <table class="controls-table">
+            <tr>
+                <th>操作</th>
+                <th>按键</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td>向左变道</td>
+                <td>⬅️ 左方向键 / A键</td>
+                <td>切换到左侧车道</td>
+            </tr>
+            <tr>
+                <td>向右变道</td>
+                <td>➡️ 右方向键 / D键</td>
+                <td>切换到右侧车道</td>
+            </tr>
+        </table>
+        
+        <h3>手机/平板端</h3>
+        <table class="controls-table">
+            <tr>
+                <th>操作</th>
+                <th>方式</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td>向左变道</td>
+                <td>点击屏幕左半部分</td>
+                <td>快速切换到左侧车道</td>
+            </tr>
+            <tr>
+                <td>向右变道</td>
+                <td>点击屏幕右半部分</td>
+                <td>快速切换到右侧车道</td>
+            </tr>
+        </table>
+        
+        <h2>🚧 障碍类型</h2㸾
+        
+        <p>赛道上会出现各种 Emoji 障碍物，阻挡你的前进：</p>
+        
+        <ul>
+            <li><strong>🚗 普通车辆：</strong>静止或慢速行驶的Emoji车辆</li>
+            <li><strong>🚧 路障：</strong>施工路障，需要变道躲避</li>
+            <li><strong>🕳️ 坑洞：</strong>路面塌陷，无法通过</li>
+            <li><strong>🚛 大卡车：</strong>占据两条车道的大型障碍</li>
+            <li><strong>⚠️ 连续障碍：</strong>多条车道同时出现障碍，需要快速连续变道</li>
+        </ul>
+        
+        <h2>💡 高分技巧</h2>
+        
+        <div class="tips-box">
+            <strong>🏎️ 漂移大师秘籍：</strong>
+            <ul>
+                <li><strong>居中原则：</strong>尽量保持在中车道，左右变道都有空间</li>
+                <li><strong>提前预判：</strong>看到远处障碍就开始规划路线</li>
+                <li><strong>不要慌乱：</strong>连续障碍时保持冷静，不要连续乱按</li>
+                <li><strong>边缘走位：</strong>有时贴着一侧车道行驶可以避开某些障碍组合</li>
+                <li><strong>节奏感：</strong>找到适合自己反应速度的游戏节奏</li>
+            </ul>
+        </div>
+        
+        <h2>📊 游戏数据</h2>
+        
+        <ul>
+            <li><strong>版本：</strong>V0.1.0</li>
+            <li><strong>难度：</strong>中等（考验反应）</li>
+            <li><strong>平均游戏时长：</strong>5分钟</li>
+            <li><strong>推荐场景：</strong>想挑战反应速度时</li>
+        </ul>
+        
+        <div style="text-align: center; margin: 40px 0;">
+            <a href="index.html" class="play-btn">🚀 开始漂移</a>
+        </div>
+        
+        <div class="footer-nav">
+            <a href="../../index.html">🏠 返回大厅</a>
+            <a href="../../pages/privacy.html">🛡️ 隐私政策</a>
+            <a href="../../pages/about.html">ℹ️ 关于我们</a>
+        </div>
+    </div>
+</body>
+</html>

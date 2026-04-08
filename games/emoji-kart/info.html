@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>道具互坑赛 Emoji Kart - 游戏详情 | Emoji Arcade</title>
+    <meta name="description" content="道具互坑赛是一款欢乐的道具赛车游戏。拾取道具攻击对手，香蕉皮、火箭、护盾等你来用。欢乐互坑，友情终结者！">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+        .game-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(244,67,54,0.2) 0%, rgba(255,152,0,0.1) 100%);
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+        .game-emoji { font-size: 80px; margin-bottom: 15px; }
+        h1 { font-size: 32px; color: #fff; margin-bottom: 10px; }
+        .tagline { color: #888; font-size: 16px; margin-bottom: 20px; }
+        .meta-tags {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+        .meta-tag {
+            background: rgba(255,255,255,0.1);
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        .play-btn {
+            display: inline-block;
+            padding: 15px 50px;
+            background: linear-gradient(135deg, #f44336 0%, #ff5722 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .play-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(244,67,54,0.3);
+        }
+        h2 {
+            font-size: 22px;
+            color: #fff;
+            margin: 35px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f44336;
+        }
+        h3 { font-size: 18px; color: #ddd; margin: 25px 0 10px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #ff5722;
+        }
+        .feature-icon { font-size: 28px; margin-bottom: 10px; }
+        .controls-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .controls-table th, .controls-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .controls-table th {
+            background: rgba(255,255,255,0.05);
+            font-weight: bold;
+            color: #fff;
+        }
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .item-card {
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .item-emoji { font-size: 36px; margin-bottom: 8px; }
+        .tips-box {
+            background: linear-gradient(135deg, rgba(76,175,80,0.1) 0%, rgba(139,195,74,0.1) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-left: 4px solid #4caf50;
+        }
+        .footer-nav {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        .footer-nav a {
+            color: #66b3ff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        ul { margin: 15px 0 15px 25px; }
+        li { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="game-header">
+            <div class="game-emoji">🏎️</div>
+            <h1>道具互坑赛</h1>
+            <div class="tagline">Emoji Kart - 道具乱丢，互相伤害，欢乐无穷</div>
+            <div class="meta-tags">
+                <span class="meta-tag">🏎️ 道具赛车</span>
+                <span class="meta-tag">👤 单人游戏</span>
+                <span class="meta-tag">⏱️ 5分钟</span>
+                <span class="meta-tag">📱 手机/电脑</span>
+            </div>
+            <a href="index.html" class="play-btn">🎮 立即开玩</a>
+        </div>
+        
+        <h2>🎮 游戏简介</h2>
+        
+        <p>《道具互坑赛》是一款充满欢乐的道具赛车游戏。在这个赛场上，速度不是唯一的胜利条件——你还需要巧妙地使用各种道具来干扰对手！</p>
+        
+        <p>驾驶你的 Emoji 赛车，在赛道上飞驰的同时，拾取道具箱获取随机道具。香蕉皮让对手打滑、火箭弹精准打击、护盾保护自己……每一场比赛都充满了变数和欢乐。友情提示：和好朋友一起玩时，请做好友尽的心理准备！</p>
+        
+        <h2>✨ 游戏特色</h2>
+        
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon">🎁</div>
+                <strong>丰富道具</strong>
+                <p>多种道具随机获取，战局瞬息万变</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🎯</div>
+                <strong>策略对抗</strong>
+                <p>不只是速度的比拼，更是策略的较量</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🌈</div>
+                <strong>多彩赛道</strong>
+                <p>不同主题赛道，各有特色障碍</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🤖</div>
+                <strong>AI对手</strong>
+                <p>智能AI对手，不同难度挑战</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">😂</div>
+                <strong>欢乐气氛</strong>
+                <p>轻松搞笑，适合全年龄段玩家</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🏆</div>
+                <strong>冠军争夺</strong>
+                <p>冲击第一名，成为道具赛之王</p>
+            </div>
+        </div>
+        
+        <h2>🎁 道具系统</h2>
+        
+        <p>赛道上的道具箱会随机给予以下道具之一：</p>
+        
+        <div class="item-grid">
+            <div class="item-card">
+                <div class="item-emoji">🍌</div>
+                <strong>香蕉皮</strong>
+                <p>在身后留下香蕉皮，后面的对手会打滑减速</p>
+            </div>
+            <div class="item-card">
+                <div class="item-emoji">🚀</div>
+                <strong>追踪导弹</strong>
+                <p>自动追踪前方最近的对手，命中后使其停下</p>
+            </div>
+            <div class="item-card">
+                <div class="item-emoji">🛡️</div>
+                <strong>护盾</strong>
+                <p>抵挡一次攻击，持续时间内免疫道具</p>
+            </div>
+            <div class="item-card">
+                <div class="item-emoji">⚡</div>
+                <strong>加速冲刺</strong>
+                <p>短时间内获得极速，无视障碍</p>
+            </div>
+            <div class="item-card">
+                <div class="item-emoji">💣</div>
+                <strong>炸弹</strong>
+                <p>范围攻击，影响周围所有对手</p>
+            </div>
+            <div class="item-card">
+                <div class="item-emoji">🎱</div>
+                <strong>墨鱼汁</strong>
+                <p>向前方发射墨汁，遮挡对手视野</p>
+            </div>
+        </div>
+        
+        <h2>🕹️ 操作说明</h2>
+        
+        <h3>电脑端</h3>
+        
+        <table class="controls-table">
+            <tr>
+                <th>操作</th>
+                <th>按键</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td>左右转向</td>
+                <td>⬅️➡️ 方向键 / A D键</td>
+                <td>控制赛车左右移动</td>
+            </tr>
+            <tr>
+                <td>加速</td>
+                <td>⬆️ 上方向键 / W键</td>
+                <td>按住获得额外加速</td>
+            </tr>
+            <tr>
+                <td>刹车/漂移</td>
+                <td>⬇️ 下方向键 / S键</td>
+                <td>减速，过弯时按住可漂移</td>
+            </tr>
+            <tr>
+                <td>使用道具</td>
+                <td>空格键</td>
+                <td>使用当前持有的道具</td>
+            </tr>
+        </table>
+        
+        <h3>手机/平板端</h3>
+        
+        <table class="controls-table">
+            <tr>
+                <th>操作</th>
+                <th>方式</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td>左右转向</td>
+                <td>左右滑动 / 倾斜设备</td>
+                <td>控制赛车左右移动</td>
+            </tr>
+            <tr>
+                <td>使用道具</td>
+                <td>点击屏幕任意位置</td>
+                <td>使用当前持有的道具</td>
+            </tr>
+        </table>
+        
+        <h2>🌈 赛道介绍</h2>
+        
+        <ul>
+            <li><strong>🌲 森林赛道：</strong>风景优美但弯道多，需要良好的过弯技巧</li>
+            <li><strong>🏜️ 沙漠赛道：</strong>直线多，适合发挥极速，但沙地会减速</li>
+            <li><strong>❄️ 冰雪赛道：</strong>路面滑，需要更精准的控制</li>
+            <li><strong>🌃 城市赛道：</strong>笔直的高速公路，道具箱密集</li>
+        </ul>
+        
+        <h2>💡 获胜技巧</h2>
+        
+        <div class="tips-box">
+            <strong>🏆 道具大师秘籍：</strong>
+            <ul>
+                <li><strong>道具时机：</strong>香蕉皮在弯道或狭窄路段使用效果最佳</li>
+                <li><strong>防守优先：</strong>第一名时优先保留护盾，第二名时积极进攻</li>
+                <li><strong>近道利用：</strong>每条赛道都有隐藏近道，熟悉赛道是获胜关键</li>
+                <li><strong>道具连锁：</strong>先用墨鱼汁遮挡视野，再发射导弹命中率更高</li>
+                <li><strong>心理战术：</strong>假装要使用道具诱导对手使用护盾，再真正攻击</li>
+            </ul>
+        </div>
+        
+        <h2>📊 游戏数据</h2>
+        
+        <ul>
+            <li><strong>版本：</strong>V0.1.0</li>
+            <li><strong>难度：</strong>中等（策略+操作）</li>
+            <li><strong>平均游戏时长：</strong>5分钟/局</li>
+            <li><strong>推荐场景：</strong>休闲娱乐、朋友聚会</li>
+        </ul>
+        
+        <div style="text-align: center; margin: 40px 0;">
+            <a href="index.html" class="play-btn">🚀 开始互坑</a>
+        </div>
+        
+        <div class="footer-nav">
+            <a href="../../index.html">🏠 返回大厅</a>
+            <a href="../../pages/privacy.html">🛡️ 隐私政策</a>
+            <a href="../../pages/about.html">ℹ️ 关于我们</a>
+        </div>
+    </div>
+</body>
+</html>

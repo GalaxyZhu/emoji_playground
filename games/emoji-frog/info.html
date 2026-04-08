@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>跳跳蛙大冒险 Emoji Frog - 游戏详情 | Emoji Arcade</title>
+    <meta name="description" content="跳跳蛙大冒险是一款休闲跳跃游戏。按住跳跃、松开落下，控制青蛙不断向上攀登。手速决定高度，挑战你的极限！">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+        .game-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(76,175,80,0.2) 0%, rgba(139,195,74,0.1) 100%);
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+        .game-emoji { font-size: 80px; margin-bottom: 15px; }
+        h1 { font-size: 32px; color: #fff; margin-bottom: 10px; }
+        .tagline { color: #888; font-size: 16px; margin-bottom: 20px; }
+        .meta-tags {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+        .meta-tag {
+            background: rgba(255,255,255,0.1);
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        .play-btn {
+            display: inline-block;
+            padding: 15px 50px;
+            background: linear-gradient(135deg, #4caf50 0%, #8bc34a 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .play-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(76,175,80,0.3);
+        }
+        h2 {
+            font-size: 22px;
+            color: #fff;
+            margin: 35px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #4caf50;
+        }
+        h3 { font-size: 18px; color: #ddd; margin: 25px 0 10px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #8bc34a;
+        }
+        .feature-icon { font-size: 28px; margin-bottom: 10px; }
+        .controls-box {
+            background: rgba(76,175,80,0.1);
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            text-align: center;
+            border: 2px solid rgba(76,175,80,0.3);
+        }
+        .control-key {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            border-radius: 10px;
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .mechanics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .mechanic-card {
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .mechanic-emoji { font-size: 36px; margin-bottom: 8px; }
+        .tips-box {
+            background: linear-gradient(135deg, rgba(255,193,7,0.1) 0%, rgba(255,152,0,0.1) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .footer-nav {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        .footer-nav a {
+            color: #66b3ff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        ul { margin: 15px 0 15px 25px; }
+        li { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="game-header">
+            <div class="game-emoji">🐸</div>
+            <h1>跳跳蛙大冒险</h1>
+            <div class="tagline">Emoji Frog - 按住跳，松开落，手速决定高度</div>
+            <div class="meta-tags">
+                <span class="meta-tag">🐸 跳跃休闲</span>
+                <span class="meta-tag">👤 单人游戏</span>
+                <span class="meta-tag">⏱️ 5分钟</span>
+                <span class="meta-tag">📱 单手操作</span>
+            </div>
+            <a href="index.html" class="play-btn">🎮 立即开玩</a>
+        </div>
+        
+        <h2>🎮 游戏简介</h2>
+        
+        <p>《跳跳蛙大冒险》是一款轻松有趣的休闲跳跃游戏。扮演一只勇敢的小青蛙，踏上不断向上的冒险之旅。荷叶、树枝、云朵……只要是可以落脚的地方，小青蛙都能跳上去！</p>
+        
+        <p>游戏采用极简的「按住-松开」操作方式，但想要跳得高、跳得远，却需要精妙的时机把握和手速。随着高度的增加，平台会越来越小，间隔会越来越大，挑战也会越来越刺激！</p>
+        
+        <h2>✨ 游戏特色</h2>
+        
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon">🎮</div>
+                <strong>极简操作</strong>
+                <p>一个按键，按住跳、松开落，零门槛上手</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">⚡</div>
+                <strong>手速挑战</strong>
+                <p>按住时间越长跳得越高，精准控制是关键</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🌿</div>
+                <strong>多样平台</strong>
+                <p>荷叶、树枝、云朵等多种跳跃平台</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🌈</div>
+                <strong>清新画风</strong>
+                <p>治愈系配色，看着舒服，玩着放松</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">📱</div>
+                <strong>单手游玩</strong>
+                <p>专为手机单手操作设计，随时随地玩</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🏆</div>
+                <strong>高度挑战</strong>
+                <p>挑战最高跳跃记录，突破自己的极限</p>
+            </div>
+        </div>
+        
+        <h2>🕹️ 操作说明</h2>
+        
+        <p>游戏操作极其简单，但需要练习才能精通：</p>
+        
+        <div class="controls-box">
+            <h3>核心操作</h3>
+            <div style="margin: 20px 0;">
+                <div class="control-key">👆 按住屏幕</div>
+                <p style="margin: 15px 0; font-size: 18px;">↓</p>
+                <div class="control-key">🐸 蓄力跳跃</div>
+            </div>
+            
+            <p style="margin-top: 25px; color: #aaa;">按住时间越长，跳跃高度越高 | 松开手指即下落</p>
+        </div>
+        
+        <h3>详细操作说明</h3>
+        
+        <ul>
+            <li><strong>蓄力跳跃：</strong>按住屏幕/按键进行蓄力，青蛙会弯腰准备跳跃</li>
+            <li><strong>松开跳跃：</strong>松开手指，青蛙会按照蓄力程度向前上方跳跃</li>
+            <li><strong>空中控制：</strong>青蛙在空中时无法二次跳跃，完全依靠初始蓄力决定轨迹</li>
+            <li><strong>落地判定：</strong>必须精准落在平台上，掉落则游戏结束</li>
+        </ul>
+        
+        <h2>🌿 平台类型</h2>
+        
+        <p>游戏中有多种类型的平台，各有特点：</p>
+        
+        <div class="mechanics-grid">
+            <div class="mechanic-card">
+                <div class="mechanic-emoji">🍃</div>
+                <strong>普通荷叶</strong>
+                <p>最基础的平台，静止不动</p>
+            </div>
+            <div class="mechanic-card">
+                <div class="mechanic-emoji">🌸</div>
+                <strong>移动荷叶</strong>
+                <p>左右移动的平台，需要预判落点</p>
+            </div>
+            <div class="mechanic-card">
+                <div class="mechanic-emoji">☁️</div>
+                <strong>云朵</strong>
+                <p>踩上去会下沉，需要快速跳离</p>
+            </div>
+            <div class="mechanic-card">
+                <div class="mechanic-emoji">🌴</div>
+                <strong>树枝</strong>
+                <p>较窄的平台，容错率低</p>
+            </div>
+            <div class="mechanic-card">
+                <div class="mechanic-emoji">🍄</div>
+                <strong>蘑菇</strong>
+                <p>弹力蘑菇，站上去会弹得更高</p>
+            </div>
+            <div class="mechanic-card">
+                <div class="mechanic-emoji">💎</div>
+                <strong>宝石</strong>
+                <p>空中飘浮，收集可获得额外分数</p>
+            </div>
+        </div>
+        
+        <h2>💡 高分技巧</h2>
+        
+        <div class="tips-box">
+            <strong>🐸 蛙王秘籍：</strong>
+            <ul>
+                <li><strong>节奏感：</strong>找到蓄力时间的节奏，连续跳跃更流畅</li>
+                <li><strong>小跳赶路：</strong>平台间隔近时用短跳，节省时间和体力</li>
+                <li><strong>大跳过坎：</strong>间隔大或高度差大时蓄满力再跳</li>
+                <li><strong>预判移动：</strong>遇到移动平台时，提前预判其位置</li>
+                <li><strong>别贪分数：</strong>不要为了收集宝石而冒险，活着才能跳更高</li>
+            </ul>
+        </div>
+        
+        <h2>📊 游戏数据</h2>
+        
+        <ul>
+            <li><strong>版本：</strong>V0.1.0 (Beta)</li>
+            <li><strong>难度：</strong>简单上手，后期极具挑战</li>
+            <li><strong>平均游戏时长：</strong>3-5分钟</li>
+            <li><strong>推荐场景：</strong>休闲放松、碎片时间</li>
+        </ul>
+        
+        <div style="text-align: center; margin: 40px 0;">
+            <a href="index.html" class="play-btn">🚀 开始跳跃</a>
+        </div>
+        
+        <div class="footer-nav">
+            <a href="../../index.html">🏠 返回大厅</a>
+            <a href="../../pages/privacy.html">🛡️ 隐私政策</a>
+            <a href="../../pages/about.html">ℹ️ 关于我们</a>
+        </div>
+    </div>
+</body>
+</html>

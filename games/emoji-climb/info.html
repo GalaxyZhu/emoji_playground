@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>翻车模拟器 Emoji Climb - 游戏详情 | Emoji Arcade</title>
+    <meta name="description" content="翻车模拟器是一款魔性物理爬坡游戏。驾驶拖拉机征服各种地形，物理引擎超真实，翻车比过关还搞笑！">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+        .game-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(121,85,72,0.2) 0%, rgba(161,136,127,0.1) 100%);
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+        .game-emoji { font-size: 80px; margin-bottom: 15px; }
+        h1 { font-size: 32px; color: #fff; margin-bottom: 10px; }
+        .tagline { color: #888; font-size: 16px; margin-bottom: 20px; }
+        .meta-tags {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+        .meta-tag {
+            background: rgba(255,255,255,0.1);
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        .play-btn {
+            display: inline-block;
+            padding: 15px 50px;
+            background: linear-gradient(135deg, #795548 0%, #8d6e63 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .play-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(121,85,72,0.3);
+        }
+        h2 {
+            font-size: 22px;
+            color: #fff;
+            margin: 35px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #795548;
+        }
+        h3 { font-size: 18px; color: #ddd; margin: 25px 0 10px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #8d6e63;
+        }
+        .feature-icon { font-size: 28px; margin-bottom: 10px; }
+        .controls-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .controls-table th, .controls-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .controls-table th {
+            background: rgba(255,255,255,0.05);
+            font-weight: bold;
+            color: #fff;
+        }
+        .terrain-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .terrain-card {
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .terrain-emoji { font-size: 36px; margin-bottom: 8px; }
+        .upgrade-list {
+            background: rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+        .upgrade-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .upgrade-icon { font-size: 24px; margin-right: 15px; }
+        .tips-box {
+            background: linear-gradient(135deg, rgba(255,193,7,0.1) 0%, rgba(255,152,0,0.1) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .footer-nav {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        .footer-nav a {
+            color: #66b3ff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        ul { margin: 15px 0 15px 25px; }
+        li { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="game-header">
+            <div class="game-emoji">🚜</div>
+            <h1>翻车模拟器</h1>
+            <div class="tagline">Emoji Climb - 物理引擎超魔性，翻车比过关还搞笑</div>
+            <div class="meta-tags">
+                <span class="meta-tag">🚜 物理爬坡</span>
+                <span class="meta-tag">👤 单人游戏</span>
+                <span class="meta-tag">⏱️ 5分钟</span>
+                <span class="meta-tag">📱 手机/电脑</span>
+            </div>
+            <a href="index.html" class="play-btn">🎮 立即开玩</a>
+        </div>
+        
+        <h2>🎮 游戏简介</h2>
+        
+        <p>《翻车模拟器》是一款基于真实物理引擎的爬坡游戏。你将驾驶一辆老旧的拖拉机，挑战各种看似不可能的地形——陡峭的山坡、崎岖的岩石路、湿滑的冰面……</p>
+        
+        <p>游戏的乐趣在于「物理的不可预测性」。每一个坡道都需要你精确控制油门和重心，稍有不慎就会翻车。但别担心，翻车本身也是游戏的一部分，而且往往比成功爬坡更加搞笑！</p>
+        
+        <p>不断升级你的拖拉机，解锁更强的引擎、更好的轮胎、更稳的车身，征服越来越疯狂的地形。你准备好接受挑战了吗？</p>
+        
+        <h2>✨ 游戏特色</h2>
+        
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon">⚙️</div>
+                <strong>真实物理</strong>
+                <p>基于真实物理引擎，每一次爬坡都独一无二</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🚜</div>
+                <strong>车辆升级</strong>
+                <p>引擎、轮胎、悬挂，全方位升级你的拖拉机</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">⛰️</div>
+                <strong>多样地形</strong>
+                <p>山地、沙漠、雪地、月球等丰富场景</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">😂</div>
+                <strong>魔性翻车</strong>
+                <p>翻车动画搞笑有趣，失败也是乐趣</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🎯</div>
+                <strong>挑战模式</strong>
+                <p>每个关卡都有挑战目标，全三星通关</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🎨</div>
+                <strong>车辆皮肤</strong>
+                <p>解锁各种有趣的车辆外观</p>
+            </div>
+        </div>
+        
+        <h2>🕹️ 操作说明</h2>
+        
+        <h3>电脑端</h3>
+        
+        <table class="controls-table">
+            <tr>
+                <th>操作</th>
+                <th>按键</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td>加速/前进</td>
+                <td>⬆️ 上方向键 / W键</td>
+                <td>控制车辆前进，长按加速</td>
+            </tr>
+            <tr>
+                <td>刹车/倒车</td>
+                <td>⬇️ 下方向键 / S键</td>
+                <td>刹车减速或倒车</td>
+            </tr>
+            <tr>
+                <td>重心前移</td>
+                <td>➡️ 右方向键 / D键</td>
+                <td>上坡时前倾防止后仰翻车</td>
+            </tr>
+            <tr>
+                <td>重心后移</td>
+                <td>⬅️ 左方向键 / A键</td>
+                <td>下坡时后倾防止前翻</td>
+            </tr>
+        </table>
+        
+        <h3>手机/平板端</h3>
+        
+        <table class="controls-table">
+            <tr>
+                <th>操作</th>
+                <th>方式</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td>加速/前进</td>
+                <td>按住右侧油门按钮</td>
+                <td>控制车辆前进</td>
+            </tr>
+            <tr>
+                <td>重心控制</td>
+                <td>倾斜设备 / 虚拟按钮</td>
+                <td>控制车辆前后倾斜</td>
+            </tr>
+        </table>
+        
+        <h2>⛰️ 地形介绍</h2>
+        
+        <div class="terrain-grid">
+            <div class="terrain-card">
+                <div class="terrain-emoji">⛰️</div>
+                <strong>山地</strong>
+                <p>基础地形，坡度适中，适合新手练习</p>
+            </div>
+            <div class="terrain-card">
+                <div class="terrain-emoji">🏜️</div>
+                <strong>沙漠</strong>
+                <p>松软的沙地，容易陷车，需要大马力引擎</p>
+            </div>
+            <div class="terrain-card">
+                <div class="terrain-emoji">❄️</div>
+                <strong>雪地</strong>
+                <p>极度湿滑，需要专门的雪地轮胎</p>
+            </div>
+            <div class="terrain-card">
+                <div class="terrain-emoji">🌋</div>
+                <strong>火山</strong>
+                <p>崎岖的岩浆岩，考验车辆通过性</p>
+            </div>
+            <div class="terrain-card">
+                <div class="terrain-emoji">🌙</div>
+                <strong>月球</strong>
+                <p>低重力环境，物理完全不同</p>
+            </div>
+            <div class="terrain-card">
+                <div class="terrain-emoji">🎪</div>
+                <strong>特技</strong>
+                <p>极限地形，只为最疯狂的玩家</p>
+            </div>
+        </div>
+        
+        <h2>🔧 升级系统</h2>
+        
+        <p>通过完成关卡获得金币，升级你的拖拉机：</p>
+        
+        <div class="upgrade-list">
+            <div class="upgrade-item">
+                <span class="upgrade-icon">🔧</span>
+                <div>
+                    <strong>引擎</strong>
+                    <p style="margin:0;color:#888;font-size:14px;">提升马力和最高速度，爬坡更有力</p>
+                </div>
+            </div>
+            <div class="upgrade-item">
+                <span class="upgrade-icon">🛞</span>
+                <div>
+                    <strong>轮胎</strong>
+                    <p style="margin:0;color:#888;font-size:14px;">提升抓地力，防止打滑和空转</p>
+                </div>
+            </div>
+            <div class="upgrade-item">
+                <span class="upgrade-icon">⛽</span>
+                <div>
+                    <strong>油箱</strong>
+                    <p style="margin:0;color:#888;font-size:14px;">增加燃油容量，可以跑得更远</p>
+                </div>
+            </div>
+            <div class="upgrade-item">
+                <span class="upgrade-icon">🛡️</span>
+                <div>
+                    <strong>悬挂</strong>
+                    <p style="margin:0;color:#888;font-size:14px;">提升稳定性，减少翻车概率</p>
+                </div>
+            </div>
+        </div>
+        
+        <h2>💡 爬坡技巧</h2>
+        
+        <div class="tips-box">
+            <strong>🏔️ 征服者秘籍：</strong>
+            <ul>
+                <li><strong>重心控制：</strong>上坡时重心前移防后翻，下坡时重心后移防前翻</li>
+                <li><strong>油门节奏：</strong>不要一直满油门，根据坡度调整力度</li>
+                <li><strong>惯性利用：</strong>借助下坡的惯性冲上下一个上坡</li>
+                <li><strong>路线选择：</strong>寻找坡度相对平缓的路线，不要硬闯陡坡</li>
+                <li><strong>及时升级：</strong>卡关了记得回去升级车辆性能</li>
+            </ul>
+        </div>
+        
+        <h2>📊 游戏数据</h2>
+        
+        <ul>
+            <li><strong>版本：</strong>V0.1.0 (Beta)</li>
+            <li><strong>难度：</strong>困难（物理挑战）</li>
+            <li><strong>平均游戏时长：</strong>5分钟</li>
+            <li><strong>推荐场景：</strong>想挑战物理极限时</li>
+        </ul>
+        
+        <div style="text-align: center; margin: 40px 0;">
+            <a href="index.html" class="play-btn">🚀 开始爬坡</a>
+        </div>
+        
+        <div class="footer-nav">
+            <a href="../../index.html">🏠 返回大厅</a>
+            <a href="../../pages/privacy.html">🛡️ 隐私政策</a>
+            <a href="../../pages/about.html">ℹ️ 关于我们</a>
+        </div>
+    </div>
+</body>
+</html>

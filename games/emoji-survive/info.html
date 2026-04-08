@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>废土求生 Emoji Survive - 游戏详情 | Emoji Arcade</title>
+    <meta name="description" content="废土求生是一款末日生存射击游戏。改装破皮卡，武装到牙齿，在20波怪物围攻中生存下来。升级武器，策略生存，挑战极限！">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+        .game-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(139,69,19,0.2) 0%, rgba(255,140,0,0.1) 100%);
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+        .game-emoji { font-size: 80px; margin-bottom: 15px; }
+        h1 { font-size: 32px; color: #fff; margin-bottom: 10px; }
+        .tagline { color: #888; font-size: 16px; margin-bottom: 20px; }
+        .meta-tags {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+        .meta-tag {
+            background: rgba(255,255,255,0.1);
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        .play-btn {
+            display: inline-block;
+            padding: 15px 50px;
+            background: linear-gradient(135deg, #ff8c00 0%, #ff6b00 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .play-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255,140,0,0.3);
+        }
+        h2 {
+            font-size: 22px;
+            color: #fff;
+            margin: 35px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ff8c00;
+        }
+        h3 { font-size: 18px; color: #ddd; margin: 25px 0 10px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-item {
+            background: rgba(255,255,255,0.03);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid #ff8c00;
+        }
+        .feature-icon { font-size: 28px; margin-bottom: 10px; }
+        .controls-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .controls-table th, .controls-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .controls-table th {
+            background: rgba(255,255,255,0.05);
+            font-weight: bold;
+            color: #fff;
+        }
+        .upgrade-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .upgrade-card {
+            background: rgba(255,255,255,0.03);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .upgrade-icon { font-size: 36px; margin-bottom: 8px; }
+        .wave-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .wave-table th, .wave-table td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .wave-table th {
+            background: rgba(139,69,19,0.2);
+            color: #ff8c00;
+        }
+        .tips-box {
+            background: linear-gradient(135deg, rgba(76,175,80,0.1) 0%, rgba(139,195,74,0.1) 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-left: 4px solid #4caf50;
+        }
+        .footer-nav {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        .footer-nav a {
+            color: #66b3ff;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 14px;
+        }
+        ul { margin: 15px 0 15px 25px; }
+        li { margin-bottom: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="game-header">
+            <div class="game-emoji">🛻</div>
+            <h1>废土求生</h1>
+            <div class="tagline">Emoji Survive - 末日废土，改装皮卡，干翻20波怪</div>
+            <div class="meta-tags">
+                <span class="meta-tag">🔥 生存射击</span>
+                <span class="meta-tag">👤 单人游戏</span>
+                <span class="meta-tag">⏱️ 10-20分钟</span>
+                <span class="meta-tag">📱 手机/电脑</span>
+            </div>
+            <a href="index.html" class="play-btn">🎮 立即开玩</a>
+        </div>
+        
+        <h2>🎮 游戏简介</h2>
+        <p>《废土求生》是一款紧张刺激的末日生存射击游戏。世界已经沦陷，丧尸和怪物横行无忌。你驾驶着一辆破旧的皮卡，在这片废土中艰难求生。</p>
+        <p>好消息是，你拥有无限的弹药和升级资源。坏消息是，敌人也是无穷无尽的。在20波越来越强大的怪物围攻中生存下来，改装你的战车，解锁强力武器，证明你是这片废土上最强的幸存者！</p>
+        
+        <h2>✨ 游戏特色</h2>
+        <div class="feature-list">
+            <div class="feature-item">
+                <div class="feature-icon">🛻</div>
+                <strong>战车改装</strong>
+                <p>改装破皮卡，加装武器、护甲、引擎</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🔫</div>
+                <strong>武器升级</strong>
+                <p>从手枪到重机枪，多种武器升级路线</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🌊</div>
+                <strong>波次系统</strong>
+                <p>20波敌人，每波都有新的挑战和惊喜</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">👾</div>
+                <strong>多样敌人</strong>
+                <p>普通丧尸、速度型、坦克型、远程型</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">⚡</div>
+                <strong>技能系统</strong>
+                <p>每波结束选择技能强化，打造独特Build</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🏆</div>
+                <strong>生存挑战</strong>
+                <p>挑战极限，看你能坚持到第几波</p>
+            </div>
+        </div>
+        
+        <h2>🕹️ 操作说明</h2>
+        
+        <h3>电脑端</h3>
+        <table class="controls-table">
+            <tr>
+                <th>操作</th>
+                <th>按键/方式</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td>移动战车</td>
+                <td>WASD / 方向键</td>
+                <td>控制皮卡的移动方向</td>
+            </tr>
+            <tr>
+                <td>瞄准</td>
+                <td>🖱️ 鼠标</td>
+                <td>鼠标指向即射击方向</td>
+            </tr>
+            <tr>
+                <td>射击</td>
+                <td>鼠标左键 / 空格</td>
+                <td>按住持续射击</td>
+            </tr>
+            <tr>
+                <td>切换武器</td>
+                <td>数字键 1-4</td>
+                <td>快速切换已解锁武器</td>
+            </tr>
+        </table>
+        
+        <h3>手机/平板端</h3>
+        <table class="controls-table">
+            <tr>
+                <th>操作</th>
+                <th>方式</th>
+                <th>说明</th>
+            </tr>
+            <tr>
+                <td>移动战车</td>
+                <td>👆 左摇杆</td>
+                <td>屏幕左侧虚拟摇杆控制移动</td>
+            </tr>
+            <tr>
+                <td>瞄准</td>
+                <td>👆 右摇杆</td>
+                <td>屏幕右侧虚拟摇杆控制射击方向</td>
+            </tr>
+            <tr>
+                <td>自动射击</td>
+                <td>默认开启</td>
+                <td>瞄准即自动射击</td>
+            </tr>
+        </table>
+        
+        <h2>🔧 升级系统</h2>
+        
+        <p>每完成一波，你都可以选择一项升级来强化你的战车：</p>
+        
+        <div class="upgrade-grid">
+            <div class="upgrade-card">
+                <div class="upgrade-icon">🔫</div>
+                <strong>火力强化</strong>
+                <p>提升武器伤害和射速</p>
+            </div>
+            <div class="upgrade-card">
+                <div class="upgrade-icon">🛡️</div>
+                <strong>护甲加固</div>
+                <p>增加战车的生命值上限</p>
+            </div>
+            <div class="upgrade-card">
+                <div class="upgrade-icon">⚡</div>
+                <strong>引擎改造</strong>
+                <p>提升移动速度和灵活度</p>
+            </div>
+            <div class="upgrade-card">
+                <div class="upgrade-icon">🎯</div>
+                <strong>精准射击</strong>
+                <p>提升暴击率和暴击伤害</p>
+            </div>
+            <div class="upgrade-card">
+                <div class="upgrade-icon">💰</div>
+                <strong>资源回收</strong>
+                <p>击败敌人获得更多金币</p>
+            </div>
+            <div class="upgrade-card">
+                <div class="upgrade-icon">🚁</div>
+                <strong>无人机</strong>
+                <p>获得自动攻击的无人机僚机</p>
+            </div>
+        </div>
+        
+        <h2>🌊 波次说明</h2>
+        
+        <p>游戏共20波敌人，难度逐步提升：</p>
+        
+        <table class="wave-table">
+            <tr>
+                <th>波次</th>
+                <th>难度</th>
+                <th>敌人类型</th>
+                <th>特点</th>
+            </tr>
+            <tr>
+                <td>1-5</td>
+                <td>⭐</td>
+                <td>普通丧尸</td>
+                <td>新手适应期</td>
+            </tr>
+            <tr>
+                <td>6-10</td>
+                <td>⭐⭐</td>
+                <td>+速度型</td>
+                <td>开始出现快速敌人</td>
+            </tr>
+            <tr>
+                <td>11-15</td>
+                <td>⭐⭐⭐</td>
+                <td>+坦克型</td>
+                <td>高血量敌人出现</td>
+            </tr>
+            <tr>
+                <td>16-19</td>
+                <td>⭐⭐⭐⭐</td>
+                <td>+远程型</td>
+                <td>敌人会远程攻击</td>
+            </tr>
+            <tr>
+                <td>20</td>
+                <td>⭐⭐⭐⭐⭐</td>
+                <td>Boss战</td>
+                <td>巨型变异Boss</td>
+            </tr>
+        </table>
+        
+        <h2>💡 生存技巧</h2>
+        
+        <div class="tips-box">
+            <strong>🏆 幸存者指南：</strong>
+            <ul>
+                <li><strong>优先升级火力：</strong>前期尽快提升伤害，后期敌人体型大、血量厚</li>
+                <li><strong>保持移动：</strong>不要停在原地输出，边打边走位避免被包围</li>
+                <li><strong>利用障碍物：</strong>地图中有可破坏的障碍物，可以阻挡敌人</li>
+                <li><strong>先清小怪：</strong>不要被Boss吸引全部注意力，小怪积少成多也很危险</li>
+                <li><strong>平衡Build：</strong>不要只堆攻击，适当加点护甲和移速保证生存</li>
+                <li><strong>无人机是神技：</strong>优先解锁和升级无人机，它会帮你处理侧翼敌人</li>
+            </ul>
+        </div>
+        
+        <h2>📊 游戏数据</h2>
+        
+        <ul>
+            <li><strong>版本：</strong>V0.1.0</li>
+            <li><strong>难度：</strong>中等（前期简单，后期极具挑战）</li>
+            <li><strong>平均游戏时长：</strong>10-20分钟（取决于能坚持到第几波）</li>
+            <li><strong>通关率：</strong>约15%的玩家能通关20波</li>
+        </ul>
+        
+        <div style="text-align: center; margin: 40px 0;">
+            <a href="index.html" class="play-btn">🚀 开始生存</a>
+        </div>
+        
+        <div class="footer-nav">
+            <a href="../../index.html">🏠 返回大厅</a>
+            <a href="../../pages/privacy.html">🛡️ 隐私政策</a>
+            <a href="../../pages/about.html">ℹ️ 关于我们</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -151,6 +151,17 @@
         <p id="footerEn" style="margin-top: 8px; font-size: 11px; display: none;">
             🏆 User system coming soon | 📊 Leaderboard in development | 🏅 Achievements planned
         </p>
+        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <a href="pages/about.html" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">关于我们</a>
+            <a href="pages/privacy.html" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">隐私政策</a>
+            <a href="pages/terms.html" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">使用条款</a>
+            <span style="color: #666; margin: 0 10px; font-size: 12px;">|</span>
+            <a href="https://github.com/GalaxyZhu/emoji_playground" target="_blank" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">GitHub</a>
+            <a href="https://twitter.com/EmojiArcade" target="_blank" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">Twitter</a>
+        </div>
+        <p style="margin-top: 15px; font-size: 11px; color: #666;">
+            © 2026 Emoji Arcade. All rights reserved.
+        </p>
     </footer>
 
     <!-- Game Embed Container -->
@@ -634,6 +645,38 @@
             
             // Track: page fully loaded
             if (typeof gtag !== 'undefined') {
+                gtag('event', 'page_ready', {
+                    'load_time': Math.round(performance.now())
+                });
+            }
+        });
+        
+        // ==================== 预留：消息接收（游戏内分数上报）====================
+        window.addEventListener('message', (e) => {
+            if (e.data.type === 'GAME_SCORE') {
+                const { gameId, score } = e.data;
+                const record = Storage.getGameRecord(gameId);
+                const isHighScore = score > record.highScore;
+                
+                if (isHighScore) {
+                    record.highScore = score;
+                    Storage.setGameRecord(gameId, record);
+                }
+                
+                // 追踪：游戏分数
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'game_score', {
+                        'game_id': gameId,
+                        'score': score,
+                        'is_high_score': isHighScore
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+         if (typeof gtag !== 'undefined') {
                 gtag('event', 'page_ready', {
                     'load_time': Math.round(performance.now())
                 });
