@@ -187,6 +187,7 @@
                     <div class="emoji-title">🐸</div>
                     <h1>跳跳蛙</h1>
                     <button class="btn" id="startBtn">开始跳跃</button>
+                    <button class="btn" id="backToArcadeStartBtn" style="margin-top: 15px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">🏠 回到街机厅</button>
                     <div class="instructions">
                         青蛙自动跳跃，你只需要控制左右方向<br>
                         A/D 或 ←→ 移动，左右穿墙<br>
@@ -257,6 +258,7 @@
         // 应用翻译
         document.getElementById('startScreen').querySelector('h1').textContent = t.title;
         document.getElementById('startBtn').textContent = t.startBtn;
+        document.getElementById('backToArcadeStartBtn').textContent = t.backToArcade;
         document.getElementById('startScreen').querySelector('.instructions').innerHTML = t.instructions;
         document.getElementById('gameOverScreen').querySelector('h1').textContent = t.gameOver;
         document.getElementById('heightLabel').textContent = t.height;
@@ -863,6 +865,9 @@
 
         // 事件监听
         document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('backToArcadeStartBtn').addEventListener('click', () => {
+            window.location.href = '/';
+        });
         document.getElementById('restartBtn').addEventListener('click', startGame);
         document.getElementById('backToArcadeBtn').addEventListener('click', () => {
             window.location.href = '/';
