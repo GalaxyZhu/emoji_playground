@@ -346,7 +346,7 @@
             const grid = document.getElementById('racingGamesGrid');
             const lang = getCurrentLang();
             
-            const racingGames = ['emoji-rush', 'emoji-drift', 'emoji-kart', 'emoji-climb'];
+            const racingGames = ['emoji-rush', 'emoji-drift', 'emoji-kart'];
             racingGames.forEach(id => {
                 const game = gameConfigs[id];
                 if (game) {
@@ -367,7 +367,7 @@
                 emoji: game.emoji,
                 tagline: game.tagline[lang],
                 version: '0.1.0',
-                status: id === 'emoji-climb' ? 'soon' : 'ready',
+                status: 'ready',
                 path: `games/${id}/index.html`,
                 difficulty: game.difficulty[lang],
                 tags: game.tags[lang],
@@ -377,14 +377,12 @@
             
             const tagline = game.tagline[lang];
             const tags = game.tags[lang];
-            const statusText = id === 'emoji-climb' ? 
-                (lang === 'zh' ? '即将上线' : 'Coming Soon') : 
-                (lang === 'zh' ? '测试版' : 'Beta');
+            const statusText = lang === 'zh' ? '测试版' : 'Beta';
             
             card.innerHTML = `
                 <div class="game-cover">
                     ${game.emoji}
-                    <span class="game-status ${id === 'emoji-climb' ? 'soon' : 'beta'}">${statusText}</span>
+                    <span class="game-status beta">${statusText}</span>
                 </div>
                 <div class="game-info">
                     <div class="game-title">${game.emoji} ${game.name[lang]}</div>
@@ -403,8 +401,7 @@
             const grid = document.getElementById('comingSoonGrid');
             const lang = getCurrentLang();
             
-            // 暂时为空，有需要再添加
-            const comingSoonGames = [];
+            const comingSoonGames = ['emoji-climb'];
             comingSoonGames.forEach(id => {
                 const game = gameConfigs[id];
                 if (game) {
