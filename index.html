@@ -415,7 +415,7 @@
             const grid = document.getElementById('comingSoonGrid');
             const lang = getCurrentLang();
             
-            const comingSoonGames = [];
+            const comingSoonGames = ['emoji-rolling'];
             comingSoonGames.forEach(id => {
                 const game = gameConfigs[id];
                 if (game) {
@@ -476,8 +476,8 @@
             const grid = document.getElementById('gamesGrid');
             const lang = getCurrentLang();
             
-            // Hot Games：match, shooter, survive, frog, rolling
-            const hotGames = ['emoji-match', 'emoji-shooter', 'emoji-survive', 'emoji-frog', 'emoji-rolling'];
+            // Hot Games：match, shooter, survive, frog
+            const hotGames = ['emoji-match', 'emoji-shooter', 'emoji-survive', 'emoji-frog'];
             
             hotGames.forEach(id => {
                 const game = gamesData.find(g => g.id === id);
