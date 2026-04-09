@@ -240,7 +240,9 @@
         // 生成地形
         function generateTerrain() {
             terrain = [];
-            for (let i = 0; i < (GAME_WIDTH + 200) / 10; i++) {
+            // 生成足够宽的地形，覆盖屏幕加上足够的前方区域
+            const totalWidth = GAME_WIDTH + 500; // 增加缓冲区
+            for (let i = 0; i < totalWidth / 10; i++) {
                 const x = i * 10;
                 const worldX = terrainOffset + x;
                 const height = Math.sin(worldX * 0.01) * 30 + Math.sin(worldX * 0.03) * 15;
@@ -335,9 +337,11 @@
         function getGroundY(x) {
             // x 是玩家相对于屏幕的坐标
             // 地形数组存储的是相对于 terrainOffset 的地形
-            // 所以玩家对应的 terrain 索引应该是 (x + terrainOffset - terrainOffset) / 10 = x / 10
-            // 但由于地形数组不断更新，我们需要使用 x 作为索引
-            const index = Math.floor(x / 10);
+            // 需要将屏幕坐标转换为地形数组索引
+            // 地形数组每个点间隔 10 像素，且会随着 terrainOffset 变化而 shift
+            // 正确的索引计算：考虑 terrainOffset 的影响
+            const adjustedX = x + terrainOffset;
+            const index = Math.floor(adjustedX / 10);
             if (index >= 0 && index < terrain.length) {
                 return terrain[index].y;
             }
@@ -345,7 +349,9 @@
         }
         
         function getGroundAngle(x) {
-            const index = Math.floor(x / 10);
+            // 同样需要考虑 terrainOffset 的影响
+            const adjustedX = x + terrainOffset;
+            const index = Math.floor(adjustedX / 10);
             const nextIndex = index + 1;
             if (index >= 0 && index < terrain.length && nextIndex < terrain.length) {
                 const dx = terrain[nextIndex].x - terrain[index].x;
