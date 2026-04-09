@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🚜 Emoji Climb V0.1.0</title>
+    <title>🏂 Emoji Climb V0.2.0</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
         body {
@@ -63,135 +63,103 @@
             font-size: 14px;
             line-height: 1.8;
         }
-        .distance-display {
+        .hud {
             position: absolute;
             top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #fff;
-            font-size: 24px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 30px;
+            pointer-events: none;
             z-index: 50;
         }
-        .fuel-display {
+        .hud-item {
+            color: #fff;
+            font-size: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .combo-display {
             position: absolute;
-            top: 50px;
+            top: 60px;
             left: 50%;
             transform: translateX(-50%);
             color: #ffd700;
-            font-size: 16px;
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s;
             z-index: 50;
         }
+        .combo-display.active { opacity: 1; }
         .controls-hint {
             position: absolute;
-            bottom: 20px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
-            color: rgba(255,255,255,0.5);
-            font-size: 12px;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
             z-index: 50;
+            text-align: center;
         }
+        .trick-text {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ff64;
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(0, 255, 100, 0.8);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 60;
+        }
+        @keyframes trickPopup {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -70%) scale(1); }
+        }
+        .trick-text.show { animation: trickPopup 1s ease-out; }
     </style>
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
     
-    <div class="distance-display" id="distanceDisplay">0m</div>
-    <div class="fuel-display" id="fuelDisplay">⛽ 100%</div>
-    <div class="controls-hint" id="controlsHint">按住 = 油门 | 松开 = 刹车</div>
+    <div class="hud">
+        <div class="hud-item" id="distanceDisplay">0m</div>
+        <div class="hud-item" id="scoreDisplay">0</div>
+    </div>
+    <div class="combo-display" id="comboDisplay">🔥 x1</div>
+    <div class="trick-text" id="trickText"></div>
+    <div class="controls-hint" id="controlsHint">按住蓄力 → 松手跳跃 → 空中按住翻转</div>
     
     <div class="ui-overlay" id="startScreen">
-        <div class="emoji-title">🚜</div>
+        <div class="emoji-title">🏂</div>
         <h1>EMOJI CLIMB</h1>
-        <button class="btn" id="startBtn">开始爬坡</button>
+        <button class="btn" id="startBtn">开始冒险</button>
         <button class="btn btn-home" id="homeBtn" onclick="location.href='../../index.html'" style="margin-top: 15px;">🏠 回到街机厅</button>
         <div class="instructions">
-            🔴 按住屏幕/鼠标 = 油门加速<br>
-            ⚫ 松开 = 刹车减速<br>
-            ⚖️ 保持平衡，别翻车！<br>
-            ⛽ 收集油桶补充燃料<br>
-            💰 金币加分<br>
-            看你能爬多远！
+            🎿 按住蓄力 → 跳得更高<br>
+            🔄 空中按住 = 后空翻<br>
+            ✨ 完美落地 = 加速冲刺<br>
+            🔥 连续特技 = 分数翻倍<br>
+            像 Alto 一样流畅滑行！
         </div>
     </div>
     
     <div class="ui-overlay hidden" id="gameOverScreen">
         <div class="emoji-title" id="crashEmoji">💥</div>
-        <h1 id="crashTitle">翻车了！</h1>
-        <div style="color: #fff; font-size: 24px; margin-bottom: 10px;"><span id="distanceLabel">行驶距离</span>: <span id="finalDistance">0</span>m</div>
-        <div style="color: #ffd700; font-size: 18px; margin-bottom: 10px;"><span id="highScoreLabel">最高分</span>: <span id="highScore">0</span>m</div>
-        <div style="color: #888; font-size: 14px; margin-bottom: 30px;"><span id="crashReason"></span></div>
+        <h1 id="crashTitle">摔倒了！</h1>
+        <div style="color: #fff; font-size: 24px; margin-bottom: 5px;">距离: <span id="finalDistance">0</span>m</div>
+        <div style="color: #ffd700; font-size: 20px; margin-bottom: 5px;">得分: <span id="finalScore">0</span></div>
+        <div style="color: #888; font-size: 14px; margin-bottom: 30px;">最高分: <span id="highScore">0</span>m</div>
         <button class="btn" id="restartBtn">再来一局</button>
         <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
     </div>
 
     <script>
-        // 多语言支持
-        const i18n = {
-            zh: {
-                startGame: '开始爬坡',
-                gameOver: '翻车了！',
-                outOfFuel: '没油了！',
-                crashed: '撞毁了！',
-                distance: '行驶距离',
-                highScore: '最高分',
-                backToArcade: '🏠 回到街机厅',
-                playAgain: '再来一局',
-                controlsHint: '按住 = 油门 | 松开 = 刹车',
-                instructions: `
-                    🔴 按住屏幕/鼠标 = 油门加速<br>
-                    ⚫ 松开 = 刹车减速<br>
-                    ⚖️ 保持平衡，别翻车！<br>
-                    ⛽ 收集油桶补充燃料<br>
-                    💰 金币加分<br>
-                    看你能爬多远！
-                `,
-                crashReason: '车辆损毁',
-                fuel: '⛽',
-                accelerate: '🔥 加速中',
-                brake: '⚫ 刹车'
-            },
-            en: {
-                startGame: 'Start Game',
-                gameOver: 'Game Over!',
-                outOfFuel: 'Out of Fuel!',
-                crashed: 'Crashed!',
-                distance: 'Distance',
-                highScore: 'High Score',
-                backToArcade: '🏠 Back to Arcade',
-                playAgain: 'Play Again',
-                controlsHint: 'Hold = Accelerate | Release = Brake',
-                instructions: `
-                    🔴 Hold screen/mouse = Accelerate<br>
-                    ⚫ Release = Brake<br>
-                    ⚖️ Keep balance, don't flip!<br>
-                    ⛽ Collect fuel cans<br>
-                    💰 Coins for bonus points<br>
-                    How far can you climb?
-                `,
-                crashReason: 'Vehicle Destroyed',
-                fuel: '⛽',
-                accelerate: '🔥 Accelerating',
-                brake: '⚫ Braking'
-            }
-        };
-
-        // 检测语言
-        const lang = navigator.language.toLowerCase().startsWith('en') ? 'en' : 'zh';
-        const t = i18n[lang];
-
-        // 应用翻译
-        function applyTranslations() {
-            document.getElementById('startBtn').textContent = t.startGame;
-            document.getElementById('controlsHint').textContent = t.controlsHint;
-            document.querySelector('.instructions').innerHTML = t.instructions;
-            document.querySelectorAll('.btn-home').forEach(btn => btn.innerHTML = t.backToArcade);
-            document.getElementById('restartBtn').textContent = t.playAgain;
-            document.getElementById('distanceLabel').textContent = t.distance;
-            document.getElementById('highScoreLabel').textContent = t.highScore;
-        }
-
-        // 页面加载时应用翻译
-        document.addEventListener('DOMContentLoaded', applyTranslations);
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         
@@ -200,100 +168,230 @@
         canvas.width = GAME_WIDTH;
         canvas.height = GAME_HEIGHT;
         
+        // 游戏状态
         let gameState = 'start';
         let distance = 0;
-        let highScore = localStorage.getItem('emojiClimbHighScore') || 0;
-        let fuel = 100;
+        let score = 0;
+        let highScore = localStorage.getItem('emojiClimbHighScore_v2') || 0;
         
-        // 物理参数
-        let gravity = 0.5;
-        let groundY = GAME_HEIGHT - 50;
+        // 物理参数 - Alto风格：流畅、低重力感
+        const GRAVITY = 0.4;
+        const GROUND_FRICTION = 0.98;
+        const AIR_RESISTANCE = 0.995;
         
-        // 玩家车辆
+        // 玩家 - 滑雪者风格
         let player = {
-            x: 100,
-            y: groundY - 40,
-            vx: 0,
+            x: 150,
+            y: 200,
+            vx: 5,  // 初始速度
             vy: 0,
             angle: 0,
             angularVelocity: 0,
-            width: 60,
+            width: 40,
             height: 40,
-            emoji: '🚜',
-            wheelRadius: 15,
-            onGround: false
+            emoji: '🏂',
+            onGround: false,
+            // 跳跃相关
+            isCharging: false,
+            chargePower: 0,
+            maxCharge: 20,
+            // 翻转相关
+            isFlipping: false,
+            flipRotation: 0,
+            totalRotation: 0,
+            // 连击
+            combo: 0,
+            comboTimer: 0,
+            lastTrick: null
         };
         
-        // 地形
+        // 地形系统
         let terrain = [];
         let terrainOffset = 0;
+        const TERRAIN_SEGMENT_WIDTH = 20;
         
-        // 物品
-        let items = [];
+        // 地形类型
+        const TERRAIN_TYPES = {
+            NORMAL: 'normal',
+            ICE: 'ice',      // 冰面 - 低摩擦
+            RAMP: 'ramp',    // 跳台 - 自动起跳
+            GAP: 'gap'       // 鸿沟 - 必须跳过
+        };
         
-        // 粒子
+        // 粒子系统
         let particles = [];
         
-        // 输入
-        let isAccelerating = false;
+        // 背景层（视差滚动）
+        let bgOffset = 0;
         
-        // 生成地形
+        // 输入处理
+        let isPressed = false;
+        
+        canvas.addEventListener('mousedown', () => isPressed = true);
+        canvas.addEventListener('mouseup', () => isPressed = false);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); isPressed = true; }, { passive: false });
+        canvas.addEventListener('touchend', (e) => { e.preventDefault(); isPressed = false; }, { passive: false });
+        document.addEventListener('keydown', (e) => { if (e.code === 'Space' || e.key === 'ArrowUp') isPressed = true; });
+        document.addEventListener('keyup', (e) => { if (e.code === 'Space' || e.key === 'ArrowUp') isPressed = false; });
+        
+        // 生成地形 - 使用更平滑的算法
         function generateTerrain() {
             terrain = [];
-            // 生成足够宽的地形，覆盖屏幕加上足够的前方区域
-            const totalWidth = GAME_WIDTH + 500; // 增加缓冲区
-            for (let i = 0; i < totalWidth / 10; i++) {
-                const x = i * 10;
-                const worldX = terrainOffset + x;
-                const height = Math.sin(worldX * 0.01) * 30 + Math.sin(worldX * 0.03) * 15;
-                terrain.push({
-                    x: x,  // 相对坐标
-                    y: groundY - height
+            let x = 0;
+            let y = GAME_HEIGHT - 80;
+            let type = TERRAIN_TYPES.NORMAL;
+            
+            while (x < GAME_WIDTH * 3) {
+                // 根据距离增加难度
+                const difficulty = Math.min(distance / 5000, 1);
+                
+                // 随机选择地形类型
+                const rand = Math.random();
+                if (rand < 0.05 + difficulty * 0.1) {
+                    type = TERRAIN_TYPES.ICE;
+                } else if (rand < 0.08 + difficulty * 0.05) {
+                    type = TERRAIN_TYPES.RAMP;
+                } else if (rand < 0.10 + difficulty * 0.08) {
+                    type = TERRAIN_TYPES.GAP;
+                } else {
+                    type = TERRAIN_TYPES.NORMAL;
+                }
+                
+                // 生成地形段
+                const segmentWidth = TERRAIN_SEGMENT_WIDTH + Math.random() * 30;
+                
+                if (type === TERRAIN_TYPES.GAP) {
+                    // 鸿沟 - 不生成地面
+                    terrain.push({
+                        x: x,
+                        y: y,
+                        width: 60 + Math.random() * 40,
+                        height: 0,
+                        type: TERRAIN_TYPES.GAP
+                    });
+                    x += 60 + Math.random() * 40;
+                } else if (type === TERRAIN_TYPES.RAMP) {
+                    // 跳台 - 向上倾斜
+                    const rampHeight = 40 + Math.random() * 30;
+                    terrain.push({
+                        x: x,
+                        y: y,
+                        width: segmentWidth,
+                        height: rampHeight,
+                        type: TERRAIN_TYPES.RAMP,
+                        angle: -Math.PI / 6
+                    });
+                    y -= rampHeight * 0.3;
+                    x += segmentWidth;
+                } else {
+                    // 普通或冰面 - 平滑起伏
+                    const heightChange = (Math.random() - 0.5) * 40;
+                    y = Math.max(GAME_HEIGHT - 150, Math.min(GAME_HEIGHT - 50, y + heightChange));
+                    
+                    terrain.push({
+                        x: x,
+                        y: y,
+                        width: segmentWidth,
+                        height: GAME_HEIGHT - y,
+                        type: type
+                    });
+                    x += segmentWidth;
+                }
+            }
+        }
+        
+        // 获取地面高度和类型
+        function getGroundInfo(x) {
+            const worldX = x + terrainOffset;
+            
+            for (let i = 0; i < terrain.length; i++) {
+                const seg = terrain[i];
+                if (worldX >= seg.x && worldX < seg.x + seg.width) {
+                    if (seg.type === TERRAIN_TYPES.GAP) {
+                        return { y: GAME_HEIGHT + 200, type: TERRAIN_TYPES.GAP, angle: 0 };
+                    }
+                    
+                    // 计算角度
+                    let angle = 0;
+                    if (i < terrain.length - 1) {
+                        const nextSeg = terrain[i + 1];
+                        if (nextSeg.type !== TERRAIN_TYPES.GAP) {
+                            angle = Math.atan2(nextSeg.y - seg.y, nextSeg.x - seg.x);
+                        }
+                    }
+                    
+                    // 跳台特殊角度
+                    if (seg.type === TERRAIN_TYPES.RAMP) {
+                        angle = seg.angle;
+                    }
+                    
+                    return { y: seg.y, type: seg.type, angle: angle };
+                }
+            }
+            
+            return { y: GAME_HEIGHT - 80, type: TERRAIN_TYPES.NORMAL, angle: 0 };
+        }
+        
+        // 创建粒子
+        function createParticle(x, y, type, count = 1) {
+            const colors = {
+                snow: '#ffffff',
+                ice: '#aaddff',
+                dust: '#8b7355',
+                spark: '#ffd700'
+            };
+            
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 4,
+                    vy: -Math.random() * 3 - 1,
+                    life: 1,
+                    color: colors[type] || colors.snow,
+                    size: Math.random() * 4 + 2
                 });
             }
         }
         
-        generateTerrain();
+        // 显示特技文字
+        function showTrickText(text) {
+            const el = document.getElementById('trickText');
+            el.textContent = text;
+            el.classList.remove('show');
+            void el.offsetWidth; // 触发重绘
+            el.classList.add('show');
+        }
         
-        // 输入处理
-        canvas.addEventListener('mousedown', () => isAccelerating = true);
-        canvas.addEventListener('mouseup', () => isAccelerating = false);
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            isAccelerating = true;
-        }, { passive: false });
-        canvas.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            isAccelerating = false;
-        }, { passive: false });
-        
-        document.addEventListener('keydown', (e) => {
-            if (e.key === ' ' || e.key === 'ArrowUp') isAccelerating = true;
-        });
-        document.addEventListener('keyup', (e) => {
-            if (e.key === ' ' || e.key === 'ArrowUp') isAccelerating = false;
-        });
-        
+        // 开始游戏
         function startGame() {
             gameState = 'playing';
             distance = 0;
-            fuel = 100;
+            score = 0;
             terrainOffset = 0;
-            items = [];
+            bgOffset = 0;
             particles = [];
             
             player = {
-                x: 100,
-                y: groundY - 40,
-                vx: 0,
+                x: 150,
+                y: 200,
+                vx: 5,
                 vy: 0,
                 angle: 0,
                 angularVelocity: 0,
-                width: 60,
+                width: 40,
                 height: 40,
-                emoji: '🚜',
-                wheelRadius: 15,
-                onGround: false
+                emoji: '🏂',
+                onGround: false,
+                isCharging: false,
+                chargePower: 0,
+                maxCharge: 20,
+                isFlipping: false,
+                flipRotation: 0,
+                totalRotation: 0,
+                combo: 0,
+                comboTimer: 0,
+                lastTrick: null
             };
             
             generateTerrain();
@@ -301,315 +399,371 @@
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
             document.getElementById('controlsHint').style.display = 'block';
+            document.getElementById('comboDisplay').classList.remove('active');
+            
             requestAnimationFrame(gameLoop);
         }
         
-        function gameOver(reason) {
+        // 游戏结束
+        function gameOver() {
             gameState = 'gameover';
             if (distance > highScore) {
-                highScore = distance;
-                localStorage.setItem('emojiClimbHighScore', highScore);
+                highScore = Math.floor(distance);
+                localStorage.setItem('emojiClimbHighScore_v2', highScore);
             }
             
-            const crashEmoji = document.getElementById('crashEmoji');
-            const crashTitle = document.getElementById('crashTitle');
-            
-            if (reason === 'fuel') {
-                crashEmoji.textContent = '⛽';
-                crashTitle.textContent = t.outOfFuel;
-            } else if (Math.abs(player.angle) > Math.PI / 2) {
-                crashEmoji.textContent = '🙃';
-                crashTitle.textContent = t.gameOver;
-            } else {
-                crashEmoji.textContent = '💥';
-                crashTitle.textContent = t.crashed;
-            }
-            
-            document.getElementById('distanceLabel').textContent = t.distance;
             document.getElementById('finalDistance').textContent = Math.floor(distance);
-            document.getElementById('highScoreLabel').textContent = t.highScore;
-            document.getElementById('highScore').textContent = Math.floor(highScore);
-            document.getElementById('crashReason').textContent = reason === 'fuel' ? t.outOfFuel : (reason === 'fall' ? t.crashed : t.crashReason);
+            document.getElementById('finalScore').textContent = Math.floor(score);
+            document.getElementById('highScore').textContent = highScore;
             document.getElementById('gameOverScreen').classList.remove('hidden');
             document.getElementById('controlsHint').style.display = 'none';
         }
         
-        function getGroundY(x) {
-            // x 是玩家相对于屏幕的坐标
-            // 地形数组存储的是相对于 terrainOffset 的地形
-            // 需要将屏幕坐标转换为地形数组索引
-            // 地形数组每个点间隔 10 像素，且会随着 terrainOffset 变化而 shift
-            // 正确的索引计算：考虑 terrainOffset 的影响
-            const adjustedX = x + terrainOffset;
-            const index = Math.floor(adjustedX / 10);
-            if (index >= 0 && index < terrain.length) {
-                return terrain[index].y;
-            }
-            return groundY;
-        }
-        
-        function getGroundAngle(x) {
-            // 同样需要考虑 terrainOffset 的影响
-            const adjustedX = x + terrainOffset;
-            const index = Math.floor(adjustedX / 10);
-            const nextIndex = index + 1;
-            if (index >= 0 && index < terrain.length && nextIndex < terrain.length) {
-                const dx = terrain[nextIndex].x - terrain[index].x;
-                const dy = terrain[nextIndex].y - terrain[index].y;
-                return Math.atan2(dy, dx);
-            }
-            return 0;
-        }
-        
-        function spawnItem() {
-            if (Math.random() < 0.01) {
-                const type = Math.random() < 0.3 ? 'fuel' : 'coin';
-                items.push({
-                    x: GAME_WIDTH + 50,
-                    y: getGroundY(GAME_WIDTH) - 60 - Math.random() * 50,
-                    type: type,
-                    emoji: type === 'fuel' ? '⛽' : '💰',
-                    size: 30
-                });
-            }
-        }
-        
-        function createParticle(x, y, emoji, count = 3) {
-            for (let i = 0; i < count; i++) {
-                particles.push({
-                    x: x, y: y,
-                    vx: (Math.random() - 0.5) * 5,
-                    vy: (Math.random() - 0.5) * 5 - 2,
-                    life: 1,
-                    emoji: emoji
-                });
-            }
-        }
-        
+        // 更新物理
         function update() {
             if (gameState !== 'playing') return;
             
-            // 燃料消耗
-            if (isAccelerating) {
-                fuel -= 0.1;
-                if (fuel <= 0) {
-                    gameOver('fuel');
-                    return;
+            const ground = getGroundInfo(player.x);
+            
+            // 地面检测
+            const groundY = ground.y;
+            const wasOnGround = player.onGround;
+            player.onGround = player.y + player.height/2 >= groundY - 5 && player.vy >= 0;
+            
+            // 跳跃蓄力
+            if (player.onGround) {
+                if (isPressed && !player.isCharging) {
+                    player.isCharging = true;
+                    player.chargePower = 0;
                 }
-            }
-            
-            // 车辆物理
-            const groundAngle = getGroundAngle(player.x);
-            
-            // 加速度和刹车
-            if (isAccelerating) {
-                player.vx += Math.cos(groundAngle) * 0.3;
-                player.vy += Math.sin(groundAngle) * 0.3;
+                
+                if (player.isCharging) {
+                    if (isPressed) {
+                        player.chargePower = Math.min(player.chargePower + 0.5, player.maxCharge);
+                        // 蓄力时减速
+                        player.vx *= 0.95;
+                    } else {
+                        // 释放跳跃
+                        const jumpForce = 8 + player.chargePower * 0.5;
+                        player.vy = -jumpForce;
+                        player.onGround = false;
+                        player.isCharging = false;
+                        player.chargePower = 0;
+                        createParticle(player.x, player.y + 20, 'snow', 5);
+                    }
+                } else {
+                    // 地面滑行物理
+                    if (ground.type === TERRAIN_TYPES.ICE) {
+                        player.vx *= 0.995; // 冰面摩擦力极小
+                    } else {
+                        player.vx *= GROUND_FRICTION;
+                    }
+                    
+                    // 自动加速到基础速度
+                    if (player.vx < 3) player.vx += 0.1;
+                    
+                    // 落地角度平滑
+                    const targetAngle = ground.angle;
+                    player.angle += (targetAngle - player.angle) * 0.1;
+                    player.angularVelocity = 0;
+                    
+                    // 检查落地特技
+                    if (!wasOnGround && player.totalRotation !== 0) {
+                        const flips = Math.floor(Math.abs(player.totalRotation) / (Math.PI * 2));
+                        const remainder = Math.abs(player.totalRotation) % (Math.PI * 2);
+                        const isGoodLanding = remainder < 0.5 || remainder > Math.PI * 2 - 0.5;
+                        
+                        if (isGoodLanding && flips > 0) {
+                            // 完美落地奖励
+                            player.vx += flips * 2; // 加速
+                            score += flips * 100 * (player.combo + 1);
+                            player.combo = Math.min(player.combo + 1, 5);
+                            player.comboTimer = 120;
+                            showTrickText(flips >= 2 ? '🔥 完美 ' + flips + ' 连翻!' : '✨ 完美落地!');
+                            createParticle(player.x, player.y, 'spark', 8);
+                        } else if (!isGoodLanding) {
+                            // 落地姿势不好，减速
+                            player.vx *= 0.5;
+                            player.combo = 0;
+                            showTrickText('💥 糟糕');
+                        }
+                        
+                        player.totalRotation = 0;
+                    }
+                }
+                
+                player.y = groundY - player.height/2;
+                player.vy = 0;
             } else {
-                // 刹车/摩擦
-                player.vx *= 0.98;
-                player.vy *= 0.98;
+                // 空中物理
+                player.vy += GRAVITY;
+                player.vx *= AIR_RESISTANCE;
+                
+                // 空中翻转
+                if (isPressed) {
+                    player.angularVelocity += 0.15;
+                    player.isFlipping = true;
+                } else {
+                    // 自动回正
+                    player.angularVelocity += (0 - player.angle) * 0.02;
+                }
+                
+                player.angle += player.angularVelocity;
+                player.angularVelocity *= 0.98;
+                player.totalRotation += player.angularVelocity;
             }
             
-            // 重力
-            player.vy += gravity;
-            
-            // 空气阻力
-            player.vx *= 0.999;
-            
-            // 更新位置
+            // 应用速度
             player.x += player.vx;
             player.y += player.vy;
             
-            // 地面碰撞
-            const groundAtPlayer = getGroundY(player.x);
-            if (player.y + player.height / 2 >= groundAtPlayer - 10) {
-                player.y = groundAtPlayer - player.height / 2 - 10;
-                player.vy = 0;
-                player.onGround = true;
-                
-                // 根据地面角度调整车辆角度
-                const targetAngle = groundAngle * 0.1;
-                player.angularVelocity += (targetAngle - player.angle) * 0.05;
-            } else {
-                player.onGround = false;
-                // 空中旋转
-                player.angularVelocity += (player.vx * 0.01 - player.angle * 0.02);
-            }
-            
-            // 角度物理
-            player.angle += player.angularVelocity;
-            player.angularVelocity *= 0.95;
-            
-            // 翻车检测
-            if (Math.abs(player.angle) > Math.PI / 2 && player.onGround) {
-                gameOver('flip');
-                return;
+            // 连击计时器
+            if (player.comboTimer > 0) {
+                player.comboTimer--;
+                if (player.comboTimer === 0) {
+                    player.combo = 0;
+                }
             }
             
             // 相机跟随
-            if (player.x > GAME_WIDTH * 0.6) {
-                const moveAmount = player.x - GAME_WIDTH * 0.6;
+            if (player.x > GAME_WIDTH * 0.4) {
+                const moveAmount = player.x - GAME_WIDTH * 0.4;
                 terrainOffset += moveAmount;
-                player.x = GAME_WIDTH * 0.6;
+                bgOffset += moveAmount * 0.3;
+                player.x = GAME_WIDTH * 0.4;
                 distance += moveAmount;
                 
                 // 生成新地形
-                if (terrainOffset > 100) {
+                while (terrain.length > 0 && terrain[0].x + terrain[0].width < terrainOffset - 100) {
                     terrain.shift();
-                    const lastPoint = terrain[terrain.length - 1];
-                    // 使用相对于 terrainOffset 的坐标计算新地形高度
-                    const worldX = lastPoint.x + terrainOffset + 10;
-                    const height = Math.sin(worldX * 0.01) * 30 + 
-                                   Math.sin(worldX * 0.03) * 15 +
-                                   Math.random() * 20 - 10;
-                    terrain.push({
-                        x: lastPoint.x + 10,  // 相对坐标，保持连续
-                        y: groundY - height
-                    });
-                    terrainOffset -= 10;
+                }
+                
+                // 添加新地形段
+                const lastSeg = terrain[terrain.length - 1];
+                if (lastSeg) {
+                    generateTerrainFrom(lastSeg.x + lastSeg.width, lastSeg.y);
                 }
             }
             
             // 掉落检测
             if (player.y > GAME_HEIGHT + 100) {
-                gameOver('fall');
+                gameOver();
                 return;
             }
-            
-            // 生成物品
-            spawnItem();
-            
-            // 更新物品
-            items = items.filter(item => {
-                item.x -= player.vx;
-                
-                // 碰撞检测
-                const dx = item.x - player.x;
-                const dy = item.y - player.y;
-                if (Math.sqrt(dx*dx + dy*dy) < 40) {
-                    if (item.type === 'fuel') {
-                        fuel = Math.min(fuel + 30, 100);
-                        createParticle(item.x, item.y, '⛽', 5);
-                    } else {
-                        createParticle(item.x, item.y, '💰', 5);
-                    }
-                    return false;
-                }
-                
-                return item.x > -50;
-            });
             
             // 更新粒子
             particles = particles.filter(p => {
                 p.x -= player.vx;
                 p.x += p.vx;
                 p.y += p.vy;
-                p.vy += 0.2; // 重力
+                p.vy += 0.1;
                 p.life -= 0.02;
                 return p.life > 0;
             });
             
-            // 尾气效果
-            if (isAccelerating && fuel > 0) {
-                createParticle(player.x - 30, player.y, '💨', 1);
+            // 生成地面粒子
+            if (player.onGround && Math.abs(player.vx) > 3) {
+                const groundType = getGroundInfo(player.x).type;
+                const particleType = groundType === TERRAIN_TYPES.ICE ? 'ice' : 'snow';
+                if (Math.random() < 0.3) {
+                    createParticle(player.x - 20, player.y + 20, particleType, 1);
+                }
             }
             
             // 更新UI
             document.getElementById('distanceDisplay').textContent = Math.floor(distance) + 'm';
-            document.getElementById('fuelDisplay').textContent = '⛽ ' + Math.floor(fuel) + '%';
-            document.getElementById('fuelDisplay').style.color = fuel < 30 ? '#ff4444' : '#ffd700';
+            document.getElementById('scoreDisplay').textContent = Math.floor(score);
+            
+            const comboEl = document.getElementById('comboDisplay');
+            if (player.combo > 0) {
+                comboEl.textContent = '🔥 x' + (player.combo + 1);
+                comboEl.classList.add('active');
+            } else {
+                comboEl.classList.remove('active');
+            }
+            
+            // 持续得分
+            score += player.vx * 0.1;
         }
         
-        function draw() {
-            ctx.fillStyle = '#1a3a2e';
-            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+        // 从指定位置生成新地形
+        function generateTerrainFrom(startX, startY) {
+            let x = startX;
+            let y = startY;
             
-            // 天空渐变
+            while (x < terrainOffset + GAME_WIDTH * 2) {
+                const difficulty = Math.min(distance / 5000, 1);
+                const rand = Math.random();
+                
+                let type = TERRAIN_TYPES.NORMAL;
+                if (rand < 0.05 + difficulty * 0.1) type = TERRAIN_TYPES.ICE;
+                else if (rand < 0.08 + difficulty * 0.05) type = TERRAIN_TYPES.RAMP;
+                else if (rand < 0.10 + difficulty * 0.08) type = TERRAIN_TYPES.GAP;
+                
+                const segmentWidth = TERRAIN_SEGMENT_WIDTH + Math.random() * 30;
+                
+                if (type === TERRAIN_TYPES.GAP) {
+                    terrain.push({
+                        x: x,
+                        y: y,
+                        width: 60 + Math.random() * 40,
+                        height: 0,
+                        type: TERRAIN_TYPES.GAP
+                    });
+                    x += 60 + Math.random() * 40;
+                } else if (type === TERRAIN_TYPES.RAMP) {
+                    const rampHeight = 40 + Math.random() * 30;
+                    terrain.push({
+                        x: x,
+                        y: y,
+                        width: segmentWidth,
+                        height: rampHeight,
+                        type: TERRAIN_TYPES.RAMP,
+                        angle: -Math.PI / 6
+                    });
+                    y -= rampHeight * 0.3;
+                    x += segmentWidth;
+                } else {
+                    const heightChange = (Math.random() - 0.5) * 40;
+                    y = Math.max(GAME_HEIGHT - 150, Math.min(GAME_HEIGHT - 50, y + heightChange));
+                    
+                    terrain.push({
+                        x: x,
+                        y: y,
+                        width: segmentWidth,
+                        height: GAME_HEIGHT - y,
+                        type: type
+                    });
+                    x += segmentWidth;
+                }
+            }
+        }
+        
+        // 绘制
+        function draw() {
+            // 天空渐变 - 随距离变化色调
+            const timeOfDay = (distance / 5000) % 1;
             const gradient = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
-            gradient.addColorStop(0, '#1a3a5e');
-            gradient.addColorStop(1, '#1a3a2e');
+            
+            if (timeOfDay < 0.25) { // 清晨
+                gradient.addColorStop(0, '#ff9a76');
+                gradient.addColorStop(1, '#2d5a6e');
+            } else if (timeOfDay < 0.5) { // 正午
+                gradient.addColorStop(0, '#4a90d9');
+                gradient.addColorStop(1, '#87ceeb');
+            } else if (timeOfDay < 0.75) { // 黄昏
+                gradient.addColorStop(0, '#ff6b4a');
+                gradient.addColorStop(1, '#4a3a6e');
+            } else { // 夜晚
+                gradient.addColorStop(0, '#1a1a3e');
+                gradient.addColorStop(1, '#3a3a6e');
+            }
+            
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
             
-            // 绘制地形
-            ctx.fillStyle = '#2d5a3e';
+            // 绘制远山（视差）
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
             ctx.beginPath();
-            ctx.moveTo(0, GAME_HEIGHT);
-            
-            for (let i = 0; i < terrain.length; i++) {
-                const point = terrain[i];
-                const drawX = point.x - terrainOffset;
-                if (drawX >= -10 && drawX <= GAME_WIDTH + 10) {
-                    ctx.lineTo(drawX, point.y);
-                }
+            for (let i = 0; i < GAME_WIDTH + 100; i += 50) {
+                const x = i - (bgOffset * 0.2) % 100;
+                const height = 100 + Math.sin(i * 0.01) * 30;
+                ctx.lineTo(x, GAME_HEIGHT - height);
             }
-            
             ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
             ctx.lineTo(0, GAME_HEIGHT);
             ctx.fill();
             
-            // 地形顶部线条
-            ctx.strokeStyle = '#4d8a5e';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
+            // 绘制地形
             for (let i = 0; i < terrain.length; i++) {
-                const point = terrain[i];
-                const drawX = point.x - terrainOffset;
-                if (drawX >= -10 && drawX <= GAME_WIDTH + 10) {
-                    if (i === 0) ctx.moveTo(drawX, point.y);
-                    else ctx.lineTo(drawX, point.y);
+                const seg = terrain[i];
+                const drawX = seg.x - terrainOffset;
+                
+                if (drawX + seg.width < -50 || drawX > GAME_WIDTH + 50) continue;
+                
+                if (seg.type === TERRAIN_TYPES.GAP) continue;
+                
+                // 地形颜色
+                if (seg.type === TERRAIN_TYPES.ICE) {
+                    ctx.fillStyle = '#aaddff';
+                } else if (seg.type === TERRAIN_TYPES.RAMP) {
+                    ctx.fillStyle = '#5d8a6e';
+                } else {
+                    ctx.fillStyle = '#2d5a3e';
                 }
+                
+                // 绘制地形段
+                ctx.beginPath();
+                ctx.moveTo(drawX, GAME_HEIGHT);
+                
+                // 找到下一个非鸿沟段
+                let nextSeg = null;
+                for (let j = i + 1; j < terrain.length; j++) {
+                    if (terrain[j].type !== TERRAIN_TYPES.GAP) {
+                        nextSeg = terrain[j];
+                        break;
+                    }
+                }
+                
+                if (nextSeg) {
+                    const nextDrawX = nextSeg.x - terrainOffset;
+                    ctx.lineTo(drawX, seg.y);
+                    ctx.lineTo(nextDrawX, nextSeg.y);
+                    ctx.lineTo(nextDrawX, GAME_HEIGHT);
+                } else {
+                    ctx.lineTo(drawX, seg.y);
+                    ctx.lineTo(drawX + seg.width, seg.y);
+                    ctx.lineTo(drawX + seg.width, GAME_HEIGHT);
+                }
+                
+                ctx.fill();
+                
+                // 地形顶部高光
+                ctx.strokeStyle = seg.type === TERRAIN_TYPES.ICE ? '#ffffff' : '#4d8a5e';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(drawX, seg.y);
+                if (nextSeg) {
+                    ctx.lineTo(nextSeg.x - terrainOffset, nextSeg.y);
+                } else {
+                    ctx.lineTo(drawX + seg.width, seg.y);
+                }
+                ctx.stroke();
             }
-            ctx.stroke();
             
-            ctx.font = '30px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            
-            // 物品
-            items.forEach(item => {
-                const drawX = item.x - terrainOffset;
-                if (drawX > -50 && drawX < GAME_WIDTH + 50) {
-                    ctx.fillText(item.emoji, drawX, item.y);
-                }
-            });
-            
-            // 绘制车辆
+            // 绘制玩家
             ctx.save();
             ctx.translate(player.x, player.y);
+            
+            // 蓄力指示器
+            if (player.isCharging) {
+                const chargePercent = player.chargePower / player.maxCharge;
+                ctx.strokeStyle = `hsl(${120 * chargePercent}, 100%, 50%)`;
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(0, -30, 20, -Math.PI/2, -Math.PI/2 + Math.PI * 2 * chargePercent);
+                ctx.stroke();
+            }
+            
             ctx.rotate(player.angle);
             
-            // 车身
-            ctx.font = '50px sans-serif';
+            // 玩家emoji
+            ctx.font = '40px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
             ctx.fillText(player.emoji, 0, 0);
-            
-            // 燃料低警告
-            if (fuel < 20 && Math.floor(Date.now() / 200) % 2 === 0) {
-                ctx.fillText('⚠️', 0, -40);
-            }
             
             ctx.restore();
             
-            // 粒子
+            // 绘制粒子
             particles.forEach(p => {
-                const drawX = p.x - terrainOffset;
-                if (drawX > -50 && drawX < GAME_WIDTH + 50) {
-                    ctx.globalAlpha = p.life;
-                    ctx.font = '20px sans-serif';
-                    ctx.fillText(p.emoji, drawX, p.y);
-                }
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
             });
             ctx.globalAlpha = 1;
-            
-            // 控制提示
-            if (gameState === 'playing') {
-                ctx.fillStyle = 'rgba(255,255,255,0.3)';
-                ctx.fillRect(GAME_WIDTH / 2 - 100, GAME_HEIGHT - 80, 200, 40);
-                ctx.fillStyle = isAccelerating ? '#00ff64' : '#fff';
-                ctx.font = '16px sans-serif';
-                ctx.fillText(isAccelerating ? t.accelerate : t.brake, GAME_WIDTH / 2, GAME_HEIGHT - 60);
-            }
         }
         
         function gameLoop() {
@@ -623,6 +777,8 @@
         document.getElementById('startBtn').addEventListener('click', startGame);
         document.getElementById('restartBtn').addEventListener('click', startGame);
         
+        // 初始绘制
+        generateTerrain();
         draw();
     </script>
 </body>
