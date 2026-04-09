@@ -240,14 +240,14 @@
                 players: { zh: '1人', en: '1 Player' },
                 playTime: { zh: '5分钟', en: '5 min' }
             },
-            'emoji-climb': {
-                name: { zh: '翻车模拟器', en: 'Emoji Climb' },
+            'emoji-rolling': {
+                name: { zh: 'Emoji Rolling', en: 'Emoji Rolling' },
                 emoji: '🚜',
-                tagline: { zh: '物理引擎超魔性，翻车比过关还搞笑', en: 'Wacky physics, crashes are fun' },
-                difficulty: { zh: '困难', en: 'Hard' },
-                tags: { zh: ['物理', '爬坡', '魔性'], en: ['Physics', 'Climb', 'Wacky'] },
+                tagline: { zh: '从高山翻滚而下，飞跃裂缝', en: 'Roll down mountains, jump over gaps' },
+                difficulty: { zh: '中等', en: 'Medium' },
+                tags: { zh: ['物理', '特技', '无尽'], en: ['Physics', 'Tricks', 'Endless'] },
                 players: { zh: '1人', en: '1 Player' },
-                playTime: { zh: '5分钟', en: '5 min' }
+                playTime: { zh: '5-10分钟', en: '5-10 min' }
             },
             'emoji-frog': {
                 name: { zh: '跳跳蛙大冒险', en: 'Emoji Frog' },
@@ -407,7 +407,7 @@
             const grid = document.getElementById('comingSoonGrid');
             const lang = getCurrentLang();
             
-            const comingSoonGames = ['emoji-climb'];
+            const comingSoonGames = [];
             comingSoonGames.forEach(id => {
                 const game = gameConfigs[id];
                 if (game) {

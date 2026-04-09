@@ -30,6 +30,20 @@
       "tags": ["跳跃", "无尽", "休闲"],
       "players": "1人",
       "playTime": "3-5分钟"
+    },
+    {
+      "id": "emoji-rolling",
+      "name": "Emoji Rolling",
+      "emoji": "🚜",
+      "tagline": "从高山翻滚而下，飞跃裂缝",
+      "version": "0.3.0",
+      "status": "ready",
+      "path": "games/emoji-rolling/index.html",
+      "cover": "assets/images/rolling-cover.svg",
+      "difficulty": "中等",
+      "tags": ["物理", "特技", "无尽"],
+      "players": "1人",
+      "playTime": "5-10分钟"
     }
   ],
   "features": {

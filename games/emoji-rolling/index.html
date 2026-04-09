@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🚜 Emoji Rolling V0.3.0</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
+        body {
+            background: #0d0d1a;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+        #gameCanvas {
+            background: linear-gradient(180deg, #1a3a2e 0%, #0d0d1a 100%);
+            box-shadow: 0 0 50px rgba(0, 255, 100, 0.3);
+        }
+        .ui-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.9);
+            z-index: 100;
+        }
+        .hidden { display: none !important; }
+        h1 { font-size: 48px; color: #fff; text-shadow: 0 0 20px #00ff64; margin-bottom: 10px; }
+        .emoji-title { font-size: 72px; margin-bottom: 20px; animation: shake 0.5s infinite; }
+        @keyframes shake { 0%,100%{transform:rotate(-5deg)} 50%{transform:rotate(5deg)} }
+        .btn {
+            padding: 15px 40px;
+            font-size: 24px;
+            background: linear-gradient(135deg, #00ff64 0%, #00aa44 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(0, 255, 100, 0.5);
+        }
+        .btn:hover { transform: scale(1.05); }
+        .btn:active { transform: scale(0.95); }
+        .btn-home {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.5);
+            font-size: 18px;
+            padding: 12px 30px;
+            margin-top: 10px;
+        }
+        .instructions {
+            color: #888;
+            margin-top: 30px;
+            text-align: center;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        .hud {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 30px;
+            pointer-events: none;
+            z-index: 50;
+        }
+        .hud-item {
+            color: #fff;
+            font-size: 20px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .speed-display {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #00ff64;
+            font-size: 18px;
+            z-index: 50;
+        }
+        .controls-hint {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            z-index: 50;
+            text-align: center;
+        }
+        .trick-text {
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ff64;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(0, 255, 100, 0.8);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 60;
+            white-space: nowrap;
+        }
+        @keyframes trickPopup {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            100% { opacity: 0; transform: translate(-50%, -70%) scale(1); }
+        }
+        .trick-text.show { animation: trickPopup 1.2s ease-out; }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="hud">
+        <div class="hud-item" id="distanceDisplay">0m</div>
+        <div class="hud-item" id="scoreDisplay">0</div>
+    </div>
+    <div class="speed-display" id="speedDisplay">⚡ 0 km/h</div>
+    <div class="trick-text" id="trickText"></div>
+    <div class="controls-hint" id="controlsHint">按住蓄力起跳 → 空中按住翻转 → 平稳落地</div>
+    
+    <div class="ui-overlay" id="startScreen">
+        <div class="emoji-title">🚜</div>
+        <h1>EMOJI ROLLING</h1>
+        <button class="btn" id="startBtn">开始翻滚</button>
+        <button class="btn btn-home" id="homeBtn" onclick="location.href='../../index.html'" style="margin-top: 15px;">🏠 回到街机厅</button>
+        <div class="instructions">
+            ⛰️ 从高山滑下积聚动能<br>
+            🚀 从斜坡起飞<br>
+            🔄 按住翻转调整姿态<br>
+            🎯 飞过裂缝平稳落地<br>
+            💥 翻车或掉缝 = 游戏结束
+        </div>
+    </div>
+    
+    <div class="ui-overlay hidden" id="gameOverScreen">
+        <div class="emoji-title" id="crashEmoji">💥</div>
+        <h1 id="crashTitle">翻车了！</h1>
+        <div style="color: #fff; font-size: 24px; margin-bottom: 5px;">滑行: <span id="finalDistance">0</span>m</div>
+        <div style="color: #ffd700; font-size: 20px; margin-bottom: 5px;">得分: <span id="finalScore">0</span></div>
+        <div style="color: #888; font-size: 14px; margin-bottom: 30px;">最远: <span id="highScore">0</span>m</div>
+        <button class="btn" id="restartBtn">再来一局</button>
+        <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const GAME_WIDTH = 800;
+        const GAME_HEIGHT = 400;
+        canvas.width = GAME_WIDTH;
+        canvas.height = GAME_HEIGHT;
+        
+        // 游戏状态
+        let gameState = 'start';
+        let distance = 0;
+        let score = 0;
+        let highScore = localStorage.getItem('emojiRollingHighScore') || 0;
+        
+        // 物理参数
+        const GRAVITY = 0.5;
+        const GROUND_FRICTION = 0.99;
+        const AIR_RESISTANCE = 0.998;
+        
+        // 玩家 - 拖拉机
+        let player = {
+            x: 100,
+            y: 100,
+            vx: 0,
+            vy: 0,
+            angle: 0,
+            angularVelocity: 0,
+            width: 50,
+            height: 40,
+            emoji: '🚜',
+            onGround: false,
+            // 跳跃蓄力
+            isCharging: false,
+            chargePower: 0,
+            maxCharge: 15,
+            chargeStartTime: 0,
+            // 翻转
+            isFlipping: false,
+            totalRotation: 0,
+            // 落地状态
+            lastLandingTime: 0
+        };
+        
+        // 地形系统
+        let terrain = [];
+        let terrainOffset = 0;
+        
+        // 地形类型
+        const TERRAIN_TYPES = {
+            SLOPE_DOWN: 'slope_down',    // 下坡 - 加速
+            SLOPE_UP: 'slope_up',        // 上坡 - 减速，跳台
+            FLAT: 'flat',                // 平地
+            GAP: 'gap',                  // 裂缝 - 必须跳过
+            RAMP: 'ramp'                 // 跳台
+        };
+        
+        // 粒子
+        let particles = [];
+        
+        // 背景
+        let bgOffset = 0;
+        
+        // 输入
+        let isPressed = false;
+        
+        canvas.addEventListener('mousedown', () => isPressed = true);
+        canvas.addEventListener('mouseup', () => isPressed = false);
+        canvas.addEventListener('touchstart', (e) => { e.preventDefault(); isPressed = true; }, { passive: false });
+        canvas.addEventListener('touchend', (e) => { e.preventDefault(); isPressed = false; }, { passive: false });
+        document.addEventListener('keydown', (e) => { if (e.code === 'Space') isPressed = true; });
+        document.addEventListener('keyup', (e) => { if (e.code === 'Space') isPressed = false; });
+        
+        // 生成初始地形 - 从高山开始
+        function generateTerrain() {
+            terrain = [];
+            let x = 0;
+            let y = 100; // 从高处开始
+            
+            // 初始平台
+            terrain.push({
+                x: x, y: y, width: 200, type: TERRAIN_TYPES.FLAT
+            });
+            x += 200;
+            
+            // 生成无尽地形
+            while (x < GAME_WIDTH * 4) {
+                const type = chooseTerrainType(x);
+                const width = 100 + Math.random() * 150;
+                
+                if (type === TERRAIN_TYPES.GAP) {
+                    const gapWidth = 80 + Math.random() * 60;
+                    terrain.push({
+                        x: x, y: y, width: gapWidth, type: TERRAIN_TYPES.GAP
+                    });
+                    x += gapWidth;
+                } else if (type === TERRAIN_TYPES.RAMP) {
+                    terrain.push({
+                        x: x, y: y, width: 80, type: TERRAIN_TYPES.RAMP,
+                        angle: -Math.PI / 5
+                    });
+                    y -= 30;
+                    x += 80;
+                } else if (type === TERRAIN_TYPES.SLOPE_DOWN) {
+                    const drop = 20 + Math.random() * 30;
+                    terrain.push({
+                        x: x, y: y, width: width, type: TERRAIN_TYPES.SLOPE_DOWN,
+                        endY: y + drop
+                    });
+                    y += drop;
+                    x += width;
+                } else if (type === TERRAIN_TYPES.SLOPE_UP) {
+                    const rise = 20 + Math.random() * 30;
+                    terrain.push({
+                        x: x, y: y, width: width, type: TERRAIN_TYPES.SLOPE_UP,
+                        endY: Math.max(80, y - rise)
+                    });
+                    y = Math.max(80, y - rise);
+                    x += width;
+                } else {
+                    terrain.push({
+                        x: x, y: y, width: width, type: TERRAIN_TYPES.FLAT
+                    });
+                    x += width;
+                }
+            }
+        }
+        
+        // 选择地形类型
+        function chooseTerrainType(x) {
+            const difficulty = Math.min(x / 5000, 1);
+            const rand = Math.random();
+            
+            if (rand < 0.08 + difficulty * 0.05) return TERRAIN_TYPES.GAP;
+            if (rand < 0.15 + difficulty * 0.05) return TERRAIN_TYPES.RAMP;
+            if (rand < 0.35) return TERRAIN_TYPES.SLOPE_DOWN;
+            if (rand < 0.50) return TERRAIN_TYPES.SLOPE_UP;
+            return TERRAIN_TYPES.FLAT;
+        }
+        
+        // 生成新地形
+        function generateMoreTerrain() {
+            const lastSeg = terrain[terrain.length - 1];
+            if (!lastSeg) return;
+            
+            let x = lastSeg.x + lastSeg.width;
+            let y = lastSeg.y;
+            if (lastSeg.endY !== undefined) y = lastSeg.endY;
+            
+            // 保持高度在合理范围内
+            if (y > GAME_HEIGHT - 50) {
+                y = GAME_HEIGHT - 100;
+            } else if (y < 50) {
+                y = 100;
+            }
+            
+            while (x < terrainOffset + GAME_WIDTH * 3) {
+                const type = chooseTerrainType(x + terrainOffset);
+                const width = 100 + Math.random() * 150;
+                
+                if (type === TERRAIN_TYPES.GAP) {
+                    const gapWidth = 80 + Math.random() * 60;
+                    terrain.push({
+                        x: x, y: y, width: gapWidth, type: TERRAIN_TYPES.GAP
+                    });
+                    x += gapWidth;
+                } else if (type === TERRAIN_TYPES.RAMP) {
+                    terrain.push({
+                        x: x, y: y, width: 80, type: TERRAIN_TYPES.RAMP,
+                        angle: -Math.PI / 5
+                    });
+                    y -= 30;
+                    x += 80;
+                } else if (type === TERRAIN_TYPES.SLOPE_DOWN) {
+                    const drop = 20 + Math.random() * 30;
+                    terrain.push({
+                        x: x, y: y, width: width, type: TERRAIN_TYPES.SLOPE_DOWN,
+                        endY: y + drop
+                    });
+                    y += drop;
+                    x += width;
+                } else if (type === TERRAIN_TYPES.SLOPE_UP) {
+                    const rise = 20 + Math.random() * 30;
+                    terrain.push({
+                        x: x, y: y, width: width, type: TERRAIN_TYPES.SLOPE_UP,
+                        endY: Math.max(80, y - rise)
+                    });
+                    y = Math.max(80, y - rise);
+                    x += width;
+                } else {
+                    terrain.push({
+                        x: x, y: y, width: width, type: TERRAIN_TYPES.FLAT
+                    });
+                    x += width;
+                }
+            }
+        }
+        
+        // 获取地面信息 - 带插值
+        function getGroundInfo(x) {
+            const worldX = x + terrainOffset;
+            
+            for (let i = 0; i < terrain.length; i++) {
+                const seg = terrain[i];
+                if (worldX >= seg.x && worldX < seg.x + seg.width) {
+                    if (seg.type === TERRAIN_TYPES.GAP) {
+                        return { y: GAME_HEIGHT + 200, type: TERRAIN_TYPES.GAP, angle: 0 };
+                    }
+                    
+                    // 计算段内的位置和插值
+                    const progress = (worldX - seg.x) / seg.width;
+                    let y = seg.y;
+                    let angle = 0;
+                    
+                    if (seg.type === TERRAIN_TYPES.SLOPE_DOWN && seg.endY !== undefined) {
+                        y = seg.y + (seg.endY - seg.y) * progress;
+                        angle = Math.atan2(seg.endY - seg.y, seg.width);
+                    } else if (seg.type === TERRAIN_TYPES.SLOPE_UP && seg.endY !== undefined) {
+                        y = seg.y + (seg.endY - seg.y) * progress;
+                        angle = Math.atan2(seg.endY - seg.y, seg.width);
+                    } else if (seg.type === TERRAIN_TYPES.RAMP) {
+                        y = seg.y;
+                        angle = seg.angle || -Math.PI / 5;
+                    } else {
+                        // 平地也找下一段做角度
+                        if (i < terrain.length - 1) {
+                            const nextSeg = terrain[i + 1];
+                            if (nextSeg.type !== TERRAIN_TYPES.GAP) {
+                                angle = Math.atan2(nextSeg.y - seg.y, nextSeg.x - seg.x);
+                            }
+                        }
+                    }
+                    
+                    return { y: y, type: seg.type, angle: angle };
+                }
+            }
+            
+            // 如果不在任何段内
+            const lastSeg = terrain[terrain.length - 1];
+            if (lastSeg && worldX >= lastSeg.x + lastSeg.width) {
+                let y = lastSeg.y;
+                if (lastSeg.endY !== undefined) y = lastSeg.endY;
+                return { y: y, type: TERRAIN_TYPES.FLAT, angle: 0 };
+            }
+            
+            return { y: GAME_HEIGHT - 80, type: TERRAIN_TYPES.FLAT, angle: 0 };
+        }
+        
+        // 创建粒子
+        function createParticle(x, y, type, count = 1) {
+            const colors = {
+                dust: '#8b7355',
+                smoke: '#666666',
+                spark: '#ffaa00'
+            };
+            
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x, y: y,
+                    vx: (Math.random() - 0.5) * 3,
+                    vy: -Math.random() * 2 - 0.5,
+                    life: 1,
+                    color: colors[type] || colors.dust,
+                    size: Math.random() * 5 + 2
+                });
+            }
+        }
+        
+        // 显示特技文字
+        function showTrickText(text) {
+            const el = document.getElementById('trickText');
+            el.textContent = text;
+            el.classList.remove('show');
+            void el.offsetWidth;
+            el.classList.add('show');
+        }
+        
+        // 开始游戏
+        function startGame() {
+            gameState = 'playing';
+            distance = 0;
+            score = 0;
+            terrainOffset = 0;
+            bgOffset = 0;
+            particles = [];
+            
+            player = {
+                x: 100,
+                y: 60,
+                vx: 2,
+                vy: 0,
+                angle: 0,
+                angularVelocity: 0,
+                width: 50,
+                height: 40,
+                emoji: '🚜',
+                onGround: false,
+                isCharging: false,
+                chargePower: 0,
+                maxCharge: 15,
+                chargeStartTime: 0,
+                isFlipping: false,
+                totalRotation: 0,
+                lastLandingTime: 0
+            };
+            
+            generateTerrain();
+            
+            document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('controlsHint').style.display = 'block';
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // 游戏结束
+        function gameOver(reason) {
+            gameState = 'gameover';
+            if (distance > highScore) {
+                highScore = Math.floor(distance);
+                localStorage.setItem('emojiRollingHighScore', highScore);
+            }
+            
+            const crashEmoji = document.getElementById('crashEmoji');
+            const crashTitle = document.getElementById('crashTitle');
+            
+            if (reason === 'fall') {
+                crashEmoji.textContent = '🕳️';
+                crashTitle.textContent = '掉进裂缝了！';
+            } else if (reason === 'flip') {
+                crashEmoji.textContent = '🙃';
+                crashTitle.textContent = '翻车了！';
+            } else {
+                crashEmoji.textContent = '💥';
+                crashTitle.textContent = '撞毁了！';
+            }
+            
+            document.getElementById('finalDistance').textContent = Math.floor(distance);
+            document.getElementById('finalScore').textContent = Math.floor(score);
+            document.getElementById('highScore').textContent = highScore;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+            document.getElementById('controlsHint').style.display = 'none';
+        }
+        
+        // 更新
+        function update() {
+            if (gameState !== 'playing') return;
+            
+            const ground = getGroundInfo(player.x);
+            const groundY = ground.y;
+            
+            // 地面检测
+            const wasOnGround = player.onGround;
+            player.onGround = player.y + player.height/2 >= groundY - 5 && player.vy >= 0 && ground.type !== TERRAIN_TYPES.GAP;
+            
+            if (player.onGround) {
+                // 在地面上的物理
+                if (!wasOnGround) {
+                    // 刚落地
+                    const landingAngle = Math.abs(player.angle) % (Math.PI * 2);
+                    const normalizedAngle = landingAngle > Math.PI ? landingAngle - Math.PI * 2 : landingAngle;
+                    
+                    // 检查落地角度
+                    if (Math.abs(normalizedAngle) > Math.PI / 3) {
+                        // 角度太偏，翻车
+                        gameOver('flip');
+                        return;
+                    }
+                    
+                    // 成功落地
+                    player.y = groundY - player.height/2;
+                    player.vy = 0;
+                    player.angularVelocity = 0;
+                    player.totalRotation = 0;
+                    player.angle = ground.angle * 0.3; // 稍微顺应地形
+                    
+                    // 落地奖励
+                    const speed = Math.sqrt(player.vx * player.vx + player.vy * player.vy);
+                    if (speed > 8) {
+                        showTrickText('✨ 完美落地! +' + Math.floor(speed * 10));
+                        score += speed * 10;
+                        createParticle(player.x, player.y + 20, 'spark', 5);
+                    }
+                    
+                    createParticle(player.x - 10, player.y + 20, 'dust', 3);
+                }
+                
+                // 地面滑行 - 重力沿斜面分量
+                const slopeAccel = Math.sin(ground.angle) * 0.3;
+                player.vx += slopeAccel;
+                
+                // 摩擦
+                player.vx *= GROUND_FRICTION;
+                
+                // 跳跃蓄力
+                if (isPressed && !player.isCharging) {
+                    player.isCharging = true;
+                    player.chargePower = 0;
+                }
+                
+                if (player.isCharging) {
+                    if (isPressed) {
+                        player.chargePower = Math.min(player.chargePower + 0.4, player.maxCharge);
+                        player.vx *= 0.95; // 蓄力时减速
+                    } else {
+                        // 释放跳跃
+                        const jumpForce = 6 + player.chargePower * 0.4;
+                        player.vy = -jumpForce;
+                        player.vx += player.chargePower * 0.1; // 蓄力给点水平速度
+                        player.onGround = false;
+                        player.isCharging = false;
+                        player.chargePower = 0;
+                        createParticle(player.x, player.y + 20, 'smoke', 5);
+                    }
+                }
+                
+            } else {
+                // 空中物理
+                player.vy += GRAVITY;
+                player.vx *= AIR_RESISTANCE;
+                
+                // 空中翻转控制
+                if (isPressed) {
+                    player.angularVelocity += 0.12;
+                    player.isFlipping = true;
+                } else {
+                    // 自动回正
+                    player.angularVelocity += (ground.angle * 0.5 - player.angle) * 0.03;
+                }
+                
+                player.angle += player.angularVelocity;
+                player.angularVelocity *= 0.98;
+                player.totalRotation += Math.abs(player.angularVelocity);
+            }
+            
+            // 应用速度
+            player.x += player.vx;
+            player.y += player.vy;
+            
+            // 相机跟随
+            if (player.x > GAME_WIDTH * 0.3) {
+                const moveAmount = player.x - GAME_WIDTH * 0.3;
+                terrainOffset += moveAmount;
+                player.x = GAME_WIDTH * 0.3;
+                distance += moveAmount;
+                bgOffset += moveAmount * 0.2;
+                
+                // 清理旧地形
+                while (terrain.length > 0 && terrain[0].x + terrain[0].width < terrainOffset - 100) {
+                    terrain.shift();
+                }
+                
+                // 生成新地形
+                generateMoreTerrain();
+            }
+            
+            // 掉落检测
+            if (player.y > GAME_HEIGHT + 100) {
+                gameOver('fall');
+                return;
+            }
+            
+            // 更新粒子
+            particles = particles.filter(p => {
+                p.x -= player.vx;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.15;
+                p.life -= 0.02;
+                return p.life > 0;
+            });
+            
+            // 滑行粒子
+            if (player.onGround && Math.abs(player.vx) > 3) {
+                if (Math.random() < 0.2) {
+                    createParticle(player.x - 15, player.y + 20, 'dust', 1);
+                }
+            }
+            
+            // 更新UI
+            document.getElementById('distanceDisplay').textContent = Math.floor(distance) + 'm';
+            document.getElementById('scoreDisplay').textContent = Math.floor(score);
+            const speedKmh = Math.floor(Math.abs(player.vx) * 10);
+            document.getElementById('speedDisplay').textContent = '⚡ ' + speedKmh + ' km/h';
+            
+            // 持续得分
+            score += Math.abs(player.vx) * 0.05;
+        }
+        
+        // 绘制
+        function draw() {
+            // 天空渐变
+            const timeOfDay = (distance / 8000) % 1;
+            const gradient = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+            
+            if (timeOfDay < 0.25) {
+                gradient.addColorStop(0, '#ff9a76');
+                gradient.addColorStop(1, '#4a6a7e');
+            } else if (timeOfDay < 0.5) {
+                gradient.addColorStop(0, '#4a90d9');
+                gradient.addColorStop(1, '#87ceeb');
+            } else if (timeOfDay < 0.75) {
+                gradient.addColorStop(0, '#ff6b4a');
+                gradient.addColorStop(1, '#5a4a7e');
+            } else {
+                gradient.addColorStop(0, '#1a1a3e');
+                gradient.addColorStop(1, '#4a4a6e');
+            }
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+            
+            // 远山
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            ctx.beginPath();
+            for (let i = 0; i <= GAME_WIDTH; i += 30) {
+                const x = i - (bgOffset * 0.15) % 30;
+                const h = 80 + Math.sin((i + bgOffset * 0.1) * 0.02) * 20;
+                ctx.lineTo(x, GAME_HEIGHT - h);
+            }
+            ctx.lineTo(GAME_WIDTH, GAME_HEIGHT);
+            ctx.lineTo(0, GAME_HEIGHT);
+            ctx.fill();
+            
+            // 绘制地形
+            ctx.lineWidth = 3;
+            
+            for (let i = 0; i < terrain.length; i++) {
+                const seg = terrain[i];
+                const drawX = seg.x - terrainOffset;
+                
+                if (drawX + seg.width < -50 || drawX > GAME_WIDTH + 50) continue;
+                
+                if (seg.type === TERRAIN_TYPES.GAP) continue;
+                
+                // 找到下一段非鸿沟地形
+                let nextSeg = null;
+                for (let j = i + 1; j < terrain.length; j++) {
+                    if (terrain[j].type !== TERRAIN_TYPES.GAP) {
+                        nextSeg = terrain[j];
+                        break;
+                    }
+                }
+                
+                // 地形颜色
+                if (seg.type === TERRAIN_TYPES.RAMP) {
+                    ctx.fillStyle = '#6d9a7e';
+                    ctx.strokeStyle = '#8dba9e';
+                } else if (seg.type === TERRAIN_TYPES.SLOPE_DOWN) {
+                    ctx.fillStyle = '#3d6a4e';
+                    ctx.strokeStyle = '#5d8a6e';
+                } else if (seg.type === TERRAIN_TYPES.SLOPE_UP) {
+                    ctx.fillStyle = '#4d7a5e';
+                    ctx.strokeStyle = '#6d9a7e';
+                } else {
+                    ctx.fillStyle = '#2d5a3e';
+                    ctx.strokeStyle = '#4d8a5e';
+                }
+                
+                // 绘制地形
+                ctx.beginPath();
+                ctx.moveTo(drawX, GAME_HEIGHT);
+                ctx.lineTo(drawX, seg.y);
+                
+                if (nextSeg) {
+                    const nextDrawX = nextSeg.x - terrainOffset;
+                    
+                    if (seg.endY !== undefined) {
+                        // 有坡度，画斜线
+                        const endDrawX = drawX + seg.width;
+                        ctx.lineTo(endDrawX, seg.endY);
+                        ctx.lineTo(nextDrawX, nextSeg.y);
+                    } else {
+                        ctx.lineTo(nextDrawX, nextSeg.y);
+                    }
+                    
+                    ctx.lineTo(nextDrawX, GAME_HEIGHT);
+                } else {
+                    if (seg.endY !== undefined) {
+                        ctx.lineTo(drawX + seg.width, seg.endY);
+                    } else {
+                        ctx.lineTo(drawX + seg.width, seg.y);
+                    }
+                    ctx.lineTo(drawX + seg.width, GAME_HEIGHT);
+                }
+                
+                ctx.fill();
+                
+                // 顶部线条
+                ctx.beginPath();
+                ctx.moveTo(drawX, seg.y);
+                if (nextSeg) {
+                    if (seg.endY !== undefined) {
+                        ctx.lineTo(drawX + seg.width, seg.endY);
+                    } else {
+                        ctx.lineTo(nextSeg.x - terrainOffset, nextSeg.y);
+                    }
+                } else {
+                    if (seg.endY !== undefined) {
+                        ctx.lineTo(drawX + seg.width, seg.endY);
+                    } else {
+                        ctx.lineTo(drawX + seg.width, seg.y);
+                    }
+                }
+                ctx.stroke();
+            }
+            
+            // 绘制裂缝标记
+            for (let i = 0; i < terrain.length; i++) {
+                const seg = terrain[i];
+                if (seg.type !== TERRAIN_TYPES.GAP) continue;
+                
+                const drawX = seg.x - terrainOffset;
+                if (drawX + seg.width < -50 || drawX > GAME_WIDTH + 50) continue;
+                
+                // 画裂缝两边的边缘
+                ctx.strokeStyle = '#2a1a0a';
+                ctx.lineWidth = 4;
+                
+                // 左边缘
+                ctx.beginPath();
+                ctx.moveTo(drawX, GAME_HEIGHT);
+                for (let j = 0; j < 5; j++) {
+                    ctx.lineTo(drawX + Math.random() * 5, GAME_HEIGHT - 20 - j * 15);
+                }
+                ctx.stroke();
+                
+                // 右边缘
+                ctx.beginPath();
+                ctx.moveTo(drawX + seg.width, GAME_HEIGHT);
+                for (let j = 0; j < 5; j++) {
+                    ctx.lineTo(drawX + seg.width - Math.random() * 5, GAME_HEIGHT - 20 - j * 15);
+                }
+                ctx.stroke();
+                
+                // 危险标记
+                ctx.fillStyle = '#ff4444';
+                ctx.font = '16px sans-serif';
+                ctx.fillText('⚠️', drawX + seg.width/2, GAME_HEIGHT - 10);
+            }
+            
+            // 绘制玩家
+            ctx.save();
+            ctx.translate(player.x, player.y);
+            
+            // 蓄力指示器
+            if (player.isCharging) {
+                const chargePercent = player.chargePower / player.maxCharge;
+                ctx.strokeStyle = `hsl(${120 * chargePercent}, 100%, 50%)`;
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(0, -35, 18, -Math.PI/2, -Math.PI/2 + Math.PI * 2 * chargePercent);
+                ctx.stroke();
+                
+                // 蓄力箭头
+                ctx.fillStyle = `hsl(${120 * chargePercent}, 100%, 50%)`;
+                ctx.font = '20px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('↑', 0, -55);
+            }
+            
+            ctx.rotate(player.angle);
+            
+            // 玩家emoji
+            ctx.font = '45px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(player.emoji, 0, 0);
+            
+            ctx.restore();
+            
+            // 绘制粒子
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+        }
+        
+        function gameLoop() {
+            update();
+            draw();
+            if (gameState === 'playing') {
+                requestAnimationFrame(gameLoop);
+            }
+        }
+        
+        document.getElementById('startBtn').addEventListener('click', startGame);
+        document.getElementById('restartBtn').addEventListener('click', startGame);
+        
+        generateTerrain();
+        draw();
+    </script>
+</body>
+</html>
