@@ -187,6 +187,8 @@
             height: 40,
             emoji: '🚜',
             onGround: false,
+            // 自动前进
+            autoSpeed: 3,  // 基础自动速度
             // 跳跃蓄力
             isCharging: false,
             chargePower: 0,
@@ -444,7 +446,7 @@
             player = {
                 x: 100,
                 y: 60,
-                vx: 2,
+                vx: 3,  // 初始速度
                 vy: 0,
                 angle: 0,
                 angularVelocity: 0,
@@ -542,12 +544,14 @@
                     createParticle(player.x - 10, player.y + 20, 'dust', 3);
                 }
                 
-                // 地面滑行 - 重力沿斜面分量
-                const slopeAccel = Math.sin(ground.angle) * 0.3;
-                player.vx += slopeAccel;
+                // 自动前进 + 斜面重力加速
+                const slopeAccel = Math.sin(ground.angle) * 0.4;
+                player.vx = player.autoSpeed + slopeAccel * 5;
                 
-                // 摩擦
-                player.vx *= GROUND_FRICTION;
+                // 下坡额外加速
+                if (ground.type === TERRAIN_TYPES.SLOPE_DOWN) {
+                    player.vx += 0.1;
+                }
                 
                 // 跳跃蓄力
                 if (isPressed && !player.isCharging) {
@@ -817,6 +821,9 @@
             }
             
             ctx.rotate(player.angle);
+            
+            // 水平镜像翻转，让拖拉机朝右
+            ctx.scale(-1, 1);
             
             // 玩家emoji
             ctx.font = '45px sans-serif';
