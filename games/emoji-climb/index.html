@@ -300,36 +300,85 @@
             }
         }
         
-        // 获取地面高度和类型
+        // 获取地面高度和类型 - 使用插值确保段之间平滑连接
         function getGroundInfo(x) {
             const worldX = x + terrainOffset;
+            
+            // 找到当前所在的地形段
+            let currentSeg = null;
+            let currentIndex = -1;
             
             for (let i = 0; i < terrain.length; i++) {
                 const seg = terrain[i];
                 if (worldX >= seg.x && worldX < seg.x + seg.width) {
-                    if (seg.type === TERRAIN_TYPES.GAP) {
-                        return { y: GAME_HEIGHT + 200, type: TERRAIN_TYPES.GAP, angle: 0 };
-                    }
-                    
-                    // 计算角度
-                    let angle = 0;
-                    if (i < terrain.length - 1) {
-                        const nextSeg = terrain[i + 1];
-                        if (nextSeg.type !== TERRAIN_TYPES.GAP) {
-                            angle = Math.atan2(nextSeg.y - seg.y, nextSeg.x - seg.x);
-                        }
-                    }
-                    
-                    // 跳台特殊角度
-                    if (seg.type === TERRAIN_TYPES.RAMP) {
-                        angle = seg.angle;
-                    }
-                    
-                    return { y: seg.y, type: seg.type, angle: angle };
+                    currentSeg = seg;
+                    currentIndex = i;
+                    break;
                 }
             }
             
-            return { y: GAME_HEIGHT - 80, type: TERRAIN_TYPES.NORMAL, angle: 0 };
+            // 如果不在任何段内，检查是否在段之间的间隙
+            if (!currentSeg) {
+                // 检查是否在某个段结束的精确位置
+                for (let i = 0; i < terrain.length - 1; i++) {
+                    const seg = terrain[i];
+                    const nextSeg = terrain[i + 1];
+                    
+                    // 如果在段 A 结束和段 B 开始之间
+                    if (worldX >= seg.x + seg.width && worldX < nextSeg.x) {
+                        // 这是间隙 - 返回间隙类型或插值高度
+                        if (seg.type === TERRAIN_TYPES.GAP || nextSeg.type === TERRAIN_TYPES.GAP) {
+                            return { y: GAME_HEIGHT + 200, type: TERRAIN_TYPES.GAP, angle: 0 };
+                        }
+                        // 否则在段之间进行插值
+                        const t = (worldX - (seg.x + seg.width)) / (nextSeg.x - (seg.x + seg.width));
+                        const y = seg.y + (nextSeg.y - seg.y) * t;
+                        const angle = Math.atan2(nextSeg.y - seg.y, nextSeg.x - (seg.x + seg.width));
+                        return { y: y, type: seg.type, angle: angle };
+                    }
+                }
+                
+                // 在最后一个段之后
+                const lastSeg = terrain[terrain.length - 1];
+                if (lastSeg && worldX >= lastSeg.x + lastSeg.width) {
+                    return { y: lastSeg.y, type: lastSeg.type, angle: 0 };
+                }
+                
+                // 默认返回
+                return { y: GAME_HEIGHT - 80, type: TERRAIN_TYPES.NORMAL, angle: 0 };
+            }
+            
+            // 在 GAP 段内
+            if (currentSeg.type === TERRAIN_TYPES.GAP) {
+                return { y: GAME_HEIGHT + 200, type: TERRAIN_TYPES.GAP, angle: 0 };
+            }
+            
+            // 在普通段内 - 计算插值高度和角度
+            let nextSeg = null;
+            for (let j = currentIndex + 1; j < terrain.length; j++) {
+                if (terrain[j].type !== TERRAIN_TYPES.GAP) {
+                    nextSeg = terrain[j];
+                    break;
+                }
+            }
+            
+            // 计算段内的插值位置
+            const segProgress = (worldX - currentSeg.x) / currentSeg.width;
+            let y = currentSeg.y;
+            let angle = 0;
+            
+            if (nextSeg && currentSeg.type !== TERRAIN_TYPES.GAP) {
+                // 向下一过渡段插值
+                y = currentSeg.y + (nextSeg.y - currentSeg.y) * segProgress;
+                angle = Math.atan2(nextSeg.y - currentSeg.y, nextSeg.x - currentSeg.x);
+            }
+            
+            // 跳台特殊角度
+            if (currentSeg.type === TERRAIN_TYPES.RAMP) {
+                angle = currentSeg.angle || -Math.PI / 6;
+            }
+            
+            return { y: y, type: currentSeg.type, angle: angle };
         }
         
         // 创建粒子
