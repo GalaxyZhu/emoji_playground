@@ -2,12 +2,12 @@
   "name": "Emoji Arcade",
   "short_name": "EmojiArcade",
   "description": "免费在线 Emoji 小游戏合集 - 即点即玩",
-  "start_url": "/",
+  "start_url": "https://emojiarcade.app/",
   "display": "standalone",
   "background_color": "#0d0d1a",
   "theme_color": "#6366f1",
   "orientation": "landscape",
-  "scope": "/",
+  "scope": "https://emojiarcade.app/",
   "icons": [
     {
       "src": "/favicon.svg",
