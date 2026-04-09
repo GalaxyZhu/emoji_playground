@@ -736,6 +736,15 @@
                     });
             });
         }
+        
+        // 监听 PWA 安装提示
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('PWA install prompt ready');
+            e.preventDefault();
+            deferredPrompt = e;
+            // 可以在这里显示自定义的安装按钮
+        });
     </script>
 </body>
 </html>
