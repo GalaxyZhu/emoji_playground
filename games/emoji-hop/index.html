@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<!--
+  ============================================
+  Emoji Hop - Frogger风格过河冒险游戏
+  ============================================
+  作者：Galaxy+AI四姐妹
+  欢迎关注推特：@galaxyzhu
+  ============================================
+-->
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Emoji Hop 🐸</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        
+        body {
+            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+        
+        /* 主容器 */
+        #gameContainer {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            height: 100vh;
+            min-height: 600px;
+            background: #0d0d1a;
+            position: relative;
+        }
+        
+        /* 广告位 */
+        .ad-slot {
+            width: 15%;
+            min-width: 96px;
+            background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
+            border: 2px dashed #333;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #444;
+            font-size: 14px;
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .ad-slot .ad-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+            opacity: 0.3;
+        }
+        
+        /* 游戏主区域 */
+        #gameArea {
+            width: 70%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: linear-gradient(180deg, #2d5016 0%, #1a3d0f 100%);
+        }
+        
+        /* Canvas */
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* UI层 */
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+        }
+        
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.9);
+            pointer-events: auto;
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        h1 {
+            font-size: 36px;
+            color: #fff;
+            text-shadow: 0 0 20px #4caf50;
+            margin-bottom: 10px;
+        }
+        
+        .emoji-title {
+            font-size: 60px;
+            margin-bottom: 15px;
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+        
+        .btn {
+            padding: 12px 30px;
+            font-size: 20px;
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+            margin: 8px 0;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.6);
+        }
+        
+        .btn-home {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-home:hover {
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+        
+        .score-display {
+            font-size: 20px;
+            color: #fff;
+            margin: 8px 0;
+        }
+        
+        .high-score {
+            font-size: 16px;
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+        
+        .stats {
+            color: #aaa;
+            font-size: 14px;
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .instructions {
+            color: #888;
+            font-size: 12px;
+            margin-top: 20px;
+            text-align: center;
+            line-height: 1.6;
+            max-width: 80%;
+        }
+        
+        /* 游戏内UI */
+        #gameUI {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px;
+            pointer-events: none;
+            z-index: 50;
+        }
+        
+        .ui-panel {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 15px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .ui-panel .label {
+            color: #888;
+            font-size: 11px;
+        }
+        
+        /* 能量条 */
+        #energyBar {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            overflow: hidden;
+            z-index: 50;
+        }
+        
+        #energyFill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff6b6b 0%, #ffd93d 50%, #4caf50 100%);
+            transition: width 0.1s;
+            border-radius: 5px;
+        }
+        
+        /* 目标位置指示 */
+        #goalIndicator {
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 50;
+        }
+        
+        .goal-slot {
+            font-size: 24px;
+            opacity: 0.3;
+            transition: opacity 0.3s;
+        }
+        
+        .goal-slot.filled {
+            opacity: 1;
+        }
+        
+        /* 触摸控制区域 */
+        #touchControls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 10px;
+            z-index: 60;
+            pointer-events: auto;
+        }
+        
+        .control-btn {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .control-btn:active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        
+        @media (max-width: 768px) {
+            #touchControls {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                grid-template-rows: repeat(2, 1fr);
+                gap: 10px;
+            }
+            
+            .control-btn.up { grid-column: 2; grid-row: 1; }
+            .control-btn.left { grid-column: 1; grid-row: 2; }
+            .control-btn.down { grid-column: 2; grid-row: 2; }
+            .control-btn.right { grid-column: 3; grid-row: 2; }
+        }
+        
+        /* 暂停对话框 */
+        #pauseScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            pointer-events: auto;
+        }
+        
+        #pauseScreen.hidden {
+            display: none !important;
+        }
+        
+        #pauseScreen h2 {
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px #4caf50;
+        }
+        
+        .pause-buttons {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .pause-btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .pause-btn.continue {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+        }
+        
+        .pause-btn.restart {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+        }
+        
+        .pause-btn:hover {
+            transform: scale(1.05);
+        }
+    </style>
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3968599850270461"
+         crossorigin="anonymous"></script>
+</head>
+<body>
+    <div id="gameContainer">
+        <!-- 左广告位 -->
+        <div class="ad-slot" id="adLeft">
+            <ins class="adsbygoogle"
+                 style="display:block;width:100%;height:100%;"
+                 data-ad-client="ca-pub-3968599850270461"
+                 data-ad-slot="LEFT_AD_SLOT_ID"
+                 data-ad-format="vertical"
+                 data-full-width-responsive="false"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+        
+        <!-- 游戏区域 -->
+        <div id="gameArea">
+            <canvas id="gameCanvas"></canvas>
+            
+            <!-- 能量条 -->
+            <div id="energyBar">
+                <div id="energyFill" style="width: 100%;"></div>
+            </div>
+            
+            <!-- 目标位置指示 -->
+            <div id="goalIndicator">
+                <span class="goal-slot" data-index="0">🪷</span>
+                <span class="goal-slot" data-index="1">🪷</span>
+                <span class="goal-slot" data-index="2">🪷</span>
+                <span class="goal-slot" data-index="3">🪷</span>
+                <span class="goal-slot" data-index="4">🪷</span>
+            </div>
+            
+            <!-- 游戏内UI -->
+            <div id="gameUI">
+                <div class="ui-panel">
+                    <span class="label" data-i18n="level">关卡</span>
+                    <span id="levelDisplay">1</span>
+                </div>
+                <div class="ui-panel">
+                    <span class="label" data-i18n="score">得分</span>
+                    <span id="scoreDisplay">0</span>
+                </div>
+                <div class="ui-panel">
+                    <span class="label" data-i18n="lives">生命</span>
+                    <span id="livesDisplay">🐸🐸🐸</span>
+                </div>
+            </div>
+            
+            <!-- 触摸控制 -->
+            <div id="touchControls">
+                <div class="control-btn up" data-dir="up">⬆️</div>
+                <div class="control-btn left" data-dir="left">⬅️</div>
+                <div class="control-btn down" data-dir="down">⬇️</div>
+                <div class="control-btn right" data-dir="right">➡️</div>
+            </div>
+            
+            <!-- 开始/结束界面 -->
+            <div id="ui">
+                <div id="startScreen" class="screen">
+                    <div class="emoji-title">🐸</div>
+                    <h1 data-i18n="gameTitle">EMOJI HOP</h1>
+                    <div class="high-score"><span data-i18n="highScoreLabel">最高分</span>: <span id="startHighScore">0</span></div>
+                    <button class="btn" onclick="startGame()" data-i18n="startGame">开始游戏</button>
+                    <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 <span data-i18n="backToArcade">回到街机厅</span></button>
+                    <div class="instructions" data-i18n="instructions">
+                        方向键或触摸控制青蛙移动<br>
+                        穿越马路躲避车辆 🚗<br>
+                        跳上木头 🪵 过河，小心鳄鱼 🐊<br>
+                        填满 5 个荷叶目标 🪷 进入下一关<br>
+                        注意时间限制！
+                    </div>
+                </div>
+                
+                <div id="gameOverScreen" class="screen hidden">
+                    <div class="emoji-title">💀</div>
+                    <h1 data-i18n="gameOver">游戏结束</h1>
+                    <div class="score-display"><span data-i18n="scoreLabel">得分</span>: <span id="finalScore">0</span></div>
+                    <div class="high-score"><span data-i18n="highScoreLabel">最高分</span>: <span id="finalHighScore">0</span></div>
+                    <div class="stats" id="gameStats"></div>
+                    <button class="btn" onclick="restartGame()" data-i18n="playAgain">再来一局</button>
+                    <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 <span data-i18n="backToArcade">回到街机厅</span></button>
+                </div>
+                
+                <div id="levelCompleteScreen" class="screen hidden">
+                    <div class="emoji-title">🎉</div>
+                    <h1 data-i18n="levelComplete">关卡完成!</h1>
+                    <div class="score-display"><span data-i18n="scoreLabel">得分</span>: <span id="levelScore">0</span></div>
+                    <button class="btn" onclick="nextLevel()" data-i18n="nextLevel">下一关</button>
+                </div>
+                
+                <!-- 暂停对话框 -->
+                <div id="pauseScreen" class="screen hidden">
+                    <h2 data-i18n="gamePaused">⏸️ 游戏暂停</h2>
+                    <div class="pause-buttons">
+                        <button class="pause-btn continue" onclick="resumeGame()" data-i18n="resume">▶️ 继续游戏</button>
+                        <button class="pause-btn restart" onclick="restartFromPause()" data-i18n="restart">🔄 重新开始</button>
+                    </div>
+                    <div style="color: #888; margin-top: 20px; font-size: 12px;" data-i18n="pauseHint">
+                        按 ESC 键也可以继续游戏
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 右广告位 -->
+        <div class="ad-slot" id="adRight">
+            <ins class="adsbygoogle"
+                 style="display:block;width:100%;height:100%;"
+                 data-ad-client="ca-pub-3968599850270461"
+                 data-ad-slot="RIGHT_AD_SLOT_ID"
+                 data-ad-format="vertical"
+                 data-full-width-responsive="false"></ins>
+            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+        </div>
+    </div>
+
+    <script>
+        // 多语言配置
+        const i18n = {
+            zh: {
+                gameTitle: 'EMOJI HOP',
+                startGame: '开始游戏',
+                backToArcade: '回到街机厅',
+                gameOver: '游戏结束',
+                playAgain: '再来一局',
+                levelComplete: '关卡完成!',
+                nextLevel: '下一关',
+                score: '得分',
+                scoreLabel: '得分',
+                highScoreLabel: '最高分',
+                level: '关卡',
+                lives: '生命',
+                gamePaused: '⏸️ 游戏暂停',
+                resume: '▶️ 继续游戏',
+                restart: '🔄 重新开始',
+                pauseHint: '按 ESC 键也可以继续游戏',
+                instructions: '方向键或触摸控制青蛙移动<br>穿越马路躲避车辆 🚗<br>跳上木头 🪵 过河，小心鳄鱼 🐊<br>填满 5 个荷叶目标 🪷 进入下一关<br>注意时间限制！',
+                statsLevel: '完成关卡',
+                statsScore: '最终得分'
+            },
+            en: {
+                gameTitle: 'EMOJI HOP',
+                startGame: 'Start Game',
+                backToArcade: 'Back to Arcade',
+                gameOver: 'Game Over',
+                playAgain: 'Play Again',
+                levelComplete: 'Level Complete!',
+                nextLevel: 'Next Level',
+                score: 'Score',
+                scoreLabel: 'Score',
+                highScoreLabel: 'High Score',
+                level: 'Level',
+                lives: 'Lives',
+                gamePaused: '⏸️ Game Paused',
+                resume: '▶️ Resume',
+                restart: '🔄 Restart',
+                pauseHint: 'Press ESC to resume',
+                instructions: 'Use arrow keys or touch to move<br>Dodge cars on the road 🚗<br>Jump on logs 🪵 to cross river, beware of crocodiles 🐊<br>Fill all 5 lotus goals 🪷 to advance<br>Watch the time limit!',
+                statsLevel: 'Levels Completed',
+                statsScore: 'Final Score'
+            }
+        };
+
+        // 检测语言
+        let currentLang = 'zh';
+        function detectLanguage() {
+            const lang = navigator.language || navigator.userLanguage || 'zh-CN';
+            if (lang.toLowerCase().startsWith('en')) {
+                currentLang = 'en';
+            } else {
+                currentLang = 'zh';
+            }
+            return currentLang;
+        }
+
+        // 获取翻译文本
+        function t(key) {
+            return i18n[currentLang]?.[key] || i18n['zh'][key] || key;
+        }
+
+        // 应用翻译到DOM
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (i18n[currentLang]?.[key]) {
+                    el.innerHTML = i18n[currentLang][key];
+                }
+            });
+            document.documentElement.lang = currentLang === 'en' ? 'en' : 'zh-CN';
+        }
+
+        // 游戏配置
+        const CONFIG = {
+            gridSize: 40,          // 网格大小
+            gridRows: 15,          // 行数
+            gridCols: 15,          // 列数
+            moveDelay: 150,        // 移动间隔(ms)
+            baseTime: 60,          // 基础时间(秒)
+            timeDecrement: 5,      // 每关减少时间
+            minTime: 30,           // 最小时间
+            
+            // 行类型配置
+            rowTypes: {
+                SAFE: 'safe',      // 安全区（草地）
+                ROAD: 'road',      // 马路
+                RIVER: 'river'     // 河流
+            },
+            
+            // 车辆配置
+            cars: [
+                { emoji: '🚗', speed: 2, width: 2 },
+                { emoji: '🚙', speed: 1.5, width: 2 },
+                { emoji: '🚕', speed: 2.5, width: 2 },
+                { emoji: '🚛', speed: 1, width: 3 },
+                { emoji: '🚚', speed: 1.2, width: 3 }
+            ],
+            
+            // 河流物体配置
+            riverObjects: [
+                { emoji: '🪵', type: 'log', speed: 1.5, width: 3 },
+                { emoji: '🍀', type: 'lily', speed: 0, width: 1 },
+                { emoji: '🐊', type: 'crocodile', speed: 1.5, width: 2, danger: true }
+            ],
+            
+            // 鳄鱼动画配置
+            crocodile: {
+                biteInterval: 3000,    // 咬人间隔(ms)
+                biteDuration: 1000,    // 张嘴持续时间(ms)
+                warningTime: 500       // 警告时间(ms)
+            }
+        };
+
+        // 游戏状态
+        let canvas, ctx;
+        let gameLoop, lastTime = 0;
+        let gameState = 'start';
+        let gameWidth, gameHeight;
+        let gridWidth, gridHeight;
+        
+        // 游戏数据
+        let player = { x: 0, y: 0, onLog: null };
+        let level = 1;
+        let score = 0;
+        let highScore = 0;
+        let lives = 3;
+        let timeLeft = 0;
+        let maxTime = 0;
+        let goalsFilled = [false, false, false, false, false];
+        
+        // 地图数据
+        let mapRows = [];
+        let cars = [];
+        let riverObjects = [];
+        let particles = [];
+        
+        // 输入控制
+        let lastMoveTime = 0;
+        let keys = {};
+        
+        // 初始化
+        function init() {
+            detectLanguage();
+            applyTranslations();
+            
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            
+            // 加载最高分
+            highScore = parseInt(localStorage.getItem('emojiHopHighScore')) || 0;
+            document.getElementById('startHighScore').textContent = highScore;
+            
+            // 初始尺寸
+            resizeGame();
+            window.addEventListener('resize', resizeGame);
+            
+            // 键盘事件
+            document.addEventListener('keydown', handleKeyDown);
+            document.addEventListener('keyup', handleKeyUp);
+            
+            // 触摸控制
+            setupTouchControls();
+            
+            // 开始渲染
+            requestAnimationFrame(render);
+        }
+        
+        function resizeGame() {
+            const container = document.getElementById('gameArea');
+            gameWidth = container.clientWidth;
+            gameHeight = container.clientHeight;
+            canvas.width = gameWidth;
+            canvas.height = gameHeight;
+            
+            // 计算网格大小
+            gridWidth = gameWidth / CONFIG.gridCols;
+            gridHeight = gameHeight / CONFIG.gridRows;
+        }
+        
+        function setupTouchControls() {
+            const buttons = document.querySelectorAll('.control-btn');
+            buttons.forEach(btn => {
+                const dir = btn.dataset.dir;
+                btn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    movePlayer(dir);
+                });
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    movePlayer(dir);
+                });
+            });
+        }
+        
+        function handleKeyDown(e) {
+            keys[e.key] = true;
+            
+            if (gameState === 'playing') {
+                switch(e.key) {
+                    case 'ArrowUp':
+                    case 'w':
+                    case 'W':
+                        e.preventDefault();
+                        movePlayer('up');
+                        break;
+                    case 'ArrowDown':
+                    case 's':
+                    case 'S':
+                        e.preventDefault();
+                        movePlayer('down');
+                        break;
+                    case 'ArrowLeft':
+                    case 'a':
+                    case 'A':
+                        e.preventDefault();
+                        movePlayer('left');
+                        break;
+                    case 'ArrowRight':
+                    case 'd':
+                    case 'D':
+                        e.preventDefault();
+                        movePlayer('right');
+                        break;
+                    case 'Escape':
+                        e.preventDefault();
+                        togglePause();
+                        break;
+                }
+            }
+        }
+        
+        function handleKeyUp(e) {
+            keys[e.key] = false;
+        }
+        
+        function movePlayer(direction) {
+            const now = performance.now();
+            if (now - lastMoveTime < CONFIG.moveDelay) return;
+            lastMoveTime = now;
+            
+            let newX = player.x;
+            let newY = player.y;
+            
+            switch(direction) {
+                case 'up':
+                    newY--;
+                    score += 10;
+                    break;
+                case 'down':
+                    newY++;
+                    if (score >= 10) score -= 10;
+                    break;
+                case 'left':
+                    newX--;
+                    break;
+                case 'right':
+                    newX++;
+                    break;
+            }
+            
+            // 边界检查
+            if (newX >= 0 && newX < CONFIG.gridCols && newY >= 0 && newY < CONFIG.gridRows) {
+                player.x = newX;
+                player.y = newY;
+                
+                // 检查是否到达目标位置
+                checkGoalReached();
+            }
+        }
+        
+        function checkGoalReached() {
+            // 最顶行是目标行
+            if (player.y === 0) {
+                const goalIndex = Math.floor(player.x / 3);
+                if (goalIndex >= 0 && goalIndex < 5 && !goalsFilled[goalIndex]) {
+                    // 填满一个目标
+                    goalsFilled[goalIndex] = true;
+                    score += 500;
+                    createParticles(player.x * gridWidth + gridWidth/2, gridHeight/2, '🎉');
+                    
+                    // 更新目标显示
+                    const goalSlots = document.querySelectorAll('.goal-slot');
+                    goalSlots[goalIndex].classList.add('filled');
+                    
+                    // 检查是否所有目标都填满
+                    if (goalsFilled.every(g => g)) {
+                        levelComplete();
+                    }
+                } else if (goalsFilled[goalIndex]) {
+                    // 已经是填满的目标，退回
+                    player.y = 1;
+                }
+            }
+        }
+        
+        function generateLevel() {
+            mapRows = [];
+            cars = [];
+            riverObjects = [];
+            goalsFilled = [false, false, false, false, false];
+            
+            // 更新目标显示
+            const goalSlots = document.querySelectorAll('.goal-slot');
+            goalSlots.forEach(slot => slot.classList.remove('filled'));
+            
+            // 行配置（从上到下）
+            // 0: 目标行（荷叶）
+            // 1-3: 河流
+            // 4: 安全区
+            // 5-7: 马路
+            // 8: 安全区
+            // 9-11: 河流
+            // 12-13: 马路
+            // 14: 起始安全区
+            
+            const rowConfigs = [
+                { type: CONFIG.rowTypes.SAFE, isGoal: true },
+                { type: CONFIG.rowTypes.RIVER, direction: 1, speed: 1 + level * 0.2 },
+                { type: CONFIG.rowTypes.RIVER, direction: -1, speed: 1.2 + level * 0.2 },
+                { type: CONFIG.rowTypes.RIVER, direction: 1, speed: 1.5 + level * 0.2 },
+                { type: CONFIG.rowTypes.SAFE },
+                { type: CONFIG.rowTypes.ROAD, direction: 1, speed: 2 + level * 0.3 },
+                { type: CONFIG.rowTypes.ROAD, direction: -1, speed: 2.5 + level * 0.3 },
+                { type: CONFIG.rowTypes.ROAD, direction: 1, speed: 3 + level * 0.3 },
+                { type: CONFIG.rowTypes.SAFE },
+                { type: CONFIG.rowTypes.RIVER, direction: -1, speed: 1.3 + level * 0.2 },
+                { type: CONFIG.rowTypes.RIVER, direction: 1, speed: 1.6 + level * 0.2 },
+                { type: CONFIG.rowTypes.RIVER, direction: -1, speed: 1.4 + level * 0.2 },
+                { type: CONFIG.rowTypes.ROAD, direction: -1, speed: 2.2 + level * 0.3 },
+                { type: CONFIG.rowTypes.ROAD, direction: 1, speed: 2.8 + level * 0.3 },
+                { type: CONFIG.rowTypes.SAFE, isStart: true }
+            ];
+            
+            mapRows = rowConfigs;
+            
+            // 生成车辆和河流物体
+            mapRows.forEach((row, rowIndex) => {
+                if (row.type === CONFIG.rowTypes.ROAD) {
+                    generateCars(row, rowIndex);
+                } else if (row.type === CONFIG.rowTypes.RIVER) {
+                    generateRiverObjects(row, rowIndex);
+                }
+            });
+            
+            // 重置玩家位置
+            player.x = Math.floor(CONFIG.gridCols / 2);
+            player.y = CONFIG.gridRows - 1;
+            player.onLog = null;
+            
+            // 重置时间
+            maxTime = Math.max(CONFIG.minTime, CONFIG.baseTime - (level - 1) * CONFIG.timeDecrement);
+            timeLeft = maxTime;
+        }
+        
+        function generateCars(row, rowIndex) {
+            const numCars = 2 + Math.floor(level / 2);
+            for (let i = 0; i < numCars; i++) {
+                const carConfig = CONFIG.cars[Math.floor(Math.random() * CONFIG.cars.length)];
+                cars.push({
+                    x: Math.random() * CONFIG.gridCols,
+                    y: rowIndex,
+                    width: carConfig.width,
+                    emoji: carConfig.emoji,
+                    speed: carConfig.speed * row.direction * row.speed,
+                    rowSpeed: row.speed
+                });
+            }
+        }
+        
+        function generateRiverObjects(row, rowIndex) {
+            const numObjects = 3 + Math.floor(level / 3);
+            for (let i = 0; i < numObjects; i++) {
+                let objConfig;
+                // 鳄鱼出现概率随关卡增加
+                const crocChance = Math.min(0.3, 0.1 + level * 0.02);
+                if (Math.random() < crocChance) {
+                    objConfig = CONFIG.riverObjects[2]; // 鳄鱼
+                } else {
+                    objConfig = CONFIG.riverObjects[Math.floor(Math.random() * 2)];
+                }
+                
+                const obj = {
+                    x: Math.random() * CONFIG.gridCols,
+                    y: rowIndex,
+                    width: objConfig.width,
+                    emoji: objConfig.emoji,
+                    type: objConfig.type,
+                    speed: (objConfig.speed || 0) * row.direction * row.speed,
+                    rowSpeed: row.speed,
+                    danger: objConfig.danger || false,
+                    isBiting: false,
+                    biteStartTime: 0,
+                    nextBiteTime: performance.now() + Math.random() * CONFIG.crocodile.biteInterval
+                };
+                
+                riverObjects.push(obj);
+            }
+        }
+        
+        function startGame() {
+            document.getElementById('startScreen').classList.add('hidden');
+            resetGame();
+            gameState = 'playing';
+            lastTime = performance.now();
+            gameLoop = requestAnimationFrame(update);
+        }
+        
+        function restartGame() {
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            resetGame();
+            gameState = 'playing';
+            lastTime = performance.now();
+            gameLoop = requestAnimationFrame(update);
+        }
+        
+        function resetGame() {
+            level = 1;
+            score = 0;
+            lives = 3;
+            generateLevel();
+            updateUI();
+        }
+        
+        function levelComplete() {
+            gameState = 'levelComplete';
+            cancelAnimationFrame(gameLoop);
+            document.getElementById('levelScore').textContent = score;
+            document.getElementById('levelCompleteScreen').classList.remove('hidden');
+        }
+        
+        function nextLevel() {
+            document.getElementById('levelCompleteScreen').classList.add('hidden');
+            level++;
+            generateLevel();
+            gameState = 'playing';
+            lastTime = performance.now();
+            gameLoop = requestAnimationFrame(update);
+        }
+        
+        function gameOver() {
+            gameState = 'gameover';
+            cancelAnimationFrame(gameLoop);
+            
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('emojiHopHighScore', highScore);
+            }
+            
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalHighScore').textContent = highScore;
+            document.getElementById('gameStats').innerHTML = `
+                ${t('statsLevel')}: ${level - 1}<br>
+                ${t('statsScore')}: ${score}
+            `;
+            document.getElementById('gameOverScreen').classList.remove('hidden');
+        }
+        
+        function loseLife() {
+            lives--;
+            createParticles(player.x * gridWidth + gridWidth/2, player.y * gridHeight + gridHeight/2, '💀');
+            updateUI();
+            
+            if (lives <= 0) {
+                gameOver();
+            } else {
+                // 重置玩家位置
+                player.x = Math.floor(CONFIG.gridCols / 2);
+                player.y = CONFIG.gridRows - 1;
+                player.onLog = null;
+            }
+        }
+        
+        function update(currentTime) {
+            if (gameState !== 'playing') return;
+            
+            const deltaTime = (currentTime - lastTime) / 1000;
+            lastTime = currentTime;
+            
+            // 更新时间
+            timeLeft -= deltaTime;
+            if (timeLeft <= 0) {
+                loseLife();
+                timeLeft = maxTime;
+            }
+            
+            // 更新能量条
+            const energyPercent = (timeLeft / maxTime) * 100;
+            document.getElementById('energyFill').style.width = energyPercent + '%';
+            
+            // 更新车辆位置
+            cars.forEach(car => {
+                car.x += car.speed * deltaTime;
+                if (car.x > CONFIG.gridCols + car.width) {
+                    car.x = -car.width;
+                } else if (car.x < -car.width) {
+                    car.x = CONFIG.gridCols + car.width;
+                }
+            });
+            
+            // 更新河流物体位置
+            riverObjects.forEach(obj => {
+                obj.x += obj.speed * deltaTime;
+                if (obj.x > CONFIG.gridCols + obj.width) {
+                    obj.x = -obj.width;
+                } else if (obj.x < -obj.width) {
+                    obj.x = CONFIG.gridCols + obj.width;
+                }
+                
+                // 更新鳄鱼咬人状态
+                if (obj.type === 'crocodile') {
+                    if (!obj.isBiting && currentTime > obj.nextBiteTime) {
+                        obj.isBiting = true;
+                        obj.biteStartTime = currentTime;
+                    }
+                    if (obj.isBiting && currentTime > obj.biteStartTime + CONFIG.crocodile.biteDuration) {
+                        obj.isBiting = false;
+                        obj.nextBiteTime = currentTime + CONFIG.crocodile.biteInterval + Math.random() * 2000;
+                    }
+                }
+            });
+            
+            // 检查玩家所在行类型
+            const playerRow = mapRows[player.y];
+            player.onLog = null;
+            
+            if (playerRow.type === CONFIG.rowTypes.ROAD) {
+                // 马路：检查与车辆碰撞
+                let hit = false;
+                cars.forEach(car => {
+                    if (car.y === player.y) {
+                        if (player.x >= car.x - 0.5 && player.x < car.x + car.width + 0.5) {
+                            hit = true;
+                        }
+                    }
+                });
+                if (hit) {
+                    loseLife();
+                }
+            } else if (playerRow.type === CONFIG.rowTypes.RIVER) {
+                // 河流：检查是否在物体上
+                let onObject = false;
+                riverObjects.forEach(obj => {
+                    if (obj.y === player.y) {
+                        if (player.x >= obj.x - 0.3 && player.x < obj.x + obj.width - 0.3) {
+                            onObject = true;
+                            player.onLog = obj;
+                            
+                            // 鳄鱼咬人检测
+                            if (obj.type === 'crocodile' && obj.isBiting) {
+                                loseLife();
+                            }
+                        }
+                    }
+                });
+                
+                // 如果不在任何物体上，落水
+                if (!onObject) {
+                    loseLife();
+                }
+            }
+            
+            // 如果站在移动的物体上，跟随移动
+            if (player.onLog) {
+                player.x += player.onLog.speed * deltaTime;
+                
+                // 检查是否被带出边界
+                if (player.x < 0 || player.x >= CONFIG.gridCols) {
+                    loseLife();
+                }
+            }
+            
+            // 更新粒子
+            particles = particles.filter(p => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= deltaTime;
+                return p.life > 0;
+            });
+            
+            updateUI();
+            gameLoop = requestAnimationFrame(update);
+        }
+        
+        function updateUI() {
+            document.getElementById('levelDisplay').textContent = level;
+            document.getElementById('scoreDisplay').textContent = score;
+            document.getElementById('livesDisplay').textContent = '🐸'.repeat(lives);
+        }
+        
+        function createParticles(x, y, emoji) {
+            for (let i = 0; i < 5; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 100,
+                    vy: (Math.random() - 0.5) * 100,
+                    life: 0.5,
+                    emoji: emoji
+                });
+            }
+        }
+        
+        function render() {
+            ctx.clearRect(0, 0, gameWidth, gameHeight);
+            
+            // 绘制地图行
+            mapRows.forEach((row, index) => {
+                const y = index * gridHeight;
+                
+                if (row.type === CONFIG.rowTypes.SAFE) {
+                    // 草地
+                    ctx.fillStyle = row.isGoal ? '#2d5016' : '#3d6b1e';
+                    ctx.fillRect(0, y, gameWidth, gridHeight);
+                    
+                    // 目标行绘制荷叶
+                    if (row.isGoal) {
+                        for (let i = 0; i < 5; i++) {
+                            const x = i * 3 * gridWidth + gridWidth;
+                            ctx.font = `${gridHeight * 0.8}px sans-serif`;
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(goalsFilled[i] ? '🐸' : '🪷', x + gridWidth, y + gridHeight/2);
+                        }
+                    }
+                    
+                    // 起始行装饰
+                    if (row.isStart) {
+                        ctx.fillStyle = '#4a7c23';
+                        for (let x = 0; x < gameWidth; x += gridWidth * 2) {
+                            ctx.fillText('🌿', x + gridWidth/2, y + gridHeight/2);
+                        }
+                    }
+                } else if (row.type === CONFIG.rowTypes.ROAD) {
+                    // 马路
+                    ctx.fillStyle = '#333';
+                    ctx.fillRect(0, y, gameWidth, gridHeight);
+                    
+                    // 车道线
+                    ctx.strokeStyle = '#666';
+                    ctx.setLineDash([10, 10]);
+                    ctx.beginPath();
+                    ctx.moveTo(0, y + gridHeight/2);
+                    ctx.lineTo(gameWidth, y + gridHeight/2);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                } else if (row.type === CONFIG.rowTypes.RIVER) {
+                    // 河流
+                    ctx.fillStyle = '#1e3a5f';
+                    ctx.fillRect(0, y, gameWidth, gridHeight);
+                    
+                    // 水波纹效果
+                    ctx.strokeStyle = '#2d5a8f';
+                    ctx.lineWidth = 2;
+                    for (let waveX = 0; waveX < gameWidth; waveX += 50) {
+                        ctx.beginPath();
+                        ctx.moveTo(waveX, y + gridHeight/2 + Math.sin(performance.now() / 500 + waveX) * 5);
+                        ctx.lineTo(waveX + 30, y + gridHeight/2 + Math.sin(performance.now() / 500 + waveX + 1) * 5);
+                        ctx.stroke();
+                    }
+                }
+            });
+            
+            if (gameState === 'playing' || gameState === 'paused') {
+                // 绘制车辆
+                cars.forEach(car => {
+                    ctx.font = `${gridHeight * 0.8}px sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    const x = car.x * gridWidth + (car.width * gridWidth) / 2;
+                    const y = car.y * gridHeight + gridHeight / 2;
+                    ctx.fillText(car.emoji, x, y);
+                });
+                
+                // 绘制河流物体
+                riverObjects.forEach(obj => {
+                    const x = obj.x * gridWidth + (obj.width * gridWidth) / 2;
+                    const y = obj.y * gridHeight + gridHeight / 2;
+                    
+                    ctx.font = `${gridHeight * 0.8}px sans-serif`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    // 鳄鱼咬人时的警告效果
+                    if (obj.type === 'crocodile' && obj.isBiting) {
+                        const now = performance.now();
+                        const biteProgress = (now - obj.biteStartTime) / CONFIG.crocodile.biteDuration;
+                        if (biteProgress < 0.3) {
+                            // 警告闪烁
+                            if (Math.floor(now / 100) % 2 === 0) {
+                                ctx.fillStyle = '#ff0000';
+                                ctx.fillRect(x - gridWidth, y - gridHeight/2, gridWidth * 2, gridHeight);
+                                ctx.fillStyle = '#fff';
+                            }
+                        }
+                        ctx.fillText('🐊', x, y);
+                    } else {
+                        ctx.fillText(obj.emoji, x, y);
+                    }
+                });
+                
+                // 绘制玩家
+                ctx.font = `${gridHeight * 0.8}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const px = player.x * gridWidth + gridWidth / 2;
+                const py = player.y * gridHeight + gridHeight / 2;
+                ctx.fillText('🐸', px, py);
+                
+                // 绘制粒子
+                particles.forEach(p => {
+                    ctx.font = '20px sans-serif';
+                    ctx.globalAlpha = p.life * 2;
+                    ctx.fillText(p.emoji, p.x, p.y);
+                    ctx.globalAlpha = 1;
+                });
+            }
+            
+            requestAnimationFrame(render);
+        }
+        
+        // 暂停功能
+        function togglePause() {
+            if (gameState === 'playing') {
+                gameState = 'paused';
+                cancelAnimationFrame(gameLoop);
+                document.getElementById('pauseScreen').classList.remove('hidden');
+            } else if (gameState === 'paused') {
+                resumeGame();
+            }
+        }
+        
+        function resumeGame() {
+            if (gameState === 'paused') {
+                gameState = 'playing';
+                document.getElementById('pauseScreen').classList.add('hidden');
+                lastTime = performance.now();
+                gameLoop = requestAnimationFrame(update);
+            }
+        }
+        
+        function restartFromPause() {
+            document.getElementById('pauseScreen').classList.add('hidden');
+            restartGame();
+        }
+        
+        init();
+    </script>
+</body>
+</html>
