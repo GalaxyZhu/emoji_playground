@@ -173,6 +173,21 @@
             <a href="https://github.com/GalaxyZhu/emoji_playground" target="_blank" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">GitHub</a>
             <a href="https://x.com/galaxyzhu" target="_blank" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">X</a>
         </div>
+        
+        <!-- Safari 最佳体验提示 -->
+        <div id="safariNoticeZh" style="margin-top: 15px; padding: 12px 20px; background: rgba(0, 122, 255, 0.1); border: 1px solid rgba(0, 122, 255, 0.3); border-radius: 8px;">
+            <div style="font-size: 13px; color: #007aff;">
+                🍎 <b>最佳体验请使用 Safari 浏览器</b><br>
+                <span style="font-size: 12px; color: #666;">支持 macOS · iPhone · iPad</span>
+            </div>
+        </div>
+        <div id="safariNoticeEn" style="margin-top: 15px; padding: 12px 20px; background: rgba(0, 122, 255, 0.1); border: 1px solid rgba(0, 122, 255, 0.3); border-radius: 8px; display: none;">
+            <div style="font-size: 13px; color: #007aff;">
+                🍎 <b>Best experience on Safari browser</b><br>
+                <span style="font-size: 12px; color: #666;">Supports macOS · iPhone · iPad</span>
+            </div>
+        </div>
+        
         <p style="margin-top: 15px; font-size: 11px; color: #666;">
             © 2026 Emoji Arcade. All rights reserved.
         </p>
@@ -643,6 +658,10 @@
             const footerTermsZh = document.getElementById('footerTermsZh');
             const footerTermsEn = document.getElementById('footerTermsEn');
             
+            // Safari notice
+            const safariNoticeZh = document.getElementById('safariNoticeZh');
+            const safariNoticeEn = document.getElementById('safariNoticeEn');
+            
             if (isChinese) {
                 // Show Chinese, hide English
                 if (heroSubtitleZh) heroSubtitleZh.style.display = 'block';
@@ -665,6 +684,10 @@
                 if (footerPrivacyEn) footerPrivacyEn.style.display = 'none';
                 if (footerTermsZh) footerTermsZh.style.display = 'inline';
                 if (footerTermsEn) footerTermsEn.style.display = 'none';
+                
+                // Safari notice
+                if (safariNoticeZh) safariNoticeZh.style.display = 'block';
+                if (safariNoticeEn) safariNoticeEn.style.display = 'none';
                 
                 document.getElementById('loginText').textContent = '登录';
             } else {
@@ -689,6 +712,10 @@
                 if (footerPrivacyEn) footerPrivacyEn.style.display = 'inline';
                 if (footerTermsZh) footerTermsZh.style.display = 'none';
                 if (footerTermsEn) footerTermsEn.style.display = 'inline';
+                
+                // Safari notice
+                if (safariNoticeZh) safariNoticeZh.style.display = 'none';
+                if (safariNoticeEn) safariNoticeEn.style.display = 'block';
                 
                 document.getElementById('loginText').textContent = 'Login';
             }
