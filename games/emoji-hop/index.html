@@ -401,7 +401,7 @@
                 </div>
                 <div class="ui-panel">
                     <span class="label" data-i18n="lives">生命</span>
-                    <span id="livesDisplay">🐸🐸🐸</span>
+                    <span id="livesDisplay">🐵🐵🐵</span>
                 </div>
             </div>
             
@@ -416,7 +416,7 @@
             <!-- 开始/结束界面 -->
             <div id="ui">
                 <div id="startScreen" class="screen">
-                    <div class="emoji-title">🐸</div>
+                    <div class="emoji-title">🐵</div>
                     <h1 data-i18n="gameTitle">猴子过河</h1>
                     <div class="high-score"><span data-i18n="highScoreLabel">最高分</span>: <span id="startHighScore">0</span></div>
                     <button class="btn" onclick="startGame()" data-i18n="startGame">开始游戏</button>
@@ -1063,7 +1063,7 @@
         function updateUI() {
             document.getElementById('levelDisplay').textContent = level;
             document.getElementById('scoreDisplay').textContent = score;
-            document.getElementById('livesDisplay').textContent = '🐸'.repeat(lives);
+            document.getElementById('livesDisplay').textContent = '🐵'.repeat(lives);
         }
         
         function createParticles(x, y, emoji) {
@@ -1098,7 +1098,7 @@
                             ctx.font = `${gridHeight * 0.8}px sans-serif`;
                             ctx.textAlign = 'center';
                             ctx.textBaseline = 'middle';
-                            ctx.fillText(goalsFilled[i] ? '🐸' : '🪷', x + gridWidth, y + gridHeight/2);
+                            ctx.fillText(goalsFilled[i] ? '🐵' : '🪷', x + gridWidth, y + gridHeight/2);
                         }
                     }
                     
@@ -1183,7 +1183,7 @@
                 ctx.textBaseline = 'middle';
                 const px = player.x * gridWidth + gridWidth / 2;
                 const py = player.y * gridHeight + gridHeight / 2;
-                ctx.fillText('🐸', px, py);
+                ctx.fillText('🐵', px, py);
                 
                 // 绘制粒子
                 particles.forEach(p => {
