@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 游戏后诊断 - Emoji Arcade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, #fbbf24, #ec4899, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #94a3b8;
+        }
+        
+        /* 模拟游戏区域 */
+        .game-demo {
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 30px 0;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .game-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .mock-game {
+            background: #0a0a0a;
+            border-radius: 15px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mock-game::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,0,0.03) 2px, rgba(0,255,0,0.03) 4px);
+            pointer-events: none;
+        }
+        
+        .game-over-text {
+            font-size: 3rem;
+            color: #ef4444;
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+            animation: pulse 1s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .final-score {
+            font-size: 2rem;
+            margin-top: 20px;
+            color: #fbbf24;
+        }
+        
+        /* 诊断报告样式 */
+        .diagnosis-report {
+            display: none;
+            background: linear-gradient(135deg, rgba(26, 26, 46, 0.95), rgba(22, 33, 62, 0.95));
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            border: 2px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .diagnosis-report.show {
+            display: block;
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .report-header {
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stamp {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            border: 3px solid #ef4444;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ef4444;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transform: rotate(-15deg);
+            opacity: 0.8;
+        }
+        
+        .player-type-icon {
+            font-size: 5rem;
+            margin-bottom: 15px;
+            display: inline-block;
+            animation: bounce 1s ease infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .type-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+        
+        .type-title {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #fbbf24, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+        
+        .type-title-en {
+            color: #64748b;
+            font-size: 1rem;
+        }
+        
+        .rarity-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin: 15px 0;
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .rarity-common { background: linear-gradient(135deg, #94a3b8, #64748b); color: #fff; }
+        .rarity-rare { background: linear-gradient(135deg, #60a5fa, #3b82f6); color: #fff; }
+        .rarity-epic { background: linear-gradient(135deg, #a855f7, #7c3aed); color: #fff; }
+        .rarity-legendary { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; }
+        
+        .quote-box {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 4px solid #6366f1;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+            font-style: italic;
+            font-size: 1.1rem;
+            color: #cbd5e1;
+        }
+        
+        .roast-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+        }
+        
+        .roast-label {
+            color: #ef4444;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .roast-text {
+            color: #fca5a5;
+            font-size: 1rem;
+        }
+        
+        /* 数据面板 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.08);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+        
+        .stat-desc {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 5px;
+        }
+        
+        /* 分享按钮 */
+        .share-section {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .share-title {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .share-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .share-btn {
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        
+        .btn-twitter { background: #1da1f2; color: white; }
+        .btn-weibo { background: #e6162d; color: white; }
+        .btn-copy { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
+        .btn-retry { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; }
+        
+        /* 类型选择器 */
+        .type-selector {
+            margin: 30px 0;
+        }
+        
+        .selector-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #94a3b8;
+        }
+        
+        .type-tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .type-tab {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #94a3b8;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .type-tab.active {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border-color: transparent;
+        }
+        
+        .type-tab:hover:not(.active) {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        /* 预览卡片网格 */
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .preview-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        
+        .preview-card:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateY(-5px);
+        }
+        
+        .preview-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        
+        .preview-code {
+            font-size: 0.8rem;
+            color: #6366f1;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .preview-name {
+            font-size: 0.9rem;
+            color: #cbd5e1;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            .type-title { font-size: 1.5rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .share-buttons { flex-direction: column; }
+            .share-btn { width: 100%; justify-content: center; }
+        }
+        
+        /* 动画 */
+        .glitch {
+            animation: glitch 2s linear infinite;
+        }
+        
+        @keyframes glitch {
+            2%, 64% { transform: translate(2px,0) skew(0deg); }
+            4%, 60% { transform: translate(-2px,0) skew(0deg); }
+            62% { transform: translate(0,0) skew(5deg); }
+        }
+        
+        .shine {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .shine::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shine 3s infinite;
+        }
+        
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎮 游戏后诊断系统</h1>
+            <p class="subtitle">玩完游戏后的"病历单"——自嘲、搞笑、精准扎心</p>
+        </header>
+        
+        <!-- 模拟游戏结束 -->
+        <div class="game-demo">
+            <h2 class="game-title">🔫 Emoji Shooter - 游戏结束</h2>            
+            <div class="mock-game">
+                <div>
+                    <div class="game-over-text">GAME OVER</div>
+                    <div class="final-score">最终得分: 1,250</div>
+                </div>
+            </div>
+            
+            <button class="share-btn btn-retry" onclick="generateDiagnosis()" style="font-size: 1.1rem; padding: 15px 40px;">
+                📋 生成诊断报告
+            </button>
+            <p style="margin-top: 15px; color: #64748b; font-size: 0.85rem;">点击按钮查看你的"玩家病历"</p>
+        </div>
+        
+        <!-- 诊断报告 -->
+        <div class="diagnosis-report" id="diagnosisReport">
+            <div class="stamp">确诊</div>
+            
+            <div class="report-header">
+                <div class="player-type-icon" id="typeIcon">🔫</div>
+                <div class="type-badge">🎮 Emoji Shooter 诊断结果</div>
+                <h2 class="type-title" id="typeTitle">人体描边大师</h2>
+                <div class="type-title-en" id="typeTitleEn">Human Outline Artist</div>
+                
+                <div class="rarity-badge rarity-common" id="rarityBadge">
+                    <span>🌟</span>
+                    <span id="rarityText">常见 · 28%</span>
+                </div>
+            </div>
+            
+            <div class="quote-box" id="typeQuote">
+                "敌人没死，但我键盘先死了。"
+            </div>
+            
+            <div class="roast-box">
+                <div class="roast-label">💬 专属吐槽</div>
+                <div class="roast-text" id="roastText">你的准星在敌人周围画了一个完美的圆</div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #ef4444;">47</div>
+                    <div class="stat-label">射击次数</div>
+                    <div class="stat-desc">键盘：我承受了太多</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #22c55e;">8</div>
+                    <div class="stat-label">命中次数</div>
+                    <div class="stat-desc">命中率17%，感人</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #fbbf24;">12</div>
+                    <div class="stat-label">换弹次数</div>
+                    <div class="stat-desc">换弹癌晚期</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" style="color: #a855f7;">💀</div>
+                    <div class="stat-label">心态评估</div>
+                    <div class="stat-desc">建议买抗压药</div>
+                </div>
+            </div>
+            
+            <div class="share-section">
+                <p class="share-title">分享你的"诊断报告"，看看好友是什么"病症"</p>
+                
+                <div class="share-buttons">
+                    <button class="share-btn btn-twitter" onclick="shareToTwitter()">
+                        🐦 分享到 Twitter
+                    </button>
+                    <button class="share-btn btn-weibo" onclick="shareToWeibo()">
+                        📱 分享到微博
+                    </button>
+                    <button class="share-btn btn-copy" onclick="copyReport()">
+                        📋 复制文案
+                    </button>
+                    <button class="share-btn btn-retry" onclick="retake()">
+                        🔄 再玩一次
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 类型浏览器 -->
+        <div class="type-selector">
+            <p class="selector-title">预览所有玩家"病症"类型</p>
+            
+            <div class="type-tabs">
+                <button class="type-tab active" onclick="switchTab('shooter')">🔫 射击类</button>
+                <button class="type-tab" onclick="switchTab('survive')">🛡️ 生存类</button>
+                <button class="type-tab" onclick="switchTab('match')">🧩 匹配类</button>
+                <button class="type-tab" onclick="switchTab('general')">🎮 通用</button>
+            </div>
+            
+            <div class="preview-grid" id="previewGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        // 玩家类型数据库
+        const playerTypes = {
+            shooter: {
+                SPD: {
+                    icon: '🔫',
+                    title: '人体描边大师',
+                    titleEn: 'Human Outline Artist',
+                    quote: '"敌人没死，但我键盘先死了。"',
+                    rare: '常见',
+                    rarePercent: '28%',
+                    rarityClass: 'rarity-common',
+                    roasts: [
+                        '你的准星在敌人周围画了一个完美的圆',
+                        '敌人以为你在故意放水，其实你在全力以赴',
+                        '建议转行做气象预报，反正都瞄不准'
+                    ],
+                    stats: [
+                        { label: '射击次数', value: '47', desc: '键盘：我承受了太多', color: '#ef4444' },
+                        { label: '命中次数', value: '8', desc: '命中率17%，感人', color: '#22c55e' },
+                        { label: '换弹次数', value: '12', desc: '换弹癌晚期', color: '#fbbf24' },
+                        { label: '心态评估', value: '💀', desc: '建议买抗压药', color: '#a855f7' }
+                    ]
+                },
+                SNP: {
+                    icon: '🎯',
+                    title: '锁头挂嫌疑人',
+                    titleEn: 'Aimbot Suspect',
+                    quote: '"我说我没开，你信吗？"',
+                    rare: '稀有',
+                    rarePercent: '5%',
+                    rarityClass: 'rarity-rare',
+                    roasts: [
+                        '你的鼠标dpi是不是调成了心灵感应模式',
+                        '敌人都怀疑你在服务器里有亲戚',
+                        '建议去打职业，反正也没朋友一起玩了'
+                    ],
+                    stats: [
+                        { label: '射击次数', value: '32', desc: '枪枪爆头', color: '#ef4444' },
+                        { label: '命中率', value: '94%', desc: '这不科学', color: '#22c55e' },
+                        { label: '被举报', value: '7次', desc: '惯犯了', color: '#fbbf24' },
+                        { label: '心态评估', value: '😎', desc: '这就是实力', color: '#a855f7' }
+                    ]
+                },
+                SPR: {
+                    icon: '🏃',
+                    title: '无限换弹癌',
+                    titleEn: 'Reload Addict',
+                    quote: '"弹匣还有29发？不行，必须换。"',
+                    rare: '常见',
+                    rarePercent: '22%',
+                    rarityClass: 'rarity-common',
+                    roasts: [
+                        '你的枪里永远有子弹，但敌人永远在你换弹时出现',
+                        'R键是你磨损最严重的按键',
+                        '建议去玩近战游戏，放过那个R键吧'
+                    ],
+                    stats: [
+                        { label: '射击次数', value: '23', desc: '省着点用', color: '#ef4444' },
+                        { label: '换弹次数', value: '28', desc: '比射击还多', color: '#22c55e' },
+                        { label: '换弹时死亡', value: '9次', desc: '意料之中', color: '#fbbf24' },
+                        { label: '心态评估', value: '🔄', desc: 'R键已坏', color: '#a855f7' }
+                    ]
+                },
+                PAN: {
+                    icon: '😱',
+                    title: 'Panic射击手',
+                    titleEn: 'Panic Shooter',
+                    quote: '"看到敌人→狂按鼠标→祈祷。"',
+                    rare: '常见',
+                    rarePercent: '35%',
+                    rarityClass: 'rarity-common',
+                    roasts: [
+                        '你的战术就是吓死对方',
+                        '弹药供应商应该给你颁个奖',
+                        '敌人不是被你打死的，是被你吵死的'
+                    ],
+                    stats: [
+                        { label: '射击次数', value: '156', desc: '手指抽搐', color: '#ef4444' },
+                        { label: '命中次数', value: '4', desc: '随缘枪法', color: '#22c55e' },
+                        { label: '手速', value: '999', desc: 'APM爆表', color: '#fbbf24' },
+                        { label: '心态评估', value: '🔥', desc: '红温警告', color: '#a855f7' }
+                    ]
+                }
+            },
+            survive: {
+                CHL: {
+                    icon: '🧘',
+                    title: '佛系等死流',
+                    titleEn: 'Zen Death Awaiter',
+                    quote: '"反正都会死，我选个舒服的姿势。"',
+                    rare: '常见',
+                    rarePercent: '32%',
+                    rarityClass: 'rarity-common',
+                    roasts: [
+                        '你玩游戏的样子像在泡温泉',
+                        '敌人的子弹比你更有求生欲',
+                        '建议去玩放置类游戏，那个不用动'
+                    ],
+                    stats: [
+                        { label: '存活时间', value: '12s', desc: '还没开始就结束了', color: '#ef4444' },
+                        { label: '移动距离', value: '3px', desc: '基本没动', color: '#22c55e' },
+                        { label: '被击中', value: '100%', desc: '全接了', color: '#fbbf24' },
+                        { label: '心态评估', value: '🧘', desc: '佛系玩家', color: '#a855f7' }
+                    ]
+                },
+                DGE: {
+                    icon: '🕷️',
+                    title: '人形自走挂',
+                    titleEn: 'Dodge God',
+                    quote: '"打不到我，略略略~"',
+                    rare: '超稀有',
+                    rarePercent: '3%',
+                    rarityClass: 'rarity-epic',
+                    roasts: [
+                        '你是装了子弹时间插件吗',
+                        '敌人都怀疑你在服务器里有亲戚',
+                        '建议去拍《黑客帝国》续集'
+                    ],
+                    stats: [
+                        { label: '存活时间', value: '120s', desc: '全场最佳', color: '#ef4444' },
+                        { label: '被击中', value: '0次', desc: '完美闪避', color: '#22c55e' },
+                        { label: '极限躲避', value: '28次', desc: '刀尖跳舞', color: '#fbbf24' },
+                        { label: '心态评估', value: '😎', desc: '就这？', color: '#a855f7' }
+                    ]
+                },
+                MAS: {
+                    icon: '🎲',
+                    title: '薛定谔的走位',
+                    titleEn: 'Schrödinger Dodger',
+                    quote: '"走位全靠运气，生死交给天意。"',
+                    rare: '常见',
+                    rarePercent: '25%',
+                    rarityClass: 'rarity-common',
+                    roasts: [
+                        '你的走位让敌人也无法预测——包括你自己',
+                        '量子力学在你这儿得到完美验证',
+                        '建议买彩票，反正都靠运气'
+                    ],
+                    stats: [
+                        { label: '随机移动', value: '∞', desc: '无规律可循', color: '#ef4444' },
+                        { label: '幸运躲避', value: '60%', desc: '纯靠脸', color: '#22c55e' },
+                        { label: '意外存活', value: '3次', desc: '自己都懵了', color: '#fbbf24' },
+                        { label: '心态评估', value: '🎲', desc: '听天由命', color: '#a855f7' }
+                    ]
+                },
+                ABS: {
+                    icon: '🧲',
+                    title: '吸铁石体质',
+                    titleEn: 'Bullet Magnet',
+                    quote: '"不是我接得好，是子弹长眼睛。"',
+                    rare: '常见',
+                    rarePercent: '18%',
+                    rarityClass: 'rarity-common',
+                    roasts: [
+                        '敌人都纳闷：这靶子怎么还会动',
+                        '你的身体对子弹有不可抗拒的吸引力',
+                        '建议去玩坦克，那个本来就是挨打的'
+                    ],
+                    stats: [
+                        { label: '被击中率', value: '95%', desc: '人体靶心', color: '#ef4444' },
+                        { label: '主动接弹', value: '12次', desc: '走位接子弹', color: '#22c55e' },
+                        { label: '存活时间', value: '8s', desc: '移动的靶子', color: '#fbbf24' },
+                        { label: '心态评估', value: '🧲', desc: '体质特殊', color: '#a855f7' }
+                    ]
+                }
+            },
+            match: {
+                BRN: {
+                    icon: '🧠',
+                    title: '人脑计算机',
+                    titleEn: 'Human Computer',
+                    quote: '"三消？那是我的母语。"',
+                    rare: '稀有',
+                    rarePercent: '8%',
+                    rarityClass: 'rarity-rare',
+                    roasts: [
+                        '你的大脑是GPU做的吧',
+                        '建议去拉斯维加斯，但别说是我推荐的',
+                        '你玩三消的样子像在做高数题'
+                    ],
+                    stats: [
+                        { label: '连击数', value: '25', desc: 'combo机器', color: '#ef4444' },
+                        { label: '平均反应', value: '0.3s', desc: '非人类', color: '#22c55e' },
+                        { label: '失误次数', value: '0', desc: '完美操作', color: '#fbbf24' },
+                        { label: '心态评估', value: '🧠', desc: 'CPU过载', color: '#a855f7' }
+                    ]
+                },
+                COL: {
+                    icon: '🦥',
+                    title: '树懒型选手',
+                    titleEn: 'Sloth Gamer',
+                    quote: '"我找到了！……刚才那个。"',
+                    rare: '常见',
+                    rarePercent: '38%',
+                    rarityClass: 'rarity-common',
+                    roasts: [
+                        '你的反应速度让树懒都着急',
+                        '游戏都结束三秒了你才点',
+                        '建议玩回合制，给你一回合的时间思考'
+                    ],
+                    stats: [
+                        { label: '平均反应', value: '4.5s', desc: '树懒级别', color: '#ef4444' },
+                        { label: '错过匹配', value: '12次', desc: '看着它消失', color: '#22c55e' },
+                        { label: '找到时', value: '已结束', desc: '总是慢一步', color: '#fbbf24' },
+                        { label: '心态评估', value: '🦥', desc: '慢慢来', color: '#a855f7' }
+                    ]
+                },
+                OCD: {
+                    icon: '🔍',
+                    title: '强迫症患者',
+                    titleEn: 'Match OCD',
+                    quote: '"颜色不对，宁愿不消。"',
+                    rare: '常见',
+                    rarePercent: '24%',
+                    rarityClass: 'rarity-common',
+                    roasts: [
+                        '你的强迫症比分数还高',
+                        '游戏结束不是因为时间到了，是因为你太挑剔',
+                        '建议去整理衣柜，那个更适合你'
+                    ],
+                    stats: [
+                        { label: '跳过匹配', value: '15次', desc: '等完美匹配', color: '#ef4444' },
+                        { label: '强迫症发作', value: '全程', desc: '颜色必须对', color: '#22c55e' },
+                        { label: '实际得分', value: '很低', desc: '太挑剔了', color: '#fbbf24' },
+                        { label: '心态评估', value: '🔍', desc: '完美主义', color: '#a855f7' }
+                    ]
+                },
+                RNG: {
+                    icon: '🎰',
+                    title: '瞎点点大师',
+                    titleEn: 'Random Clicker',
+                    quote: '"只要点得够快，概率就追不上我。"',
+                    rare: '常见',
+                    rarePercent: '30%',
+                    rarityClass: 'rarity-common',
+                    roasts: [
+                        '你的手速和智商成反比',
+                        '鼠标：我承受了太多',
+                        '建议去玩刮刮乐，反正都靠蒙'
+                    ],
+                    stats: [
+                        { label: '总点击', value: '200+', desc: '疯狂连点', color: '#ef4444' },
+                        { label: '有效点击', value: '8次', desc: '大部分都是miss', color: '#22c55e' },
+                        { label: '手速', value: '∞', desc: 'APM爆炸', color: '#fbbf24' },
+                        { label: '心态评估', value: '🎰', desc: '全靠运气', color: '#a855f7' }
+                    ]
+                }
+            },
+            general: {
+                TRY: {
+                    icon: '💀',
+                    title: '又菜又爱玩',
+                    titleEn: 'Hardstuck Noob',
+                    quote: '"死了100次，笑了101次。"',
+                    rare: '史诗',
+                    rarePercent: '15%',
+                    rarityClass: 'rarity-legendary',
+                    roasts: [
+                        '你的游戏体验：加载→死→加载→死',
+                        '敌人看到你的名字都笑了',
+                        '建议把游戏id改成"经验宝宝"'
+                    ],
+                    stats: [
+                        { label: '死亡次数', value: '50+', desc: '经验宝宝', color: '#ef4444' },
+                        { label: '尝试次数', value: '60+', desc: '坚持不懈', color: '#22c55e' },
+                        { label: '胜率', value: '2%', desc: '但还在笑', color: '#fbbf24' },
+                        { label: '心态评估', value: '💀', desc: '乐观主义者', color: '#a855f7' }
+                    ]
+                },
+                TIL: {
+                    icon: '🔥',
+                    title: '红温破防者',
+                    titleEn: 'Tilt Lord',
+                    quote: '"鼠标先死的，我随后。"',
+                    rare: '常见',
+                    rarePercent: '26%',
+                    rarityClass: 'rarity-common',
+                    roasts: [
+                        '你的桌子质量真好，居然还没坏',
+                        '邻居以为你在拆家',
+                        '建议买抗压药，按吨买'
+                    ],
+                    stats: [
+                        { label: ' rage次数', value: '15+', desc: '键盘杀手', color: '#ef4444' },
+                        { label: '桌子耐久', value: '???', desc: '质量过硬', color: '#22c55e' },
+                        { label: '邻居投诉', value: '3次', desc: '以为地震', color: '#fbbf24' },
+                        { label: '心态评估', value: '🔥', desc: '红温警告', color: '#a855f7' }
+                    ]
+                },
+                QUT: {
+                    icon: '🏳️',
+                    title: '秒退艺术家',
+                    titleEn: 'Instant Quitter',
+                    quote: '"这游戏有问题，不是我。"',
+                    rare: '常见',
+                    rarePercent: '20%',
+                    rarityClass: 'rarity-common',
+                    roasts: [
+                        '你的退出速度比你的反应速度快多了',
+                        '游戏还没加载完你已经alt+f4了',
+                        '建议去看视频，那个不会输'
+                    ],
+                    stats: [
+                        { label: 'alt+f4次数', value: '10+', desc: '光速退出', color: '#ef4444' },
+                        { label: '坚持时间', value: '<1min', desc: '没耐心', color: '#22c55e' },
+                        { label: '甩锅理由', value: '∞', desc: '永远不怪自己', color: '#fbbf24' },
+                        { label: '心态评估', value: '🏳️', desc: '投降大师', color: '#a855f7' }
+                    ]
+                },
+                ADDI: {
+                    icon: '🎮',
+                    title: '电子yw患者',
+                    titleEn: 'Gaming Addict',
+                    quote: '"再玩一把就睡……天怎么亮了？"',
+                    rare: '史诗',
+                    rarePercent: '12%',
+                    rarityClass: 'rarity-legendary',
+                    roasts: [
+                        '你的睡眠周期跟着游戏帧率走',
+                        '朋友以为你失踪了，其实你在"最后一把"',
+                        '建议设置家长控制，但估计你自己就是家长'
+                    ],
+                    stats: [
+                        { label: '游戏时长', value: '8h+', desc: '通宵达旦', color: '#ef4444' },
+                        { label: '再玩一把', value: '20次', desc: '最后一遍', color: '#22c55e' },
+                        { label: '睡眠时间', value: '2h', desc: '修仙模式', color: '#fbbf24' },
+                        { label: '心态评估', value: '🎮', desc: '电子yw', color: '#a855f7' }
+                    ]
+                }
+            }
+        };
+
+        let currentType = null;
+        let currentCategory = 'shooter';
+
+        function generateDiagnosis() {
+            // 随机选择一个类型（实际应该根据游戏数据计算）
+            const types = playerTypes[currentCategory];
+            const keys = Object.keys(types);
+            const randomKey = keys[Math.floor(Math.random() * keys.length)];
+            const type = types[randomKey];
+            
+            currentType = { ...type, code: randomKey };
+            
+            // 更新报告内容
+            document.getElementById('typeIcon').textContent = type.icon;
+            document.getElementById('typeTitle').textContent = type.title;
+            document.getElementById('typeTitleEn').textContent = type.titleEn;
+            document.getElementById('typeQuote').textContent = type.quote;
+            document.getElementById('rarityText').textContent = `${type.rare} · ${type.rarePercent}`;
+            document.getElementById('roastText').textContent = type.roasts[Math.floor(Math.random() * type.roasts.length)];
+            
+            // 更新稀有度样式
+            const badge = document.getElementById('rarityBadge');
+            badge.className = `rarity-badge ${type.rarityClass}`;
+            
+            // 更新统计数据
+            const statsGrid = document.querySelector('.stats-grid');
+            statsGrid.innerHTML = type.stats.map(stat => `
+                <div class="stat-card">
+                    <div class="stat-value" style="color: ${stat.color};">${stat.value}</div>
+                    <div class="stat-label">${stat.label}</div>
+                    <div class="stat-desc">${stat.desc}</div>
+                </div>
+            `).join('');
+            
+            // 显示报告
+            document.getElementById('diagnosisReport').classList.add('show');
+            
+            // 滚动到报告
+            document.getElementById('diagnosisReport').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function switchTab(category) {
+            currentCategory = category;
+            
+            // 更新标签样式
+            document.querySelectorAll('.type-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // 更新预览网格
+            updatePreviewGrid();
+        }
+
+        function updatePreviewGrid() {
+            const types = playerTypes[currentCategory];
+            const grid = document.getElementById('previewGrid');
+            
+            grid.innerHTML = Object.entries(types).map(([code, type]) => `
+                <div class="preview-card" onclick="previewType('${currentCategory}', '${code}')">
+                    <div class="preview-icon">${type.icon}</div>
+                    <div class="preview-code">${code}</div>
+                    <div class="preview-name">${type.title}</div>
+                </div>
+            `).join('');
+        }
+
+        function previewType(category, code) {
+            currentCategory = category;
+            currentType = { ...playerTypes[category][code], code };
+            
+            // 模拟点击生成报告
+            generateDiagnosis();
+        }
+
+        function shareToTwitter() {
+            if (!currentType) return;
+            
+            const text = encodeURIComponent(
+                `🎮 刚被 Emoji Arcade 诊断为「${currentType.title}」\n` +
+                `${currentType.quote}\n\n` +
+                `测测你是什么玩家"病症" 👇`
+            );
+            const url = encodeURIComponent('https://emojiarcade.app');
+            window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+        }
+
+        function shareToWeibo() {
+            if (!currentType) return;
+            
+            const text = encodeURIComponent(
+                `【Emoji Arcade 诊断报告】\n` +
+                `我是「${currentType.title}」${currentType.icon}\n` +
+                `${currentType.quote}\n\n` +
+                `测测你是什么玩家类型 👉 emojiarcade.app`
+            );
+            const url = encodeURIComponent('https://emojiarcade.app');
+            window.open(`https://service.weibo.com/share/share.php?title=${text}&url=${url}`, '_blank');
+        }
+
+        function copyReport() {
+            if (!currentType) return;
+            
+            const report = `🎮 Emoji Arcade 诊断报告
+
+${currentType.icon} ${currentType.title} (${currentType.titleEn})
+${currentType.rare} · ${currentType.rarePercent}
+
+${currentType.quote}
+
+💬 专属吐槽：${currentType.roasts[0]}
+
+测测你是什么玩家"病症" 👉 emojiarcade.app`;
+            
+            navigator.clipboard.writeText(report).then(() => {
+                alert('诊断报告已复制！');
+            });
+        }
+
+        function retake() {
+            document.getElementById('diagnosisReport').classList.remove('show');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // 初始化
+        updatePreviewGrid();
+    </script>
+</body>
+</html>

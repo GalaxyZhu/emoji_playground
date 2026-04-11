@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 APT Test - What's Your Arcade Player Type?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        
+        .bg-grid {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(rgba(99, 102, 241, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+        }
+        
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-50px, -50px); }
+        }
+        
+        .floating-emoji {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.3;
+            animation: float 15s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-100px) rotate(180deg); }
+        }
+        
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .logo {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #fbbf24, #f59e0b, #ec4899, #8b5cf6);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradient 3s ease infinite;
+            margin-bottom: 10px;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .subtitle {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+        
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            height: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1, #8b5cf6);
+            border-radius: 20px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .test-screen {
+            display: none;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .test-screen.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .test-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .test-desc {
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+        
+        .game-container {
+            position: relative;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            cursor: crosshair;
+        }
+        
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.7);
+            transition: opacity 0.3s;
+        }
+        
+        .game-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+        }
+        
+        .result-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .result-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .player-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: bounce 1s ease infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .player-type {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .player-code {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .player-quote {
+            font-style: italic;
+            color: #cbd5e1;
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .stat-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .stat-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-bottom: 5px;
+        }
+        
+        .stat-bar {
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .stat-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+        
+        .stat-value {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 5px;
+        }
+        
+        .rarity {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #000;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin: 20px 0;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .share-section {
+            margin-top: 30px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .share-title {
+            color: #94a3b8;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+        
+        .share-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .share-btn {
+            padding: 12px 25px;
+            border-radius: 25px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .share-twitter {
+            background: #1da1f2;
+            color: white;
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        
+        .compare-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .compare-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .compare-input input {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            padding: 12px 20px;
+            border-radius: 25px;
+            color: white;
+            font-size: 1rem;
+            min-width: 200px;
+        }
+        
+        .compare-input input::placeholder {
+            color: #64748b;
+        }
+        
+        .type-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .type-item {
+            background: rgba(255,255,255,0.05);
+            padding: 15px 10px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+        
+        .type-item:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateY(-3px);
+        }
+        
+        .type-item .emoji {
+            font-size: 2rem;
+            margin-bottom: 5px;
+        }
+        
+        .type-item .code {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6366f1;
+        }
+        
+        .timer {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fbbf24;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .score-display {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .score-item {
+            text-align: center;
+        }
+        
+        .score-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #6366f1;
+        }
+        
+        .score-label {
+            font-size: 0.85rem;
+            color: #94a3b8;
+        }
+        
+        @media (max-width: 600px) {
+            .title {
+                font-size: 1.8rem;
+            }
+            
+            .logo {
+                font-size: 2.5rem;
+            }
+            
+            .player-icon {
+                font-size: 3.5rem;
+            }
+            
+            .player-type {
+                font-size: 1.5rem;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation">
+        <div class="bg-grid"></div>
+        <div class="floating-emoji" style="top:10%;left:10%;">🎮</div>
+        <div class="floating-emoji" style="top:20%;right:15%;animation-delay:2s;">👾</div>
+        <div class="floating-emoji" style="top:60%;left:5%;animation-delay:4s;">🕹️</div>
+        <div class="floating-emoji" style="top:70%;right:10%;animation-delay:6s;">🎯</div>
+        <div class="floating-emoji" style="top:40%;left:20%;animation-delay:8s;">🏆</div>
+    </div>
+    
+    <div class="container">
+        <header class="header">
+            <div class="logo">🎮</div>
+            <h1 class="title">APT Test</h1>
+            <p class="subtitle">Arcade Player Type - 90秒测出你是哪种玩家</p>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </header>
+        
+        <!-- Intro Screen -->
+        <div class="test-screen active" id="introScreen">
+            <h2 class="test-title">🎯 测试说明</h2>
+            <p class="test-desc">
+                通过3个迷你游戏测试你的游戏风格：<br><br>
+                1️⃣ <b>反应射击</b> - 测试你的反应速度和精准度 (30秒)<br>
+                2️⃣ <b>生存挑战</b> - 测试你的持久力和耐心 (30秒)<br>
+                3️⃣ <b>快速匹配</b> - 测试你的模式识别能力 (30秒)<br><br>
+                完成后生成你的专属 <b>Arcade Player Type</b> 卡片！
+            </p>
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn" onclick="startTest()">开始测试</button>
+            </div>
+            
+            <div style="margin-top: 40px;">
+                <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 15px;">可能的玩家类型预览：</p>
+                <div class="type-grid">
+                    <div class="type-item"><div class="emoji">🏃</div><div class="code">SPD</div></div>
+                    <div class="type-item"><div class="emoji">🎯</div><div class="code">PER</div></div>
+                    <div class="type-item"><div class="emoji">💀</div><div class="code">NOO</div></div>
+                    <div class="type-item"><div class="emoji">🐒</div><div class="code">CHL</div></div>
+                    <div class="type-item"><div class="emoji">🎲</div><div class="code">RNG</div></div>
+                    <div class="type-item"><div class="emoji">🔥</div><div class="code">TIL</div></div>
+                    <div class="type-item"><div class="emoji">🧠</div><div class="code">TAC</div></div>
+                    <div class="type-item"><div class="emoji">⚡</div><div class="code">IMP</div></div>
+                    <div class="type-item"><div class="emoji">🦄</div><div class="code">MYT</div></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test 1: Reaction Shooter -->
+        <div class="test-screen" id="test1Screen">
+            <h2 class="test-title">🔫 Test 1: 反应射击</h2>
+            <p class="test-desc">点击出现的表情符号！越快越准，分数越高。</p>
+            
+            <div class="timer" id="timer1">30</div>
+            
+            <div class="game-container">
+                <canvas id="game1Canvas" width="600" height="300"></canvas>
+                <div class="game-overlay" id="game1Overlay">
+                    <button class="btn" onclick="startGame1()">点击开始</button>
+                </div>
+            </div>
+            
+            <div class="score-display">
+                <div class="score-item">
+                    <div class="score-value" id="score1Hits">0</div>
+                    <div class="score-label">命中</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-value" id="score1Miss">0</div>
+                    <div class="score-label"> miss</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-value" id="score1Acc">0%</div>
+                    <div class="score-label">命中率</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test 2: Survival -->
+        <div class="test-screen" id="test2Screen">
+            <h2 class="test-title">🛡️ Test 2: 生存挑战</h2>
+            <p class="test-desc">拖动方块躲避掉落的表情符号！坚持越久越好。</p>
+            
+            <div class="timer" id="timer2">30</div>
+            
+            <div class="game-container">
+                <canvas id="game2Canvas" width="600" height="300"></canvas>
+                <div class="game-overlay" id="game2Overlay">
+                    <button class="btn" onclick="startGame2()">点击开始</button>
+                </div>
+            </div>
+            
+            <div class="score-display">
+                <div class="score-item">
+                    <div class="score-value" id="score2Time">0s</div>
+                    <div class="score-label">存活时间</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-value" id="score2Dodged">0</div>
+                    <div class="score-label">躲避次数</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Test 3: Quick Match -->
+        <div class="test-screen" id="test3Screen">
+            <h2 class="test-title">🧩 Test 3: 快速匹配</h2>
+            <p class="test-desc">点击与目标相同的表情符号！越快完成越好。</p>
+            
+            <div class="timer" id="timer3">30</div>
+            
+            <div class="game-container">
+                <canvas id="game3Canvas" width="600" height="300"></canvas>
+                <div class="game-overlay" id="game3Overlay">
+                    <button class="btn" onclick="startGame3()">点击开始</button>
+                </div>
+            </div>
+            
+            <div class="score-display">
+                <div class="score-item">
+                    <div class="score-value" id="score3Matched">0</div>
+                    <div class="score-label">匹配成功</div>
+                </div>
+                <div class="score-item">
+                    <div class="score-value" id="score3Avg">0ms</div>
+                    <div class="score-label">平均反应</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Result Screen -->
+        <div class="test-screen" id="resultScreen">
+            <div class="result-card" id="resultCard">
+                <div class="player-icon" id="playerIcon">🎮</div>
+                <div class="player-type" id="playerType">计算中...</div>
+                <div class="player-code" id="playerCode">---</div>
+                <div class="player-quote" id="playerQuote">"..."</div>
+                
+                <div class="rarity" id="rarityBadge">
+                    <span>⚡️</span>
+                    <span id="rarityText">普通</span>
+                    <span id="rarityPercent">(15.2%)</span>
+                </div>
+                
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <div class="stat-label">速度 Speed</div>
+                        <div class="stat-bar"><div class="stat-fill" id="statSpeed" style="background: #ef4444;"></div></div>
+                        <div class="stat-value" id="valSpeed">0%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">精准 Accuracy</div>
+                        <div class="stat-bar"><div class="stat-fill" id="statAccuracy" style="background: #3b82f6;"></div></div>
+                        <div class="stat-value" id="valAccuracy">0%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">持久 Stamina</div>
+                        <div class="stat-bar"><div class="stat-fill" id="statStamina" style="background: #22c55e;"></div></div>
+                        <div class="stat-value" id="valStamina">0%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">策略 Strategy</div>
+                        <div class="stat-bar"><div class="stat-fill" id="statStrategy" style="background: #a855f7;"></div></div>
+                        <div class="stat-value" id="valStrategy">0%</div>
+                    </div>
+                </div>
+                
+                <div class="share-section">
+                    <p class="share-title">分享你的结果</p>
+                    <div class="share-buttons">
+                        <button class="share-btn share-twitter" onclick="shareTwitter()">
+                            <span>🐦</span> 分享到 Twitter
+                        </button>
+                        <button class="btn btn-secondary" onclick="copyResult()">
+                            <span>📋</span> 复制结果
+                        </button>
+                        <button class="btn" onclick="retakeTest()">
+                            <span>🔄</span> 再测一次
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="compare-section">
+                    <p style="color: #94a3b8; font-size: 0.9rem;">💡 和好友对比玩家类型</p>
+                    <p style="font-size: 0.85rem; color: #64748b; margin-top: 5px;">输入好友的APT代码，看看你们是否合拍</p>
+                    <div class="compare-input">
+                        <input type="text" id="compareInput" placeholder="输入代码如: SPD, NOO..." maxlength="3">
+                        <button class="btn" onclick="compareTypes()">对比</button>
+                    </div>
+                    <div id="compareResult" style="margin-top: 15px; font-size: 0.9rem;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const playerTypes = {
+            SPD: {
+                icon: '🏃',
+                name: '速通狂魔',
+                nameEn: 'Speed Demon',
+                quote: '"你的手指比大脑快三倍。失误？那是留给凡人的。"',
+                rarity: '⚡️ 稀有',
+                rarityPercent: '8.5%',
+                color: '#ef4444'
+            },
+            PER: {
+                icon: '🎯',
+                name: '完美主义',
+                nameEn: 'Perfectionist',
+                quote: '"要么100%，要么重来。S评级是唯一存在的评级。"',
+                rarity: '💎 超稀有',
+                rarityPercent: '5.2%',
+                color: '#3b82f6'
+            },
+            NOO: {
+                icon: '💀',
+                name: '菜但爱玩',
+                nameEn: 'Joyful Noob',
+                quote: '"死了100次还在笑。快乐是唯一的通关条件。"',
+                rarity: '🌟 常见',
+                rarityPercent: '18.3%',
+                color: '#84cc16'
+            },
+            CHL: {
+                icon: '🐒',
+                name: '佛系摆烂',
+                nameEn: 'Chill Monkey',
+                quote: '"分数是什么？能吃吗？我只是在享受过程。"',
+                rarity: '🌟 常见',
+                rarityPercent: '16.7%',
+                color: '#a855f7'
+            },
+            RNG: {
+                icon: '🎲',
+                name: '欧皇附体',
+                nameEn: 'RNGesus',
+                quote: '"技术不够，运气来凑。关键时候总能暴击。"',
+                rarity: '⚡️ 稀有',
+                rarityPercent: '7.8%',
+                color: '#f59e0b'
+            },
+            TIL: {
+                icon: '🔥',
+                name: '暴躁老哥',
+                nameEn: 'Tilt Master',
+                quote: '"失误一次就拍桌。但五秒后，继续挑战。"',
+                rarity: '🌟 常见',
+                rarityPercent: '12.4%',
+                color: '#ef4444'
+            },
+            TAC: {
+                icon: '🧠',
+                name: '战术大师',
+                nameEn: 'Tactician',
+                quote: '"先观察，再行动。每一步都是计算好的最优解。"',
+                rarity: '⚡️ 稀有',
+                rarityPercent: '9.1%',
+                color: '#06b6d4'
+            },
+            IMP: {
+                icon: '⚡',
+                name: '本能玩家',
+                nameEn: 'Impulse',
+                quote: '"凭直觉操作，反应快到看不懂自己的回放。"',
+                rarity: '🌟 常见',
+                rarityPercent: '14.6%',
+                color: '#f97316'
+            },
+            JOK: {
+                icon: '🎪',
+                name: '整活达人',
+                nameEn: 'Joker',
+                quote: '"输赢不重要，帅才是一辈子的事。看我这波操作！"',
+                rarity: '⚡️ 稀有',
+                rarityPercent: '4.9%',
+                color: '#ec4899'
+            },
+            MYT: {
+                icon: '🦄',
+                name: '传说玩家',
+                nameEn: 'Legend',
+                quote: '"隐藏类型解锁者。真正的六边形战士。"',
+                rarity: '👑 传说',
+                rarityPercent: '0.1%',
+                color: '#fbbf24'
+            }
+        };
+
+        let currentTest = 0;
+        let scores = { speed: 0, accuracy: 0, stamina: 0, strategy: 0 };
+        let game1Data = { hits: 0, misses: 0, reactionTimes: [] };
+        let game2Data = { survived: 0, hits: 0 };
+        let game3Data = { matched: 0, times: [] };
+
+        function updateProgress(percent) {
+            document.getElementById('progressBar').style.width = percent + '%';
+        }
+
+        function showScreen(id) {
+            document.querySelectorAll('.test-screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function startTest() {
+            currentTest = 1;
+            updateProgress(33);
+            showScreen('test1Screen');
+        }
+
+        // Game 1: Reaction Shooter
+        function startGame1() {
+            document.getElementById('game1Overlay').classList.add('hidden');
+            const canvas = document.getElementById('game1Canvas');
+            const ctx = canvas.getContext('2d');
+            
+            let timeLeft = 30;
+            let targets = [];
+            let lastSpawn = 0;
+            game1Data = { hits: 0, misses: 0, reactionTimes: [] };
+            let lastTargetTime = 0;
+            
+            function spawnTarget() {
+                const emojis = ['👾', '👻', '🤖', '👽', '💀', '🎃'];
+                targets.push({
+                    x: Math.random() * (canvas.width - 40) + 20,
+                    y: Math.random() * (canvas.height - 40) + 20,
+                    emoji: emojis[Math.floor(Math.random() * emojis.length)],
+                    spawnTime: Date.now(),
+                    size: 30
+                });
+            }
+            
+            function gameLoop() {
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Spawn targets
+                if (Date.now() - lastSpawn > 800) {
+                    spawnTarget();
+                    lastSpawn = Date.now();
+                }
+                
+                // Draw targets
+                ctx.font = '30px Arial';
+                ctx.textAlign = 'center';
+                targets.forEach(target => {
+                    ctx.fillText(target.emoji, target.x, target.y);
+                });
+                
+                if (timeLeft > 0) {
+                    requestAnimationFrame(gameLoop);
+                }
+            }
+            
+            canvas.onclick = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+                const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+                
+                let hit = false;
+                targets = targets.filter(target => {
+                    const dx = x - target.x;
+                    const dy = y - target.y;
+                    if (Math.sqrt(dx*dx + dy*dy) < 25) {
+                        hit = true;
+                        game1Data.hits++;
+                        game1Data.reactionTimes.push(Date.now() - target.spawnTime);
+                        return false;
+                    }
+                    return true;
+                });
+                
+                if (!hit) {
+                    game1Data.misses++;
+                }
+                
+                updateGame1Stats();
+            };
+            
+            const timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer1').textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    endGame1();
+                }
+            }, 1000);
+            
+            gameLoop();
+        }
+
+        function updateGame1Stats() {
+            document.getElementById('score1Hits').textContent = game1Data.hits;
+            document.getElementById('score1Miss').textContent = game1Data.misses;
+            const total = game1Data.hits + game1Data.misses;
+            const acc = total > 0 ? Math.round((game1Data.hits / total) * 100) : 0;
+            document.getElementById('score1Acc').textContent = acc + '%';
+        }
+
+        function endGame1() {
+            // Calculate scores
+            const totalClicks = game1Data.hits + game1Data.misses;
+            scores.accuracy = totalClicks > 0 ? Math.round((game1Data.hits / totalClicks) * 100) : 0;
+            const avgReaction = game1Data.reactionTimes.length > 0 
+                ? game1Data.reactionTimes.reduce((a,b) => a+b) / game1Data.reactionTimes.length 
+                : 1000;
+            scores.speed = Math.max(0, Math.round(100 - (avgReaction / 10)));
+            
+            setTimeout(() => {
+                currentTest = 2;
+                updateProgress(66);
+                showScreen('test2Screen');
+            }, 1000);
+        }
+
+        // Game 2: Survival
+        function startGame2() {
+            document.getElementById('game2Overlay').classList.add('hidden');
+            const canvas = document.getElementById('game2Canvas');
+            const ctx = canvas.getContext('2d');
+            
+            let timeLeft = 30;
+            let player = { x: 300, y: 250, size: 20 };
+            let obstacles = [];
+            let isDragging = false;
+            game2Data = { survived: 0, hits: 0 };
+            
+            function spawnObstacle() {
+                const emojis = ['💣', '🔥', '⚡', '🌪️', '☄️'];
+                obstacles.push({
+                    x: Math.random() * canvas.width,
+                    y: -30,
+                    emoji: emojis[Math.floor(Math.random() * emojis.length)],
+                    speed: 2 + Math.random() * 3
+                });
+            }
+            
+            function gameLoop() {
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw player
+                ctx.fillStyle = '#6366f1';
+                ctx.fillRect(player.x - player.size/2, player.y - player.size/2, player.size, player.size);
+                
+                // Spawn obstacles
+                if (Math.random() < 0.05) spawnObstacle();
+                
+                // Update and draw obstacles
+                obstacles = obstacles.filter(obs => {
+                    obs.y += obs.speed;
+                    ctx.font = '25px Arial';
+                    ctx.fillText(obs.emoji, obs.x, obs.y);
+                    
+                    // Check collision
+                    const dx = obs.x - player.x;
+                    const dy = obs.y - player.y;
+                    if (Math.sqrt(dx*dx + dy*dy) < 25) {
+                        game2Data.hits++;
+                    }
+                    
+                    return obs.y < canvas.height + 30;
+                });
+                
+                game2Data.survived = 30 - timeLeft;
+                document.getElementById('score2Time').textContent = game2Data.survived + 's';
+                document.getElementById('score2Dodged').textContent = Math.floor(game2Data.survived * 2);
+                
+                if (timeLeft > 0) {
+                    requestAnimationFrame(gameLoop);
+                }
+            }
+            
+            // Touch/mouse controls
+            canvas.onmousedown = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+                const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+                if (Math.abs(x - player.x) < 30 && Math.abs(y - player.y) < 30) {
+                    isDragging = true;
+                }
+            };
+            
+            canvas.onmousemove = (e) => {
+                if (isDragging) {
+                    const rect = canvas.getBoundingClientRect();
+                    player.x = (e.clientX - rect.left) * (canvas.width / rect.width);
+                    player.x = Math.max(20, Math.min(canvas.width - 20, player.x));
+                }
+            };
+            
+            canvas.onmouseup = () => isDragging = false;
+            
+            canvas.ontouchstart = canvas.onmousedown;
+            canvas.ontouchmove = canvas.onmousemove;
+            canvas.ontouchend = canvas.onmouseup;
+            
+            const timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer2').textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    endGame2();
+                }
+            }, 1000);
+            
+            gameLoop();
+        }
+
+        function endGame2() {
+            scores.stamina = Math.max(0, Math.round(100 - (game2Data.hits * 10)));
+            
+            setTimeout(() => {
+                currentTest = 3;
+                updateProgress(90);
+                showScreen('test3Screen');
+            }, 1000);
+        }
+
+        // Game 3: Quick Match
+        function startGame3() {
+            document.getElementById('game3Overlay').classList.add('hidden');
+            const canvas = document.getElementById('game3Canvas');
+            const ctx = canvas.getContext('2d');
+            
+            let timeLeft = 30;
+            let targetEmoji = '';
+            let options = [];
+            game3Data = { matched: 0, times: [] };
+            let lastMatchTime = Date.now();
+            
+            const emojis = ['🍎', '🍊', '🍇', '🍓', '🍑', '🍍', '🥝', '🍒'];
+            
+            function newRound() {
+                targetEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+                options = [];
+                for (let i = 0; i < 6; i++) {
+                    options.push({
+                        emoji: emojis[Math.floor(Math.random() * emojis.length)],
+                        x: 100 + (i % 3) * 200,
+                        y: 100 + Math.floor(i / 3) * 100
+                    });
+                }
+                // Ensure at least one match
+                options[Math.floor(Math.random() * 6)].emoji = targetEmoji;
+                lastMatchTime = Date.now();
+            }
+            
+            function gameLoop() {
+                ctx.fillStyle = 'rgba(0,0,0,0.3)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Draw target
+                ctx.fillStyle = '#fbbf24';
+                ctx.font = 'bold 20px Arial';
+                ctx.fillText('Find:', 50, 40);
+                ctx.font = '40px Arial';
+                ctx.fillText(targetEmoji, 120, 50);
+                
+                // Draw options
+                ctx.font = '35px Arial';
+                options.forEach(opt => {
+                    ctx.fillText(opt.emoji, opt.x, opt.y);
+                });
+                
+                if (timeLeft > 0) {
+                    requestAnimationFrame(gameLoop);
+                }
+            }
+            
+            canvas.onclick = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX - rect.left) * (canvas.width / rect.width);
+                const y = (e.clientY - rect.top) * (canvas.height / rect.height);
+                
+                options.forEach(opt => {
+                    const dx = x - opt.x;
+                    const dy = y - opt.y;
+                    if (Math.sqrt(dx*dx + dy*dy) < 30) {
+                        if (opt.emoji === targetEmoji) {
+                            game3Data.matched++;
+                            game3Data.times.push(Date.now() - lastMatchTime);
+                            newRound();
+                        }
+                    }
+                });
+                
+                document.getElementById('score3Matched').textContent = game3Data.matched;
+                const avg = game3Data.times.length > 0 
+                    ? Math.round(game3Data.times.reduce((a,b) => a+b) / game3Data.times.length)
+                    : 0;
+                document.getElementById('score3Avg').textContent = avg + 'ms';
+            };
+            
+            const timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer3').textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    endGame3();
+                }
+            }, 1000);
+            
+            newRound();
+            gameLoop();
+        }
+
+        function endGame3() {
+            const avgTime = game3Data.times.length > 0 
+                ? game3Data.times.reduce((a,b) => a+b) / game3Data.times.length 
+                : 1000;
+            scores.strategy = Math.max(0, Math.round(100 - (avgTime / 10)));
+            
+            setTimeout(showResults, 500);
+        }
+
+        function showResults() {
+            updateProgress(100);
+            showScreen('resultScreen');
+            
+            // Calculate player type
+            let typeCode = calculatePlayerType();
+            
+            // Check for legendary type
+            const totalScore = scores.speed + scores.accuracy + scores.stamina + scores.strategy;
+            if (totalScore >= 350 && Math.random() < 0.1) {
+                typeCode = 'MYT';
+            }
+            
+            const type = playerTypes[typeCode];
+            
+            // Update UI
+            document.getElementById('playerIcon').textContent = type.icon;
+            document.getElementById('playerType').textContent = type.name + ' ' + type.nameEn;
+            document.getElementById('playerCode').textContent = typeCode;
+            document.getElementById('playerQuote').textContent = type.quote;
+            document.getElementById('rarityText').textContent = type.rarity;
+            document.getElementById('rarityPercent').textContent = '(' + type.rarityPercent + ')';
+            
+            // Update stats bars
+            setTimeout(() => {
+                document.getElementById('statSpeed').style.width = scores.speed + '%';
+                document.getElementById('valSpeed').textContent = scores.speed + '%';
+                document.getElementById('statAccuracy').style.width = scores.accuracy + '%';
+                document.getElementById('valAccuracy').textContent = scores.accuracy + '%';
+                document.getElementById('statStamina').style.width = scores.stamina + '%';
+                document.getElementById('valStamina').textContent = scores.stamina + '%';
+                document.getElementById('statStrategy').style.width = scores.strategy + '%';
+                document.getElementById('valStrategy').textContent = scores.strategy + '%';
+            }, 500);
+            
+            window.currentResult = { typeCode, type, scores };
+        }
+
+        function calculatePlayerType() {
+            // Simple algorithm based on dominant stat
+            const stats = [
+                { code: 'SPD', val: scores.speed },
+                { code: 'PER', val: scores.accuracy },
+                { code: 'TIL', val: 100 - scores.stamina }, // High misses = tilt
+                { code: 'TAC', val: scores.strategy },
+                { code: 'IMP', val: scores.speed + (100 - scores.accuracy) }, // Fast but inaccurate
+                { code: 'CHL', val: 100 - (scores.speed + scores.accuracy) / 2 }, // Low scores = chill
+                { code: 'NOO', val: (100 - scores.accuracy) + (100 - scores.stamina) }, // Many misses
+                { code: 'RNG', val: Math.random() * 100 }, // Random factor
+                { code: 'JOK', val: (scores.speed > 80 && scores.accuracy < 50) ? 150 : 0 } // Fast but wild
+            ];
+            
+            stats.sort((a, b) => b.val - a.val);
+            return stats[0].code;
+        }
+
+        function shareTwitter() {
+            const { typeCode, type } = window.currentResult;
+            const text = `I just got diagnosed as '${type.nameEn}' (${typeCode}) by @EmojiArcade. "${type.quote.replace(/"/g, '')}"`;
+            const url = 'https://emojiarcade.app/apt';
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank');
+        }
+
+        function copyResult() {
+            const { typeCode, type, scores } = window.currentResult;
+            const text = `🎮 APT Test Result\n\n${type.icon} ${type.name} (${typeCode})\n${type.rarity} ${type.rarityPercent}\n\n${type.quote}\n\nStats:\n⚡ Speed: ${scores.speed}%\n🎯 Accuracy: ${scores.accuracy}%\n💪 Stamina: ${scores.stamina}%\n🧠 Strategy: ${scores.strategy}%\n\nTest yours: emojiarcade.app/apt`;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('结果已复制到剪贴板！');
+            });
+        }
+
+        function compareTypes() {
+            const input = document.getElementById('compareInput').value.toUpperCase().trim();
+            const myType = window.currentResult.typeCode;
+            
+            if (!playerTypes[input]) {
+                document.getElementById('compareResult').innerHTML = '<span style="color: #ef4444;">请输入有效的APT代码</span>';
+                return;
+            }
+            
+            const combos = [
+                `${myType}-${input}`, `${input}-${myType}`
+            ];
+            
+            const compatibility = {
+                'SPD-PER': '竞速拍档 ⚡️ - 你们都在追求极限',
+                'SPD-CHL': '水火不容 🔥💧 - 一个要快，一个要慢',
+                'NOO-JOK': '快乐双人组 😄 - 游戏就是要开心',
+                'TAC-IMP': '互补组合 🧠⚡ - 脑子和手速的完美配合',
+                'TIL-CHL': '情绪稳定器 🧘 - 佛系能治愈暴躁',
+                'RNG-PER': '欧皇 vs 肝帝 🎲🎯 - 两种极限的碰撞'
+            };
+            
+            let result = compatibility[combos[0]] || compatibility[combos[1]];
+            if (!result) {
+                const types = ['绝佳搭档 🔥', '默契不错 👍', '互相学习 🤝', '各有特色 ✨'];
+                result = types[Math.floor(Math.random() * types.length)];
+            }
+            
+            document.getElementById('compareResult').innerHTML = `
+                <span style="color: #6366f1;">${myType}</span> + <span style="color: #6366f1;">${input}</span> = <br>
+                <strong style="color: #fbbf24;">${result}</strong>
+            `;
+        }
+
+        function retakeTest() {
+            scores = { speed: 0, accuracy: 0, stamina: 0, strategy: 0 };
+            game1Data = { hits: 0, misses: 0, reactionTimes: [] };
+            game2Data = { survived: 0, hits: 0 };
+            game3Data = { matched: 0, times: [] };
+            
+            document.getElementById('timer1').textContent = '30';
+            document.getElementById('timer2').textContent = '30';
+            document.getElementById('timer3').textContent = '30';
+            document.getElementById('game1Overlay').classList.remove('hidden');
+            document.getElementById('game2Overlay').classList.remove('hidden');
+            document.getElementById('game3Overlay').classList.remove('hidden');
+            
+            document.getElementById('score1Hits').textContent = '0';
+            document.getElementById('score1Miss').textContent = '0';
+            document.getElementById('score1Acc').textContent = '0%';
+            document.getElementById('score2Time').textContent = '0s';
+            document.getElementById('score2Dodged').textContent = '0';
+            document.getElementById('score3Matched').textContent = '0';
+            document.getElementById('score3Avg').textContent = '0ms';
+            
+            document.getElementById('statSpeed').style.width = '0%';
+            document.getElementById('statAccuracy').style.width = '0%';
+            document.getElementById('statStamina').style.width = '0%';
+            document.getElementById('statStrategy').style.width = '0%';
+            
+            updateProgress(0);
+            showScreen('introScreen');
+        }
+    </script>
+</body>
+</html>
