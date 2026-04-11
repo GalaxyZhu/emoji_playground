@@ -916,6 +916,19 @@
                 ${t('statsWave')}: ${wave}
             `;
             document.getElementById('gameOverScreen').classList.remove('hidden');
+            
+            // 显示诊断报告按钮
+            setTimeout(() => {
+                if (typeof ShooterDiagnosis !== 'undefined') {
+                    ShooterDiagnosis.show({
+                        score: score,
+                        enemiesKilled: enemiesKilled,
+                        wave: wave,
+                        shotsFired: window.shotsFired || 0,
+                        shotsHit: window.shotsHit || 0
+                    });
+                }
+            }, 1000);
         }
         
         function update(currentTime) {
@@ -1688,6 +1701,120 @@
                 }
             });
         }
+
+        // ==================== 游戏后诊断系统 ====================
+        const ShooterDiagnosis = {
+            types: {
+                SPD: {
+                    icon: '🔫', title: '人体描边大师', titleEn: 'Human Outline Artist',
+                    quote: '"敌人没死，但我键盘先死了。"',
+                    rare: '常见', rarePercent: '28%', rarityClass: 'common',
+                    roasts: ['你的准星在敌人周围画了一个完美的圆', '敌人以为你在故意放水', '建议转行做气象预报']
+                },
+                SNP: {
+                    icon: '🎯', title: '锁头挂嫌疑人', titleEn: 'Aimbot Suspect',
+                    quote: '"我说我没开，你信吗？"',
+                    rare: '稀有', rarePercent: '5%', rarityClass: 'rare',
+                    roasts: ['你的鼠标dpi调成了心灵感应模式', '敌人举报键按烂了', '建议去打职业']
+                },
+                SPR: {
+                    icon: '🏃', title: '无限换弹癌', titleEn: 'Reload Addict',
+                    quote: '"弹匣还有29发？不行，必须换。"',
+                    rare: '常见', rarePercent: '22%', rarityClass: 'common',
+                    roasts: ['敌人永远在你换弹时出现', 'R键磨损最严重', '建议玩近战游戏']
+                },
+                PAN: {
+                    icon: '😱', title: 'Panic射击手', titleEn: 'Panic Shooter',
+                    quote: '"看到敌人→狂按鼠标→祈祷。"',
+                    rare: '常见', rarePercent: '35%', rarityClass: 'common',
+                    roasts: ['战术就是吓死对方', '弹药商该给你颁奖', '敌人是被你吵死的']
+                }
+            },
+            
+            detectType(stats) {
+                const accuracy = stats.shotsFired > 0 ? (stats.shotsHit / stats.shotsFired * 100) : 0;
+                if (accuracy > 80 && stats.enemiesKilled > 10) return 'SNP';
+                if (stats.shotsFired > 80 && accuracy < 25) return 'PAN';
+                if (stats.shotsFired > 40 && accuracy < 35) return 'SPR';
+                return 'SPD';
+            },
+            
+            show(stats) {
+                const typeCode = this.detectType(stats);
+                const type = this.types[typeCode];
+                const roast = type.roasts[Math.floor(Math.random() * type.roasts.length)];
+                const accuracy = stats.shotsFired > 0 ? (stats.shotsHit / stats.shotsFired * 100).toFixed(1) : 0;
+                
+                const rarityColors = {
+                    common: 'linear-gradient(135deg,#94a3b8,#64748b)',
+                    rare: 'linear-gradient(135deg,#60a5fa,#3b82f6)',
+                    epic: 'linear-gradient(135deg,#a855f7,#7c3aed)',
+                    legendary: 'linear-gradient(135deg,#fbbf24,#f59e0b)'
+                };
+                
+                const html = `
+                    <div id="diagnosisModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:99999;display:flex;justify-content:center;align-items:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;"
+                         onclick="if(event.target===this)ShooterDiagnosis.hide()">
+                        <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:20px;padding:30px;max-width:420px;width:90%;border:2px solid rgba(255,255,255,0.1);position:relative;max-height:90vh;overflow-y:auto;">
+                            <div style="position:absolute;top:15px;right:15px;width:50px;height:50px;border:2px solid #ef4444;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#ef4444;font-weight:bold;font-size:12px;transform:rotate(-15deg);opacity:0.8;">确诊</div>
+                            <div style="text-align:center;margin-bottom:20px;">
+                                <div style="font-size:50px;margin-bottom:10px;">${type.icon}</div>
+                                <div style="background:rgba(255,255,255,0.1);padding:4px 12px;border-radius:15px;font-size:11px;color:#94a3b8;display:inline-block;margin-bottom:8px;">🎮 Emoji Shooter 诊断</div>
+                                <h2 style="font-size:22px;font-weight:800;background:linear-gradient(90deg,#fbbf24,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:3px;">${type.title}</h2>
+                                <div style="color:#64748b;font-size:13px;">${type.titleEn}</div>
+                                <div style="display:inline-flex;align-items:center;gap:4px;margin-top:12px;padding:6px 16px;border-radius:20px;font-weight:700;font-size:12px;background:${rarityColors[type.rarityClass]};color:${type.rarityClass==='legendary'?'#000':'#fff'};">
+                                    🌟 ${type.rare} · ${type.rarePercent}
+                                </div>
+                            </div>
+                            <div style="background:rgba(99,102,241,0.1);border-left:3px solid #6366f1;padding:12px;margin:12px 0;border-radius:0 8px 8px 0;font-style:italic;color:#cbd5e1;font-size:13px;">${type.quote}</div>
+                            <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:10px;border-radius:8px;margin:12px 0;">
+                                <div style="color:#ef4444;font-size:11px;font-weight:600;margin-bottom:4px;">💬 专属吐槽</div>
+                                <div style="color:#fca5a5;font-size:13px;">${roast}</div>
+                            </div>
+                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0;">
+                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#ef4444;">${stats.shotsFired || '?'}</div><div style="font-size:11px;color:#94a3b8;">射击</div></div>
+                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#22c55e;">${stats.shotsHit || '?'}</div><div style="font-size:11px;color:#94a3b8;">命中 ${accuracy}%</div></div>
+                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#fbbf24;">${stats.enemiesKilled}</div><div style="font-size:11px;color:#94a3b8;">击杀</div></div>
+                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#a855f7;">${stats.wave}</div><div style="font-size:11px;color:#94a3b8;">波次</div></div>
+                            </div>
+                            <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:15px;margin-top:15px;">
+                                <div style="text-align:center;color:#94a3b8;font-size:11px;margin-bottom:10px;">分享你的诊断报告</div>
+                                <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+                                    <button onclick="ShooterDiagnosis.share('twitter')" style="padding:8px 14px;border-radius:15px;border:none;background:#1da1f2;color:white;font-weight:600;cursor:pointer;font-size:12px;">🐦</button>
+                                    <button onclick="ShooterDiagnosis.share('weibo')" style="padding:8px 14px;border-radius:15px;border:none;background:#e6162d;color:white;font-weight:600;cursor:pointer;font-size:12px;">📱</button>
+                                    <button onclick="ShooterDiagnosis.share('copy')" style="padding:8px 14px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:12px;">📋</button>
+                                    <button onclick="ShooterDiagnosis.hide()" style="padding:8px 14px;border-radius:15px;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-weight:600;cursor:pointer;font-size:12px;">🔄 再玩</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                const existing = document.getElementById('diagnosisModal');
+                if (existing) existing.remove();
+                document.body.insertAdjacentHTML('beforeend', html);
+                this.currentType = type;
+                this.currentStats = stats;
+            },
+            
+            hide() {
+                const modal = document.getElementById('diagnosisModal');
+                if (modal) modal.remove();
+            },
+            
+            share(platform) {
+                const type = this.currentType;
+                const text = `🎮 Emoji Arcade 诊断报告\n\n${type.icon} ${type.title}\n${type.quote}\n\n测测你是什么玩家"病症" 👉 emojiarcade.app`;
+                
+                if (platform === 'twitter') {
+                    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent('🎮 刚被诊断为「' + type.title + '」\n' + type.quote)}\n\n测测你是什么玩家"病症" 👇`}&url=${encodeURIComponent('https://emojiarcade.app')}`, '_blank');
+                } else if (platform === 'weibo') {
+                    window.open(`https://service.weibo.com/share/share.php?title=${encodeURIComponent(text)}&url=${encodeURIComponent('https://emojiarcade.app')}`, '_blank');
+                } else if (platform === 'copy') {
+                    navigator.clipboard.writeText(text).then(() => alert('已复制！'));
+                }
+            }
+        };
 
         init();
     </script>
