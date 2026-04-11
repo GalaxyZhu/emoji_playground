@@ -713,14 +713,10 @@ function selectVehicle(type, cost) {
 function nextWave() { wave++; spawnTimer = 0; cameraX = 0; player.x = PLAYER_SCREEN_X; document.getElementById('shopScreen').classList.add('hidden'); document.getElementById('hud').classList.remove('hidden'); document.getElementById('ultButton').classList.remove('hidden'); gameState = 'playing'; startWave(); requestAnimationFrame(gameLoop); }
 function gameOver(reason) { 
     gameState = 'gameover'; 
-    document.getElementById('gameOverScreen').classList.remove('hidden'); 
     document.getElementById('hud').classList.add('hidden'); 
     document.getElementById('ultButton').classList.add('hidden'); 
-    document.getElementById('finalWave').textContent = wave; 
-    document.getElementById('finalGold').textContent = gold; 
-    document.getElementById('endMessage').textContent = reason === 'fall' ? t('gameOverFall') : t('gameOverMessage'); 
     
-    // 显示生存游戏诊断报告
+    // 直接显示诊断报告（替代原来的 gameOverScreen）
     setTimeout(() => {
         if (typeof SurviveDiagnosis !== 'undefined') {
             SurviveDiagnosis.show({
@@ -729,7 +725,7 @@ function gameOver(reason) {
                 reason: reason
             });
         }
-    }, 1000);
+    }, 300);
 }
 function victory() { 
     gameState = 'victory'; 
@@ -792,7 +788,10 @@ init();
                                     <button onclick="SurviveDiagnosis.share('twitter')" style="padding:8px 14px;border-radius:15px;border:none;background:#1da1f2;color:white;font-weight:600;cursor:pointer;font-size:12px;">🐦</button>
                                     <button onclick="SurviveDiagnosis.share('weibo')" style="padding:8px 14px;border-radius:15px;border:none;background:#e6162d;color:white;font-weight:600;cursor:pointer;font-size:12px;">📱</button>
                                     <button onclick="SurviveDiagnosis.share('copy')" style="padding:8px 14px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:12px;">📋</button>
-                                    <button onclick="SurviveDiagnosis.hide()" style="padding:8px 14px;border-radius:15px;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-weight:600;cursor:pointer;font-size:12px;">🔄 再玩</button>
+                                </div>
+                                <div style="display:flex;gap:8px;margin-top:12px;">
+                                    <button onclick="SurviveDiagnosis.hide()" style="flex:1;padding:12px;border-radius:15px;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-weight:600;cursor:pointer;font-size:14px;">🔄 再来一局</button>
+                                    <button onclick="location.href='../../index.html'" style="padding:12px 16px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:14px;">🏠</button>
                                 </div>
                             </div>
                         </div>
