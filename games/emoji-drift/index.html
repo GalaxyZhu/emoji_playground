@@ -540,22 +540,19 @@
                 localStorage.setItem('emojiDriftHighScore', highScore);
             }
             
-            // 判断游戏结束原因
-            const title = health <= 0 ? t.gameOverNoHealth : t.gameOver;
-            document.getElementById('gameOverTitle').textContent = title;
-            
-            document.getElementById('finalScore').textContent = Math.floor(score);
-            document.getElementById('finalCombo').textContent = maxCombo;
-            document.getElementById('finalHealth').textContent = health;
-            document.getElementById('highScore').textContent = Math.floor(highScore);
-            
-            // 更新标签文本
-            document.querySelector('#gameOverScreen div:nth-child(3)').innerHTML = t.score + ': <span id="finalScore">' + Math.floor(score) + '</span>';
-            document.querySelector('#gameOverScreen div:nth-child(4)').innerHTML = t.finalCombo + ': <span id="finalCombo">' + maxCombo + '</span>';
-            document.querySelector('#gameOverScreen div:nth-child(5)').innerHTML = t.remainingHealth + ': <span id="finalHealth">' + health + '</span>';
-            document.querySelector('#gameOverScreen div:nth-child(6)').innerHTML = t.highScore + ': <span id="highScore">' + Math.floor(highScore) + '</span>';
-            
-            document.getElementById('gameOverScreen').classList.remove('hidden');
+            // 直接显示诊断报告（替代原来的 gameOverScreen）
+            setTimeout(() => {
+                if (typeof DriftDiagnosis !== 'undefined') {
+                    DriftDiagnosis.show({
+                        score: score,
+                        highScore: highScore,
+                        combo: maxCombo,
+                        perfectCount: window.perfectCount || 0,
+                        goodCount: window.goodCount || 0,
+                        missCount: window.missCount || 0
+                    });
+                }
+            }, 300);
         }
         
         function spawnCurve() {
@@ -757,5 +754,6 @@
         
         draw();
     </script>
+    <script src="diagnosis.js"></script>
 </body>
 </html>

@@ -350,25 +350,16 @@ Get the first place!`
         function gameOver() {
             gameState = 'gameover';
             
-            const resultDiv = document.getElementById('resultEmoji');
-            const titleDiv = document.getElementById('resultTitle');
-            
-            if (position === 1) {
-                resultDiv.textContent = '🥇';
-                titleDiv.textContent = i18n.t('champion');
-            } else if (position === 2) {
-                resultDiv.textContent = '🥈';
-                titleDiv.textContent = i18n.t('runnerUp');
-            } else if (position === 3) {
-                resultDiv.textContent = '🥉';
-                titleDiv.textContent = i18n.t('thirdPlace');
-            } else {
-                resultDiv.textContent = '😅';
-                titleDiv.textContent = i18n.t('keepTrying');
-            }
-            
-            document.getElementById('finalPosition').textContent = position;
-            document.getElementById('gameOverScreen').classList.remove('hidden');
+            // 直接显示诊断报告（替代原来的 gameOverScreen）
+            setTimeout(() => {
+                if (typeof KartDiagnosis !== 'undefined') {
+                    KartDiagnosis.show({
+                        position: position,
+                        lap: lap,
+                        itemsUsed: window.itemsUsed || 0
+                    });
+                }
+            }, 300);
         }
         
         function createParticle(x, y, emoji, count = 3) {
@@ -608,5 +599,6 @@ Get the first place!`
         
         draw();
     </script>
+    <script src="diagnosis.js"></script>
 </body>
 </html>

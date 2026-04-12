@@ -925,13 +925,17 @@
                 localStorage.setItem('emojiHopHighScore', highScore);
             }
             
-            document.getElementById('finalScore').textContent = score;
-            document.getElementById('finalHighScore').textContent = highScore;
-            document.getElementById('gameStats').innerHTML = `
-                ${t('statsLevel')}: ${level - 1}<br>
-                ${t('statsScore')}: ${score}
-            `;
-            document.getElementById('gameOverScreen').classList.remove('hidden');
+            // 直接显示诊断报告（替代原来的 gameOverScreen）
+            setTimeout(() => {
+                if (typeof HopDiagnosis !== 'undefined') {
+                    HopDiagnosis.show({
+                        score: score,
+                        highScore: highScore,
+                        level: level - 1,
+                        goalsFilled: goalsFilled.filter(g => g).length
+                    });
+                }
+            }, 300);
         }
         
         function loseLife() {
@@ -1224,5 +1228,6 @@
         
         init();
     </script>
+    <script src="diagnosis.js"></script>
 </body>
 </html>

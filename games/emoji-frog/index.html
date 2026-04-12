@@ -441,8 +441,18 @@
                 localStorage.setItem('frogMaxHeight', maxHeight);
             }
 
-            document.getElementById('finalScore').textContent = Math.floor(score);
-            document.getElementById('gameOverScreen').classList.remove('hidden');
+            // 直接显示诊断报告（替代原来的 gameOverScreen）
+            setTimeout(() => {
+                if (typeof FrogDiagnosis !== 'undefined') {
+                    FrogDiagnosis.show({
+                        score: Math.floor(score),
+                        maxHeight: Math.floor(maxHeight),
+                        lilyBounces: window.lilyBounces || 0,
+                        rocketBoosts: window.rocketBoosts || 0
+                    });
+                }
+            }, 300);
+            
             document.getElementById('scoreDisplay').classList.add('hidden');
             document.getElementById('heightDisplay').classList.add('hidden');
             document.getElementById('controlsHint').classList.add('hidden');
@@ -936,5 +946,6 @@
         const historyHighText = isEnglish ? 'Personal Best' : '历史最高';
         document.querySelector('#startScreen .instructions').innerHTML += `<br><br>${historyHighText}: ${Math.floor(maxHeight)}m`;
     </script>
+    <script src="diagnosis.js"></script>
 </body>
 </html>
