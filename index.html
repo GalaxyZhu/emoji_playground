@@ -59,9 +59,36 @@
     <meta name="apple-mobile-web-app-title" content="Emoji Arcade">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
-    <!-- Favicon -->
-    <link rel="icon" href="favicon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="favicon.svg">
+    <!-- Favicon - Multi-format for cross-browser compatibility -->
+    <!-- Standard favicon - inline SVG for immediate display -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='55' font-size='70' text-anchor='middle'%3E%F0%9F%8E%AE%3C/text%3E%3C/svg%3E">
+    
+    <!-- PNG favicon for browsers that don't support SVG (WeChat, QQ, UC) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32x32.png">
+    <link rel="shortcut icon" href="assets/favicon.ico">
+    
+    <!-- Apple / iOS -->
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+    <link rel="apple-touch-icon-precomposed" sizes="180x180" href="assets/apple-touch-icon.png">
+    
+    <!-- Android / Chrome -->
+    <link rel="icon" sizes="192x192" href="assets/icon-192x192.png">
+    <link rel="icon" sizes="512x512" href="assets/icon-512x512.png">
+    
+    <!-- WeChat / QQ Browser / UC Browser compatibility -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    
+    <!-- QQ Browser -->
+    <meta name="x5-page-mode" content="app">
+    <meta name="browsermode" content="application">
+    
+    <!-- UC Browser -->
+    <meta name="full-screen" content="yes">
+    <meta name="screen-orientation" content="portrait">
+    <meta name="layoutmode" content="standard">
     
     <!-- PWA Manifest -->
     <link rel="manifest" href="/manifest.json">
