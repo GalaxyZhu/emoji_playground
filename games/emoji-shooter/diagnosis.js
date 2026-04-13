@@ -165,7 +165,7 @@ const ShooterDiagnosisUI = {
                     </div>
                     
                     <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:12px;border-radius:10px;margin:15px 0;">
-                        <div style="color:#ef4444;font-size:12px;font-weight:600;margin-bottom:5px;">💬 专属吐槽</div>
+                        <div style="color:#ef4444;font-size:12px;font-weight:600;margin-bottom:5px;">💬 网友吐槽</div>
                         <div style="color:#fca5a5;font-size:14px;">${roast}</div>
                     </div>
                     

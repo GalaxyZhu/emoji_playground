@@ -46,7 +46,7 @@ const KartDiagnosis = {
                     </div>
                     <div style="background:rgba(99,102,241,0.1);border-left:3px solid #6366f1;padding:12px;margin:12px 0;border-radius:0 8px 8px 0;font-style:italic;color:#cbd5e1;font-size:13px;">${type.quote}</div>
                     <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:10px;border-radius:8px;margin:12px 0;">
-                        <div style="color:#ef4444;font-size:11px;font-weight:600;margin-bottom:4px;">💬 专属吐槽</div>
+                        <div style="color:#ef4444;font-size:11px;font-weight:600;margin-bottom:4px;">💬 网友吐槽</div>
                         <div style="color:#fca5a5;font-size:13px;">${roast}</div>
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0;">
