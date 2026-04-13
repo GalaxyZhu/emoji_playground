@@ -1,0 +1,73 @@
+name: Lint
+
+on:
+  push:
+    branches: [ main, develop, 'feat/**' ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    
+    - name: Install ESLint
+      run: npm install --save-dev eslint --legacy-peer-deps || true
+    
+    - name: Run ESLint
+      run: |
+        npx eslint assets/js/*.js games/**/*.js --ext .js --no-eslintrc --rule 'quotes:error' --rule 'no-unused-vars:error' --rule 'no-undef:error' --rule 'semi:error' --parser-options=ecmaVersion:2020,sourceType:module --env=browser --env=es2020 || true        
+      continue-on-error: true
+    
+    - name: Check for syntax errors
+      run: |
+        echo "Checking JavaScript syntax..."
+        node -e "
+          const fs = require('fs');
+          const path = require('path');
+          
+          const jsFiles = [];
+          
+          function findJsFiles(dir) {
+            const items = fs.readdirSync(dir);
+            for (const item of items) {
+              const fullPath = path.join(dir, item);
+              const stat = fs.statSync(fullPath);
+              if (stat.isDirectory() && !item.startsWith('.') && item !== 'node_modules') {
+                findJsFiles(fullPath);
+              } else if (stat.isFile() && item.endsWith('.js')) {
+                jsFiles.push(fullPath);
+              }
+            }
+          }
+          
+          findJsFiles('assets');
+          findJsFiles('games');
+          
+          let hasErrors = false;
+          
+          for (const file of jsFiles) {
+            try {
+              const content = fs.readFileSync(file, 'utf8');
+              new Function(content);
+              console.log('✓', file);
+            } catch (err) {
+              console.error('✗', file);
+              console.error('  Error:', err.message);
+              hasErrors = true;
+            }
+          }
+          
+          if (hasErrors) {
+            process.exit(1);
+          } else {
+            console.log('\n✓ All JavaScript files passed syntax check!');
+          }
+        "        
