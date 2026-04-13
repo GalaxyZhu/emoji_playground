@@ -41,8 +41,18 @@ const i18n = {
             // 游戏类型标签
             'game.tag': '🎮 Emoji Shooter 诊断结果',
             
-            // 复制成功提示
-            'toast.copied': '已复制到剪贴板！',
+            // 游戏开始界面
+            'startGame': '开始游戏',
+            'backToArcade': '回到街机厅',
+            'instructions': '移动鼠标控制🗿，自动射击消灭敌人\n到<b>左边奖励区</b>击破奖励包获取强力加成\n⚡极速 💪强力 🛡️护盾\n<b>每5关有BOSS战！</b>躲避BOSS攻击并反击！',
+            'highScoreLabel': '最高分',
+            'gameOver': '游戏结束',
+            'scoreLabel': '得分',
+            'playAgain': '再来一局',
+            'gamePaused': '⏸️ 游戏暂停',
+            'resume': '▶️ 继续游戏',
+            'restart': '🔄 重新开始',
+            'pauseHint': '按 ESC 键也可以继续游戏',
             
             // 分享文案
             'share.text': '🎮 刚被 Emoji Arcade 诊断为「{title}」\n{quote}\n\n测测你是什么玩家"病症" 👇',
@@ -160,6 +170,19 @@ const i18n = {
             // Toast
             'toast.copied': 'Copied to clipboard!',
             
+            // Game menu
+            'startGame': 'Start Game',
+            'backToArcade': 'Back to Arcade',
+            'instructions': 'Move mouse to control 🗿, auto-fire to eliminate enemies\nGo to <b>Left Power-up Zone</b> to break reward packs\n⚡Speed 💪Power 🛡️Shield\n<b>BOSS every 5 waves!</b> Dodge and counter!',
+            'highScoreLabel': 'High Score',
+            'gameOver': 'Game Over',
+            'scoreLabel': 'Score',
+            'playAgain': 'Play Again',
+            'gamePaused': '⏸️ Game Paused',
+            'resume': '▶️ Resume',
+            'restart': '🔄 Restart',
+            'pauseHint': 'Press ESC to resume',
+            
             // Share text
             'share.text': '🎮 Just got diagnosed as "{title}" on Emoji Arcade\n{quote}\n\nWhat\'s your gaming "condition"? 👇',
             'share.weibo': '【Emoji Arcade Diagnosis】\nI am "{title}" {icon}\n{quote}\n\nDiscover your player type 👉 emojiarcade.app',
@@ -268,11 +291,34 @@ const i18n = {
     // 切换语言（调试用）
     setLang(lang) {
         this.lang = lang === 'zh' ? 'zh' : 'en';
+        this.updatePage();
+    },
+    
+    // 更新页面所有 data-i18n 元素
+    updatePage() {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            const text = this.t(key);
+            // 保留子元素，只替换文本节点
+            if (el.children.length === 0) {
+                el.textContent = text;
+            } else {
+                // 如果元素有子元素，替换 HTML
+                el.innerHTML = text;
+            }
+        });
     }
 };
 
 // 自动初始化
 i18n.init();
+
+// 页面加载完成后更新文本
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => i18n.updatePage());
+} else {
+    i18n.updatePage();
+}
 
 // 全局暴露
 window.i18n = i18n;
