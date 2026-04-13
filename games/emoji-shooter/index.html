@@ -1452,7 +1452,7 @@
                     ctx.fillStyle = '#fff';
                     ctx.font = '10px sans-serif';
                     ctx.textAlign = 'center';
-                    const powerupName = t(p.nameKey);
+                    const powerupName = (window.i18n && i18n.t) ? i18n.t(p.nameKey) : p.nameKey;
                     ctx.fillText(`${powerupName} ${p.hp}/${p.maxHp}`, p.x, p.y + p.size/2 + 12);
                 });
                 
