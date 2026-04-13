@@ -697,9 +697,10 @@
         
         // 初始化
         function init() {
-            // 检测并应用语言
-            detectLanguage();
-            applyTranslations();
+            // 语言检测由 i18n.js 自动处理
+            if (window.i18n) {
+                i18n.updatePage();
+            }
 
             canvas = document.getElementById('gameCanvas');
             ctx = canvas.getContext('2d');
@@ -1259,7 +1260,7 @@
         function showBossUI() {
             if (!currentBoss) return;
             const ui = document.getElementById('bossUI');
-            const bossName = currentLang === 'en' ? currentBoss.name : currentBoss.nameZh;
+            const bossName = (window.i18n && i18n.lang === 'en') ? currentBoss.name : currentBoss.nameZh;
             document.getElementById('bossName').textContent = `${currentBoss.emoji} ${bossName}`;
             updateBossUI();
             ui.classList.add('active');
