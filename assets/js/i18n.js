@@ -313,11 +313,16 @@ const i18n = {
 // 自动初始化
 i18n.init();
 
-// 页面加载完成后更新文本
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => i18n.updatePage());
-} else {
+// 页面加载完成后更新文本和lang属性
+function applyI18n() {
     i18n.updatePage();
+    document.documentElement.lang = i18n.lang === 'zh' ? 'zh-CN' : 'en';
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyI18n);
+} else {
+    applyI18n();
 }
 
 // 全局暴露
