@@ -704,6 +704,9 @@
             canvas = document.getElementById('gameCanvas');
             ctx = canvas.getContext('2d');
             
+            // 初始隐藏游戏内 UI
+            document.getElementById('gameUI').style.display = 'none';
+            
             // 加载最高分
             highScore = parseInt(localStorage.getItem('emojiShooterHighScore')) || 0;
             document.getElementById('startHighScore').textContent = highScore;
@@ -758,6 +761,7 @@
         
         function startGame() {
             document.getElementById('startScreen').classList.add('hidden');
+            document.getElementById('gameUI').style.display = 'flex';
             resetGame();
             gameState = 'playing';
             lastTime = performance.now();
@@ -766,6 +770,7 @@
         
         function restartGame() {
             document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('gameUI').style.display = 'flex';
             resetGame();
             gameState = 'playing';
             lastTime = performance.now();
@@ -799,6 +804,7 @@
         function gameOver() {
             gameState = 'gameover';
             cancelAnimationFrame(gameLoop);
+            document.getElementById('gameUI').style.display = 'none';
             
             if (score > highScore) {
                 highScore = score;

@@ -41,10 +41,17 @@ const i18n = {
             // 游戏类型标签
             'game.tag': '🎮 Emoji Shooter 诊断结果',
             
+            // 游戏HUD
+            'activePowerups': '当前加成',
+            'health': '生命值',
+            'score': '得分',
+            'wave': '波次',
+            'highScore': '最高分',
+            
             // 游戏开始界面
             'startGame': '开始游戏',
             'backToArcade': '回到街机厅',
-            'instructions': '移动鼠标控制🗿，自动射击消灭敌人\n到<b>左边奖励区</b>击破奖励包获取强力加成\n⚡极速 💪强力 🛡️护盾\n<b>每5关有BOSS战！</b>躲避BOSS攻击并反击！',
+            'instructions': '移动鼠标控制🗿，自动射击消灭敌人<br>到<b>左边奖励区</b>击破奖励包获取强力加成<br>⚡极速 💪强力 🛡️护盾<br><b>每5关有BOSS战！</b>躲避BOSS攻击并反击！',
             'highScoreLabel': '最高分',
             'gameOver': '游戏结束',
             'scoreLabel': '得分',
@@ -170,10 +177,17 @@ const i18n = {
             // Toast
             'toast.copied': 'Copied to clipboard!',
             
+            // Game HUD
+            'activePowerups': 'Power-ups',
+            'health': 'Health',
+            'score': 'Score',
+            'wave': 'Wave',
+            'highScore': 'High Score',
+            
             // Game menu
             'startGame': 'Start Game',
             'backToArcade': 'Back to Arcade',
-            'instructions': 'Move mouse to control 🗿, auto-fire to eliminate enemies\nGo to <b>Left Power-up Zone</b> to break reward packs\n⚡Speed 💪Power 🛡️Shield\n<b>BOSS every 5 waves!</b> Dodge and counter!',
+            'instructions': 'Move mouse to control 🗿, auto-fire to eliminate enemies<br>Go to <b>Left Power-up Zone</b> to break reward packs<br>⚡Speed 💪Power 🛡️Shield<br><b>BOSS every 5 waves!</b> Dodge and counter!',
             'highScoreLabel': 'High Score',
             'gameOver': 'Game Over',
             'scoreLabel': 'Score',
