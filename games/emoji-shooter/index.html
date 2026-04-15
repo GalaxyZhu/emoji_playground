@@ -817,8 +817,16 @@
             // 渲染广告位
             renderAds();
             
-            // 初始尺寸
-            resizeGame();
+            // 延迟初始化尺寸，确保 DOM 已就绪
+            setTimeout(() => {
+                resizeGame();
+                // 确保玩家位置正确
+                if (gameState === 'start') {
+                    player.x = powerupZoneWidth + combatZoneWidth / 2;
+                    player.y = gameHeight - 60;
+                }
+            }, 50);
+            
             window.addEventListener('resize', resizeGame);
             
             // 输入事件
