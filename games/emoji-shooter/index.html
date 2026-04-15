@@ -11,8 +11,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Emoji Shooter V0.1.5 🗿</title>
+    <title>Emoji Shooter 🗿</title>
+    <script>
+        (function () {
+            const isLocal = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+            if (!isLocal) return;
+            if (!('serviceWorker' in navigator)) return;
+            if (sessionStorage.getItem('emojiShooterSwDisabled') === '1') return;
+            sessionStorage.setItem('emojiShooterSwDisabled', '1');
+            navigator.serviceWorker.getRegistrations()
+                .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+                .then(() => {
+                    if (navigator.serviceWorker.controller) location.reload();
+                })
+                .catch(() => {});
+        })();
+    </script>
     <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        
         * {
             margin: 0;
             padding: 0;
@@ -22,7 +43,7 @@
         
         body {
             background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-            min-height: 100vh;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -37,12 +58,15 @@
             height: 100vh;
             min-height: 600px;
             background: #0d0d1a;
+            align-items: stretch;
         }
         
         /* 广告位 */
         .ad-slot {
             width: 15%;
             min-width: 96px;
+            height: 100%;
+            flex: 0 0 15%;
             background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
             border: 2px dashed #333;
             display: flex;
@@ -69,58 +93,20 @@
         
         /* 游戏主区域 */
         #gameArea {
-            width: 70%;
-            height: 100%;
-            display: flex;
-            position: relative;
-        }
-        
-        /* 奖励包区域 */
-        #powerupZone {
-            width: 30%;
-            background: linear-gradient(180deg, #1e1e3a 0%, #151528 100%);
-            border-right: 2px solid #333;
+            flex: 1 1 auto;
+            min-width: 0;
             position: relative;
             overflow: hidden;
         }
         
-        #powerupZone::before {
-            content: attr(data-label);
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #666;
-            font-size: 12px;
-            z-index: 10;
-        }
-        
-        /* 打怪区域 */
-        #combatZone {
-            width: 70%;
-            background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        #combatZone::before {
-            content: attr(data-label);
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #666;
-            font-size: 12px;
-            z-index: 10;
-        }
-        
-        /* Canvas */
+        /* 游戏Canvas */
         #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
         }
         
         /* UI层 */
@@ -132,6 +118,11 @@
             height: 100%;
             pointer-events: none;
             z-index: 100;
+        }
+        
+        /* 游戏内UI */
+        #gameUI {
+            z-index: 50;
         }
         
         .screen {
@@ -146,6 +137,11 @@
             align-items: center;
             background: rgba(0, 0, 0, 0.9);
             pointer-events: auto;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 40px 20px;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
         
         .hidden {
@@ -501,10 +497,10 @@
             <div id="ui">
                 <div id="startScreen" class="screen">
                     <div class="emoji-title">🗿</div>
-                    <h1>EMOJI SHOOTER V0.1.5</h1>
+                    <h1>EMOJI SHOOTER</h1>
                     <div class="high-score"><span data-i18n="highScoreLabel">最高分</span>: <span id="startHighScore">0</span></div>
                     <div class="start-buttons">
-                        <button class="btn" onclick="startGame()" data-i18n="startGame">开始游戏</button>
+                        <button class="btn" onclick="startGame(true)" data-i18n="startGame">开始游戏</button>
                         <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 <span data-i18n="backToArcade">回到街机厅</span></button>
                     </div>
                     <div class="instructions" data-i18n="instructions">
@@ -521,7 +517,7 @@
                     <div class="score-display"><span data-i18n="scoreLabel">得分</span>: <span id="finalScore">0</span></div>
                     <div class="high-score"><span data-i18n="highScoreLabel">最高分</span>: <span id="finalHighScore">0</span></div>
                     <div class="stats" id="gameStats"></div>
-                    <button class="btn" onclick="restartGame()" data-i18n="playAgain">再来一局</button>
+                    <button class="btn" onclick="restartGame(true)" data-i18n="playAgain">再来一局</button>
                     <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 <span data-i18n="backToArcade">回到街机厅</span></button>
                 </div>
                 
@@ -764,6 +760,12 @@
         let canvas, ctx;
         let gameLoop, lastTime = 0;
         let gameState = 'start';
+        let hasGameStarted = false;
+        let lastFatalError = '';
+        
+        // 游戏数据收集
+        window.shotsFired = 0;
+        window.shotsHit = 0;
         
         // 游戏尺寸
         let gameWidth, gameHeight;
@@ -800,15 +802,66 @@
         
         // 初始化
         function init() {
+            // 先设置默认尺寸，防止第一次调用render出错
+            gameWidth = 800;
+            gameHeight = 600;
+            powerupZoneWidth = 240; // 800 * 0.3
+            combatZoneWidth = 560; // 800 * 0.7
+            gameState = 'start';
+            hasGameStarted = false;
+            
             // 检测并应用语言
             detectLanguage();
             applyTranslations();
 
             canvas = document.getElementById('gameCanvas');
             ctx = canvas.getContext('2d');
+
+            window.addEventListener('error', (e) => {
+                lastFatalError = e?.message || String(e);
+                hasGameStarted = false;
+                gameState = 'start';
+                showStartScreen();
+            });
+            window.addEventListener('unhandledrejection', (e) => {
+                const reason = e?.reason;
+                lastFatalError = reason?.message || String(reason);
+                hasGameStarted = false;
+                gameState = 'start';
+                showStartScreen();
+            });
+
+            const debugEnabled = new URLSearchParams(location.search).get('debug') === '1';
+            if (debugEnabled) {
+                let hud = document.getElementById('debugHud');
+                if (!hud) {
+                    hud = document.createElement('div');
+                    hud.id = 'debugHud';
+                    hud.style.cssText = 'position:fixed;left:8px;top:8px;z-index:2147483647;background:rgba(0,0,0,0.75);color:#e5e7eb;padding:8px 10px;border:1px solid rgba(255,255,255,0.15);border-radius:8px;font:12px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:46vw;pointer-events:none;white-space:pre-wrap;';
+                    document.body.appendChild(hud);
+                }
+                const updateHud = () => {
+                    const area = document.getElementById('gameArea');
+                    const areaRect = area?.getBoundingClientRect();
+                    const startHidden = document.getElementById('startScreen')?.classList.contains('hidden');
+                    const overHidden = document.getElementById('gameOverScreen')?.classList.contains('hidden');
+                    const pauseHidden = document.getElementById('pauseScreen')?.classList.contains('hidden');
+                    hud.textContent =
+                        `state: ${gameState}  started: ${hasGameStarted}\n` +
+                        `canvas: ${canvas?.width || 0}x${canvas?.height || 0}\n` +
+                        `gameArea: ${Math.round(areaRect?.width || 0)}x${Math.round(areaRect?.height || 0)}\n` +
+                        `startHidden: ${!!startHidden}  overHidden: ${!!overHidden}  pauseHidden: ${!!pauseHidden}\n` +
+                        `lastError: ${lastFatalError || '-'}`;
+                };
+                updateHud();
+                setInterval(updateHud, 350);
+            }
             
             // 初始隐藏游戏内 UI（只在游戏开始后显示）
             document.getElementById('gameUI').style.display = 'none';
+            document.getElementById('startScreen').classList.remove('hidden');
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('pauseScreen').classList.add('hidden');
             
             // 加载最高分
             highScore = parseInt(localStorage.getItem('emojiShooterHighScore')) || 0;
@@ -821,28 +874,42 @@
             canvas.addEventListener('touchstart', handleTouch, { passive: false });
             canvas.addEventListener('touchmove', handleTouch, { passive: false });
             canvas.addEventListener('mousemove', handleMouse);
-            
-            // 延迟初始化尺寸并启动渲染，确保 DOM 已就绪
-            setTimeout(() => {
+
+            const ensureResizeAndStartRender = (attempt = 0) => {
                 resizeGame();
-                // 确保玩家位置正确
+                if (gameWidth < 50 || gameHeight < 50) {
+                    if (attempt < 60) requestAnimationFrame(() => ensureResizeAndStartRender(attempt + 1));
+                    return;
+                }
                 if (gameState === 'start') {
                     player.x = powerupZoneWidth + combatZoneWidth / 2;
                     player.y = gameHeight - 60;
                 }
-                // DOM 就绪后开始渲染
                 requestAnimationFrame(render);
-            }, 100);
+            };
+
+            ensureResizeAndStartRender();
             
             window.addEventListener('resize', resizeGame);
+        }
+
+        function showStartScreen() {
+            cancelAnimationFrame(gameLoop);
+            document.getElementById('gameUI').style.display = 'none';
+            document.getElementById('gameOverScreen').classList.add('hidden');
+            document.getElementById('pauseScreen').classList.add('hidden');
+            document.getElementById('startScreen').classList.remove('hidden');
         }
         
         function resizeGame() {
             const container = document.getElementById('gameArea');
-            gameWidth = container.clientWidth;
-            gameHeight = container.clientHeight;
-            canvas.width = gameWidth;
-            canvas.height = gameHeight;
+            const rect = container.getBoundingClientRect();
+            gameWidth = Math.floor(rect.width);
+            gameHeight = Math.floor(rect.height);
+            if (gameWidth <= 0) gameWidth = Math.floor(window.innerWidth * 0.7);
+            if (gameHeight <= 0) gameHeight = Math.floor(window.innerHeight);
+            canvas.width = Math.max(1, gameWidth);
+            canvas.height = Math.max(1, gameHeight);
             
             // 计算区域宽度
             powerupZoneWidth = gameWidth * 0.3;
@@ -869,7 +936,14 @@
             inputY = e.clientY - rect.top;
         }
         
-        function startGame() {
+        function startGame(userInitiated) {
+            if (userInitiated !== true) {
+                hasGameStarted = false;
+                gameState = 'start';
+                showStartScreen();
+                return;
+            }
+            hasGameStarted = true;
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameUI').style.display = 'flex';
             resetGame();
@@ -878,7 +952,14 @@
             gameLoop = requestAnimationFrame(update);
         }
         
-        function restartGame() {
+        function restartGame(userInitiated) {
+            if (userInitiated !== true) {
+                hasGameStarted = false;
+                gameState = 'start';
+                showStartScreen();
+                return;
+            }
+            hasGameStarted = true;
             document.getElementById('gameOverScreen').classList.add('hidden');
             document.getElementById('gameUI').style.display = 'flex';
             resetGame();
@@ -908,6 +989,8 @@
             hideBossUI();
             document.getElementById('pauseScreen').classList.add('hidden');
             activePowerups = { speed: { active: false, endTime: 0 }, power: { active: false, endTime: 0 }, shield: { active: false, used: false } };
+            window.shotsFired = 0; // 重置射击计数
+            window.shotsHit = 0; // 重置命中计数
             updateUI();
         }
         
@@ -923,23 +1006,22 @@
                 localStorage.setItem('emojiShooterHighScore', highScore);
             }
             
-            // 直接显示诊断报告（替代原来的 gameOverScreen）
+            // 直接显示诊断报告
             setTimeout(() => {
-                if (typeof ShooterDiagnosis !== 'undefined') {
-                    ShooterDiagnosis.show({
-                        score: score,
-                        highScore: highScore,
-                        enemiesKilled: enemiesKilled,
-                        wave: wave,
-                        shotsFired: window.shotsFired || 0,
-                        shotsHit: window.shotsHit || 0
-                    });
-                }
+                ShooterDiagnosis.show({
+                    score: score,
+                    highScore: highScore,
+                    enemiesKilled: enemiesKilled,
+                    wave: wave,
+                    shotsFired: window.shotsFired || 0,
+                    shotsHit: window.shotsHit || 0
+                });
             }, 300);
         }
         
         function update(currentTime) {
             if (gameState !== 'playing') return;
+            if (!hasGameStarted) return;
             
             // 更新难度
             updateDifficulty();
@@ -1081,6 +1163,7 @@
                     const dx = b.x - currentBoss.x;
                     const dy = b.y - currentBoss.y;
                     if (Math.sqrt(dx*dx + dy*dy) < (CONFIG.bulletSize + currentBoss.size) / 2) {
+                        window.shotsHit++;
                         const damage = activePowerups.power.active ? 3 : 1;
                         currentBoss.hp -= damage;
                         createExplosion(b.x, b.y, true);
@@ -1101,6 +1184,7 @@
                 enemies.forEach((e, ei) => {
                     const dx = b.x - e.x, dy = b.y - e.y;
                     if (Math.sqrt(dx*dx + dy*dy) < (CONFIG.bulletSize + e.size) / 2) {
+                        window.shotsHit++;
                         const damage = activePowerups.power.active ? 3 : 1;
                         e.hp -= damage;
                         createExplosion(b.x, b.y, true);
@@ -1397,6 +1481,7 @@
         }
         
         function shoot() {
+            window.shotsFired++;
             bullets.push({
                 x: player.x,
                 y: player.y - 25,
@@ -1486,7 +1571,31 @@
         }
         
         function render() {
-            ctx.clearRect(0, 0, gameWidth, gameHeight);
+            // 绘制背景
+            // 奖励区 (30%)
+            const powerupGradient = ctx.createLinearGradient(0, 0, 0, gameHeight);
+            powerupGradient.addColorStop(0, '#1e1e3a');
+            powerupGradient.addColorStop(1, '#151528');
+            ctx.fillStyle = powerupGradient;
+            ctx.fillRect(0, 0, powerupZoneWidth, gameHeight);
+            
+            // 战斗区 (70%)
+            const combatGradient = ctx.createLinearGradient(0, 0, 0, gameHeight);
+            combatGradient.addColorStop(0, '#1a1a2e');
+            combatGradient.addColorStop(1, '#16213e');
+            ctx.fillStyle = combatGradient;
+            ctx.fillRect(powerupZoneWidth, 0, combatZoneWidth, gameHeight);
+            
+            // 绘制分界线
+            ctx.fillStyle = '#444';
+            ctx.fillRect(powerupZoneWidth - 1, 0, 2, gameHeight);
+            
+            // 绘制区域标签
+            ctx.fillStyle = '#666';
+            ctx.font = '12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(t('powerupZone'), powerupZoneWidth / 2, 25);
+            ctx.fillText(t('combatZone'), powerupZoneWidth + combatZoneWidth / 2, 25);
             
             // 开始界面也显示玩家预览
             if (gameState === 'start') {
@@ -1637,7 +1746,7 @@
         
         function restartFromPause() {
             document.getElementById('pauseScreen').classList.add('hidden');
-            restartGame();
+            restartGame(true);
         }
         
         // 键盘事件监听（ESC键暂停）
@@ -1721,28 +1830,52 @@
         const ShooterDiagnosis = {
             types: {
                 SPD: {
-                    icon: '🔫', title: '人体描边大师', titleEn: 'Human Outline Artist',
-                    quote: '"敌人没死，但我键盘先死了。"',
-                    rare: '常见', rarePercent: '28%', rarityClass: 'common',
-                    roasts: ['你的准星在敌人周围画了一个完美的圆', '敌人以为你在故意放水', '建议转行做气象预报']
+                    icon: '🔫', 
+                    title: { zh: '人体描边大师', en: 'Human Outline Artist' },
+                    quote: { zh: '"敌人没死，但我键盘先死了。"', en: '"The enemy survived, but my keyboard died first."' },
+                    rare: { zh: '常见', en: 'Common' }, 
+                    rarePercent: '28%', 
+                    rarityClass: 'common',
+                    roasts: { 
+                        zh: ['你的准星在敌人周围画了一个完美的圆', '敌人以为你在故意放水', '建议转行做气象预报'],
+                        en: ['Your crosshair draws a perfect circle around the enemy', 'The enemy thinks you\'re intentionally throwing', 'Consider becoming a weather forecaster']
+                    }
                 },
                 SNP: {
-                    icon: '🎯', title: '锁头挂嫌疑人', titleEn: 'Aimbot Suspect',
-                    quote: '"我说我没开，你信吗？"',
-                    rare: '稀有', rarePercent: '5%', rarityClass: 'rare',
-                    roasts: ['你的鼠标dpi调成了心灵感应模式', '敌人举报键按烂了', '建议去打职业']
+                    icon: '🎯', 
+                    title: { zh: '锁头挂嫌疑人', en: 'Aimbot Suspect' },
+                    quote: { zh: '"我说我没开，你信吗？"', en: '"I said I didn\'t cheat, do you believe me?"' },
+                    rare: { zh: '稀有', en: 'Rare' }, 
+                    rarePercent: '5%', 
+                    rarityClass: 'rare',
+                    roasts: { 
+                        zh: ['你的鼠标dpi调成了心灵感应模式', '敌人举报键按烂了', '建议去打职业'],
+                        en: ['Your mouse DPI is set to telepathy mode', 'The enemy\'s report button is worn out', 'Consider going pro']
+                    }
                 },
                 SPR: {
-                    icon: '🏃', title: '无限换弹癌', titleEn: 'Reload Addict',
-                    quote: '"弹匣还有29发？不行，必须换。"',
-                    rare: '常见', rarePercent: '22%', rarityClass: 'common',
-                    roasts: ['敌人永远在你换弹时出现', 'R键磨损最严重', '建议玩近战游戏']
+                    icon: '🏃', 
+                    title: { zh: '无限换弹癌', en: 'Reload Addict' },
+                    quote: { zh: '"弹匣还有29发？不行，必须换。"', en: '"29 rounds left in the mag? Nope, must reload."' },
+                    rare: { zh: '常见', en: 'Common' }, 
+                    rarePercent: '22%', 
+                    rarityClass: 'common',
+                    roasts: { 
+                        zh: ['敌人永远在你换弹时出现', 'R键磨损最严重', '建议玩近战游戏'],
+                        en: ['Enemies always appear when you\'re reloading', 'The R key is the most worn out', 'Consider playing melee games']
+                    }
                 },
                 PAN: {
-                    icon: '😱', title: 'Panic射击手', titleEn: 'Panic Shooter',
-                    quote: '"看到敌人→狂按鼠标→祈祷。"',
-                    rare: '常见', rarePercent: '35%', rarityClass: 'common',
-                    roasts: ['战术就是吓死对方', '弹药商该给你颁奖', '敌人是被你吵死的']
+                    icon: '😱', 
+                    title: { zh: 'Panic射击手', en: 'Panic Shooter' },
+                    quote: { zh: '"看到敌人→狂按鼠标→祈祷。"', en: '"See enemy → spam mouse → pray."' },
+                    rare: { zh: '常见', en: 'Common' }, 
+                    rarePercent: '35%', 
+                    rarityClass: 'common',
+                    roasts: { 
+                        zh: ['战术就是吓死对方', '弹药商该给你颁奖', '敌人是被你吵死的'],
+                        en: ['Your tactic is to scare the enemy to death', 'Ammo companies should give you an award', 'The enemy died from your noise']
+                    }
                 }
             },
             
@@ -1757,7 +1890,8 @@
             show(stats) {
                 const typeCode = this.detectType(stats);
                 const type = this.types[typeCode];
-                const roast = type.roasts[Math.floor(Math.random() * type.roasts.length)];
+                const isZh = currentLang === 'zh';
+                const roast = type.roasts[isZh ? 'zh' : 'en'][Math.floor(Math.random() * type.roasts[isZh ? 'zh' : 'en'].length)];
                 const accuracy = stats.shotsFired > 0 ? (stats.shotsHit / stats.shotsFired * 100).toFixed(1) : 0;
                 const isNewHighScore = stats.score > 0 && stats.score >= stats.highScore;
                 
@@ -1768,48 +1902,83 @@
                     legendary: 'linear-gradient(135deg,#fbbf24,#f59e0b)'
                 };
                 
+                const texts = {
+                    zh: {
+                        confirmed: '确诊',
+                        newRecord: '✨ 新纪录！',
+                        finalScore: '最终得分',
+                        highScore: '最高分',
+                        diagnosis: '🎮 Emoji Shooter 诊断',
+                        quote: type.quote.zh,
+                        roastTitle: '💬 专属吐槽',
+                        shots: '射击',
+                        hits: '命中',
+                        kills: '击杀',
+                        wave: '波次',
+                        share: '分享你的诊断报告',
+                        playAgain: '🔄 再来一局'
+                    },
+                    en: {
+                        confirmed: 'DIAGNOSIS',
+                        newRecord: '✨ NEW RECORD!',
+                        finalScore: 'Final Score',
+                        highScore: 'High Score',
+                        diagnosis: '🎮 Emoji Shooter Diagnosis',
+                        quote: type.quote.en,
+                        roastTitle: '💬 Roast',
+                        shots: 'Shots',
+                        hits: 'Hits',
+                        kills: 'Kills',
+                        wave: 'Wave',
+                        share: 'Share your diagnosis',
+                        playAgain: '🔄 Play Again'
+                    }
+                };
+                
+                const t = texts[isZh ? 'zh' : 'en'];
+                
                 const html = `
                     <div id="diagnosisModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:99999;display:flex;justify-content:center;align-items:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;"
                          onclick="if(event.target===this)ShooterDiagnosis.hide()">
                         <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:20px;padding:30px;max-width:420px;width:90%;border:2px solid rgba(255,255,255,0.1);position:relative;max-height:90vh;overflow-y:auto;">
-                            <div style="position:absolute;top:15px;right:15px;width:50px;height:50px;border:2px solid #ef4444;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#ef4444;font-weight:bold;font-size:12px;transform:rotate(-15deg);opacity:0.8;">确诊</div>
+                            <div style="position:absolute;top:15px;right:15px;width:50px;height:50px;border:2px solid #ef4444;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#ef4444;font-weight:bold;font-size:12px;transform:rotate(-15deg);opacity:0.8;">${t.confirmed}</div>
                             
                             <!-- 得分区域 -->
                             <div style="text-align:center;margin-bottom:15px;padding:15px;background:rgba(255,255,255,0.03);border-radius:12px;">
-                                <div style="font-size:13px;color:#94a3b8;margin-bottom:5px;">${isNewHighScore ? '✨ 新纪录！' : '最终得分'}</div>
+                                <div style="font-size:13px;color:#94a3b8;margin-bottom:5px;">${isNewHighScore ? t.newRecord : t.finalScore}</div>
                                 <div style="font-size:36px;font-weight:800;background:linear-gradient(90deg,#fbbf24,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${stats.score}</div>
-                                <div style="font-size:12px;color:#64748b;margin-top:5px;">最高分: ${stats.highScore}</div>
+                                <div style="font-size:12px;color:#64748b;margin-top:5px;">${t.highScore}: ${stats.highScore}</div>
                             </div>
                             
                             <div style="text-align:center;margin-bottom:20px;">
                                 <div style="font-size:50px;margin-bottom:10px;">${type.icon}</div>
-                                <div style="background:rgba(255,255,255,0.1);padding:4px 12px;border-radius:15px;font-size:11px;color:#94a3b8;display:inline-block;margin-bottom:8px;">🎮 Emoji Shooter 诊断</div>
-                                <h2 style="font-size:22px;font-weight:800;background:linear-gradient(90deg,#fbbf24,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:3px;">${type.title}</h2>
-                                <div style="color:#64748b;font-size:13px;">${type.titleEn}</div>
+                                <div style="background:rgba(255,255,255,0.1);padding:4px 12px;border-radius:15px;font-size:11px;color:#94a3b8;display:inline-block;margin-bottom:8px;">${t.diagnosis}</div>
+                                <h2 style="font-size:22px;font-weight:800;background:linear-gradient(90deg,#fbbf24,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:3px;">${type.title[isZh ? 'zh' : 'en']}</h2>
+                                <div style="color:#64748b;font-size:13px;">${type.title[isZh ? 'en' : 'zh']}</div>
                                 <div style="display:inline-flex;align-items:center;gap:4px;margin-top:12px;padding:6px 16px;border-radius:20px;font-weight:700;font-size:12px;background:${rarityColors[type.rarityClass]};color:${type.rarityClass==='legendary'?'#000':'#fff'};">
-                                    🌟 ${type.rare} · ${type.rarePercent}
+                                    🌟 ${type.rare[isZh ? 'zh' : 'en']} · ${type.rarePercent}
                                 </div>
                             </div>
-                            <div style="background:rgba(99,102,241,0.1);border-left:3px solid #6366f1;padding:12px;margin:12px 0;border-radius:0 8px 8px 0;font-style:italic;color:#cbd5e1;font-size:13px;">${type.quote}</div>
+                            <div style="background:rgba(99,102,241,0.1);border-left:3px solid #6366f1;padding:12px;margin:12px 0;border-radius:0 8px 8px 0;font-style:italic;color:#cbd5e1;font-size:13px;">${t.quote}</div>
                             <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:10px;border-radius:8px;margin:12px 0;">
-                                <div style="color:#ef4444;font-size:11px;font-weight:600;margin-bottom:4px;">💬 专属吐槽</div>
+                                <div style="color:#ef4444;font-size:11px;font-weight:600;margin-bottom:4px;">${t.roastTitle}</div>
                                 <div style="color:#fca5a5;font-size:13px;">${roast}</div>
                             </div>
                             <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0;">
-                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#ef4444;">${stats.shotsFired || '?'}</div><div style="font-size:11px;color:#94a3b8;">射击</div></div>
-                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#22c55e;">${stats.shotsHit || '?'}</div><div style="font-size:11px;color:#94a3b8;">命中 ${accuracy}%</div></div>
-                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#fbbf24;">${stats.enemiesKilled}</div><div style="font-size:11px;color:#94a3b8;">击杀</div></div>
-                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#a855f7;">${stats.wave}</div><div style="font-size:11px;color:#94a3b8;">波次</div></div>
+                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#ef4444;">${stats.shotsFired || '?'}</div><div style="font-size:11px;color:#94a3b8;">${t.shots}</div></div>
+                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#22c55e;">${stats.shotsHit || '?'}</div><div style="font-size:11px;color:#94a3b8;">${t.hits} ${accuracy}%</div></div>
+                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#fbbf24;">${stats.enemiesKilled}</div><div style="font-size:11px;color:#94a3b8;">${t.kills}</div></div>
+                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#a855f7;">${stats.wave}</div><div style="font-size:11px;color:#94a3b8;">${t.wave}</div></div>
                             </div>
                             <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:15px;margin-top:15px;">
-                                <div style="text-align:center;color:#94a3b8;font-size:11px;margin-bottom:10px;">分享你的诊断报告</div>
+                                <div style="text-align:center;color:#94a3b8;font-size:11px;margin-bottom:10px;">${t.share}</div>
                                 <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
                                     <button onclick="ShooterDiagnosis.share('twitter')" style="padding:8px 14px;border-radius:15px;border:none;background:#1da1f2;color:white;font-weight:600;cursor:pointer;font-size:12px;">🐦</button>
                                     <button onclick="ShooterDiagnosis.share('weibo')" style="padding:8px 14px;border-radius:15px;border:none;background:#e6162d;color:white;font-weight:600;cursor:pointer;font-size:12px;">📱</button>
                                     <button onclick="ShooterDiagnosis.share('copy')" style="padding:8px 14px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:12px;">📋</button>
                                 </div>
                                 <div style="display:flex;gap:8px;margin-top:12px;">
-                                    <button onclick="ShooterDiagnosis.hide()" style="flex:1;padding:12px;border-radius:15px;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-weight:600;cursor:pointer;font-size:14px;">🔄 再来一局</button>
+                                    <button onclick="ShooterDiagnosis.hide()" style="flex:1;padding:12px;border-radius:15px;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-weight:600;cursor:pointer;font-size:14px;">${t.playAgain}</button>
                                     <button onclick="location.href='../../index.html'" style="padding:12px 16px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:14px;">🏠</button>
                                 </div>
                             </div>
@@ -1827,23 +1996,43 @@
             hide() {
                 const modal = document.getElementById('diagnosisModal');
                 if (modal) modal.remove();
+                restartGame(true);
             },
             
             share(platform) {
                 const type = this.currentType;
-                const text = `🎮 Emoji Arcade 诊断报告\n\n${type.icon} ${type.title}\n${type.quote}\n\n测测你是什么玩家"病症" 👉 emojiarcade.app`;
+                const isZh = currentLang === 'zh';
+                
+                const texts = {
+                    zh: {
+                        title: `🎮 Emoji Arcade 诊断报告\n\n${type.icon} ${type.title.zh}\n${type.quote.zh}\n\n测测你是什么玩家"病症" 👉 emojiarcade.app`,
+                        twitter: `🎮 刚被诊断为「${type.title.zh}」\n${type.quote.zh}\n\n测测你是什么玩家"病症" 👇`,
+                        alert: '已复制！'
+                    },
+                    en: {
+                        title: `🎮 Emoji Arcade Diagnosis\n\n${type.icon} ${type.title.en}\n${type.quote.en}\n\nFind out what kind of player you are 👉 emojiarcade.app`,
+                        twitter: `🎮 Just diagnosed as "${type.title.en}"\n${type.quote.en}\n\nFind out what kind of player you are 👇`,
+                        alert: 'Copied!'
+                    }
+                };
+                
+                const t = texts[isZh ? 'zh' : 'en'];
                 
                 if (platform === 'twitter') {
-                    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent('🎮 刚被诊断为「' + type.title + '」\n' + type.quote + '\n\n测测你是什么玩家"病症" 👇')}&url=${encodeURIComponent('https://emojiarcade.app')}`, '_blank');
+                    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(t.twitter)}&url=${encodeURIComponent('https://emojiarcade.app')}`, '_blank');
                 } else if (platform === 'weibo') {
-                    window.open(`https://service.weibo.com/share/share.php?title=${encodeURIComponent(text)}&url=${encodeURIComponent('https://emojiarcade.app')}`, '_blank');
+                    window.open(`https://service.weibo.com/share/share.php?title=${encodeURIComponent(t.title)}&url=${encodeURIComponent('https://emojiarcade.app')}`, '_blank');
                 } else if (platform === 'copy') {
-                    navigator.clipboard.writeText(text).then(() => alert('已复制！'));
+                    navigator.clipboard.writeText(t.title).then(() => alert(t.alert));
                 }
             }
         };
 
-        init();
+        if (document.readyState === 'complete') {
+            init();
+        } else {
+            window.addEventListener('load', init, { once: true });
+        }
     </script>
 </body>
 </html>
