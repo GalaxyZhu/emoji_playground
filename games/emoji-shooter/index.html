@@ -817,7 +817,12 @@
             // 渲染广告位
             renderAds();
             
-            // 延迟初始化尺寸，确保 DOM 已就绪
+            // 输入事件
+            canvas.addEventListener('touchstart', handleTouch, { passive: false });
+            canvas.addEventListener('touchmove', handleTouch, { passive: false });
+            canvas.addEventListener('mousemove', handleMouse);
+            
+            // 延迟初始化尺寸并启动渲染，确保 DOM 已就绪
             setTimeout(() => {
                 resizeGame();
                 // 确保玩家位置正确
@@ -825,17 +830,11 @@
                     player.x = powerupZoneWidth + combatZoneWidth / 2;
                     player.y = gameHeight - 60;
                 }
-            }, 50);
+                // DOM 就绪后开始渲染
+                requestAnimationFrame(render);
+            }, 100);
             
             window.addEventListener('resize', resizeGame);
-            
-            // 输入事件
-            canvas.addEventListener('touchstart', handleTouch, { passive: false });
-            canvas.addEventListener('touchmove', handleTouch, { passive: false });
-            canvas.addEventListener('mousemove', handleMouse);
-            
-            // 开始渲染
-            requestAnimationFrame(render);
         }
         
         function resizeGame() {
