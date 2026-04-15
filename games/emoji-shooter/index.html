@@ -1481,6 +1481,14 @@
         function render() {
             ctx.clearRect(0, 0, gameWidth, gameHeight);
             
+            // 开始界面也显示玩家预览
+            if (gameState === 'start') {
+                ctx.font = `${CONFIG.playerSize}px sans-serif`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(CONFIG.playerEmoji, player.x, player.y);
+            }
+            
             if (gameState === 'playing' || gameState === 'gameover') {
                 // 绘制玩家（可以在全屏移动）
                 ctx.font = `${CONFIG.playerSize}px sans-serif`;
