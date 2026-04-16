@@ -30,13 +30,15 @@
             overflow: hidden;
         }
         
-        /* 主容器 - 最小宽度640px */
+        /* 主容器 */
         #gameContainer {
             display: flex;
             width: 100%;
+            max-width: 1200px;
             height: 100vh;
             min-height: 600px;
             background: #0d0d1a;
+            position: relative;
         }
         
         /* 广告位 */
@@ -71,8 +73,10 @@
         #gameArea {
             width: 70%;
             height: 100%;
+            min-height: 600px;
             display: flex;
             position: relative;
+            overflow: hidden;
         }
         
         /* 奖励包区域 */
@@ -121,6 +125,7 @@
             left: 0;
             width: 100%;
             height: 100%;
+            min-height: 600px;
         }
         
         /* UI层 */
@@ -146,6 +151,9 @@
             align-items: center;
             background: rgba(0, 0, 0, 0.9);
             pointer-events: auto;
+            overflow-y: auto;
+            padding: 20px;
+            box-sizing: border-box;
         }
         
         .hidden {
@@ -153,15 +161,15 @@
         }
         
         h1 {
-            font-size: 36px;
+            font-size: 32px;
             color: #fff;
             text-shadow: 0 0 20px #e94560;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         
         .emoji-title {
-            font-size: 60px;
-            margin-bottom: 15px;
+            font-size: 56px;
+            margin-bottom: 10px;
             animation: bounce 1s infinite;
         }
         
@@ -201,8 +209,8 @@
         .start-buttons {
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-bottom: 15px;
+            gap: 10px;
+            margin-bottom: 12px;
             align-items: center;
         }
         
@@ -221,9 +229,9 @@
         }
         
         .high-score {
-            font-size: 16px;
+            font-size: 14px;
             color: #ffd700;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
         
         .stats {
@@ -236,10 +244,10 @@
         .instructions {
             color: #888;
             font-size: 12px;
-            margin-top: 20px;
+            margin-top: 15px;
             text-align: center;
             line-height: 1.6;
-            max-width: 80%;
+            max-width: 90%;
         }
         
         /* 游戏内UI */
