@@ -101,7 +101,6 @@ const ShooterDiagnosisUI = {
                         <div style="font-size:60px;margin-bottom:10px;">${type.icon}</div>
                         <div style="background:rgba(255,255,255,0.1);padding:5px 15px;border-radius:20px;font-size:12px;color:#94a3b8;display:inline-block;margin-bottom:10px;">${i18n.t('game.tag')}</div>
                         <h2 style="font-size:24px;font-weight:800;background:linear-gradient(90deg,#fbbf24,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:5px;">${title}</h2>
-                        <div style="color:#64748b;font-size:14px;">${titleEn}</div>
                         <div style="display:inline-flex;align-items:center;gap:5px;margin-top:15px;padding:8px 20px;border-radius:25px;font-weight:700;font-size:13px;${this.getRarityStyle(type.rarityClass)}">
                             <span>🌟</span><span>${rarity} · ${type.rarePercent}</span>
                         </div>
