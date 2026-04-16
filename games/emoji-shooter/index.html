@@ -2130,18 +2130,6 @@
             }
         };
 
-                const t = texts[isZh ? 'zh' : 'en'];
-
-                if (platform === 'twitter') {
-                    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(t.twitter)}&url=${encodeURIComponent('https://emojiarcade.app')}`, '_blank');
-                } else if (platform === 'weibo') {
-                    window.open(`https://service.weibo.com/share/share.php?title=${encodeURIComponent(t.title)}&url=${encodeURIComponent('https://emojiarcade.app')}`, '_blank');
-                } else if (platform === 'copy') {
-                    navigator.clipboard.writeText(t.title).then(() => alert(t.alert));
-                }
-            }
-        };
-
         if (document.readyState === 'complete') {
             init();
         } else {
