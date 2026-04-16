@@ -130,6 +130,16 @@
         
         <!-- User Area (reserved for user system) -->
         <div class="user-section" id="userSection">
+            <div class="lang-switch" id="langSwitch">
+                <button class="lang-trigger" id="langTrigger" type="button" aria-haspopup="true" aria-expanded="false">
+                    <span id="currentLangLabel">English</span>
+                    <span class="lang-caret">▾</span>
+                </button>
+                <div class="lang-menu" id="langMenu" role="menu" aria-hidden="true">
+                    <button class="lang-option" id="langOptionZh" type="button" role="menuitem" data-lang="zh">中文</button>
+                    <button class="lang-option" id="langOptionEn" type="button" role="menuitem" data-lang="en">English</button>
+                </div>
+            </div>
             <!-- Not logged in -->
             <div class="user-placeholder" id="loginBtn" onclick="showLoginModal()">
                 <span id="loginText">Login</span>
@@ -233,6 +243,8 @@
     <script>
         // ==================== 游戏数据（支持双语） ====================
         let gamesData = [];
+        let selectedLang = null;
+        const LANG_STORAGE_KEY = 'emoji_arcade_lang';
         
         // 游戏数据配置（双语）
         const gameConfigs = {
@@ -518,8 +530,100 @@
         
         // 获取当前语言
         function getCurrentLang() {
-            const lang = navigator.language || navigator.userLanguage;
-            return lang.startsWith('zh') ? 'zh' : 'en';
+            return selectedLang || 'en';
+        }
+
+        function getBrowserLang() {
+            const lang = navigator.language || navigator.userLanguage || 'en';
+            return lang.toLowerCase().startsWith('zh') ? 'zh' : 'en';
+        }
+
+        function loadPreferredLang() {
+            const savedLang = localStorage.getItem(LANG_STORAGE_KEY);
+            if (savedLang === 'zh' || savedLang === 'en') {
+                return savedLang;
+            }
+            return getBrowserLang();
+        }
+
+        function updateLanguageSwitcher() {
+            const current = getCurrentLang();
+            const currentLabel = document.getElementById('currentLangLabel');
+            const optionZh = document.getElementById('langOptionZh');
+            const optionEn = document.getElementById('langOptionEn');
+            if (currentLabel) currentLabel.textContent = current === 'zh' ? '中文' : 'English';
+            if (optionZh) optionZh.style.display = current === 'zh' ? 'none' : 'block';
+            if (optionEn) optionEn.style.display = current === 'en' ? 'none' : 'block';
+        }
+
+        function closeLangMenu() {
+            const langSwitch = document.getElementById('langSwitch');
+            const trigger = document.getElementById('langTrigger');
+            const menu = document.getElementById('langMenu');
+            if (langSwitch) langSwitch.classList.remove('open');
+            if (trigger) trigger.setAttribute('aria-expanded', 'false');
+            if (menu) menu.setAttribute('aria-hidden', 'true');
+        }
+
+        function toggleLangMenu() {
+            const langSwitch = document.getElementById('langSwitch');
+            const trigger = document.getElementById('langTrigger');
+            const menu = document.getElementById('langMenu');
+            if (!langSwitch || !trigger || !menu) return;
+            const isOpen = langSwitch.classList.toggle('open');
+            trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            menu.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+        }
+
+        function refreshGameSections() {
+            const gamesGrid = document.getElementById('gamesGrid');
+            const racingGrid = document.getElementById('racingGamesGrid');
+            const comingSoonGrid = document.getElementById('comingSoonGrid');
+            if (gamesGrid) gamesGrid.innerHTML = '';
+            if (racingGrid) racingGrid.innerHTML = '';
+            if (comingSoonGrid) comingSoonGrid.innerHTML = '';
+            renderGames();
+            renderRacingGames();
+            renderComingSoonGames();
+        }
+
+        function applyLanguage(lang) {
+            selectedLang = lang === 'zh' ? 'zh' : 'en';
+            localStorage.setItem(LANG_STORAGE_KEY, selectedLang);
+            detectLanguage();
+            updateLanguageSwitcher();
+            refreshGameSections();
+        }
+
+        function initLanguageSwitcher() {
+            selectedLang = loadPreferredLang();
+            updateLanguageSwitcher();
+
+            const langTrigger = document.getElementById('langTrigger');
+            const langSwitch = document.getElementById('langSwitch');
+            const options = document.querySelectorAll('.lang-option');
+
+            if (langTrigger) {
+                langTrigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleLangMenu();
+                });
+            }
+
+            options.forEach((option) => {
+                option.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const nextLang = option.getAttribute('data-lang');
+                    applyLanguage(nextLang);
+                    closeLangMenu();
+                });
+            });
+
+            document.addEventListener('click', (e) => {
+                if (langSwitch && !langSwitch.contains(e.target)) {
+                    closeLangMenu();
+                }
+            });
         }
         
         // 渲染动态游戏卡片 (Hot Games)
@@ -610,7 +714,9 @@
             // 显示游戏容器
             const container = document.getElementById('gameContainer');
             const frame = document.getElementById('gameFrame');
-            frame.src = game.path;
+            const gameUrl = new URL(game.path, window.location.href);
+            gameUrl.searchParams.set('lang', getCurrentLang());
+            frame.src = gameUrl.toString();
             container.classList.add('active');
             
             // 保存当前游戏
@@ -658,8 +764,7 @@
         
         // ==================== Language Detection ====================
         function detectLanguage() {
-            const lang = navigator.language || navigator.userLanguage;
-            const isChinese = lang.startsWith('zh');
+            const isChinese = getCurrentLang() === 'zh';
             
             // Hero section
             const heroSubtitleZh = document.getElementById('heroSubtitleZh');
@@ -750,6 +855,7 @@
         
         // ==================== Init ====================
         document.addEventListener('DOMContentLoaded', () => {
+            initLanguageSwitcher();
             detectLanguage();
             initUserSystem();
             loadGames();

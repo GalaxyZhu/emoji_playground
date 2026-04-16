@@ -355,10 +355,16 @@
             }
         };
 
-        // 检测浏览器语言
-        function detectLanguage() {
+        // 检测语言：优先读取 URL 参数 lang=zh/en
+        function getPreferredLang() {
+            const forced = new URLSearchParams(location.search).get('lang');
+            if (forced === 'zh' || forced === 'en') return forced;
             const lang = navigator.language || navigator.userLanguage || 'zh';
             return lang.toLowerCase().startsWith('en') ? 'en' : 'zh';
+        }
+
+        function detectLanguage() {
+            return getPreferredLang();
         }
 
         const currentLang = detectLanguage();

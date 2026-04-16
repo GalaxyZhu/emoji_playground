@@ -221,9 +221,12 @@
     </div>
 
     <script>
-        // 语言检测
-        const userLang = navigator.language || navigator.userLanguage;
-        const isEnglish = userLang.startsWith('en');
+        // 语言检测：优先读取 URL 参数 lang=zh/en
+        const forcedLang = new URLSearchParams(location.search).get('lang');
+        const userLang = navigator.language || navigator.userLanguage || 'zh-CN';
+        const isEnglish = (forcedLang === 'zh' || forcedLang === 'en')
+            ? forcedLang === 'en'
+            : userLang.toLowerCase().startsWith('en');
 
         // 多语言文本
         const i18n = {

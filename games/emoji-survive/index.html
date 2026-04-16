@@ -74,7 +74,7 @@
                 <div style="color: #ff6600; font-size: 18px; margin-bottom: 20px;" data-i18n="subtitle">废土平台生存战 v2.0</div>
                 <div class="start-buttons">
                     <button class="btn btn-primary" onclick="startGame()" data-i18n="startGame">开始冒险</button>
-                    <button class="btn btn-secondary" onclick="location.href='../../index.html'" data-i18n="backToArcade">🏠 回到街机厅</button>
+                    <button class="btn btn-secondary" onclick="goBackToArcade()" data-i18n="backToArcade">🏠 回到街机厅</button>
                 </div>
                 <div class="instructions">
                     <b data-i18n="versionTitle">🎮 平台跳跃版 v2.0</b><br><br>
@@ -145,7 +145,7 @@
                     </div>
                     <div style="margin-top: 12px; display: flex; gap: 10px; justify-content: center;">
                         <button class="btn btn-secondary" onclick="restartFromShop()" style="padding: 10px 30px; font-size: 16px;" data-i18n="restartBtn">🔄 重新开始</button>
-                        <button class="btn btn-secondary" onclick="location.href='../../index.html'" style="padding: 10px 30px; font-size: 16px;" data-i18n="backToArcadeShort">🏠 回街机厅</button>
+                        <button class="btn btn-secondary" onclick="goBackToArcade()" style="padding: 10px 30px; font-size: 16px;" data-i18n="backToArcadeShort">🏠 回街机厅</button>
                     </div>
                 </div>
             </div>
@@ -157,7 +157,7 @@
                 <div style="color: #ffd700; font-size: 20px; margin-bottom: 10px;"><span data-i18n="goldCollected">收集金币</span>: <span id="finalGold">0</span>💰</div>
                 <div style="color: #888; font-size: 16px; margin-bottom: 30px;" id="endMessage" data-i18n="gameOverMessage">废土上的又一位英雄倒下了...</div>
                 <button class="btn btn-primary" onclick="restartGame()" data-i18n="playAgain">🔄 再来一局</button>
-                <button class="btn btn-secondary" onclick="location.href='../../index.html'" data-i18n="backToArcade">🏠 回到街机厅</button>
+                <button class="btn btn-secondary" onclick="goBackToArcade()" data-i18n="backToArcade">🏠 回到街机厅</button>
             </div>
 
             <div class="ui-overlay hidden" id="victoryScreen">
@@ -166,7 +166,7 @@
                 <div style="color: #fff; font-size: 20px; margin-bottom: 20px;" data-i18n="victoryMessage">你成功穿越了20波怪物潮！</div>
                 <div style="color: #ffd700; font-size: 24px; margin-bottom: 30px;" data-i18n="totalGold">总金币: <span id="victoryGold">0</span>💰</div>
                 <button class="btn btn-primary" onclick="restartGame()" data-i18n="playAgain">🔄 再玩一次</button>
-                <button class="btn btn-secondary" onclick="location.href='../../index.html'" data-i18n="backToArcade">🏠 回到街机厅</button>
+                <button class="btn btn-secondary" onclick="goBackToArcade()" data-i18n="backToArcade">🏠 回到街机厅</button>
             </div>
         </div>
         
@@ -260,9 +260,14 @@ const i18n = {
 
 // 检测语言并应用
 let currentLang = 'zh';
-function detectLanguage() {
+function getPreferredLang() {
+    const forced = new URLSearchParams(location.search).get('lang');
+    if (forced === 'zh' || forced === 'en') return forced;
     const navLang = navigator.language || navigator.userLanguage || 'zh-CN';
-    currentLang = navLang.toLowerCase().startsWith('en') ? 'en' : 'zh';
+    return navLang.toLowerCase().startsWith('en') ? 'en' : 'zh';
+}
+function detectLanguage() {
+    currentLang = getPreferredLang();
     applyTranslations();
 }
 
@@ -739,6 +744,18 @@ function victory() {
 }
 function restartFromShop() { document.getElementById('shopScreen').classList.add('hidden'); document.getElementById('startScreen').classList.remove('hidden'); gameState = 'start'; }
 function restartGame() { document.getElementById('gameOverScreen').classList.add('hidden'); document.getElementById('victoryScreen').classList.add('hidden'); document.getElementById('startScreen').classList.remove('hidden'); document.getElementById('hud').classList.add('hidden'); document.getElementById('ultButton').classList.add('hidden'); gameState = 'start'; }
+function goBackToArcade() {
+    try {
+        if (window.parent && window.parent !== window && typeof window.parent.closeGame === 'function') {
+            window.parent.closeGame();
+            return;
+        }
+    } catch (e) {
+        // Ignore cross-window access errors and fallback to direct navigation.
+    }
+    const lang = (currentLang === 'en' || currentLang === 'zh') ? currentLang : 'zh';
+    location.href = `../../index.html?lang=${lang}`;
+}
 
 init();
     </script>
@@ -833,7 +850,7 @@ init();
                                 </div>
                                 <div style="display:flex;gap:8px;margin-top:12px;">
                                     <button onclick="SurviveDiagnosis.hide()" style="flex:1;padding:12px;border-radius:15px;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-weight:600;cursor:pointer;font-size:14px;">${t.replay}</button>
-                                    <button onclick="location.href='../../index.html'" style="padding:12px 16px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:14px;">🏠</button>
+                                    <button onclick="goBackToArcade()" style="padding:12px 16px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:14px;">🏠</button>
                                 </div>
                             </div>
                         </div>

@@ -172,6 +172,12 @@ Get the first place!`
                 return this.texts[this.lang][key] || key;
             },
             detect() {
+                const forced = new URLSearchParams(location.search).get('lang');
+                if (forced === 'zh' || forced === 'en') {
+                    this.lang = forced;
+                    document.documentElement.lang = this.lang === 'en' ? 'en' : 'zh-CN';
+                    return;
+                }
                 const navLang = navigator.language || navigator.userLanguage || 'zh-CN';
                 this.lang = navLang.toLowerCase().startsWith('en') ? 'en' : 'zh';
                 document.documentElement.lang = this.lang === 'en' ? 'en' : 'zh-CN';

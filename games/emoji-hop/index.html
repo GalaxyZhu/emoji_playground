@@ -523,13 +523,14 @@
 
         // 检测语言
         let currentLang = 'zh';
-        function detectLanguage() {
+        function getPreferredLang() {
+            const forced = new URLSearchParams(location.search).get('lang');
+            if (forced === 'zh' || forced === 'en') return forced;
             const lang = navigator.language || navigator.userLanguage || 'zh-CN';
-            if (lang.toLowerCase().startsWith('en')) {
-                currentLang = 'en';
-            } else {
-                currentLang = 'zh';
-            }
+            return lang.toLowerCase().startsWith('en') ? 'en' : 'zh';
+        }
+        function detectLanguage() {
+            currentLang = getPreferredLang();
             return currentLang;
         }
 

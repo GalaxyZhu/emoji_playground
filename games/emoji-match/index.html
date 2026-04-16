@@ -469,9 +469,12 @@
             }
         };
 
-        // 检测语言
-        const userLang = navigator.language || navigator.userLanguage;
-        const lang = userLang && userLang.startsWith('en') ? 'en' : 'zh';
+        // 检测语言：优先读取 URL 参数 lang=zh/en
+        const forcedLang = new URLSearchParams(location.search).get('lang');
+        const userLang = navigator.language || navigator.userLanguage || 'zh-CN';
+        const lang = (forcedLang === 'zh' || forcedLang === 'en')
+            ? forcedLang
+            : (userLang.toLowerCase().startsWith('en') ? 'en' : 'zh');
 
         // 应用翻译
         function applyI18n() {
