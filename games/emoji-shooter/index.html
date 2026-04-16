@@ -76,7 +76,6 @@
         .ad-slot {
             width: 15%;
             min-width: 96px;
-            height: 100%;
             flex: 0 0 15%;
             background: linear-gradient(180deg, #1a1a2e 0%, #0f0f1a 100%);
             border: 2px dashed #333;
@@ -105,8 +104,8 @@
         /* 游戏主区域 */
         #gameArea {
             width: 70%;
-            height: 100%;
-            display: flex;
+            flex: 1;
+            display: block;
             position: relative;
             overflow: hidden;
         }
@@ -526,8 +525,8 @@
                     <h1>EMOJI SHOOTER</h1>
                     <div class="high-score"><span data-i18n="highScoreLabel">最高分</span>: <span id="startHighScore">0</span></div>
                     <div class="start-buttons">
-                        <button class="btn" onclick="startGame(true)" data-i18n="startGame">开始游戏</button>
-                        <button class="btn btn-home" onclick="goBackToArcade()">🏠 <span data-i18n="backToArcade">回到街机厅</span></button>
+                        <button class="btn" id="startGameBtn" data-i18n="startGame">开始游戏</button>
+                        <button class="btn btn-home" id="backToArcadeStartBtn">🏠 <span data-i18n="backToArcade">回到街机厅</span></button>
                     </div>
                     <div class="instructions" data-i18n="instructions">
                         移动鼠标控制🗿，自动射击消灭敌人<br>
@@ -543,16 +542,16 @@
                     <div class="score-display"><span data-i18n="scoreLabel">得分</span>: <span id="finalScore">0</span></div>
                     <div class="high-score"><span data-i18n="highScoreLabel">最高分</span>: <span id="finalHighScore">0</span></div>
                     <div class="stats" id="gameStats"></div>
-                    <button class="btn" onclick="restartGame(true)" data-i18n="playAgain">再来一局</button>
-                    <button class="btn btn-home" onclick="goBackToArcade()">🏠 <span data-i18n="backToArcade">回到街机厅</span></button>
+                    <button class="btn" id="playAgainBtn" data-i18n="playAgain">再来一局</button>
+                    <button class="btn btn-home" id="backToArcadeGameOverBtn">🏠 <span data-i18n="backToArcade">回到街机厅</span></button>
                 </div>
 
                 <!-- 暂停对话框 -->
                 <div id="pauseScreen" class="screen hidden">
                     <h2 data-i18n="gamePaused">⏸️ 游戏暂停</h2>
                     <div class="pause-buttons">
-                        <button class="pause-btn continue" onclick="resumeGame()" data-i18n="resume">▶️ 继续游戏</button>
-                        <button class="pause-btn restart" onclick="restartFromPause()" data-i18n="restart">🔄 重新开始</button>
+                        <button class="pause-btn continue" id="resumeBtn" data-i18n="resume">▶️ 继续游戏</button>
+                        <button class="pause-btn restart" id="restartFromPauseBtn" data-i18n="restart">🔄 重新开始</button>
                     </div>
                     <div style="color: #888; margin-top: 20px; font-size: 12px;" data-i18n="pauseHint">
                         按 ESC 键也可以继续游戏
@@ -889,8 +888,6 @@
         let canvas, ctx;
         let gameLoop, lastTime = 0;
         let gameState = 'start';
-        let hasGameStarted = false;
-        let lastFatalError = '';
 
         // 游戏数据收集
         window.shotsFired = 0;
@@ -937,7 +934,6 @@
             powerupZoneWidth = 240; // 800 * 0.3
             combatZoneWidth = 560; // 800 * 0.7
             gameState = 'start';
-            hasGameStarted = false;
 
             // 检测并应用语言
             detectLanguage();
@@ -945,55 +941,6 @@
 
             canvas = document.getElementById('gameCanvas');
             ctx = canvas.getContext('2d');
-
-            window.addEventListener('error', (e) => {
-                lastFatalError = e?.message || String(e);
-                hasGameStarted = false;
-                gameState = 'start';
-                showStartScreen();
-            });
-            window.addEventListener('unhandledrejection', (e) => {
-                const reason = e?.reason;
-                lastFatalError = reason?.message || String(reason);
-                hasGameStarted = false;
-                gameState = 'start';
-                showStartScreen();
-            });
-
-            const debugEnabled = new URLSearchParams(location.search).get('debug') === '1';
-            if (debugEnabled) {
-                let hud = document.getElementById('debugHud');
-                if (!hud) {
-                    hud = document.createElement('div');
-                    hud.id = 'debugHud';
-                    hud.style.cssText = 'position:fixed;left:8px;top:8px;z-index:2147483647;background:rgba(0,0,0,0.75);color:#e5e7eb;padding:8px 10px;border:1px solid rgba(255,255,255,0.15);border-radius:8px;font:12px/1.35 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:46vw;pointer-events:none;white-space:pre-wrap;';
-                    document.body.appendChild(hud);
-                }
-                const updateHud = () => {
-                    const area = document.getElementById('gameArea');
-                    const areaRect = area?.getBoundingClientRect();
-                    const uiLayer = document.getElementById('ui');
-                    const uiRect = uiLayer?.getBoundingClientRect();
-                    const startScreen = document.getElementById('startScreen');
-                    const startRect = startScreen?.getBoundingClientRect();
-                    const uiDisplay = uiLayer ? getComputedStyle(uiLayer).display : 'n/a';
-                    const uiVisibility = uiLayer ? getComputedStyle(uiLayer).visibility : 'n/a';
-                    const startHidden = document.getElementById('startScreen')?.classList.contains('hidden');
-                    const overHidden = document.getElementById('gameOverScreen')?.classList.contains('hidden');
-                    const pauseHidden = document.getElementById('pauseScreen')?.classList.contains('hidden');
-                    hud.textContent =
-                        `state: ${gameState}  started: ${hasGameStarted}\n` +
-                        `canvas(attr): ${canvas?.width || 0}x${canvas?.height || 0}  canvas(css): ${Math.round(canvas?.getBoundingClientRect()?.width || 0)}x${Math.round(canvas?.getBoundingClientRect()?.height || 0)}\n` +
-                        `gameArea: ${Math.round(areaRect?.width || 0)}x${Math.round(areaRect?.height || 0)}\n` +
-                        `ui: ${Math.round(uiRect?.width || 0)}x${Math.round(uiRect?.height || 0)}  display:${uiDisplay}  visibility:${uiVisibility}\n` +
-                        `startScreen: ${Math.round(startRect?.width || 0)}x${Math.round(startRect?.height || 0)}  startHidden:${!!startHidden}\n` +
-                        `startHidden: ${!!startHidden}  overHidden: ${!!overHidden}  pauseHidden: ${!!pauseHidden}\n` +
-                        `viewport: ${window.innerWidth}x${window.innerHeight}  dpr:${window.devicePixelRatio || 1}\n` +
-                        `lastError: ${lastFatalError || '-'}`;
-                };
-                updateHud();
-                setInterval(updateHud, 350);
-            }
 
             // 初始隐藏游戏内 UI（只在游戏开始后显示）
             document.getElementById('gameUI').style.display = 'none';
@@ -1012,6 +959,12 @@
             canvas.addEventListener('touchstart', handleTouch, { passive: false });
             canvas.addEventListener('touchmove', handleTouch, { passive: false });
             canvas.addEventListener('mousemove', handleMouse);
+            document.getElementById('startGameBtn')?.addEventListener('click', startGame);
+            document.getElementById('playAgainBtn')?.addEventListener('click', restartGame);
+            document.getElementById('resumeBtn')?.addEventListener('click', resumeGame);
+            document.getElementById('restartFromPauseBtn')?.addEventListener('click', restartFromPause);
+            document.getElementById('backToArcadeStartBtn')?.addEventListener('click', goBackToArcade);
+            document.getElementById('backToArcadeGameOverBtn')?.addEventListener('click', goBackToArcade);
 
             const ensureResizeAndStartRender = (attempt = 0) => {
                 resizeGame();
@@ -1046,6 +999,7 @@
             gameHeight = Math.floor(rect.height);
             if (gameWidth <= 0) gameWidth = Math.floor(window.innerWidth * 0.7);
             if (gameHeight <= 0) gameHeight = Math.floor(window.innerHeight);
+            if (rect.height <= 0) container.style.height = `${gameHeight}px`;
             canvas.width = Math.max(1, gameWidth);
             canvas.height = Math.max(1, gameHeight);
 
@@ -1074,36 +1028,28 @@
             inputY = e.clientY - rect.top;
         }
 
-        function startGame(userInitiated) {
-            if (userInitiated !== true) {
-                hasGameStarted = false;
-                gameState = 'start';
-                showStartScreen();
-                return;
-            }
-            hasGameStarted = true;
+        function startGame() {
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameUI').style.display = 'flex';
-            resetGame();
-            gameState = 'playing';
-            lastTime = performance.now();
-            gameLoop = requestAnimationFrame(update);
+            requestAnimationFrame(() => {
+                resizeGame();
+                resetGame();
+                gameState = 'playing';
+                lastTime = performance.now();
+                gameLoop = requestAnimationFrame(update);
+            });
         }
 
-        function restartGame(userInitiated) {
-            if (userInitiated !== true) {
-                hasGameStarted = false;
-                gameState = 'start';
-                showStartScreen();
-                return;
-            }
-            hasGameStarted = true;
+        function restartGame() {
             document.getElementById('gameOverScreen').classList.add('hidden');
             document.getElementById('gameUI').style.display = 'flex';
-            resetGame();
-            gameState = 'playing';
-            lastTime = performance.now();
-            gameLoop = requestAnimationFrame(update);
+            requestAnimationFrame(() => {
+                resizeGame();
+                resetGame();
+                gameState = 'playing';
+                lastTime = performance.now();
+                gameLoop = requestAnimationFrame(update);
+            });
         }
 
         function resetGame() {
@@ -1159,22 +1105,16 @@
 
         function update(currentTime) {
             if (gameState !== 'playing') return;
-            if (!hasGameStarted) return;
 
-            // 更新难度
             updateDifficulty();
-
-            // 检查加成过期
             checkPowerupExpiration(currentTime);
 
-            // 玩家移动（可以在整个游戏区自由移动）
             if (inputX !== null) {
                 const targetX = Math.max(CONFIG.playerSize/2,
                     Math.min(gameWidth - CONFIG.playerSize/2, inputX));
                 player.x += (targetX - player.x) * 0.15;
             }
 
-            // 自动射击
             const currentShootInterval = activePowerups.speed.active ?
                 CONFIG.shootInterval / 2 : CONFIG.shootInterval;
             if (currentTime - lastShot > currentShootInterval) {
@@ -1182,71 +1122,56 @@
                 lastShot = currentTime;
             }
 
-            // 生成敌人或BOSS
             if (isBossFight) {
-                // BOSS战中，只更新BOSS攻击
                 if (currentBoss) {
                     updateBoss(currentTime);
                 }
             } else {
-                // 普通波次，生成小怪（使用增强版）
                 if (currentTime - lastSpawn > currentSpawnInterval) {
                     spawnEnemyEnhanced(currentTime);
                     lastSpawn = currentTime;
                 }
             }
 
-            // 更新远程敌人攻击
             updateRangedEnemies(currentTime);
-
-            // 检查是否应该进入BOSS战
             checkBossSpawn();
 
-            // 生成奖励包
             if (currentTime - lastPowerupSpawn > CONFIG.powerupSpawnInterval) {
                 spawnPowerup();
                 lastPowerupSpawn = currentTime;
             }
 
-            // 更新子弹
             bullets = bullets.filter(b => {
                 b.y -= 8;
                 return b.y > -50;
             });
 
-            // 更新BOSS子弹（需要躲避！）
             enemyBullets = enemyBullets.filter(b => {
                 b.x += b.vx;
                 b.y += b.vy;
 
-                // 检测是否击中玩家 - BOSS子弹击中玩家先消耗护盾，无护盾则游戏结束
                 const dx = b.x - player.x;
                 const dy = b.y - player.y;
                 if (Math.sqrt(dx*dx + dy*dy) < (CONFIG.bulletSize + CONFIG.playerSize) / 2) {
-                    // 有护盾时消耗护盾
                     if (activePowerups.shield.active && !activePowerups.shield.used) {
                         activePowerups.shield.used = true;
                         activePowerups.shield.active = false;
                         createExplosion(player.x, player.y, true);
                         updatePowerupUI();
                     } else {
-                        // 无护盾则游戏结束
                         createExplosion(player.x, player.y);
                         gameOver();
                     }
                     return false;
                 }
 
-                // 飞出屏幕不扣生命值（和普通敌人不同）
                 return b.y < gameHeight + 50 && b.y > -50 && b.x > -50 && b.x < gameWidth + 50;
             });
 
-            // 更新敌人
             enemies = enemies.filter(e => {
                 e.y += e.speed;
                 e.x += Math.sin(e.y * 0.02) * (e.isBoss ? 2 : 0);
 
-                // 碰撞检测 - 敌人vs玩家
                 const dx = e.x - player.x;
                 const dy = e.y - player.y;
                 if (Math.sqrt(dx*dx + dy*dy) < (e.size + CONFIG.playerSize) / 2) {
@@ -1264,7 +1189,6 @@
                 return e.y < gameHeight + 50;
             });
 
-            // 处理到达底部的敌人 - 扣除生命值
             for (let i = enemies.length - 1; i >= 0; i--) {
                 if (enemies[i].y >= gameHeight - 10) {
                     playerHealth--;
@@ -1272,7 +1196,6 @@
                     enemies.splice(i, 1);
                     updateUI();
 
-                    // 生命值为0时游戏结束
                     if (playerHealth <= 0) {
                         gameOver();
                         return;
@@ -1280,13 +1203,11 @@
                 }
             }
 
-            // 更新奖励包
             powerups = powerups.filter(p => {
                 p.y += 1.5;
                 return p.y < gameHeight + 50 && p.hp > 0;
             });
 
-            // 更新粒子
             particles = particles.filter(p => {
                 p.x += p.vx;
                 p.y += p.vy;
@@ -1294,9 +1215,7 @@
                 return p.life > 0;
             });
 
-            // 碰撞检测 - 子弹vs敌人/BOSS
             bullets.forEach((b, bi) => {
-                // 打BOSS
                 if (currentBoss) {
                     const dx = b.x - currentBoss.x;
                     const dy = b.y - currentBoss.y;
@@ -1307,8 +1226,6 @@
                         createExplosion(b.x, b.y, true);
                         bullets.splice(bi, 1);
                         updateBossUI();
-
-                        // BOSS受击闪烁
                         currentBoss.hitFlash = 5;
 
                         if (currentBoss.hp <= 0) {
@@ -1318,7 +1235,6 @@
                     }
                 }
 
-                // 打小怪
                 enemies.forEach((e, ei) => {
                     const dx = b.x - e.x, dy = b.y - e.y;
                     if (Math.sqrt(dx*dx + dy*dy) < (CONFIG.bulletSize + e.size) / 2) {
@@ -1338,12 +1254,11 @@
                 });
             });
 
-            // 碰撞检测 - 子弹vs奖励包
             bullets.forEach((b, bi) => {
                 powerups.forEach((p, pi) => {
                     const dx = b.x - p.x, dy = b.y - p.y;
                     if (Math.sqrt(dx*dx + dy*dy) < (CONFIG.bulletSize + p.size) / 2) {
-                        const damage = activePowerups.power.active ? 3 : 1;  // 强力加成也作用于奖励包
+                        const damage = activePowerups.power.active ? 3 : 1;
                         p.hp -= damage;
                         createSparkle(b.x, b.y);
                         bullets.splice(bi, 1);
@@ -1358,7 +1273,6 @@
                 });
             });
 
-            // 波次进度（非BOSS战时）
             if (!isBossFight && enemiesKilled > 0 && enemiesKilled % 10 === 0) {
                 const newWave = Math.floor(enemiesKilled / 10) + 1;
                 if (newWave > wave) wave = newWave;
@@ -1709,131 +1623,118 @@
         }
 
         function render() {
-            // 绘制背景
-            // 奖励区 (30%)
-            const powerupGradient = ctx.createLinearGradient(0, 0, 0, gameHeight);
-            powerupGradient.addColorStop(0, '#1e1e3a');
-            powerupGradient.addColorStop(1, '#151528');
-            ctx.fillStyle = powerupGradient;
-            ctx.fillRect(0, 0, powerupZoneWidth, gameHeight);
-
-            // 战斗区 (70%)
-            const combatGradient = ctx.createLinearGradient(0, 0, 0, gameHeight);
-            combatGradient.addColorStop(0, '#1a1a2e');
-            combatGradient.addColorStop(1, '#16213e');
-            ctx.fillStyle = combatGradient;
-            ctx.fillRect(powerupZoneWidth, 0, combatZoneWidth, gameHeight);
-
-            // 绘制分界线
-            ctx.fillStyle = '#444';
-            ctx.fillRect(powerupZoneWidth - 1, 0, 2, gameHeight);
-
-            // 绘制区域标签
-            ctx.fillStyle = '#666';
-            ctx.font = '12px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(t('powerupZone'), powerupZoneWidth / 2, 25);
-            ctx.fillText(t('combatZone'), powerupZoneWidth + combatZoneWidth / 2, 25);
-
-            // 开始界面也显示玩家预览
-            if (gameState === 'start') {
-                ctx.font = `${CONFIG.playerSize}px sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(CONFIG.playerEmoji, player.x, player.y);
+            const localCtx = ctx;
+            if (!localCtx) {
+                requestAnimationFrame(render);
+                return;
             }
 
-            if (gameState === 'playing' || gameState === 'gameover') {
-                // 绘制玩家（可以在全屏移动）
-                ctx.font = `${CONFIG.playerSize}px sans-serif`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText(CONFIG.playerEmoji, player.x, player.y);
+            const powerupGradient = localCtx.createLinearGradient(0, 0, 0, gameHeight);
+            powerupGradient.addColorStop(0, '#1e1e3a');
+            powerupGradient.addColorStop(1, '#151528');
+            localCtx.fillStyle = powerupGradient;
+            localCtx.fillRect(0, 0, powerupZoneWidth, gameHeight);
 
-                // 绘制护盾效果
+            const combatGradient = localCtx.createLinearGradient(0, 0, 0, gameHeight);
+            combatGradient.addColorStop(0, '#1a1a2e');
+            combatGradient.addColorStop(1, '#16213e');
+            localCtx.fillStyle = combatGradient;
+            localCtx.fillRect(powerupZoneWidth, 0, combatZoneWidth, gameHeight);
+
+            localCtx.fillStyle = '#444';
+            localCtx.fillRect(powerupZoneWidth - 1, 0, 2, gameHeight);
+
+            localCtx.fillStyle = '#666';
+            localCtx.font = '12px sans-serif';
+            localCtx.textAlign = 'center';
+            localCtx.fillText(t('powerupZone'), powerupZoneWidth / 2, 25);
+            localCtx.fillText(t('combatZone'), powerupZoneWidth + combatZoneWidth / 2, 25);
+
+            if (gameState === 'start') {
+                localCtx.font = `${CONFIG.playerSize}px sans-serif`;
+                localCtx.textAlign = 'center';
+                localCtx.textBaseline = 'middle';
+                localCtx.fillText(CONFIG.playerEmoji, player.x, player.y);
+            }
+
+            if (gameState === 'playing' || gameState === 'paused' || gameState === 'gameover') {
+                localCtx.font = `${CONFIG.playerSize}px sans-serif`;
+                localCtx.textAlign = 'center';
+                localCtx.textBaseline = 'middle';
+                localCtx.fillText(CONFIG.playerEmoji, player.x, player.y);
+
                 if (activePowerups.shield.active && !activePowerups.shield.used) {
-                    ctx.strokeStyle = '#4fc3f7';
-                    ctx.lineWidth = 3;
-                    ctx.beginPath();
-                    ctx.arc(player.x, player.y, CONFIG.playerSize, 0, Math.PI * 2);
-                    ctx.stroke();
+                    localCtx.strokeStyle = '#4fc3f7';
+                    localCtx.lineWidth = 3;
+                    localCtx.beginPath();
+                    localCtx.arc(player.x, player.y, CONFIG.playerSize, 0, Math.PI * 2);
+                    localCtx.stroke();
                 }
 
-                // 绘制子弹
-                ctx.font = `${CONFIG.bulletSize}px sans-serif`;
-                bullets.forEach(b => ctx.fillText(CONFIG.bulletEmoji, b.x, b.y));
+                localCtx.font = `${CONFIG.bulletSize}px sans-serif`;
+                bullets.forEach(b => localCtx.fillText(CONFIG.bulletEmoji, b.x, b.y));
 
-                // 绘制BOSS子弹（需要躲避！）
                 enemyBullets.forEach(b => {
-                    ctx.font = `${b.size || 24}px sans-serif`;
-                    ctx.fillText(b.emoji, b.x, b.y);
+                    localCtx.font = `${b.size || 24}px sans-serif`;
+                    localCtx.fillText(b.emoji, b.x, b.y);
                 });
 
-                // 绘制敌人
                 enemies.forEach(e => {
-                    ctx.font = `${e.size}px sans-serif`;
-                    ctx.fillText(e.emoji, e.x, e.y);
+                    localCtx.font = `${e.size}px sans-serif`;
+                    localCtx.fillText(e.emoji, e.x, e.y);
 
-                    // 血条
                     if (e.hp > 1) {
                         const bw = e.size, bh = 3;
-                        ctx.fillStyle = '#333';
-                        ctx.fillRect(e.x - bw/2, e.y - e.size/2 - 8, bw, bh);
-                        ctx.fillStyle = '#ff4444';
+                        localCtx.fillStyle = '#333';
+                        localCtx.fillRect(e.x - bw/2, e.y - e.size/2 - 8, bw, bh);
+                        localCtx.fillStyle = '#ff4444';
                         const maxHp = e.maxHp || e.hp;
-                        ctx.fillRect(e.x - bw/2, e.y - e.size/2 - 8, bw * (e.hp / maxHp), bh);
+                        localCtx.fillRect(e.x - bw/2, e.y - e.size/2 - 8, bw * (e.hp / maxHp), bh);
                     }
                 });
 
-                // 绘制BOSS
                 if (currentBoss) {
-                    ctx.font = `${currentBoss.size}px sans-serif`;
+                    localCtx.font = `${currentBoss.size}px sans-serif`;
 
-                    // BOSS受击闪烁
                     if (currentBoss.hitFlash > 0 && Math.floor(currentBoss.hitFlash / 2) % 2 === 0) {
-                        ctx.filter = 'brightness(2)';
+                        localCtx.filter = 'brightness(2)';
                     }
 
-                    ctx.fillText(currentBoss.emoji, currentBoss.x, currentBoss.y);
+                    localCtx.fillText(currentBoss.emoji, currentBoss.x, currentBoss.y);
 
-                    ctx.filter = 'none';
+                    localCtx.filter = 'none';
 
-                    // 狂暴模式特效
                     if (currentBoss.isEnraged) {
-                        ctx.strokeStyle = '#ff4444';
-                        ctx.lineWidth = 2;
-                        ctx.beginPath();
-                        ctx.arc(currentBoss.x, currentBoss.y, currentBoss.size * 0.7, 0, Math.PI * 2);
-                        ctx.stroke();
+                        localCtx.strokeStyle = '#ff4444';
+                        localCtx.lineWidth = 2;
+                        localCtx.beginPath();
+                        localCtx.arc(currentBoss.x, currentBoss.y, currentBoss.size * 0.7, 0, Math.PI * 2);
+                        localCtx.stroke();
                     }
                 }
 
-                // 绘制奖励包
                 powerups.forEach(p => {
-                    ctx.font = `${p.size}px sans-serif`;
-                    ctx.fillText(p.emoji, p.x, p.y);
+                    localCtx.font = `${p.size}px sans-serif`;
+                    localCtx.fillText(p.emoji, p.x, p.y);
 
-                    // HP条
                     const bw = p.size, bh = 4;
-                    ctx.fillStyle = '#333';
-                    ctx.fillRect(p.x - bw/2, p.y - p.size/2 - 10, bw, bh);
-                    ctx.fillStyle = '#4caf50';
-                    ctx.fillRect(p.x - bw/2, p.y - p.size/2 - 10, bw * (p.hp / p.maxHp), bh);
+                    localCtx.fillStyle = '#333';
+                    localCtx.fillRect(p.x - bw/2, p.y - p.size/2 - 10, bw, bh);
+                    localCtx.fillStyle = '#4caf50';
+                    localCtx.fillRect(p.x - bw/2, p.y - p.size/2 - 10, bw * (p.hp / p.maxHp), bh);
 
-                    // 名称 - 使用翻译
-                    ctx.fillStyle = '#fff';
-                    ctx.font = '10px sans-serif';
-                    ctx.textAlign = 'center';
+                    localCtx.fillStyle = '#fff';
+                    localCtx.font = '10px sans-serif';
+                    localCtx.textAlign = 'center';
                     const powerupName = t(p.nameKey);
-                    ctx.fillText(`${powerupName} ${p.hp}/${p.maxHp}`, p.x, p.y + p.size/2 + 12);
+                    localCtx.fillText(`${powerupName} ${p.hp}/${p.maxHp}`, p.x, p.y + p.size/2 + 12);
                 });
 
-                // 绘制粒子
                 particles.forEach(p => {
-                    ctx.font = `${p.size}px sans-serif`;
-                    ctx.globalAlpha = p.life;
-                    ctx.fillText(p.emoji, p.x, p.y);
-                    ctx.globalAlpha = 1;
+                    localCtx.font = `${p.size}px sans-serif`;
+                    localCtx.globalAlpha = p.life;
+                    localCtx.fillText(p.emoji, p.x, p.y);
+                    localCtx.globalAlpha = 1;
                 });
             }
 
@@ -1884,7 +1785,7 @@
 
         function restartFromPause() {
             document.getElementById('pauseScreen').classList.add('hidden');
-            restartGame(true);
+            restartGame();
         }
 
         function goBackToArcade() {
@@ -2132,7 +2033,7 @@
             hide() {
                 const modal = document.getElementById('diagnosisModal');
                 if (modal) modal.remove();
-                restartGame(true);
+                    restartGame();
             },
 
             share(platform) {
@@ -2169,10 +2070,10 @@
             }
         };
 
-        if (document.readyState === 'complete') {
-            init();
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init, { once: true });
         } else {
-            window.addEventListener('load', init, { once: true });
+            init();
         }
     </script>
 </body>
