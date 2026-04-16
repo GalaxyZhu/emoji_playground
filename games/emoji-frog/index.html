@@ -419,6 +419,8 @@
             lastScoreUpdate = 0;
             camera.y = 0;
             camera.targetY = 0;
+            window.lilyBounces = 0;
+            window.rocketBoosts = 0;
             initPlatforms();
             initPlayer();
 
@@ -540,6 +542,7 @@
                     break;
                     
                 case 'lily': // 🪷 睡莲 - 弹跳加成
+                    window.lilyBounces = (window.lilyBounces || 0) + 1;
                     player.vy = JUMP_FORCE * LILY_BOUNCE_BOOST;
                     player.grounded = false;
                     player.hasLilyBounce = true;
@@ -574,6 +577,7 @@
                     break;
                     
                 case 'rocket': // 🚀 火箭平台 - 超强弹跳
+                    window.rocketBoosts = (window.rocketBoosts || 0) + 1;
                     player.vy = JUMP_FORCE * ROCKET_BOOST;
                     player.grounded = false;
                     player.hasRocketBounce = true;
