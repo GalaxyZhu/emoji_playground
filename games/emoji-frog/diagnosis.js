@@ -1,5 +1,11 @@
 // Frog 诊断系统
 const FrogDiagnosisLang = (() => {
+    // 优先读取 URL 参数 lang=zh/en（来自首页语言切换）
+    const urlLang = new URLSearchParams(location.search).get('lang');
+    if (urlLang === 'zh' || urlLang === 'en') {
+        return urlLang;
+    }
+    // 回退到浏览器语言
     const lang = (navigator.language || navigator.userLanguage || 'zh-CN').toLowerCase();
     return lang.startsWith('zh') ? 'zh' : 'en';
 })();
