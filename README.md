@@ -1,1 +1,32 @@
-# Trigger redeploy Sat Mar 28 01:19:25 AM CST 2026
+🎮 Emoji Arcade
+一个即点即玩的 Emoji 风格 H5 小游戏合集
+
+在线体验 | English README
+这是什么？
+Emoji Arcade 是一套零门槛的超休闲游戏合集 —— 无需下载、无需登录、打开即玩。所有游戏都采用原生 Emoji 作为视觉元素，用最轻量的方式还原最纯粹的游戏乐趣。
+🎯 设计理念：复杂的世界里，简单的东西反而让人放松。
+
+当前版本：v0.1.5+
+
+⚡ 技术特点
+纯原生 Canvas —— 零外部依赖，加载飞快
+响应式设计 —— 手机、平板、桌面都能玩
+本地排行榜 —— 存储最高记录，挑战自我
+PWA 支持 —— 可添加到主屏幕，接近原生体验
+SEO 优化 —— 每款游戏独立页面，搜索引擎友好
+
+🚀 快速开始
+# 克隆项目
+git clone https://github.com/GalaxyZhu/emoji_playground.git
+
+# 本地预览（任意静态服务器）
+cd emoji_playground
+npx serve .
+
+🗺️ 路线图
+[ ] 新增 3-5 款休闲小游戏
+[ ] 社交排行榜（好友对战）
+[ ] 成就系统
+[ ] 深色模式主题
+📄 License
+MIT —— 玩得开心，改得自由。
