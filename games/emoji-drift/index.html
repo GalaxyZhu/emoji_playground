@@ -461,6 +461,7 @@
             if (!curve) {
                 // 没有弯道时漂移会扣血（乱按）
                 showJudgment('MISS!', 'miss');
+                window.missCount = (window.missCount || 0) + 1;
                 combo = 0;
                 lastComboMilestone = 0;
                 updateComboUI();
@@ -477,6 +478,7 @@
             if (driftInput !== curve.direction) {
                 // 方向错误
                 showJudgment('MISS!', 'miss');
+                window.missCount = (window.missCount || 0) + 1;
                 combo = 0;
                 lastComboMilestone = 0;
                 updateComboUI();
@@ -487,6 +489,7 @@
             if (dist < 30) {
                 // Perfect
                 showJudgment('PERFECT!', 'perfect');
+                window.perfectCount = (window.perfectCount || 0) + 1;
                 score += 100 * (1 + combo * 0.1);
                 combo++;
                 speed = Math.min(speed + 0.3, 15);
@@ -494,6 +497,7 @@
             } else if (dist < 80) {
                 // Good
                 showJudgment('GOOD!', 'good');
+                window.goodCount = (window.goodCount || 0) + 1;
                 score += 50 * (1 + combo * 0.05);
                 combo++;
                 speed = Math.min(speed + 0.1, 12);
@@ -501,6 +505,7 @@
             } else {
                 // Miss
                 showJudgment('MISS!', 'miss');
+                window.missCount = (window.missCount || 0) + 1;
                 combo = 0;
                 lastComboMilestone = 0;
                 updateComboUI();
@@ -527,6 +532,11 @@
             player.x = LANES[1];
             player.targetX = LANES[1];
             
+            // 初始化判定计数器
+            window.perfectCount = 0;
+            window.goodCount = 0;
+            window.missCount = 0;
+            
             document.getElementById('startScreen').classList.add('hidden');
             document.getElementById('gameOverScreen').classList.add('hidden');
             updateComboUI();
@@ -549,10 +559,10 @@
                     DriftDiagnosis.show({
                         score: score,
                         highScore: highScore,
-                        combo: maxCombo,
-                        perfectCount: window.perfectCount || 0,
-                        goodCount: window.goodCount || 0,
-                        missCount: window.missCount || 0
+                        maxCombo: maxCombo,
+                        perfectDrifts: window.perfectCount || 0,
+                        goodDrifts: window.goodCount || 0,
+                        missDrifts: window.missCount || 0
                     });
                 }
             }, 300);
