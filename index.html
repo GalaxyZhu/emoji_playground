@@ -218,14 +218,14 @@
     }
     .banner-emoji {
         position: relative;
-        width: 200px;
-        height: 200px;
+        width: 280px;
+        height: 220px;
         display: flex;
         align-items: center;
         justify-content: center;
     }
     .emoji-main {
-        font-size: 80px;
+        font-size: 100px;
         display: inline-block;
         animation: bounce 2s ease-in-out infinite;
     }
@@ -257,21 +257,22 @@
     }
     .emoji-bullet {
         position: absolute;
-        font-size: 24px;
+        font-size: 32px;
         animation: shoot 1s linear infinite;
         opacity: 0;
     }
-    .emoji-bullet:nth-child(2) { top: 40px; left: 20px; animation-delay: 0s; }
-    .emoji-bullet:nth-child(3) { top: 70px; left: 20px; animation-delay: 0.3s; }
+    .emoji-bullet:nth-child(2) { top: 30px; left: 10px; animation-delay: 0s; }
+    .emoji-bullet:nth-child(3) { top: 70px; left: 10px; animation-delay: 0.3s; }
+    .emoji-bullet:nth-child(4) { top: 110px; left: 10px; animation-delay: 0.6s; }
     @keyframes shoot {
         0% { transform: translateX(0); opacity: 1; }
         100% { transform: translateX(120px); opacity: 0; }
     }
     .emoji-explode {
         position: absolute;
-        font-size: 40px;
-        right: 30px;
-        top: 30px;
+        font-size: 60px;
+        right: 50px;
+        top: 20px;
         animation: explode 2s ease-in-out infinite;
     }
     @keyframes explode {
@@ -281,21 +282,21 @@
     }
     .emoji-platform {
         position: absolute;
-        font-size: 30px;
+        font-size: 40px;
         bottom: 30px;
         animation: slide 3s linear infinite;
     }
-    .emoji-platform:nth-child(2) { left: -50px; animation-delay: 0s; }
-    .emoji-platform:nth-child(3) { left: 100px; animation-delay: 1.5s; }
+    .emoji-platform:nth-child(2) { left: -80px; animation-delay: 0s; }
+    .emoji-platform:nth-child(3) { left: 140px; animation-delay: 1.5s; }
     @keyframes slide {
         0% { transform: translateX(0); }
         100% { transform: translateX(250px); opacity: 0; }
     }
     .emoji-lily {
         position: absolute;
-        font-size: 50px;
-        bottom: 20px;
-        right: 20px;
+        font-size: 60px;
+        bottom: 30px;
+        right: 50px;
         animation: float 3s ease-in-out infinite;
     }
     @keyframes float {
@@ -304,9 +305,9 @@
     }
     .emoji-flip {
         position: absolute;
-        font-size: 50px;
-        top: 20px;
-        right: 30px;
+        font-size: 60px;
+        top: 10px;
+        right: 60px;
         animation: flipCard 2s ease-in-out infinite;
     }
     @keyframes flipCard {
@@ -365,37 +366,38 @@
         font-size: 40px;
     }
     .emoji-enemy {
-        top: 20px;
-        right: 80px;
+        top: 10px;
+        right: 120px;
         animation: bounce 1.5s ease-in-out infinite;
     }
     .emoji-enemy2 {
-        bottom: 40px;
-        right: 60px;
+        bottom: 60px;
+        right: 100px;
         animation: hop 2s ease-in-out infinite;
     }
     .emoji-star {
-        top: 50px;
-        right: 20px;
-        font-size: 30px;
+        top: 60px;
+        right: 10px;
+        font-size: 40px;
         animation: pulse 1s ease-in-out infinite;
     }
     .emoji-croc {
-        bottom: 20px;
-        right: 40px;
-        font-size: 50px;
+        bottom: 10px;
+        right: 80px;
+        font-size: 65px;
         animation: slide 2s linear infinite;
     }
     .emoji-car {
-        top: 30px;
-        right: 50px;
-        font-size: 45px;
+        top: 20px;
+        right: 80px;
+        font-size: 55px;
         animation: slide 1.5s linear infinite reverse;
     }
     .emoji-water {
         position: absolute;
         bottom: 0;
-        font-size: 60px;
+        left: -20px;
+        font-size: 80px;
         opacity: 0.6;
         animation: wave 3s ease-in-out infinite;
     }
@@ -404,15 +406,15 @@
         50% { transform: translateX(-20px); }
     }
     .emoji-lily2 {
-        bottom: 30px;
-        right: 80px;
-        font-size: 40px;
+        bottom: 80px;
+        right: 120px;
+        font-size: 50px;
         animation: float 2.5s ease-in-out infinite;
     }
     .emoji-fly {
-        top: 30px;
-        right: 30px;
-        font-size: 30px;
+        top: 40px;
+        right: 10px;
+        font-size: 40px;
         animation: fly 2s ease-in-out infinite;
     }
     @keyframes fly {
@@ -422,21 +424,21 @@
         75% { transform: translate(30px, 20px); }
     }
     .emoji-card {
-        top: 40px;
-        right: 60px;
-        font-size: 45px;
+        top: 30px;
+        right: 100px;
+        font-size: 55px;
         animation: flipCard 1.8s ease-in-out infinite;
     }
     .emoji-brain {
-        bottom: 40px;
-        right: 30px;
-        font-size: 40px;
+        bottom: 20px;
+        right: 10px;
+        font-size: 50px;
         animation: pulse 2s ease-in-out infinite;
     }
     .emoji-sparkle {
-        top: 20px;
-        right: 100px;
-        font-size: 35px;
+        top: 80px;
+        right: 50px;
+        font-size: 45px;
         animation: pulse 1.5s ease-in-out infinite;
     }
     /* Auto-rotate banner every 5 seconds */
