@@ -397,6 +397,39 @@
         <div class="bg-grid"></div>
     </div>
 
+
+
+    <!-- 头部导航 -->
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">🕹️</span>
+            <span>EMOJI ARCADE</span>
+        </div>
+        
+        <!-- User Area (reserved for user system) -->
+        <div class="user-section" id="userSection">
+            <div class="lang-switch" id="langSwitch">
+                <button class="lang-trigger" id="langTrigger" type="button" aria-haspopup="true" aria-expanded="false">
+                    <span id="currentLangLabel">English</span>
+                    <span class="lang-caret">▾</span>
+                </button>
+                <div class="lang-menu" id="langMenu" role="menu" aria-hidden="true">
+                    <button class="lang-option" id="langOptionZh" type="button" role="menuitem" data-lang="zh">中文</button>
+                    <button class="lang-option" id="langOptionEn" type="button" role="menuitem" data-lang="en">English</button>
+                </div>
+            </div>
+            <!-- Not logged in -->
+            <div class="user-placeholder" id="loginBtn" onclick="showLoginModal()">
+                <span id="loginText">Login</span>
+            </div>
+            <!-- Logged in (hidden by default) -->
+            <div class="user-avatar" id="userAvatar" style="display: none;" onclick="showUserMenu()">
+                🎮
+            </div>
+        </div>
+    </header>
+
+
     <!-- Featured Games Banner -->
     <section class="featured-banner" id="featuredBanner">
         <div class="banner-container">
@@ -498,36 +531,6 @@
             </div>
         </div>
     </section>
-
-    <!-- 头部导航 -->
-    <header class="header">
-        <div class="logo">
-            <span class="logo-icon">🕹️</span>
-            <span>EMOJI ARCADE</span>
-        </div>
-        
-        <!-- User Area (reserved for user system) -->
-        <div class="user-section" id="userSection">
-            <div class="lang-switch" id="langSwitch">
-                <button class="lang-trigger" id="langTrigger" type="button" aria-haspopup="true" aria-expanded="false">
-                    <span id="currentLangLabel">English</span>
-                    <span class="lang-caret">▾</span>
-                </button>
-                <div class="lang-menu" id="langMenu" role="menu" aria-hidden="true">
-                    <button class="lang-option" id="langOptionZh" type="button" role="menuitem" data-lang="zh">中文</button>
-                    <button class="lang-option" id="langOptionEn" type="button" role="menuitem" data-lang="en">English</button>
-                </div>
-            </div>
-            <!-- Not logged in -->
-            <div class="user-placeholder" id="loginBtn" onclick="showLoginModal()">
-                <span id="loginText">Login</span>
-            </div>
-            <!-- Logged in (hidden by default) -->
-            <div class="user-avatar" id="userAvatar" style="display: none;" onclick="showUserMenu()">
-                🎮
-            </div>
-        </div>
-    </header>
 
     <!-- Main Content -->
     <main class="main-content">
