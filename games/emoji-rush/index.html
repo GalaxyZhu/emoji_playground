@@ -614,17 +614,18 @@
                 highScore = score;
                 localStorage.setItem('emojiRushHighScore', highScore);
             }
-            document.getElementById('finalScore').textContent = Math.floor(score);
-            document.getElementById('finalSpeed').textContent = Math.floor(maxSpeed);
-            document.getElementById('finalQTE').textContent = qteSuccessCount;
-            document.getElementById('highScore').textContent = Math.floor(highScore);
-            document.getElementById('gameOverScreen').classList.remove('hidden');
             
-            // 更新游戏结束界面标签（保持语言一致性）
-            document.getElementById('distanceLabel').textContent = t.distance + ': ';
-            document.getElementById('maxSpeedLabel').textContent = t.maxSpeed + ': ';
-            document.getElementById('qteLabel').textContent = t.qteSuccess + ': ';
-            document.getElementById('highScoreLabel').textContent = t.highScore + ': ';
+            // 显示诊断系统
+            if (typeof RushDiagnosis !== 'undefined') {
+                RushDiagnosis.show({
+                    score: Math.floor(score),
+                    highScore: Math.floor(highScore),
+                    maxSpeed: Math.floor(maxSpeed),
+                    qteCount: qteSuccessCount,
+                    carsPassed: Math.floor(score / 10),
+                    nearMisses: Math.floor(score / 50)
+                });
+            }
         }
         
         function spawnObstacle() {
