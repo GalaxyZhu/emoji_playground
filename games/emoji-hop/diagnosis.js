@@ -1,5 +1,11 @@
 // Hop 诊断系统
 const HopDiagnosisLang = (() => {
+    // 优先读取 URL 参数 lang=zh/en（来自首页语言切换）
+    const urlLang = new URLSearchParams(location.search).get('lang');
+    if (urlLang === 'zh' || urlLang === 'en') {
+        return urlLang;
+    }
+    // 回退到浏览器语言
     const lang = (navigator.language || navigator.userLanguage || 'zh-CN').toLowerCase();
     return lang.startsWith('zh') ? 'zh' : 'en';
 })();
@@ -8,34 +14,34 @@ const HopDiagnosis = {
     types: [
         { icon: '🐒', title: '落水猴王', titleEn: 'Drowned Monkey', rarePercent: '38%', rarityClass: 'common', quote: '“你的特长是让自己变湿。”', quoteEn: '"Your specialty is getting yourself wet."', minScore: 0 },
         { icon: '🪵', title: '过河老手', titleEn: 'River Veteran', rarePercent: '15%', rarityClass: 'rare', quote: '“木头是你最好的朋友。”', quoteEn: '"Logs are your best friends."', minScore: 1000 },
-        { icon: '🏃', title: '马路杀手', titleEn: 'Road Runner', rarePercent: '6%', rarityClass: 'epic', quote: '“车辆在你面前自动避让。”', quoteEn: '"Cars politely dodge you. Somehow."', minScore: 3000 },
-        { icon: '👑', title: '丛林之王', titleEn: 'Jungle King', rarePercent: '0.5%', rarityClass: 'legendary', quote: '“鳄鱼见了你都绕道走。”', quoteEn: '"Even crocodiles go around you."', minScore: 5000 }
+        { icon: '🏃', title: '跳跃大师', titleEn: 'Jump Master', rarePercent: '6%', rarityClass: 'epic', quote: '“你的跳跃让牛顿都怀疑人生。”', quoteEn: '"Your jumps make Newton question physics."', minScore: 2000 },
+        { icon: '🌊', title: '河流之王', titleEn: 'River King', rarePercent: '0.9%', rarityClass: 'legendary', quote: '“河流在你面前都要绕道。”', quoteEn: '"Rivers reroute to avoid you."', minScore: 5000 }
     ],
     
     roasts: {
         zh: [
-        "你的游泳技术比跳跃还好。",
-        "建议先去学一下水上漂。",
-        "鳄鱼：自助餐来了！",
-        "你的过河策略就是闭眼冲。",
-        "建议改名叫'落汤鸡'。",
-        "你的存在感让木头都沉了。",
-        "马路不是你的家，请走人行道。",
-        "你的反应速度像树懒。",
-        "建议先去动物园实习。",
-        "你的青蛙跳是青蛙'扑通'。"
+            "你跳河的样子像在练习自杀。",
+            "建议先去学游泳再来玩。",
+            "你的落点精准度堪比随机数生成器。",
+            "猴子看了你的操作都摇头。",
+            "你更适合玩跳水游戏。",
+            "连木头都救不了你。",
+            "你的跳跃让河神都感到困惑。",
+            "建议改名叫'落水专家'。",
+            "你的猴子可能在梦游。",
+            "过河？你更像是过葬。"
         ],
         en: [
-            "Your swimming is better than your jumping.",
-            "Maybe learn how to 'walk on water' first.",
-            "Crocodile: dinner time!",
-            "Your strategy is closing your eyes and sprinting.",
-            "Consider renaming yourself 'Soaked Chicken'.",
-            "Your presence makes logs sink.",
-            "The road is not your home—use the sidewalk.",
-            "Your reaction time is like a sloth.",
-            "Try an internship at the zoo first.",
-            "Your 'frog jump' is actually 'splash'."
+            "Your jumping looks like practicing self-harm.",
+            "Try learning to swim first.",
+            "Your landing accuracy rivals a random number generator.",
+            "Even monkeys shake their heads at your moves.",
+            "You are better suited for diving games.",
+            "Not even logs can save you.",
+            "Your jumps confuse the river god.",
+            "Consider renaming yourself 'Drowning Expert'.",
+            "Your monkey might be sleepwalking.",
+            "Crossing? More like funeral procession."
         ]
     },
 
@@ -44,12 +50,12 @@ const HopDiagnosis = {
         return isZh ? {
             confirmed: '确诊',
             record: '✨ 新纪录！',
-            scoreLabel: '最终得分',
-            highScoreLabel: '最高分',
+            scoreLabel: '最终分数',
+            highScoreLabel: '最高',
             tag: '🎮 Emoji Hop 诊断',
             roastTitle: '💬 网友吐槽',
-            statLevel: '到达关卡',
-            statGoals: '填满目标',
+            statLogs: '木头踩踏',
+            statHops: '跳跃次数',
             share: '分享你的诊断报告',
             replay: '🔄 再来一局',
             copied: '已复制！',
@@ -59,11 +65,11 @@ const HopDiagnosis = {
             confirmed: 'DIAGNOSIS',
             record: '✨ NEW RECORD!',
             scoreLabel: 'Final Score',
-            highScoreLabel: 'High Score',
+            highScoreLabel: 'Best',
             tag: '🎮 Emoji Hop Diagnosis',
             roastTitle: '💬 Roast',
-            statLevel: 'Level Reached',
-            statGoals: 'Goals Filled',
+            statLogs: 'Logs Stepped',
+            statHops: 'Jumps',
             share: 'Share your diagnosis',
             replay: '🔄 Play Again',
             copied: 'Copied!',
@@ -88,20 +94,20 @@ const HopDiagnosis = {
         const html = `
             <div id="diagnosisModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:99999;display:flex;justify-content:center;align-items:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;"
                  onclick="if(event.target===this)HopDiagnosis.hide()">
-                <div style="background:linear-gradient(135deg,#1a2d16 0%,#0d1f15 100%);border-radius:20px;padding:30px;max-width:420px;width:90%;border:2px solid rgba(76,175,80,0.3);position:relative;max-height:90vh;overflow-y:auto;">
+                <div style="background:linear-gradient(135deg,#1a3a2e 0%,#0d1f15 100%);border-radius:20px;padding:30px;max-width:420px;width:90%;border:2px solid rgba(74,222,128,0.3);position:relative;max-height:90vh;overflow-y:auto;">
                     <div style="position:absolute;top:15px;right:15px;width:50px;height:50px;border:2px solid #ef4444;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#ef4444;font-weight:bold;font-size:12px;transform:rotate(-15deg);opacity:0.8;">${t.confirmed}</div>
                     
                     <div style="text-align:center;margin-bottom:15px;padding:15px;background:rgba(255,255,255,0.03);border-radius:12px;">
                         <div style="font-size:13px;color:#94a3b8;margin-bottom:5px;">${isNewHighScore ? t.record : t.scoreLabel}</div>
-                        <div style="font-size:36px;font-weight:800;background:linear-gradient(90deg,#4caf50,#45a049);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${stats.score}</div>
+                        <div style="font-size:36px;font-weight:800;background:linear-gradient(90deg,#4ade80,#16a34a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${stats.score}</div>
                         <div style="font-size:12px;color:#64748b;margin-top:5px;">${t.highScoreLabel}: ${stats.highScore}</div>
                     </div>
                     
                     <div style="text-align:center;margin-bottom:20px;">
                         <div style="font-size:50px;margin-bottom:10px;">${type.icon}</div>
                         <div style="background:rgba(255,255,255,0.1);padding:4px 12px;border-radius:15px;font-size:11px;color:#94a3b8;display:inline-block;margin-bottom:8px;">${t.tag}</div>
-                        <h2 style="font-size:22px;font-weight:800;background:linear-gradient(90deg,#4caf50,#45a049);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:3px;">${title}</h2>
-                        <div style="display:inline-flex;align-items:center;gap:4px;margin-top:12px;padding:6px 16px;border-radius:20px;font-weight:700;font-size:12px;background:linear-gradient(135deg,#4caf50,#45a049);color:#fff;">
+                        <h2 style="font-size:22px;font-weight:800;background:linear-gradient(90deg,#4ade80,#16a34a);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:3px;">${title}</h2>
+                        <div style="display:inline-flex;align-items:center;gap:4px;margin-top:12px;padding:6px 16px;border-radius:20px;font-weight:700;font-size:12px;background:linear-gradient(135deg,#4ade80,#16a34a);color:#fff;">
                             🌟 ${rarity} · ${type.rarePercent}
                         </div>
                     </div>
@@ -111,8 +117,8 @@ const HopDiagnosis = {
                         <div style="color:#fca5a5;font-size:13px;">${roast}</div>
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0;">
-                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#4caf50;">${stats.level || 1}</div><div style="font-size:11px;color:#94a3b8;">${t.statLevel}</div></div>
-                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#fbbf24;">${stats.goalsFilled || 0}</div><div style="font-size:11px;color:#94a3b8;">${t.statGoals}</div></div>
+                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#4ade80;">${stats.logsJumped || 0}</div><div style="font-size:11px;color:#94a3b8;">${t.statLogs}</div></div>
+                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#fbbf24;">${stats.hopCount || 0}</div><div style="font-size:11px;color:#94a3b8;">${t.statHops}</div></div>
                     </div>
                     <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:15px;margin-top:15px;">
                         <div style="text-align:center;color:#94a3b8;font-size:11px;margin-bottom:10px;">${t.share}</div>
@@ -122,7 +128,7 @@ const HopDiagnosis = {
                             <button onclick="HopDiagnosis.share('copy')" style="padding:8px 14px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:12px;">📋</button>
                         </div>
                         <div style="display:flex;gap:8px;margin-top:12px;">
-                            <button onclick="HopDiagnosis.hide();restartGame();" style="flex:1;padding:12px;border-radius:15px;border:none;background:linear-gradient(135deg,#4caf50,#45a049);color:white;font-weight:600;cursor:pointer;font-size:14px;">${t.replay}</button>
+                            <button onclick="HopDiagnosis.hide();startGame();" style="flex:1;padding:12px;border-radius:15px;border:none;background:linear-gradient(135deg,#4ade80,#16a34a);color:white;font-weight:600;cursor:pointer;font-size:14px;">${t.replay}</button>
                             <button onclick="location.href='../../index.html'" style="padding:12px 16px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:14px;">🏠</button>
                         </div>
                     </div>

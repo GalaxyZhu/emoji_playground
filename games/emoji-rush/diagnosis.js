@@ -1,5 +1,11 @@
 // Rush 诊断系统
 const RushDiagnosisLang = (() => {
+    // 优先读取 URL 参数 lang=zh/en（来自首页语言切换）
+    const urlLang = new URLSearchParams(location.search).get('lang');
+    if (urlLang === 'zh' || urlLang === 'en') {
+        return urlLang;
+    }
+    // 回退到浏览器语言
     const lang = (navigator.language || navigator.userLanguage || 'zh-CN').toLowerCase();
     return lang.startsWith('zh') ? 'zh' : 'en';
 })();
@@ -8,34 +14,34 @@ const RushDiagnosis = {
     types: [
         { icon: '💥', title: '马路杀手', titleEn: 'Road Killer', rarePercent: '35%', rarityClass: 'common', quote: '“你让保险公司都感到恐惧。”', quoteEn: '"You make insurance companies nervous."', minScore: 0 },
         { icon: '🏎️', title: '速度狂人', titleEn: 'Speed Freak', rarePercent: '18%', rarityClass: 'rare', quote: '“你对速度的渴望超过了一切。”', quoteEn: '"Your need for speed beats everything."', minScore: 500 },
-        { icon: '⚡', title: '闪电车手', titleEn: 'Lightning Rider', rarePercent: '7%', rarityClass: 'epic', quote: '“你的反应速度已经超越了人类极限。”', quoteEn: '"Your reaction time has surpassed human limits."', minScore: 1500 },
-        { icon: '🏁', title: '极速传说', titleEn: 'Speed Legend', rarePercent: '0.6%', rarityClass: 'legendary', quote: '“你的名字将被刻在速度之墙上。”', quoteEn: '"Your name will be etched on the Wall of Speed."', minScore: 3000 }
+        { icon: '🎖️', title: '赛道老兵', titleEn: 'Track Veteran', rarePercent: '5%', rarityClass: 'epic', quote: '“你的车技让其他车手望而却步。”', quoteEn: '"Your skills make other drivers hesitate."', minScore: 1000 },
+        { icon: '👑', title: '极速之王', titleEn: 'Speed King', rarePercent: '0.8%', rarityClass: 'legendary', quote: '“你的速度突破了物理极限。”', quoteEn: '"Your speed breaks the laws of physics."', minScore: 2000 }
     ],
     
     roasts: {
         zh: [
-        "你的车技让驾校教练想退休。",
-        "建议改名叫'马路杀手'。",
-        "你的反应速度像树懒在冬眠。",
-        "QTE按钮对你来说只是装饰品。",
-        "你的车速让自行车都超车了。",
-        "建议先去玩碰碰车练反应。",
-        "你的刹车可能生锈了。",
-        "障碍物最喜欢你这种选手。",
-        "你的驾驶风格是'见什么撞什么'。",
-        "建议检查一下是不是闭着眼睛玩的。"
+            "你的车技让碰碰车都自愧不如。",
+            "建议先去考个驾照再来玩。",
+            "你的驾驶风格让交警都想报警。",
+            "路上的其他车都在躲着你。",
+            "你更适合开坦克。",
+            "你的车技让保险公司连夜跑路。",
+            "建议改名叫'马路杀手'。",
+            "你的方向盘只是个装饰品。",
+            "你开车像在开战斗机。",
+            "路上的障碍物都是你的目标吧？"
         ],
         en: [
-            "Your driving makes the instructor want to retire.",
-            "Consider changing your name to 'Road Killer'.",
-            "Your reaction time is like a sloth in hibernation.",
-            "QTE buttons are just decoration for you.",
-            "Your speed gets overtaken by bicycles.",
-            "Try bumper cars first to train your reflexes.",
-            "Your brakes might be rusty.",
-            "Obstacles love players like you.",
-            "Your driving style is 'hit everything in sight'.",
-            "Maybe double-check you're not playing with your eyes closed."
+            "Your driving makes bumper cars look safe.",
+            "Try getting a license first.",
+            "Your driving style makes cops nervous.",
+            "Other cars are avoiding you.",
+            "You are better suited for tanks.",
+            "Your driving makes insurers run away.",
+            "Consider renaming yourself 'Road Hazard'.",
+            "Your steering wheel is just for show.",
+            "You drive like you are in a fighter jet.",
+            "Are road obstacles your targets?"
         ]
     },
 
@@ -44,12 +50,12 @@ const RushDiagnosis = {
         return isZh ? {
             confirmed: '确诊',
             record: '✨ 新纪录！',
-            scoreLabel: '行驶距离',
-            highScoreLabel: '最高分',
+            scoreLabel: '最终分数',
+            highScoreLabel: '最高',
             tag: '🎮 Emoji Rush 诊断',
             roastTitle: '💬 网友吐槽',
-            statMaxSpeed: '最高速度',
-            statQte: '成功QTE',
+            statCars: '超越车辆',
+            statNearMiss: '险险错过',
             share: '分享你的诊断报告',
             replay: '🔄 再来一局',
             copied: '已复制！',
@@ -58,12 +64,12 @@ const RushDiagnosis = {
         } : {
             confirmed: 'DIAGNOSIS',
             record: '✨ NEW RECORD!',
-            scoreLabel: 'Distance',
-            highScoreLabel: 'High Score',
+            scoreLabel: 'Final Score',
+            highScoreLabel: 'Best',
             tag: '🎮 Emoji Rush Diagnosis',
             roastTitle: '💬 Roast',
-            statMaxSpeed: 'Top Speed',
-            statQte: 'QTE Success',
+            statCars: 'Cars Passed',
+            statNearMiss: 'Near Misses',
             share: 'Share your diagnosis',
             replay: '🔄 Play Again',
             copied: 'Copied!',
@@ -88,20 +94,20 @@ const RushDiagnosis = {
         const html = `
             <div id="diagnosisModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:99999;display:flex;justify-content:center;align-items:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;"
                  onclick="if(event.target===this)RushDiagnosis.hide()">
-                <div style="background:linear-gradient(135deg,#1a1a2e 0%,#0d0d1a 100%);border-radius:20px;padding:30px;max-width:420px;width:90%;border:2px solid rgba(233,69,96,0.3);position:relative;max-height:90vh;overflow-y:auto;">
+                <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:20px;padding:30px;max-width:420px;width:90%;border:2px solid rgba(255,149,0,0.3);position:relative;max-height:90vh;overflow-y:auto;">
                     <div style="position:absolute;top:15px;right:15px;width:50px;height:50px;border:2px solid #ef4444;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#ef4444;font-weight:bold;font-size:12px;transform:rotate(-15deg);opacity:0.8;">${t.confirmed}</div>
                     
                     <div style="text-align:center;margin-bottom:15px;padding:15px;background:rgba(255,255,255,0.03);border-radius:12px;">
                         <div style="font-size:13px;color:#94a3b8;margin-bottom:5px;">${isNewHighScore ? t.record : t.scoreLabel}</div>
-                        <div style="font-size:36px;font-weight:800;background:linear-gradient(90deg,#e94560,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${stats.score}m</div>
-                        <div style="font-size:12px;color:#64748b;margin-top:5px;">${t.highScoreLabel}: ${stats.highScore}m</div>
+                        <div style="font-size:36px;font-weight:800;background:linear-gradient(90deg,#ff9500,#ff006e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${stats.score}</div>
+                        <div style="font-size:12px;color:#64748b;margin-top:5px;">${t.highScoreLabel}: ${stats.highScore}</div>
                     </div>
                     
                     <div style="text-align:center;margin-bottom:20px;">
                         <div style="font-size:50px;margin-bottom:10px;">${type.icon}</div>
                         <div style="background:rgba(255,255,255,0.1);padding:4px 12px;border-radius:15px;font-size:11px;color:#94a3b8;display:inline-block;margin-bottom:8px;">${t.tag}</div>
-                        <h2 style="font-size:22px;font-weight:800;background:linear-gradient(90deg,#e94560,#ff6b6b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:3px;">${title}</h2>
-                        <div style="display:inline-flex;align-items:center;gap:4px;margin-top:12px;padding:6px 16px;border-radius:20px;font-weight:700;font-size:12px;background:linear-gradient(135deg,#e94560,#ff6b6b);color:#fff;">
+                        <h2 style="font-size:22px;font-weight:800;background:linear-gradient(90deg,#ff9500,#ff006e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:3px;">${title}</h2>
+                        <div style="display:inline-flex;align-items:center;gap:4px;margin-top:12px;padding:6px 16px;border-radius:20px;font-weight:700;font-size:12px;background:linear-gradient(135deg,#ff9500,#ff006e);color:#fff;">
                             🌟 ${rarity} · ${type.rarePercent}
                         </div>
                     </div>
@@ -111,8 +117,8 @@ const RushDiagnosis = {
                         <div style="color:#fca5a5;font-size:13px;">${roast}</div>
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0;">
-                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#e94560;">${stats.maxSpeed || 0}</div><div style="font-size:11px;color:#94a3b8;">${t.statMaxSpeed}</div></div>
-                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#00d4ff;">${stats.qteSuccess || 0}</div><div style="font-size:11px;color:#94a3b8;">${t.statQte}</div></div>
+                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#ff9500;">${stats.carsPassed || 0}</div><div style="font-size:11px;color:#94a3b8;">${t.statCars}</div></div>
+                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#fbbf24;">${stats.nearMisses || 0}</div><div style="font-size:11px;color:#94a3b8;">${t.statNearMiss}</div></div>
                     </div>
                     <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:15px;margin-top:15px;">
                         <div style="text-align:center;color:#94a3b8;font-size:11px;margin-bottom:10px;">${t.share}</div>
@@ -122,7 +128,7 @@ const RushDiagnosis = {
                             <button onclick="RushDiagnosis.share('copy')" style="padding:8px 14px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:12px;">📋</button>
                         </div>
                         <div style="display:flex;gap:8px;margin-top:12px;">
-                            <button onclick="RushDiagnosis.hide();startGame();" style="flex:1;padding:12px;border-radius:15px;border:none;background:linear-gradient(135deg,#e94560,#ff6b6b);color:white;font-weight:600;cursor:pointer;font-size:14px;">${t.replay}</button>
+                            <button onclick="RushDiagnosis.hide();startGame();" style="flex:1;padding:12px;border-radius:15px;border:none;background:linear-gradient(135deg,#ff9500,#ff006e);color:white;font-weight:600;cursor:pointer;font-size:14px;">${t.replay}</button>
                             <button onclick="location.href='../../index.html'" style="padding:12px 16px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:14px;">🏠</button>
                         </div>
                     </div>

@@ -1,5 +1,11 @@
 // Drift 诊断系统
 const DriftDiagnosisLang = (() => {
+    // 优先读取 URL 参数 lang=zh/en（来自首页语言切换）
+    const urlLang = new URLSearchParams(location.search).get('lang');
+    if (urlLang === 'zh' || urlLang === 'en') {
+        return urlLang;
+    }
+    // 回退到浏览器语言
     const lang = (navigator.language || navigator.userLanguage || 'zh-CN').toLowerCase();
     return lang.startsWith('zh') ? 'zh' : 'en';
 })();
@@ -8,34 +14,34 @@ const DriftDiagnosis = {
     types: [
         { icon: '🐢', title: '佛系车手', titleEn: 'Buddhist Driver', rarePercent: '35%', rarityClass: 'common', quote: '“慢是一种态度，不是技术问题。”', quoteEn: '"Slow is a lifestyle, not a skill issue."', minScore: 0 },
         { icon: '🎵', title: '节奏大师', titleEn: 'Rhythm Master', rarePercent: '20%', rarityClass: 'rare', quote: '“你和弯道的默契度：灵魂伴侣。”', quoteEn: '"You and corners are basically soulmates."', minScore: 2000 },
-        { icon: '🏎️', title: '漂移狂人', titleEn: 'Drift Maniac', rarePercent: '8%', rarityClass: 'epic', quote: '“轮胎在哭泣，但你在笑。”', quoteEn: '"The tires are crying, but you are smiling."', minScore: 5000 },
-        { icon: '👑', title: '秋名山车神', titleEn: 'Mountain God', rarePercent: '1%', rarityClass: 'legendary', quote: '“排水渠过弯只是你的热身。”', quoteEn: '"Gutter runs are just your warm-up."', minScore: 8000 }
+        { icon: '🔥', title: '漂移艺术家', titleEn: 'Drift Artist', rarePercent: '5%', rarityClass: 'epic', quote: '“你的轮胎烟雾是艺术品。”', quoteEn: "Your tire smoke is modern art.", minScore: 5000 },
+        { icon: '🌪️', title: '漂移之神', titleEn: 'Drift God', rarePercent: '0.7%', rarityClass: 'legendary', quote: '“你已经超越了物理定律。”', quoteEn: '"You have transcended physics."', minScore: 10000 }
     ],
     
     roasts: {
         zh: [
-        "你的漂移轨迹比我的生命线还直。",
-        "建议去考个卡丁车驾照先。",
-        "方向盘在你手里只是装饰品吧？",
-        "弯道不减速，人生不回头。",
-        "你的车技和WiFi信号一样不稳定。",
-        "建议改名叫'刹不住先生'。",
-        "完美错过每一个弯道的也是一种本事。",
-        "你的轮胎：我真的尽力了。",
-        "漂移？你那叫滑行。",
-        "建议先去驾校回炉重造。"
+            "你的漂移让教练想辞职。",
+            "建议先去学开车再来玩。",
+            "你的漂移技术让驾校教练都流泪。",
+            "弯道上的其他车都在等你。",
+            "你更适合开拖拉机。",
+            "你的车技让轮胎都感到害怕。",
+            "建议改名叫'撞墙专家'。",
+            "你的方向盘只是个装饰品。",
+            "你开车像在开碰碰车。",
+            "弯道的墙都被你撞坏了。"
         ],
         en: [
-            "Your drift line is straighter than my heartbeat graph.",
-            "Maybe get a kart license first.",
-            "Is the steering wheel just decoration to you?",
-            "No slowing for corners, no turning back in life.",
-            "Your driving is as unstable as bad Wi‑Fi.",
-            "Consider renaming yourself 'Mr. No Brakes'.",
-            "Missing every corner perfectly is a talent.",
-            "Your tires: 'I did my best.'",
-            "Drift? That's just sliding.",
-            "Time to go back to driving school."
+            "Your drifting makes instructors quit.",
+            "Try learning to drive first.",
+            "Your drifting makes coaches cry.",
+            "Other cars are waiting at corners.",
+            "You are better suited for tractors.",
+            "Your driving scares tires.",
+            "Consider renaming yourself 'Wall Expert'.",
+            "Your steering wheel is just for show.",
+            "You drive like it is a bumper car.",
+            "You have ruined all the corner walls."
         ]
     },
 
@@ -44,10 +50,11 @@ const DriftDiagnosis = {
         return isZh ? {
             confirmed: '确诊',
             record: '✨ 新纪录！',
-            scoreLabel: '最终得分',
-            highScoreLabel: '最高分',
+            scoreLabel: '最终分数',
+            highScoreLabel: '最高',
             tag: '🎮 Emoji Drift 诊断',
             roastTitle: '💬 网友吐槽',
+            statDrifts: '完美漂移',
             statCombo: '最高连击',
             share: '分享你的诊断报告',
             replay: '🔄 再来一局',
@@ -58,9 +65,10 @@ const DriftDiagnosis = {
             confirmed: 'DIAGNOSIS',
             record: '✨ NEW RECORD!',
             scoreLabel: 'Final Score',
-            highScoreLabel: 'High Score',
+            highScoreLabel: 'Best',
             tag: '🎮 Emoji Drift Diagnosis',
             roastTitle: '💬 Roast',
+            statDrifts: 'Perfect Drifts',
             statCombo: 'Max Combo',
             share: 'Share your diagnosis',
             replay: '🔄 Play Again',
@@ -86,20 +94,20 @@ const DriftDiagnosis = {
         const html = `
             <div id="diagnosisModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:99999;display:flex;justify-content:center;align-items:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;"
                  onclick="if(event.target===this)DriftDiagnosis.hide()">
-                <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:20px;padding:30px;max-width:420px;width:90%;border:2px solid rgba(255,255,255,0.1);position:relative;max-height:90vh;overflow-y:auto;">
+                <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:20px;padding:30px;max-width:420px;width:90%;border:2px solid rgba(0,245,255,0.3);position:relative;max-height:90vh;overflow-y:auto;">
                     <div style="position:absolute;top:15px;right:15px;width:50px;height:50px;border:2px solid #ef4444;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#ef4444;font-weight:bold;font-size:12px;transform:rotate(-15deg);opacity:0.8;">${t.confirmed}</div>
                     
                     <div style="text-align:center;margin-bottom:15px;padding:15px;background:rgba(255,255,255,0.03);border-radius:12px;">
                         <div style="font-size:13px;color:#94a3b8;margin-bottom:5px;">${isNewHighScore ? t.record : t.scoreLabel}</div>
-                        <div style="font-size:36px;font-weight:800;background:linear-gradient(90deg,#00c8ff,#0077ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${Math.floor(stats.score)}</div>
-                        <div style="font-size:12px;color:#64748b;margin-top:5px;">${t.highScoreLabel}: ${Math.floor(stats.highScore)}</div>
+                        <div style="font-size:36px;font-weight:800;background:linear-gradient(90deg,#00f5ff,#bc13fe);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${stats.score}</div>
+                        <div style="font-size:12px;color:#64748b;margin-top:5px;">${t.highScoreLabel}: ${stats.highScore}</div>
                     </div>
                     
                     <div style="text-align:center;margin-bottom:20px;">
                         <div style="font-size:50px;margin-bottom:10px;">${type.icon}</div>
                         <div style="background:rgba(255,255,255,0.1);padding:4px 12px;border-radius:15px;font-size:11px;color:#94a3b8;display:inline-block;margin-bottom:8px;">${t.tag}</div>
-                        <h2 style="font-size:22px;font-weight:800;background:linear-gradient(90deg,#00c8ff,#0077ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:3px;">${title}</h2>
-                        <div style="display:inline-flex;align-items:center;gap:4px;margin-top:12px;padding:6px 16px;border-radius:20px;font-weight:700;font-size:12px;background:linear-gradient(135deg,#00c8ff,#0077ff);color:#fff;">
+                        <h2 style="font-size:22px;font-weight:800;background:linear-gradient(90deg,#00f5ff,#bc13fe);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:3px;">${title}</h2>
+                        <div style="display:inline-flex;align-items:center;gap:4px;margin-top:12px;padding:6px 16px;border-radius:20px;font-weight:700;font-size:12px;background:linear-gradient(135deg,#00f5ff,#bc13fe);color:#fff;">
                             🌟 ${rarity} · ${type.rarePercent}
                         </div>
                     </div>
@@ -109,10 +117,8 @@ const DriftDiagnosis = {
                         <div style="color:#fca5a5;font-size:13px;">${roast}</div>
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0;">
-                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#00c8ff;">${stats.combo || 0}</div><div style="font-size:11px;color:#94a3b8;">${t.statCombo}</div></div>
-                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#00ff88;">${stats.perfectCount || 0}</div><div style="font-size:11px;color:#94a3b8;">Perfect</div></div>
-                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#fbbf24;">${stats.goodCount || 0}</div><div style="font-size:11px;color:#94a3b8;">Good</div></div>
-                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#a855f7;">${stats.missCount || 0}</div><div style="font-size:11px;color:#94a3b8;">Miss</div></div>
+                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#00f5ff;">${stats.perfectDrifts || 0}</div><div style="font-size:11px;color:#94a3b8;">${t.statDrifts}</div></div>
+                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#fbbf24;">${stats.maxCombo || 0}</div><div style="font-size:11px;color:#94a3b8;">${t.statCombo}</div></div>
                     </div>
                     <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:15px;margin-top:15px;">
                         <div style="text-align:center;color:#94a3b8;font-size:11px;margin-bottom:10px;">${t.share}</div>
@@ -122,7 +128,7 @@ const DriftDiagnosis = {
                             <button onclick="DriftDiagnosis.share('copy')" style="padding:8px 14px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:12px;">📋</button>
                         </div>
                         <div style="display:flex;gap:8px;margin-top:12px;">
-                            <button onclick="DriftDiagnosis.hide();startGame();" style="flex:1;padding:12px;border-radius:15px;border:none;background:linear-gradient(135deg,#00c8ff,#0077ff);color:white;font-weight:600;cursor:pointer;font-size:14px;">${t.replay}</button>
+                            <button onclick="DriftDiagnosis.hide();startGame();" style="flex:1;padding:12px;border-radius:15px;border:none;background:linear-gradient(135deg,#00f5ff,#bc13fe);color:white;font-weight:600;cursor:pointer;font-size:14px;">${t.replay}</button>
                             <button onclick="location.href='../../index.html'" style="padding:12px 16px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:14px;">🏠</button>
                         </div>
                     </div>
