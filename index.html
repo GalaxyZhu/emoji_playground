@@ -107,19 +107,389 @@
     
     <!-- Google AdSense -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3968599850270461"
-         crossorigin="anonymous"></script>
-    
-    <!-- Vercel Analytics -->
-    <script>
-        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-    </script>
-    <script defer src="/_vercel/insights/script.js"></script>
+    <!-- Banner Styles -->
+    <style>
+    .featured-banner {
+        margin: 0;
+        padding: 20px;
+        background: #1a1a2e;
+    }
+    .banner-container {
+        position: relative;
+        max-width: 800px;
+        margin: 0 auto;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    .banner-track {
+        display: flex;
+        transition: transform 0.5s ease;
+    }
+    .banner-slide {
+        min-width: 100%;
+        flex-shrink: 0;
+    }
+    .banner-bg {
+        position: relative;
+        height: 280px;
+        overflow: hidden;
+    }
+    .banner-inner {
+        display: flex;
+        height: 100%;
+        padding: 30px;
+        box-sizing: border-box;
+    }
+    .banner-left {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: left;
+        color: white;
+        padding-right: 20px;
+    }
+    .banner-right {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    .banner-badge {
+        display: inline-block;
+        width: fit-content;
+        padding: 6px 14px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        backdrop-filter: blur(10px);
+    }
+    .banner-badge.hot {
+        background: linear-gradient(135deg, #ff006e, #ff4d00);
+        animation: pulse 2s ease-in-out infinite;
+    }
+    .banner-badge.new {
+        background: linear-gradient(135deg, #00f5ff, #0066ff);
+    }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    .banner-title {
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 10px;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .banner-desc {
+        font-size: 14px;
+        opacity: 0.9;
+        margin-bottom: 20px;
+        max-width: 280px;
+        line-height: 1.5;
+    }
+    .banner-btn {
+        padding: 12px 28px;
+        background: rgba(255,255,255,0.95);
+        border: none;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        width: fit-content;
+    }
+    .banner-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    .banner-emoji {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .emoji-main {
+        font-size: 80px;
+        display: inline-block;
+        animation: bounce 2s ease-in-out infinite;
+    }
+    .emoji-main.hop {
+        animation: hop 1.5s ease-in-out infinite;
+    }
+    .emoji-main.frog {
+        animation: jump 1.8s ease-in-out infinite;
+    }
+    .emoji-main.match {
+        animation: flip 2.5s ease-in-out infinite;
+    }
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-15px); }
+    }
+    @keyframes hop {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        25% { transform: translateY(-20px) rotate(-10deg); }
+        75% { transform: translateY(-10px) rotate(5deg); }
+    }
+    @keyframes jump {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.15) rotate(10deg); }
+    }
+    @keyframes flip {
+        0%, 100% { transform: rotateY(0deg); }
+        50% { transform: rotateY(180deg); }
+    }
+    .emoji-bullet {
+        position: absolute;
+        font-size: 24px;
+        animation: shoot 1s linear infinite;
+        opacity: 0;
+    }
+    .emoji-bullet:nth-child(2) { top: 40px; left: 20px; animation-delay: 0s; }
+    .emoji-bullet:nth-child(3) { top: 70px; left: 20px; animation-delay: 0.3s; }
+    @keyframes shoot {
+        0% { transform: translateX(0); opacity: 1; }
+        100% { transform: translateX(120px); opacity: 0; }
+    }
+    .emoji-explode {
+        position: absolute;
+        font-size: 40px;
+        right: 30px;
+        top: 30px;
+        animation: explode 2s ease-in-out infinite;
+    }
+    @keyframes explode {
+        0%, 90% { transform: scale(0); opacity: 0; }
+        95% { transform: scale(1.5); opacity: 1; }
+        100% { transform: scale(1); opacity: 0; }
+    }
+    .emoji-platform {
+        position: absolute;
+        font-size: 30px;
+        bottom: 30px;
+        animation: slide 3s linear infinite;
+    }
+    .emoji-platform:nth-child(2) { left: -50px; animation-delay: 0s; }
+    .emoji-platform:nth-child(3) { left: 100px; animation-delay: 1.5s; }
+    @keyframes slide {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(250px); opacity: 0; }
+    }
+    .emoji-lily {
+        position: absolute;
+        font-size: 50px;
+        bottom: 20px;
+        right: 20px;
+        animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-10px) rotate(5deg); }
+    }
+    .emoji-flip {
+        position: absolute;
+        font-size: 50px;
+        top: 20px;
+        right: 30px;
+        animation: flipCard 2s ease-in-out infinite;
+    }
+    @keyframes flipCard {
+        0%, 100% { transform: rotateY(0deg) scale(1); }
+        50% { transform: rotateY(180deg) scale(1.1); }
+    }
+    .banner-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 10;
+        backdrop-filter: blur(10px);
+    }
+    .banner-container:hover .banner-arrow {
+        opacity: 1;
+    }
+    .banner-arrow:hover {
+        background: rgba(255,255,255,0.4);
+    }
+    .banner-prev { left: 15px; }
+    .banner-next { right: 15px; }
+    .banner-dots {
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        z-index: 10;
+    }
+    .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.4);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .dot.active {
+        background: white;
+        width: 24px;
+        border-radius: 4px;
+    }
+    @media (max-width: 600px) {
+        .featured-banner {
+            padding: 15px;
+        }
+        .banner-bg {
+            height: 200px;
+        }
+        .banner-inner {
+            padding: 20px;
+        }
+        .banner-title {
+            font-size: 18px;
+        }
+        .banner-desc {
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+        .banner-btn {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        .emoji-main {
+            font-size: 50px;
+        }
+        .banner-arrow {
+            display: none;
+        }
+    }
+    </style>
 </head>
 <body>
     <!-- 背景动画 -->
     <div class="bg-animation">
         <div class="bg-grid"></div>
     </div>
+
+    <!-- Featured Games Banner -->
+<section class="featured-banner" id="featuredBanner">
+    <div class="banner-container">
+        <div class="banner-track" id="bannerTrack">
+            <!-- Banner 1: Shooter -->
+            <div class="banner-slide" data-game="emoji-shooter">
+                <div class="banner-bg" style="background: linear-gradient(135deg, #ff006e 0%, #8338ec 100%);">
+                    <div class="banner-inner">
+                        <div class="banner-left">
+                            <span class="banner-badge hot">🔥 HOT</span>
+                            <h3 class="banner-title" data-zh="表情大乱射" data-en="Emoji Shooter">表情大乱射</h3>
+                            <p class="banner-desc" data-zh="各种沙雕表情怪，通通给爷死" data-en="Destroy quirky Emoji enemies">各种沙雕表情怪，通通给爷死</p>
+                            <button class="banner-btn" data-zh="▶ 立即游玩" data-en="▶ Play Now">▶ 立即游玩</button>
+                        </div>
+                        <div class="banner-right">
+                            <div class="banner-emoji">
+                                <span class="emoji-main">🗿</span>
+                                <span class="emoji-bullet">🔥</span>
+                                <span class="emoji-bullet">🔥</span>
+                                <span class="emoji-explode">💥</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Banner 2: Hop -->
+            <div class="banner-slide" data-game="emoji-hop">
+                <div class="banner-bg" style="background: linear-gradient(135deg, #00c853 0%, #00e676 100%);">
+                    <div class="banner-inner">
+                        <div class="banner-left">
+                            <span class="banner-badge new">🆕 NEW</span>
+                            <h3 class="banner-title" data-zh="猴子过河" data-en="Monkey Crossing">猴子过河</h3>
+                            <p class="banner-desc" data-zh="穿越车流、跳过河流、躲避鳄鱼" data-en="Cross roads, jump rivers, dodge crocs">穿越车流、跳过河流、躲避鳄鱼</p>
+                            <button class="banner-btn" data-zh="▶ 立即游玩" data-en="▶ Play Now">▶ 立即游玩</button>
+                        </div>
+                        <div class="banner-right">
+                            <div class="banner-emoji">
+                                <span class="emoji-main hop">🐒</span>
+                                <span class="emoji-platform">🍃</span>
+                                <span class="emoji-platform">🪵</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Banner 3: Frog -->
+            <div class="banner-slide" data-game="emoji-frog">
+                <div class="banner-bg" style="background: linear-gradient(135deg, #00b4d8 0%, #90e0ef 100%);">
+                    <div class="banner-inner">
+                        <div class="banner-left">
+                            <span class="banner-badge">🎮 CLASSIC</span>
+                            <h3 class="banner-title" data-zh="跳跳蛙大冒险" data-en="Emoji Frog">跳跳蛙大冒险</h3>
+                            <p class="banner-desc" data-zh="按住跳，松开落，手速决定高度" data-en="Jump and dash, speed challenge">按住跳，松开落，手速决定高度</p>
+                            <button class="banner-btn" data-zh="▶ 立即游玩" data-en="▶ Play Now">▶ 立即游玩</button>
+                        </div>
+                        <div class="banner-right">
+                            <div class="banner-emoji">
+                                <span class="emoji-main frog">🐸</span>
+                                <span class="emoji-lily">🪷</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Banner 4: Match -->
+            <div class="banner-slide" data-game="emoji-match">
+                <div class="banner-bg" style="background: linear-gradient(135deg, #f77f00 0%, #fcbf49 100%);">
+                    <div class="banner-inner">
+                        <div class="banner-left">
+                            <span class="banner-badge">👥 2P</span>
+                            <h3 class="banner-title" data-zh="记忆翻翻天" data-en="Emoji Match">记忆翻翻天</h3>
+                            <p class="banner-desc" data-zh="考验记忆力，还能双人对战坑朋友" data-en="Memory matching, 2-player battle">考验记忆力，还能双人对战坑朋友</p>
+                            <button class="banner-btn" data-zh="▶ 立即游玩" data-en="▶ Play Now">▶ 立即游玩</button>
+                        </div>
+                        <div class="banner-right">
+                            <div class="banner-emoji">
+                                <span class="emoji-main match">🧩</span>
+                                <span class="emoji-flip">🎴</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Banner Controls -->
+        <button class="banner-arrow banner-prev" id="bannerPrev">‹</button>
+        <button class="banner-arrow banner-next" id="bannerNext">›</button>
+        
+        <!-- Banner Indicators -->
+        <div class="banner-dots" id="bannerDots">
+            <span class="dot active" data-index="0"></span>
+            <span class="dot" data-index="1"></span>
+            <span class="dot" data-index="2"></span>
+            <span class="dot" data-index="3"></span>
+        </div>
+    </div>
+</section>
 
     <!-- 头部导航 -->
     <header class="header">
@@ -148,571 +518,6 @@
             <div class="user-avatar" id="userAvatar" style="display: none;" onclick="showUserMenu()">
                 🎮
             </div>
-<!-- Featured Games Banner -->
-<section class="featured-banner" id="featuredBanner">
-    <div class="banner-container">
-        <div class="banner-track" id="bannerTrack">
-            <!-- Banner 1: Shooter -->
-            <div class="banner-slide" data-game="emoji-shooter">
-                <div class="banner-bg" style="background: linear-gradient(135deg, #ff006e 0%, #8338ec 100%);">
-                    <div class="banner-particles">
-                        <span class="particle">🔥</span>
-                        <span class="particle">💥</span>
-                        <span class="particle">⚡</span>
-                    </div>
-                    <div class="banner-content">
-                        <span class="banner-badge hot">🔥 HOT</span>
-                        <div class="banner-emoji">
-                            <span class="emoji-main">🗿</span>
-                            <span class="emoji-bullet">🔥</span>
-                            <span class="emoji-bullet">🔥</span>
-                            <span class="emoji-explode">💥</span>
-                        </div>
-                        <h3 class="banner-title" data-zh="表情大乱射" data-en="Emoji Shooter">表情大乱射</h3>
-                        <p class="banner-desc" data-zh="各种沙雕表情怪，通通给爷死" data-en="Destroy quirky Emoji enemies">各种沙雕表情怪，通通给爷死</p>
-                        <button class="banner-btn" data-zh="▶ 立即游玩" data-en="▶ Play Now">▶ 立即游玩</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Banner 2: Hop -->
-            <div class="banner-slide" data-game="emoji-hop">
-                <div class="banner-bg" style="background: linear-gradient(135deg, #00c853 0%, #00e676 100%);">
-                    <div class="banner-particles">
-                        <span class="particle">🍃</span>
-                        <span class="particle">🌊</span>
-                        <span class="particle">🐊</span>
-                    </div>
-                    <div class="banner-content">
-                        <span class="banner-badge new">🆕 NEW</span>
-                        <div class="banner-emoji">
-                            <span class="emoji-main hop">🐒</span>
-                            <span class="emoji-platform">🍃</span>
-                            <span class="emoji-platform">🪵</span>
-                        </div>
-                        <h3 class="banner-title" data-zh="猴子过河" data-en="Monkey Crossing">猴子过河</h3>
-                        <p class="banner-desc" data-zh="穿越车流、跳过河流、躲避鳄鱼" data-en="Cross roads, jump rivers, dodge crocs">穿越车流、跳过河流、躲避鳄鱼</p>
-                        <button class="banner-btn" data-zh="▶ 立即游玩" data-en="▶ Play Now">▶ 立即游玩</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Banner 3: Frog -->
-            <div class="banner-slide" data-game="emoji-frog">
-                <div class="banner-bg" style="background: linear-gradient(135deg, #00b4d8 0%, #90e0ef 100%);">
-                    <div class="banner-particles">
-                        <span class="particle">💧</span>
-                        <span class="particle">🪷</span>
-                        <span class="particle">✨</span>
-                    </div>
-                    <div class="banner-content">
-                        <span class="banner-badge">🎮 CLASSIC</span>
-                        <div class="banner-emoji">
-                            <span class="emoji-main frog">🐸</span>
-                            <span class="emoji-lily">🪷</span>
-                        </div>
-                        <h3 class="banner-title" data-zh="跳跳蛙大冒险" data-en="Emoji Frog">跳跳蛙大冒险</h3>
-                        <p class="banner-desc" data-zh="按住跳，松开落，手速决定高度" data-en="Jump and dash, speed challenge">按住跳，松开落，手速决定高度</p>
-                        <button class="banner-btn" data-zh="▶ 立即游玩" data-en="▶ Play Now">▶ 立即游玩</button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Banner 4: Match -->
-            <div class="banner-slide" data-game="emoji-match">
-                <div class="banner-bg" style="background: linear-gradient(135deg, #f77f00 0%, #fcbf49 100%);">
-                    <div class="banner-particles">
-                        <span class="particle">✨</span>
-                        <span class="particle">🎯</span>
-                        <span class="particle">🧠</span>
-                    </div>
-                    <div class="banner-content">
-                        <span class="banner-badge">👥 2P</span>
-                        <div class="banner-emoji">
-                            <span class="emoji-main match">🧩</span>
-                            <span class="emoji-flip">🎴</span>
-                        </div>
-                        <h3 class="banner-title" data-zh="记忆翻翻天" data-en="Emoji Match">记忆翻翻天</h3>
-                        <p class="banner-desc" data-zh="考验记忆力，还能双人对战坑朋友" data-en="Memory matching, 2-player battle">考验记忆力，还能双人对战坑朋友</p>
-                        <button class="banner-btn" data-zh="▶ 立即游玩" data-en="▶ Play Now">▶ 立即游玩</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Banner Controls -->
-        <button class="banner-arrow banner-prev" id="bannerPrev">‹</button>
-        <button class="banner-arrow banner-next" id="bannerNext">›</button>
-        
-        <!-- Banner Indicators -->
-        <div class="banner-dots" id="bannerDots">
-            <span class="dot active" data-index="0"></span>
-            <span class="dot" data-index="1"></span>
-            <span class="dot" data-index="2"></span>
-            <span class="dot" data-index="3"></span>
-        </div>
-    </div>
-</section>
-
-<style>
-/* Banner Styles */
-.featured-banner {
-    margin: 20px 0 30px;
-    padding: 0 20px;
-}
-
-.banner-container {
-    position: relative;
-    max-width: 800px;
-    margin: 0 auto;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-}
-
-.banner-track {
-    display: flex;
-    transition: transform 0.5s ease;
-}
-
-.banner-slide {
-    min-width: 100%;
-    flex-shrink: 0;
-}
-
-.banner-bg {
-    position: relative;
-    height: 280px;
-    padding: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-}
-
-/* Particles Animation */
-.banner-particles {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    pointer-events: none;
-}
-
-.particle {
-    position: absolute;
-    font-size: 24px;
-    opacity: 0.6;
-    animation: float 6s ease-in-out infinite;
-}
-
-.particle:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
-.particle:nth-child(2) { top: 20%; right: 15%; animation-delay: 2s; }
-.particle:nth-child(3) { bottom: 20%; left: 20%; animation-delay: 4s; }
-
-@keyframes float {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-20px) rotate(10deg); }
-}
-
-/* Banner Content */
-.banner-content {
-    position: relative;
-    z-index: 2;
-    text-align: center;
-    color: white;
-}
-
-.banner-badge {
-    display: inline-block;
-    padding: 6px 14px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-bottom: 15px;
-    backdrop-filter: blur(10px);
-}
-
-.banner-badge.hot {
-    background: linear-gradient(135deg, #ff006e, #ff4d00);
-    animation: pulse 2s ease-in-out infinite;
-}
-
-.banner-badge.new {
-    background: linear-gradient(135deg, #00f5ff, #0066ff);
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-/* Emoji Animations */
-.banner-emoji {
-    position: relative;
-    height: 80px;
-    margin-bottom: 15px;
-}
-
-.emoji-main {
-    font-size: 60px;
-    display: inline-block;
-    animation: bounce 2s ease-in-out infinite;
-}
-
-.emoji-main.hop {
-    animation: hop 1.5s ease-in-out infinite;
-}
-
-.emoji-main.frog {
-    animation: jump 1.8s ease-in-out infinite;
-}
-
-.emoji-main.match {
-    animation: flip 2.5s ease-in-out infinite;
-}
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
-}
-
-@keyframes hop {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    25% { transform: translateY(-15px) rotate(-10deg); }
-    75% { transform: translateY(-5px) rotate(5deg); }
-}
-
-@keyframes jump {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.15) rotate(10deg); }
-}
-
-@keyframes flip {
-    0%, 100% { transform: rotateY(0deg); }
-    50% { transform: rotateY(180deg); }
-}
-
-/* Bullet Animation for Shooter */
-.emoji-bullet {
-    position: absolute;
-    font-size: 20px;
-    animation: shoot 1s linear infinite;
-    opacity: 0;
-}
-
-.emoji-bullet:nth-child(2) { 
-    top: 20px; 
-    left: -30px; 
-    animation-delay: 0s;
-}
-
-.emoji-bullet:nth-child(3) { 
-    top: 35px; 
-    left: -30px; 
-    animation-delay: 0.3s;
-}
-
-@keyframes shoot {
-    0% { transform: translateX(0); opacity: 1; }
-    100% { transform: translateX(100px); opacity: 0; }
-}
-
-.emoji-explode {
-    position: absolute;
-    font-size: 30px;
-    right: -20px;
-    top: 10px;
-    animation: explode 2s ease-in-out infinite;
-}
-
-@keyframes explode {
-    0%, 90% { transform: scale(0); opacity: 0; }
-    95% { transform: scale(1.5); opacity: 1; }
-    100% { transform: scale(1); opacity: 0; }
-}
-
-/* Platform Animation for Hop */
-.emoji-platform {
-    position: absolute;
-    font-size: 25px;
-    bottom: 0;
-    animation: slide 3s linear infinite;
-}
-
-.emoji-platform:nth-child(2) { left: -40px; animation-delay: 0s; }
-.emoji-platform:nth-child(3) { left: 80px; animation-delay: 1.5s; }
-
-@keyframes slide {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(200px); opacity: 0; }
-}
-
-/* Text Styles */
-.banner-title {
-    font-size: 24px;
-    font-weight: 800;
-    margin-bottom: 8px;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
-
-.banner-desc {
-    font-size: 14px;
-    opacity: 0.9;
-    margin-bottom: 20px;
-    max-width: 300px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.banner-btn {
-    padding: 12px 28px;
-    background: rgba(255,255,255,0.95);
-    border: none;
-    border-radius: 25px;
-    font-size: 14px;
-    font-weight: 700;
-    color: #333;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-}
-
-.banner-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-}
-
-/* Navigation Arrows */
-.banner-arrow {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 40px;
-    height: 40px;
-    background: rgba(255,255,255,0.2);
-    border: none;
-    border-radius: 50%;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: 10;
-    backdrop-filter: blur(10px);
-}
-
-.banner-container:hover .banner-arrow {
-    opacity: 1;
-}
-
-.banner-arrow:hover {
-    background: rgba(255,255,255,0.4);
-}
-
-.banner-prev { left: 15px; }
-.banner-next { right: 15px; }
-
-/* Dots Indicator */
-.banner-dots {
-    position: absolute;
-    bottom: 15px;
-    left: 50%;
-    transform: translateX(-50%);
-    display: flex;
-    gap: 8px;
-    z-index: 10;
-}
-
-.dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.4);
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.dot.active {
-    background: white;
-    width: 24px;
-    border-radius: 4px;
-}
-
-/* Mobile Responsive */
-@media (max-width: 600px) {
-    .banner-bg {
-        height: 220px;
-        padding: 20px;
-    }
-    
-    .emoji-main {
-        font-size: 50px;
-    }
-    
-    .banner-title {
-        font-size: 20px;
-    }
-    
-    .banner-desc {
-        font-size: 13px;
-    }
-    
-    .banner-arrow {
-        display: none;
-    }
-}
-</style>
-
-<script>
-// Banner Carousel Logic
-(function() {
-    const track = document.getElementById('bannerTrack');
-    const slides = document.querySelectorAll('.banner-slide');
-    const dots = document.querySelectorAll('.dot');
-    const prevBtn = document.getElementById('bannerPrev');
-    const nextBtn = document.getElementById('bannerNext');
-    
-    let currentIndex = 0;
-    let autoPlayInterval;
-    const autoPlayDelay = 5000;
-    
-    function goToSlide(index) {
-        if (index < 0) index = slides.length - 1;
-        if (index >= slides.length) index = 0;
-        
-        currentIndex = index;
-        track.style.transform = `translateX(-${currentIndex * 100}%)`;
-        
-        dots.forEach((dot, i) => {
-            dot.classList.toggle('active', i === currentIndex);
-        });
-    }
-    
-    function nextSlide() {
-        goToSlide(currentIndex + 1);
-    }
-    
-    function prevSlide() {
-        goToSlide(currentIndex - 1);
-    }
-    
-    function startAutoPlay() {
-        autoPlayInterval = setInterval(nextSlide, autoPlayDelay);
-    }
-    
-    function stopAutoPlay() {
-        clearInterval(autoPlayInterval);
-    }
-    
-    // Event Listeners
-    prevBtn.addEventListener('click', () => {
-        prevSlide();
-        stopAutoPlay();
-        startAutoPlay();
-    });
-    
-    nextBtn.addEventListener('click', () => {
-        nextSlide();
-        stopAutoPlay();
-        startAutoPlay();
-    });
-    
-    dots.forEach((dot, index) => {
-        dot.addEventListener('click', () => {
-            goToSlide(index);
-            stopAutoPlay();
-            startAutoPlay();
-        });
-    });
-    
-    // Touch/Swipe Support
-    let startX = 0;
-    let isDragging = false;
-    
-    track.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX;
-        isDragging = true;
-        stopAutoPlay();
-    });
-    
-    track.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-    });
-    
-    track.addEventListener('touchend', (e) => {
-        if (!isDragging) return;
-        isDragging = false;
-        
-        const endX = e.changedTouches[0].clientX;
-        const diff = startX - endX;
-        
-        if (Math.abs(diff) > 50) {
-            if (diff > 0) {
-                nextSlide();
-            } else {
-                prevSlide();
-            }
-        }
-        startAutoPlay();
-    });
-    
-    // Pause on hover
-    const container = document.querySelector('.banner-container');
-    container.addEventListener('mouseenter', stopAutoPlay);
-    container.addEventListener('mouseleave', startAutoPlay);
-    
-    // Click on slide to launch game
-    slides.forEach(slide => {
-        const btn = slide.querySelector('.banner-btn');
-        const gameId = slide.dataset.game;
-        
-        btn.addEventListener('click', () => {
-            const game = gameConfigs[gameId];
-            if (game) {
-                launchGame({
-                    id: gameId,
-                    name: game.name,
-                    emoji: game.emoji,
-                    tagline: game.tagline[getCurrentLang()],
-                    version: '0.1.0',
-                    status: 'ready',
-                    path: `games/${gameId}/index.html`,
-                    difficulty: game.difficulty[getCurrentLang()],
-                    tags: game.tags[getCurrentLang()],
-                    players: game.players[getCurrentLang()],
-                    playTime: game.playTime[getCurrentLang()]
-                });
-            }
-        });
-    });
-    
-    // Start autoplay
-    startAutoPlay();
-    
-    // Update banner text based on language
-    function updateBannerLanguage() {
-        const lang = getCurrentLang();
-        document.querySelectorAll('.banner-title, .banner-desc, .banner-btn').forEach(el => {
-            const text = el.getAttribute(`data-${lang}`);
-            if (text) el.textContent = text;
-        });
-    }
-    
-    // Listen for language changes
-    const originalApplyLanguage = applyLanguage;
-    applyLanguage = function(lang) {
-        originalApplyLanguage(lang);
-        updateBannerLanguage();
-    };
-    
-    // Initial update
-    updateBannerLanguage();
-})();
-</script>
         </div>
     </header>
 
@@ -853,632 +658,165 @@
                 name: { zh: '漂移狂魔', en: 'Emoji Drift' },
                 emoji: '🚗',
                 tagline: { zh: '三车道疯狂切换，手残慎入', en: 'Three-lane parkour, reflex challenge' },
-                difficulty: { zh: '中等', en: 'Medium' },
-                tags: { zh: ['跑酷', '反应', '竖屏'], en: ['Parkour', 'Reflex', 'Portrait'] },
-                players: { zh: '1人', en: '1 Player' },
-                playTime: { zh: '5分钟', en: '5 min' }
-            },
-            'emoji-kart': {
-                name: { zh: '道具互坑赛', en: 'Emoji Kart' },
-                emoji: '🏎️',
-                tagline: { zh: '道具乱丢，互相伤害，欢乐无穷', en: 'Item chaos, fun and trolling' },
-                difficulty: { zh: '中等', en: 'Medium' },
-                tags: { zh: ['道具', '乱斗', '欢乐'], en: ['Items', 'Chaos', 'Social'] },
-                players: { zh: '1人', en: '1 Player' },
-                playTime: { zh: '5分钟', en: '5 min' }
-            },
-            'emoji-rolling': {
-                name: { zh: 'Emoji Rolling', en: 'Emoji Rolling' },
-                emoji: '🚜',
-                tagline: { zh: '从高山翻滚而下，飞跃裂缝', en: 'Roll down mountains, jump over gaps' },
-                difficulty: { zh: '中等', en: 'Medium' },
-                tags: { zh: ['物理', '特技', '无尽'], en: ['Physics', 'Tricks', 'Endless'] },
-                players: { zh: '1人', en: '1 Player' },
-                playTime: { zh: '5-10分钟', en: '5-10 min' }
-            },
-            'emoji-frog': {
-                name: { zh: '跳跳蛙大冒险', en: 'Emoji Frog' },
-                emoji: '🐸',
-                tagline: { zh: '按住跳，松开落，手速决定高度', en: 'Jump and dash, speed challenge' },
-                difficulty: { zh: '简单', en: 'Easy' },
-                tags: { zh: ['跳跃', '手速'], en: ['Jump', 'Action'] },
-                players: { zh: '1人', en: '1 Player' },
-                playTime: { zh: '5分钟', en: '5 min' }
-            },
-            'emoji-hop': {
-                name: { zh: '猴子过河', en: 'Monkey Crossing' },
-                emoji: '🐵',
-                tagline: { zh: '穿越车流、跳过河流、躲避鳄鱼', en: 'Cross roads, jump rivers, dodge crocs' },
-                difficulty: { zh: '中等', en: 'Medium' },
-                tags: { zh: ['经典', '街机', '过河'], en: ['Classic', 'Arcade', 'Frogger'] },
-                players: { zh: '1人', en: '1 Player' },
-                playTime: { zh: '5-10分钟', en: '5-10 min' }
-            }
-        };
-        
-        // Local storage wrapper (reserved for user system)
-        const Storage = {
-            prefix: 'emoji_arcade_',
-            
-            get(key) {
-                try {
-                    return JSON.parse(localStorage.getItem(this.prefix + key));
-                } catch {
-                    return null;
-                }
-            },
-            
-            set(key, value) {
-                localStorage.setItem(this.prefix + key, JSON.stringify(value));
-            },
-            
-            // User related (reserved)
-            getUser() {
-                return this.get('user');
-            },
-            
-            setUser(user) {
-                this.set('user', user);
-            },
-            
-            // Game records
-            getGameRecord(gameId) {
-                const records = this.get('game_records') || {};
-                return records[gameId] || { highScore: 0, playCount: 0, lastPlayed: null };
-            },
-            
-            setGameRecord(gameId, record) {
-                const records = this.get('game_records') || {};
-                records[gameId] = record;
-                this.set('game_records', records);
-            }
-        };
-        
-        // ==================== User System (reserved) ====================
-        let currentUser = null;
-        
-        function initUserSystem() {
-            currentUser = Storage.getUser();
-            if (currentUser) {
-                showLoggedInUser();
-            }
-        }
-        
-        function showLoggedInUser() {
-            document.getElementById('loginBtn').style.display = 'none';
-            document.getElementById('userAvatar').style.display = 'flex';
-        }
-        
-        function showLoginModal() {
-            const lang = getCurrentLang();
-            if (lang === 'zh') {
-                alert('🎮 用户系统即将上线！\n\n现在可以匿名游玩，所有分数保存在本地。');
-            } else {
-                alert('🎮 User system coming soon!\n\nPlay anonymously for now. All scores saved locally.');
-            }
-        }
-        
-        function showUserMenu() {
-            const lang = getCurrentLang();
-            if (lang === 'zh') {
-                alert('🎮 用户中心即将上线！');
-            } else {
-                alert('🎮 User center coming soon!');
-            }
-        }
-        
-        // ==================== 游戏加载（支持双语）====================
-        async function loadGames() {
-            // 构建游戏数据
-            gamesData = Object.keys(gameConfigs).map(id => ({
-                id,
-                ...gameConfigs[id],
-                version: '0.1.0',
-                status: 'ready',
-                path: `games/${id}/index.html`
-            }));
-            
-            renderGames();
-            renderRacingGames();
-            renderComingSoonGames();
-        }
-        
-        // 渲染赛车游戏
-        function renderRacingGames() {
-            const grid = document.getElementById('racingGamesGrid');
-            const lang = getCurrentLang();
-            
-            const racingGames = ['emoji-rush', 'emoji-drift', 'emoji-kart'];
-            racingGames.forEach(id => {
-                const game = gameConfigs[id];
-                if (game) {
-                    const card = createStaticGameCard(id, game, lang);
-                    grid.appendChild(card);
-                }
-            });
-        }
-        
-        // 创建静态游戏卡片
-        function createStaticGameCard(id, game, lang) {
-            const card = document.createElement('div');
-            card.className = 'game-card';
-            card.style.opacity = '0.6';
-            card.onclick = () => launchGame({
-                id,
-                name: game.name,
-                emoji: game.emoji,
-                tagline: game.tagline[lang],
-                version: '0.1.0',
-                status: 'ready',
-                path: `games/${id}/index.html`,
-                difficulty: game.difficulty[lang],
-                tags: game.tags[lang],
-                players: game.players[lang],
-                playTime: game.playTime[lang]
-            });
-            
-            const tagline = game.tagline[lang];
-            const tags = game.tags[lang];
-            const statusText = lang === 'zh' ? '测试版' : 'Beta';
-            
-            card.innerHTML = `
-                <div class="game-cover">
-                    ${game.emoji}
-                    <span class="game-status beta">${statusText}</span>
-                </div>
-                <div class="game-info">
-                    <div class="game-title">${game.emoji} ${game.name[lang]}</div>
-                    <div class="game-tagline">${tagline}</div>
-                    <div class="tags">
-                        ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                    </div>
-                </div>
-            `;
-            
-            return card;
-        }
-        
-        // 渲染即将上线游戏
-        function renderComingSoonGames() {
-            const grid = document.getElementById('comingSoonGrid');
-            const lang = getCurrentLang();
-            
-            const comingSoonGames = ['emoji-rolling'];
-            comingSoonGames.forEach(id => {
-                const game = gameConfigs[id];
-                if (game) {
-                    const card = createComingSoonCard(id, game, lang);
-                    grid.appendChild(card);
-                }
-            });
-        }
-        
-        // 创建即将上线卡片
-        function createComingSoonCard(id, game, lang) {
-            const card = document.createElement('div');
-            card.className = 'game-card';
-            card.style.opacity = '0.6';
-            card.onclick = () => launchGame({
-                id,
-                name: game.name,
-                emoji: game.emoji,
-                tagline: game.tagline[lang],
-                version: '0.1.0',
-                status: 'ready',
-                path: `games/${id}/index.html`,
-                difficulty: game.difficulty[lang],
-                tags: game.tags[lang],
-                players: game.players[lang],
-                playTime: game.playTime[lang]
-            });
-            
-            const tagline = game.tagline[lang];
-            const tags = game.tags[lang];
-            const statusText = 'ALPHA';
-            
-            card.innerHTML = `
-                <div class="game-cover">
-                    ${game.emoji}
-                    <span class="game-status soon">${statusText}</span>
-                </div>
-                <div class="game-info">
-                    <div class="game-title">${game.emoji} ${game.name[lang]}</div>
-                    <div class="game-tagline">${tagline}</div>
-                    <div class="tags">
-                        ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                    </div>
-                </div>
-            `;
-            
-            return card;
-        }
-        
-        // 获取当前语言
-        function getCurrentLang() {
-            return selectedLang || 'en';
-        }
-
-        function getBrowserLang() {
-            const lang = navigator.language || navigator.userLanguage || 'en';
-            return lang.toLowerCase().startsWith('zh') ? 'zh' : 'en';
-        }
-
-        function loadPreferredLang() {
-            const savedLang = localStorage.getItem(LANG_STORAGE_KEY);
-            if (savedLang === 'zh' || savedLang === 'en') {
-                return savedLang;
-            }
-            return getBrowserLang();
-        }
-
-        function updateLanguageSwitcher() {
-            const current = getCurrentLang();
-            const currentLabel = document.getElementById('currentLangLabel');
-            const optionZh = document.getElementById('langOptionZh');
-            const optionEn = document.getElementById('langOptionEn');
-            if (currentLabel) currentLabel.textContent = current === 'zh' ? '中文' : 'English';
-            if (optionZh) optionZh.style.display = current === 'zh' ? 'none' : 'block';
-            if (optionEn) optionEn.style.display = current === 'en' ? 'none' : 'block';
-        }
-
-        function closeLangMenu() {
-            const langSwitch = document.getElementById('langSwitch');
-            const trigger = document.getElementById('langTrigger');
-            const menu = document.getElementById('langMenu');
-            if (langSwitch) langSwitch.classList.remove('open');
-            if (trigger) trigger.setAttribute('aria-expanded', 'false');
-            if (menu) menu.setAttribute('aria-hidden', 'true');
-        }
-
-        function toggleLangMenu() {
-            const langSwitch = document.getElementById('langSwitch');
-            const trigger = document.getElementById('langTrigger');
-            const menu = document.getElementById('langMenu');
-            if (!langSwitch || !trigger || !menu) return;
-            const isOpen = langSwitch.classList.toggle('open');
-            trigger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-            menu.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-        }
-
-        function refreshGameSections() {
-            const gamesGrid = document.getElementById('gamesGrid');
-            const racingGrid = document.getElementById('racingGamesGrid');
-            const comingSoonGrid = document.getElementById('comingSoonGrid');
-            if (gamesGrid) gamesGrid.innerHTML = '';
-            if (racingGrid) racingGrid.innerHTML = '';
-            if (comingSoonGrid) comingSoonGrid.innerHTML = '';
-            renderGames();
-            renderRacingGames();
-            renderComingSoonGames();
-        }
-
-        function applyLanguage(lang) {
-            selectedLang = lang === 'zh' ? 'zh' : 'en';
-            localStorage.setItem(LANG_STORAGE_KEY, selectedLang);
-            detectLanguage();
-            updateLanguageSwitcher();
-            refreshGameSections();
-        }
-
-        function initLanguageSwitcher() {
-            selectedLang = loadPreferredLang();
-            updateLanguageSwitcher();
-
-            const langTrigger = document.getElementById('langTrigger');
-            const langSwitch = document.getElementById('langSwitch');
-            const options = document.querySelectorAll('.lang-option');
-
-            if (langTrigger) {
-                langTrigger.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    toggleLangMenu();
-                });
-            }
-
-            options.forEach((option) => {
-                option.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const nextLang = option.getAttribute('data-lang');
-                    applyLanguage(nextLang);
-                    closeLangMenu();
-                });
-            });
-
-            document.addEventListener('click', (e) => {
-                if (langSwitch && !langSwitch.contains(e.target)) {
-                    closeLangMenu();
-                }
-            });
-        }
-        
-        // 渲染动态游戏卡片 (Hot Games)
-        function renderGames() {
-            const grid = document.getElementById('gamesGrid');
-            const lang = getCurrentLang();
-            
-            // Hot Games：match, shooter, survive, frog, hop
-            const hotGames = ['emoji-match', 'emoji-shooter', 'emoji-survive', 'emoji-frog', 'emoji-hop'];
-            
-            hotGames.forEach(id => {
-                const game = gamesData.find(g => g.id === id);
-                if (game && game.status === 'ready') {
-                    const record = Storage.getGameRecord(game.id);
-                    const card = createGameCard(game, record, lang);
-                    grid.appendChild(card);
-                }
-            });
-        }
-        
-        // 创建游戏卡片
-        function createGameCard(game, record, lang) {
-            const card = document.createElement('div');
-            card.className = 'game-card';
-            card.onclick = () => launchGame(game);
-            
-            const highScoreText = record.highScore > 0 
-                ? (lang === 'zh' ? `🏆 最高分: ${record.highScore}` : `🏆 High Score: ${record.highScore}`)
-                : (lang === 'zh' ? '🎮 点击开始' : '🎮 Tap to Play');
-            
-            const tagline = game.tagline[lang];
-            const difficulty = game.difficulty[lang];
-            const players = game.players[lang];
-            const playTime = game.playTime[lang];
-            const tags = game.tags[lang];
-            const statusText = game.status === 'ready' ? (lang === 'zh' ? '热门' : 'HOT') : game.status;
-            
-            card.innerHTML = `
-                <div class="game-cover">
-                    ${game.emoji}
-                    <span class="game-status ${game.status}">${statusText}</span>
-                </div>
-                <div class="game-info">
-                    <div class="game-title">${game.emoji} ${game.name[lang]}</div>
-                    <div class="game-tagline">${tagline}</div>
-                    <div class="game-meta">
-                        <span>⚡ ${difficulty}</span>
-                        <span>👤 ${players}</span>
-                        <span>⏱️ ${playTime}</span>
-                    </div>
-                    <div class="tags">
-                        ${tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-                    </div>
-                    <div style="margin-top: 12px; font-size: 13px; color: var(--neon-yellow);">
-                        ${highScoreText}
-                    </div>
-                </div>
-            `;
-            
-            return card;
-        }
-        
-        // ==================== Launch Game ====================
-        function launchGame(game) {
-            if (game.status !== 'ready') {
-                const lang = getCurrentLang();
-                if (lang === 'zh') {
-                    alert('🎮 游戏开发中，敬请期待！');
-                } else {
-                    alert('🎮 Game in development, stay tuned!');
-                }
-                // Track: clicked on unfinished game
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'click_coming_soon', {
-                        'game_id': game.id,
-                        'game_name': game.name
-                    });
-                }
-                return;
-            }
-            
-            // 更新游戏记录
-            const record = Storage.getGameRecord(game.id);
-            record.playCount++;
-            record.lastPlayed = new Date().toISOString();
-            Storage.setGameRecord(game.id, record);
-            
-            // 显示游戏容器
-            const container = document.getElementById('gameContainer');
-            const frame = document.getElementById('gameFrame');
-            const gameUrl = new URL(game.path, window.location.href);
-            gameUrl.searchParams.set('lang', getCurrentLang());
-            frame.src = gameUrl.toString();
-            container.classList.add('active');
-            
-            // 保存当前游戏
-            Storage.set('current_game', game.id);
-            
-            // 追踪：游戏启动
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'game_launch', {
-                    'game_id': game.id,
-                    'game_name': game.name,
-                    'game_category': game.category || 'casual'
-                });
-            }
-        }
-        
-        function closeGame() {
-            const container = document.getElementById('gameContainer');
-            const frame = document.getElementById('gameFrame');
-            const currentGame = Storage.get('current_game');
-            
-            // 追踪：游戏关闭
-            if (typeof gtag !== 'undefined' && currentGame) {
-                const record = Storage.getGameRecord(currentGame);
-                gtag('event', 'game_close', {
-                    'game_id': currentGame,
-                    'play_count': record.playCount
-                });
-            }
-            
-            container.classList.remove('active');
-            frame.src = '';
-            Storage.set('current_game', null);
-        }
-        
-        // ==================== 键盘快捷键 ====================
-        document.addEventListener('keydown', (e) => {
-            // ESC 返回大厅
-            if (e.key === 'Escape') {
-                const container = document.getElementById('gameContainer');
-                if (container.classList.contains('active')) {
-                    closeGame();
-                }
-            }
-        });
-        
-        // ==================== Language Detection ====================
-        function detectLanguage() {
-            const isChinese = getCurrentLang() === 'zh';
-            
-            // Hero section
-            const heroSubtitleZh = document.getElementById('heroSubtitleZh');
-            const heroSubtitleEn = document.getElementById('heroSubtitleEn');
-            const speedSubtitleZh = document.getElementById('speedSubtitleZh');
-            const speedSubtitleEn = document.getElementById('speedSubtitleEn');
-            
-            // Section titles
-            const hotGamesTitleZh = document.getElementById('hotGamesTitleZh');
-            const hotGamesTitleEn = document.getElementById('hotGamesTitleEn');
-            const speedGamesTitleZh = document.getElementById('speedGamesTitleZh');
-            const speedGamesTitleEn = document.getElementById('speedGamesTitleEn');
-            const comingSoonTitleZh = document.getElementById('comingSoonTitleZh');
-            const comingSoonTitleEn = document.getElementById('comingSoonTitleEn');
-            
-            // Footer
-            const footerZh = document.getElementById('footerZh');
-            const footerEn = document.getElementById('footerEn');
-            const footerAboutZh = document.getElementById('footerAboutZh');
-            const footerAboutEn = document.getElementById('footerAboutEn');
-            const footerPrivacyZh = document.getElementById('footerPrivacyZh');
-            const footerPrivacyEn = document.getElementById('footerPrivacyEn');
-            const footerTermsZh = document.getElementById('footerTermsZh');
-            const footerTermsEn = document.getElementById('footerTermsEn');
-            
-            // Safari notice
-            const safariNoticeZh = document.getElementById('safariNoticeZh');
-            const safariNoticeEn = document.getElementById('safariNoticeEn');
-            
-            if (isChinese) {
-                // Show Chinese, hide English
-                if (heroSubtitleZh) heroSubtitleZh.style.display = 'block';
-                if (heroSubtitleEn) heroSubtitleEn.style.display = 'none';
-                if (speedSubtitleZh) speedSubtitleZh.style.display = 'block';
-                if (speedSubtitleEn) speedSubtitleEn.style.display = 'none';
-                
-                if (hotGamesTitleZh) hotGamesTitleZh.style.display = 'block';
-                if (hotGamesTitleEn) hotGamesTitleEn.style.display = 'none';
-                if (speedGamesTitleZh) speedGamesTitleZh.style.display = 'block';
-                if (speedGamesTitleEn) speedGamesTitleEn.style.display = 'none';
-                if (comingSoonTitleZh) comingSoonTitleZh.style.display = 'block';
-                if (comingSoonTitleEn) comingSoonTitleEn.style.display = 'none';
-                
-                if (footerZh) footerZh.style.display = 'block';
-                if (footerEn) footerEn.style.display = 'none';
-                if (footerAboutZh) footerAboutZh.style.display = 'inline';
-                if (footerAboutEn) footerAboutEn.style.display = 'none';
-                if (footerPrivacyZh) footerPrivacyZh.style.display = 'inline';
-                if (footerPrivacyEn) footerPrivacyEn.style.display = 'none';
-                if (footerTermsZh) footerTermsZh.style.display = 'inline';
-                if (footerTermsEn) footerTermsEn.style.display = 'none';
-                
-                // Safari notice
-                if (safariNoticeZh) safariNoticeZh.style.display = 'block';
-                if (safariNoticeEn) safariNoticeEn.style.display = 'none';
-                
-                document.getElementById('loginText').textContent = '登录';
-            } else {
-                // Show English, hide Chinese
-                if (heroSubtitleZh) heroSubtitleZh.style.display = 'none';
-                if (heroSubtitleEn) heroSubtitleEn.style.display = 'block';
-                if (speedSubtitleZh) speedSubtitleZh.style.display = 'none';
-                if (speedSubtitleEn) speedSubtitleEn.style.display = 'block';
-                
-                if (hotGamesTitleZh) hotGamesTitleZh.style.display = 'none';
-                if (hotGamesTitleEn) hotGamesTitleEn.style.display = 'block';
-                if (speedGamesTitleZh) speedGamesTitleZh.style.display = 'none';
-                if (speedGamesTitleEn) speedGamesTitleEn.style.display = 'block';
-                if (comingSoonTitleZh) comingSoonTitleZh.style.display = 'none';
-                if (comingSoonTitleEn) comingSoonTitleEn.style.display = 'block';
-                
-                if (footerZh) footerZh.style.display = 'none';
-                if (footerEn) footerEn.style.display = 'block';
-                if (footerAboutZh) footerAboutZh.style.display = 'none';
-                if (footerAboutEn) footerAboutEn.style.display = 'inline';
-                if (footerPrivacyZh) footerPrivacyZh.style.display = 'none';
-                if (footerPrivacyEn) footerPrivacyEn.style.display = 'inline';
-                if (footerTermsZh) footerTermsZh.style.display = 'none';
-                if (footerTermsEn) footerTermsEn.style.display = 'inline';
-                
-                // Safari notice
-                if (safariNoticeZh) safariNoticeZh.style.display = 'none';
-                if (safariNoticeEn) safariNoticeEn.style.display = 'block';
-                
-                document.getElementById('loginText').textContent = 'Login';
-            }
-        }
-        
-        // ==================== Init ====================
-        document.addEventListener('DOMContentLoaded', () => {
-            initLanguageSwitcher();
-            detectLanguage();
-            initUserSystem();
-            loadGames();
-            
-            // Track: page fully loaded
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'page_ready', {
-                    'load_time': Math.round(performance.now())
-                });
-            }
-        });
-        
-        // ==================== 预留：消息接收（游戏内分数上报）====================
-        window.addEventListener('message', (e) => {
-            if (e.data.type === 'GAME_SCORE') {
-                const { gameId, score } = e.data;
-                const record = Storage.getGameRecord(gameId);
-                const isHighScore = score > record.highScore;
-                
-                if (isHighScore) {
-                    record.highScore = score;
-                    Storage.setGameRecord(gameId, record);
-                }
-                
-                // 追踪：游戏分数
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'game_score', {
-                        'game_id': gameId,
-                        'score': score,
-                        'is_high_score': isHighScore
-                    });
-                }
-            }
-        });
-    </script>
-    
-    <!-- Service Worker Registration for PWA -->
     <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then((registration) => {
-                        console.log('SW registered:', registration.scope);
-                    })
-                    .catch((error) => {
-                        console.log('SW registration failed:', error);
-                    });
+    // Banner Carousel Logic
+    (function() {
+        const track = document.getElementById('bannerTrack');
+        if (!track) return;
+        
+        const slides = document.querySelectorAll('.banner-slide');
+        const dots = document.querySelectorAll('.dot');
+        const prevBtn = document.getElementById('bannerPrev');
+        const nextBtn = document.getElementById('bannerNext');
+        
+        let currentIndex = 0;
+        let autoPlayInterval;
+        const autoPlayDelay = 5000;
+        
+        function goToSlide(index) {
+            if (index < 0) index = slides.length - 1;
+            if (index >= slides.length) index = 0;
+            
+            currentIndex = index;
+            track.style.transform = `translateX(-${currentIndex * 100}%)`;
+            
+            dots.forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentIndex);
             });
         }
         
-        // 监听 PWA 安装提示
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            console.log('PWA install prompt ready');
-            e.preventDefault();
-            deferredPrompt = e;
-            // 可以在这里显示自定义的安装按钮
+        function nextSlide() {
+            goToSlide(currentIndex + 1);
+        }
+        
+        function prevSlide() {
+            goToSlide(currentIndex - 1);
+        }
+        
+        function startAutoPlay() {
+            autoPlayInterval = setInterval(nextSlide, autoPlayDelay);
+        }
+        
+        function stopAutoPlay() {
+            clearInterval(autoPlayInterval);
+        }
+        
+        // Event Listeners
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                prevSlide();
+                stopAutoPlay();
+                startAutoPlay();
+            });
+        }
+        
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                nextSlide();
+                stopAutoPlay();
+                startAutoPlay();
+            });
+        }
+        
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                goToSlide(index);
+                stopAutoPlay();
+                startAutoPlay();
+            });
         });
+        
+        // Touch/Swipe Support
+        let startX = 0;
+        let isDragging = false;
+        
+        track.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            isDragging = true;
+            stopAutoPlay();
+        });
+        
+        track.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            e.preventDefault();
+        });
+        
+        track.addEventListener('touchend', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+            
+            const endX = e.changedTouches[0].clientX;
+            const diff = startX - endX;
+            
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                    nextSlide();
+                } else {
+                    prevSlide();
+                }
+            }
+            startAutoPlay();
+        });
+        
+        // Pause on hover
+        const container = document.querySelector('.banner-container');
+        if (container) {
+            container.addEventListener('mouseenter', stopAutoPlay);
+            container.addEventListener('mouseleave', startAutoPlay);
+        }
+        
+        // Click on slide to launch game
+        slides.forEach(slide => {
+            const btn = slide.querySelector('.banner-btn');
+            const gameId = slide.dataset.game;
+            
+            if (btn && gameId && typeof gameConfigs !== 'undefined') {
+                btn.addEventListener('click', () => {
+                    const game = gameConfigs[gameId];
+                    if (game && typeof launchGame === 'function') {
+                        const lang = typeof getCurrentLang === 'function' ? getCurrentLang() : 'zh';
+                        launchGame({
+                            id: gameId,
+                            name: game.name,
+                            emoji: game.emoji,
+                            tagline: game.tagline[lang],
+                            version: '0.1.0',
+                            status: 'ready',
+                            path: `games/${gameId}/index.html`,
+                            difficulty: game.difficulty[lang],
+                            tags: game.tags[lang],
+                            players: game.players[lang],
+                            playTime: game.playTime[lang]
+                        });
+                    }
+                });
+            }
+        });
+        
+        // Start autoplay
+        startAutoPlay();
+        
+        // Update banner text based on language
+        function updateBannerLanguage() {
+            const lang = typeof getCurrentLang === 'function' ? getCurrentLang() : 'zh';
+            document.querySelectorAll('.banner-title, .banner-desc, .banner-btn').forEach(el => {
+                const text = el.getAttribute(`data-${lang}`);
+                if (text) el.textContent = text;
+            });
+        }
+        
+        // Listen for language changes
+        if (typeof applyLanguage === 'function') {
+            const originalApplyLanguage = applyLanguage;
+            window.applyLanguage = function(lang) {
+                originalApplyLanguage(lang);
+                updateBannerLanguage();
+            };
+        }
+        
+        // Initial update
+        updateBannerLanguage();
+    })();
     </script>
 </body>
 </html>
