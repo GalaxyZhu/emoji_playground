@@ -145,7 +145,7 @@
     .banner-inner {
         display: flex;
         height: 100%;
-        padding: 30px;
+        padding: 30px 30px 30px 50px;
         box-sizing: border-box;
     }
     .banner-left {
@@ -360,6 +360,96 @@
         width: 24px;
         border-radius: 4px;
     }
+    .emoji-enemy, .emoji-enemy2, .emoji-croc, .emoji-car, .emoji-lily2, .emoji-fly, .emoji-card, .emoji-brain, .emoji-star, .emoji-sparkle {
+        position: absolute;
+        font-size: 40px;
+    }
+    .emoji-enemy {
+        top: 20px;
+        right: 80px;
+        animation: bounce 1.5s ease-in-out infinite;
+    }
+    .emoji-enemy2 {
+        bottom: 40px;
+        right: 60px;
+        animation: hop 2s ease-in-out infinite;
+    }
+    .emoji-star {
+        top: 50px;
+        right: 20px;
+        font-size: 30px;
+        animation: pulse 1s ease-in-out infinite;
+    }
+    .emoji-croc {
+        bottom: 20px;
+        right: 40px;
+        font-size: 50px;
+        animation: slide 2s linear infinite;
+    }
+    .emoji-car {
+        top: 30px;
+        right: 50px;
+        font-size: 45px;
+        animation: slide 1.5s linear infinite reverse;
+    }
+    .emoji-water {
+        position: absolute;
+        bottom: 0;
+        font-size: 60px;
+        opacity: 0.6;
+        animation: wave 3s ease-in-out infinite;
+    }
+    @keyframes wave {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(-20px); }
+    }
+    .emoji-lily2 {
+        bottom: 30px;
+        right: 80px;
+        font-size: 40px;
+        animation: float 2.5s ease-in-out infinite;
+    }
+    .emoji-fly {
+        top: 30px;
+        right: 30px;
+        font-size: 30px;
+        animation: fly 2s ease-in-out infinite;
+    }
+    @keyframes fly {
+        0%, 100% { transform: translate(0, 0); }
+        25% { transform: translate(30px, -20px); }
+        50% { transform: translate(60px, 0); }
+        75% { transform: translate(30px, 20px); }
+    }
+    .emoji-card {
+        top: 40px;
+        right: 60px;
+        font-size: 45px;
+        animation: flipCard 1.8s ease-in-out infinite;
+    }
+    .emoji-brain {
+        bottom: 40px;
+        right: 30px;
+        font-size: 40px;
+        animation: pulse 2s ease-in-out infinite;
+    }
+    .emoji-sparkle {
+        top: 20px;
+        right: 100px;
+        font-size: 35px;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+    /* Auto-rotate banner every 5 seconds */
+    .banner-auto-rotate {
+        animation: bannerRotate 20s linear infinite;
+    }
+    @keyframes bannerRotate {
+        0%, 20% { transform: translateX(0); }
+        25%, 45% { transform: translateX(-100%); }
+        50%, 70% { transform: translateX(-200%); }
+        75%, 95% { transform: translateX(-300%); }
+        100% { transform: translateX(0); }
+    }
     @media (max-width: 600px) {
         .featured-banner {
         margin: 0;
@@ -451,7 +541,11 @@
                                     <span class="emoji-main">🗿</span>
                                     <span class="emoji-bullet">🔥</span>
                                     <span class="emoji-bullet">🔥</span>
+                                    <span class="emoji-bullet">💣</span>
                                     <span class="emoji-explode">💥</span>
+                                    <span class="emoji-enemy">👾</span>
+                                    <span class="emoji-enemy2">👽</span>
+                                    <span class="emoji-star">⭐</span>
                                 </div>
                             </div>
                         </div>
@@ -473,6 +567,9 @@
                                     <span class="emoji-main hop">🐒</span>
                                     <span class="emoji-platform">🍃</span>
                                     <span class="emoji-platform">🪵</span>
+                                    <span class="emoji-croc">🐊</span>
+                                    <span class="emoji-car">🚗</span>
+                                    <span class="emoji-water">🌊</span>
                                 </div>
                             </div>
                         </div>
@@ -493,6 +590,9 @@
                                 <div class="banner-emoji">
                                     <span class="emoji-main frog">🐸</span>
                                     <span class="emoji-lily">🪷</span>
+                                    <span class="emoji-lily2">🍀</span>
+                                    <span class="emoji-fly">🪰</span>
+                                    <span class="emoji-water">💧</span>
                                 </div>
                             </div>
                         </div>
@@ -513,6 +613,9 @@
                                 <div class="banner-emoji">
                                     <span class="emoji-main match">🧩</span>
                                     <span class="emoji-flip">🎴</span>
+                                    <span class="emoji-card">🃏</span>
+                                    <span class="emoji-brain">🧠</span>
+                                    <span class="emoji-sparkle">✨</span>
                                 </div>
                             </div>
                         </div>
@@ -1244,6 +1347,105 @@
             }
         });
         
+        // ==================== Banner Auto-Rotate ====================
+        (function initBanner() {
+            const track = document.getElementById('bannerTrack');
+            const dots = document.querySelectorAll('#bannerDots .dot');
+            const slides = document.querySelectorAll('.banner-slide');
+            const prevBtn = document.getElementById('bannerPrev');
+            const nextBtn = document.getElementById('bannerNext');
+            
+            if (!track || slides.length === 0) return;
+            
+            let currentSlide = 0;
+            const totalSlides = slides.length;
+            let autoRotateInterval;
+            
+            function goToSlide(index) {
+                currentSlide = index;
+                track.style.transform = `translateX(-${index * 100}%)`;
+                
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+            }
+            
+            function nextSlide() {
+                goToSlide((currentSlide + 1) % totalSlides);
+            }
+            
+            function prevSlide() {
+                goToSlide((currentSlide - 1 + totalSlides) % totalSlides);
+            }
+            
+            // Auto-rotate every 5 seconds
+            function startAutoRotate() {
+                autoRotateInterval = setInterval(nextSlide, 5000);
+            }
+            
+            function stopAutoRotate() {
+                clearInterval(autoRotateInterval);
+            }
+            
+            // Event listeners
+            if (prevBtn) prevBtn.addEventListener('click', () => { stopAutoRotate(); prevSlide(); startAutoRotate(); });
+            if (nextBtn) nextBtn.addEventListener('click', () => { stopAutoRotate(); nextSlide(); startAutoRotate(); });
+            
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    stopAutoRotate();
+                    goToSlide(index);
+                    startAutoRotate();
+                });
+            });
+            
+            // Pause on hover
+            const container = document.querySelector('.banner-container');
+            if (container) {
+                container.addEventListener('mouseenter', stopAutoRotate);
+                container.addEventListener('mouseleave', startAutoRotate);
+            }
+            
+            // Touch/swipe support
+            let startX = 0;
+            let isDragging = false;
+            
+            track.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                isDragging = true;
+                stopAutoRotate();
+            });
+            
+            track.addEventListener('touchend', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                const endX = e.changedTouches[0].clientX;
+                const diff = startX - endX;
+                
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0) nextSlide();
+                    else prevSlide();
+                }
+                startAutoRotate();
+            });
+            
+            // Banner click to play
+            slides.forEach(slide => {
+                const btn = slide.querySelector('.banner-btn');
+                const gameId = slide.getAttribute('data-game');
+                if (btn && gameId) {
+                    btn.addEventListener('click', () => {
+                        const gameCard = document.querySelector(`.game-card[onclick*="${gameId}"]`);
+                        if (gameCard) gameCard.click();
+                    });
+                }
+            });
+            
+            // Start auto-rotate
+            startAutoRotate();
+        })();
+
         // ==================== 预留：消息接收（游戏内分数上报）====================
         window.addEventListener('message', (e) => {
             if (e.data.type === 'GAME_SCORE') {
