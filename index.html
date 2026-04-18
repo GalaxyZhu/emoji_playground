@@ -1454,14 +1454,28 @@
                 startAutoRotate();
             });
             
-            // Banner click to play
+            // Banner click to play - 直接启动游戏
             slides.forEach(slide => {
                 const btn = slide.querySelector('.banner-btn');
                 const gameId = slide.getAttribute('data-game');
-                if (btn && gameId) {
-                    btn.addEventListener('click', () => {
-                        const gameCard = document.querySelector(`.game-card[onclick*="${gameId}"]`);
-                        if (gameCard) gameCard.click();
+                if (btn && gameId && gameConfigs[gameId]) {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const lang = getCurrentLang();
+                        const game = gameConfigs[gameId];
+                        launchGame({
+                            id: gameId,
+                            name: game.name,
+                            emoji: game.emoji,
+                            tagline: game.tagline[lang],
+                            version: '0.1.0',
+                            status: 'ready',
+                            path: `games/${gameId}/index.html`,
+                            difficulty: game.difficulty[lang],
+                            tags: game.tags[lang],
+                            players: game.players[lang],
+                            playTime: game.playTime[lang]
+                        });
                     });
                 }
             });
