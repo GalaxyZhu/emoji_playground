@@ -114,12 +114,406 @@
         window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
     </script>
     <script defer src="/_vercel/insights/script.js"></script>
+    <!-- Banner Styles -->
+    <style>
+    .featured-banner {
+        margin: 0;
+        padding: 10px 20px 0 20px;
+        background: transparent;
+    }
+    .banner-container {
+        position: relative;
+        max-width: 800px;
+        margin: 0 auto;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        width: 100%;
+    }
+    .banner-track {
+        display: flex;
+        width: 100%;
+        transition: transform 0.5s ease;
+    }
+    .banner-slide {
+        min-width: 100%;
+        width: 100%;
+        flex: 0 0 100%;
+        flex-shrink: 0;
+    }
+    .banner-bg {
+        position: relative;
+        height: 280px;
+        overflow: hidden;
+    }
+    .banner-inner {
+        display: flex;
+        height: 100%;
+        padding: 30px 30px 30px 80px;
+        box-sizing: border-box;
+    }
+    .banner-left {
+        flex: 1.4;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: left;
+        color: white;
+        padding-right: 0;
+        z-index: 2;
+        position: relative;
+    }
+    .banner-right {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+        margin-left: -30px;
+    }
+    .banner-badge {
+        display: inline-block;
+        width: fit-content;
+        padding: 6px 14px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        backdrop-filter: blur(10px);
+    }
+    .banner-badge.hot {
+        background: linear-gradient(135deg, #ff006e, #ff4d00);
+        animation: pulse 2s ease-in-out infinite;
+    }
+    .banner-badge.new {
+        background: linear-gradient(135deg, #00f5ff, #0066ff);
+    }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+    .banner-title {
+        font-size: 28px;
+        font-weight: 800;
+        margin-bottom: 10px;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    .banner-desc {
+        font-size: 14px;
+        opacity: 0.9;
+        margin-bottom: 20px;
+        max-width: 280px;
+        line-height: 1.5;
+    }
+    .banner-btn {
+        padding: 12px 28px;
+        background: rgba(255,255,255,0.95);
+        border: none;
+        border-radius: 25px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        width: fit-content;
+    }
+    .banner-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    .banner-emoji {
+        position: relative;
+        width: 280px;
+        height: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .emoji-main {
+        font-size: 100px;
+        display: inline-block;
+        animation: bounce 2s ease-in-out infinite;
+    }
+    .emoji-main.hop {
+        animation: hop 1.5s ease-in-out infinite;
+    }
+    .emoji-main.frog {
+        animation: jump 1.8s ease-in-out infinite;
+    }
+    .emoji-main.match {
+        animation: flip 2.5s ease-in-out infinite;
+    }
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-15px); }
+    }
+    @keyframes hop {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        25% { transform: translateY(-20px) rotate(-10deg); }
+        75% { transform: translateY(-10px) rotate(5deg); }
+    }
+    @keyframes jump {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.15) rotate(10deg); }
+    }
+    @keyframes flip {
+        0%, 100% { transform: rotateY(0deg); }
+        50% { transform: rotateY(180deg); }
+    }
+    .emoji-bullet {
+        position: absolute;
+        font-size: 32px;
+        animation: shoot 1s linear infinite;
+        opacity: 0;
+    }
+    .emoji-bullet:nth-child(2) { top: 30px; left: 10px; animation-delay: 0s; }
+    .emoji-bullet:nth-child(3) { top: 70px; left: 10px; animation-delay: 0.3s; }
+    .emoji-bullet:nth-child(4) { top: 110px; left: 10px; animation-delay: 0.6s; }
+    @keyframes shoot {
+        0% { transform: translateX(0); opacity: 1; }
+        100% { transform: translateX(120px); opacity: 0; }
+    }
+    .emoji-explode {
+        position: absolute;
+        font-size: 60px;
+        right: 50px;
+        top: 20px;
+        animation: explode 2s ease-in-out infinite;
+    }
+    @keyframes explode {
+        0%, 90% { transform: scale(0); opacity: 0; }
+        95% { transform: scale(1.5); opacity: 1; }
+        100% { transform: scale(1); opacity: 0; }
+    }
+    .emoji-platform {
+        position: absolute;
+        font-size: 40px;
+        bottom: 30px;
+        animation: slide 3s linear infinite;
+    }
+    .emoji-platform:nth-child(2) { left: -80px; animation-delay: 0s; }
+    .emoji-platform:nth-child(3) { left: 140px; animation-delay: 1.5s; }
+    @keyframes slide {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(250px); opacity: 0; }
+    }
+    .emoji-lily {
+        position: absolute;
+        font-size: 60px;
+        bottom: 30px;
+        right: 50px;
+        animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(0deg); }
+        50% { transform: translateY(-10px) rotate(5deg); }
+    }
+    .emoji-flip {
+        position: absolute;
+        font-size: 60px;
+        top: 10px;
+        right: 60px;
+        animation: flipCard 2s ease-in-out infinite;
+    }
+    @keyframes flipCard {
+        0%, 100% { transform: rotateY(0deg) scale(1); }
+        50% { transform: rotateY(180deg) scale(1.1); }
+    }
+    .banner-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 10;
+        backdrop-filter: blur(10px);
+    }
+    .banner-container:hover .banner-arrow {
+        opacity: 1;
+    }
+    .banner-arrow:hover {
+        background: rgba(255,255,255,0.4);
+    }
+    .banner-prev { left: 15px; }
+    .banner-next { right: 15px; }
+    .banner-dots {
+        position: absolute;
+        bottom: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        z-index: 10;
+    }
+    .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.4);
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .dot.active {
+        background: white;
+        width: 24px;
+        border-radius: 4px;
+    }
+    .emoji-enemy, .emoji-enemy2, .emoji-croc, .emoji-car, .emoji-lily2, .emoji-fly, .emoji-card, .emoji-brain, .emoji-star, .emoji-sparkle {
+        position: absolute;
+        font-size: 40px;
+    }
+    .emoji-enemy {
+        top: 10px;
+        right: 120px;
+        animation: bounce 1.5s ease-in-out infinite;
+    }
+    .emoji-enemy2 {
+        bottom: 60px;
+        right: 100px;
+        animation: hop 2s ease-in-out infinite;
+    }
+    .emoji-star {
+        top: 60px;
+        right: 10px;
+        font-size: 40px;
+        animation: pulse 1s ease-in-out infinite;
+    }
+    .emoji-croc {
+        bottom: 10px;
+        right: 80px;
+        font-size: 65px;
+        animation: slide 2s linear infinite;
+    }
+    .emoji-car {
+        top: 20px;
+        right: 80px;
+        font-size: 55px;
+        animation: slide 1.5s linear infinite reverse;
+    }
+    .emoji-water {
+        position: absolute;
+        bottom: 0;
+        left: -20px;
+        font-size: 80px;
+        opacity: 0.6;
+        animation: wave 3s ease-in-out infinite;
+    }
+    @keyframes wave {
+        0%, 100% { transform: translateX(0); }
+        50% { transform: translateX(-20px); }
+    }
+    .emoji-lily2 {
+        bottom: 80px;
+        right: 120px;
+        font-size: 50px;
+        animation: float 2.5s ease-in-out infinite;
+    }
+    .emoji-fly {
+        top: 40px;
+        right: 10px;
+        font-size: 40px;
+        animation: fly 2s ease-in-out infinite;
+    }
+    @keyframes fly {
+        0%, 100% { transform: translate(0, 0); }
+        25% { transform: translate(30px, -20px); }
+        50% { transform: translate(60px, 0); }
+        75% { transform: translate(30px, 20px); }
+    }
+    .emoji-card {
+        top: 30px;
+        right: 100px;
+        font-size: 55px;
+        animation: flipCard 1.8s ease-in-out infinite;
+    }
+    .emoji-brain {
+        bottom: 20px;
+        right: 10px;
+        font-size: 50px;
+        animation: pulse 2s ease-in-out infinite;
+    }
+    .emoji-sparkle {
+        top: 80px;
+        right: 50px;
+        font-size: 45px;
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+    /* Auto-rotate banner every 5 seconds */
+    .banner-auto-rotate {
+        animation: bannerRotate 20s linear infinite;
+    }
+    @keyframes bannerRotate {
+        0%, 20% { transform: translateX(0); }
+        25%, 45% { transform: translateX(-100%); }
+        50%, 70% { transform: translateX(-200%); }
+        75%, 95% { transform: translateX(-300%); }
+        100% { transform: translateX(0); }
+    }
+    @media (max-width: 600px) {
+        .featured-banner {
+        margin: 0;
+        padding: 20px 20px 0 20px;
+            padding: 15px;
+        }
+        .banner-bg {
+            height: 200px;
+        }
+        .banner-inner {
+            padding: 20px;
+        }
+
+        .banner-left {
+            flex: 1.6;
+            padding-right: 0;
+        }
+        .banner-right {
+            flex: 0.6;
+            margin-left: -20px;
+        }
+        .banner-btn {
+            padding: 8px 14px;
+            font-size: 12px;
+            white-space: nowrap;
+        }
+        .banner-title {
+            font-size: 18px;
+        }
+        .banner-desc {
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
+        .banner-btn {
+            padding: 8px 16px;
+            font-size: 12px;
+        }
+        .emoji-main {
+            font-size: 50px;
+        }
+        .banner-arrow {
+            display: none;
+        }
+    }
+    </style>
+
 </head>
 <body>
     <!-- 背景动画 -->
     <div class="bg-animation">
         <div class="bg-grid"></div>
     </div>
+
+
 
     <!-- 头部导航 -->
     <header class="header">
@@ -151,16 +545,125 @@
         </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Hero Section -->
-        <section class="hero">
-            <h1>🎮 EMOJI ARCADE</h1>
-            <p id="heroSubtitleZh">随身街机厅，点开就能玩<br>摸鱼神器，带薪快乐</p>
-            <p id="heroSubtitleEn" style="font-size: 14px; color: #666; margin-top: 8px; display: none;">Pocket Arcade, Instant Play<br>Mobile & Desktop · Play Anytime, Anywhere</p>
-        </section>
 
-        <!-- Games List -->
+    <!-- Featured Games Banner -->
+    <section class="featured-banner" id="featuredBanner">
+        <div class="banner-container">
+            <div class="banner-track" id="bannerTrack">
+                <!-- Banner 1: Shooter -->
+                <div class="banner-slide" data-game="emoji-shooter">
+                    <div class="banner-bg" style="background: linear-gradient(135deg, #ff006e 0%, #8338ec 100%);">
+                        <div class="banner-inner">
+                            <div class="banner-left">
+                                <span class="banner-badge hot">🔥 HOT</span>
+                                <h3 class="banner-title" data-zh="表情大乱射" data-en="Emoji Shooter">表情大乱射</h3>
+                                <p class="banner-desc" data-zh="各种沙雕表情怪，通通给爷死" data-en="Destroy quirky Emoji enemies">各种沙雕表情怪，通通给爷死</p>
+                                <button class="banner-btn" data-zh="▶ 立即游玩" data-en="▶ Play Now">▶ 立即游玩</button>
+                            </div>
+                            <div class="banner-right">
+                                <div class="banner-emoji">
+                                    <span class="emoji-main">🗿</span>
+                                    <span class="emoji-bullet">🔥</span>
+                                    <span class="emoji-bullet">🔥</span>
+                                    <span class="emoji-bullet">💣</span>
+                                    <span class="emoji-explode">💥</span>
+                                    <span class="emoji-enemy">👾</span>
+                                    <span class="emoji-enemy2">👽</span>
+                                    <span class="emoji-star">⭐</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Banner 2: Hop -->
+                <div class="banner-slide" data-game="emoji-hop">
+                    <div class="banner-bg" style="background: linear-gradient(135deg, #00c853 0%, #00e676 100%);">
+                        <div class="banner-inner">
+                            <div class="banner-left">
+                                <span class="banner-badge new">🆕 NEW</span>
+                                <h3 class="banner-title" data-zh="猴子过河" data-en="Monkey Crossing">猴子过河</h3>
+                                <p class="banner-desc" data-zh="穿越车流、跳过河流、躲避鳄鱼" data-en="Cross roads, jump rivers, dodge crocs">穿越车流、跳过河流、躲避鳄鱼</p>
+                                <button class="banner-btn" data-zh="▶ 立即游玩" data-en="▶ Play Now">▶ 立即游玩</button>
+                            </div>
+                            <div class="banner-right">
+                                <div class="banner-emoji">
+                                    <span class="emoji-main hop">🐒</span>
+                                    <span class="emoji-platform">🍃</span>
+                                    <span class="emoji-platform">🪵</span>
+                                    <span class="emoji-croc">🐊</span>
+                                    <span class="emoji-car">🚗</span>
+                                    <span class="emoji-water">🌊</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Banner 3: Frog -->
+                <div class="banner-slide" data-game="emoji-frog">
+                    <div class="banner-bg" style="background: linear-gradient(135deg, #00b4d8 0%, #90e0ef 100%);">
+                        <div class="banner-inner">
+                            <div class="banner-left">
+                                <span class="banner-badge">🎮 CLASSIC</span>
+                                <h3 class="banner-title" data-zh="跳跳蛙大冒险" data-en="Emoji Frog">跳跳蛙大冒险</h3>
+                                <p class="banner-desc" data-zh="按住跳，松开落，手速决定高度" data-en="Jump and dash, speed challenge">按住跳，松开落，手速决定高度</p>
+                                <button class="banner-btn" data-zh="▶ 立即游玩" data-en="▶ Play Now">▶ 立即游玩</button>
+                            </div>
+                            <div class="banner-right">
+                                <div class="banner-emoji">
+                                    <span class="emoji-main frog">🐸</span>
+                                    <span class="emoji-lily">🪷</span>
+                                    <span class="emoji-lily2">🍀</span>
+                                    <span class="emoji-fly">🪰</span>
+                                    <span class="emoji-water">💧</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Banner 4: Match -->
+                <div class="banner-slide" data-game="emoji-match">
+                    <div class="banner-bg" style="background: linear-gradient(135deg, #f77f00 0%, #fcbf49 100%);">
+                        <div class="banner-inner">
+                            <div class="banner-left">
+                                <span class="banner-badge">👥 2P</span>
+                                <h3 class="banner-title" data-zh="记忆翻翻天" data-en="Emoji Match">记忆翻翻天</h3>
+                                <p class="banner-desc" data-zh="考验记忆力，还能双人对战坑朋友" data-en="Memory matching, 2-player battle">考验记忆力，还能双人对战坑朋友</p>
+                                <button class="banner-btn" data-zh="▶ 立即游玩" data-en="▶ Play Now">▶ 立即游玩</button>
+                            </div>
+                            <div class="banner-right">
+                                <div class="banner-emoji">
+                                    <span class="emoji-main match">🧩</span>
+                                    <span class="emoji-flip">🎴</span>
+                                    <span class="emoji-card">🃏</span>
+                                    <span class="emoji-brain">🧠</span>
+                                    <span class="emoji-sparkle">✨</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Banner Controls -->
+            <button class="banner-arrow banner-prev" id="bannerPrev">‹</button>
+            <button class="banner-arrow banner-next" id="bannerNext">›</button>
+            
+            <!-- Banner Indicators -->
+            <div class="banner-dots" id="bannerDots">
+                <span class="dot active" data-index="0"></span>
+                <span class="dot" data-index="1"></span>
+                <span class="dot" data-index="2"></span>
+                <span class="dot" data-index="3"></span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="main-content" style="padding-top: 0;">
+<!-- Games List -->
         <section class="games-section">
             <h2 class="section-title" id="hotGamesTitleZh">🎯 上头专区</h2>
             <h2 class="section-title" id="hotGamesTitleEn" style="display: none;">🎯 Hot Games</h2>
@@ -868,6 +1371,119 @@
             }
         });
         
+        // ==================== Banner Auto-Rotate ====================
+        (function initBanner() {
+            const track = document.getElementById('bannerTrack');
+            const dots = document.querySelectorAll('#bannerDots .dot');
+            const slides = document.querySelectorAll('.banner-slide');
+            const prevBtn = document.getElementById('bannerPrev');
+            const nextBtn = document.getElementById('bannerNext');
+            
+            if (!track || slides.length === 0) return;
+            
+            let currentSlide = 0;
+            const totalSlides = slides.length;
+            let autoRotateInterval;
+            
+            function goToSlide(index) {
+                currentSlide = index;
+                track.style.transform = `translateX(-${index * 100}%)`;
+                
+                dots.forEach((dot, i) => {
+                    dot.classList.toggle('active', i === index);
+                });
+            }
+            
+            function nextSlide() {
+                goToSlide((currentSlide + 1) % totalSlides);
+            }
+            
+            function prevSlide() {
+                goToSlide((currentSlide - 1 + totalSlides) % totalSlides);
+            }
+            
+            // Auto-rotate every 5 seconds
+            function startAutoRotate() {
+                autoRotateInterval = setInterval(nextSlide, 5000);
+            }
+            
+            function stopAutoRotate() {
+                clearInterval(autoRotateInterval);
+            }
+            
+            // Event listeners
+            if (prevBtn) prevBtn.addEventListener('click', () => { stopAutoRotate(); prevSlide(); startAutoRotate(); });
+            if (nextBtn) nextBtn.addEventListener('click', () => { stopAutoRotate(); nextSlide(); startAutoRotate(); });
+            
+            dots.forEach((dot, index) => {
+                dot.addEventListener('click', () => {
+                    stopAutoRotate();
+                    goToSlide(index);
+                    startAutoRotate();
+                });
+            });
+            
+            // Pause on hover
+            const container = document.querySelector('.banner-container');
+            if (container) {
+                container.addEventListener('mouseenter', stopAutoRotate);
+                container.addEventListener('mouseleave', startAutoRotate);
+            }
+            
+            // Touch/swipe support
+            let startX = 0;
+            let isDragging = false;
+            
+            track.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                isDragging = true;
+                stopAutoRotate();
+            });
+            
+            track.addEventListener('touchend', (e) => {
+                if (!isDragging) return;
+                isDragging = false;
+                
+                const endX = e.changedTouches[0].clientX;
+                const diff = startX - endX;
+                
+                if (Math.abs(diff) > 50) {
+                    if (diff > 0) nextSlide();
+                    else prevSlide();
+                }
+                startAutoRotate();
+            });
+            
+            // Banner click to play - 直接启动游戏
+            slides.forEach(slide => {
+                const btn = slide.querySelector('.banner-btn');
+                const gameId = slide.getAttribute('data-game');
+                if (btn && gameId && gameConfigs[gameId]) {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const lang = getCurrentLang();
+                        const game = gameConfigs[gameId];
+                        launchGame({
+                            id: gameId,
+                            name: game.name,
+                            emoji: game.emoji,
+                            tagline: game.tagline[lang],
+                            version: '0.1.0',
+                            status: 'ready',
+                            path: `games/${gameId}/index.html`,
+                            difficulty: game.difficulty[lang],
+                            tags: game.tags[lang],
+                            players: game.players[lang],
+                            playTime: game.playTime[lang]
+                        });
+                    });
+                }
+            });
+            
+            // Start auto-rotate
+            startAutoRotate();
+        })();
+
         // ==================== 预留：消息接收（游戏内分数上报）====================
         window.addEventListener('message', (e) => {
             if (e.data.type === 'GAME_SCORE') {
