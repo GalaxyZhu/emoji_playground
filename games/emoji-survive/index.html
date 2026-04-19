@@ -93,6 +93,62 @@
         .ult-button { position: absolute; bottom: 20px; right: 20px; width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, #9c27b0 0%, #e91e63 100%); border: 3px solid #fff; font-size: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 20px rgba(156, 39, 176, 0.5); z-index: 60; }
         .ult-button:disabled { background: #444; border-color: #666; cursor: not-allowed; }
         .ult-cooldown { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; }
+        
+        /* 暂停屏幕样式 */
+        #pauseScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            pointer-events: auto;
+        }
+        #pauseScreen.hidden { display: none !important; }
+        #pauseScreen h2 {
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px #ff6600;
+        }
+        .pause-buttons {
+            display: flex;
+            gap: 20px;
+        }
+        .pause-btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .pause-btn.continue {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+        }
+        .pause-btn.restart {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+        }
+        .pause-btn:hover { transform: scale(1.05); }
+        .pause-home-btn {
+            margin-top: 15px;
+            padding: 10px 25px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .pause-home-btn:hover { transform: scale(1.05); }
     </style>
 </head>
 <body>
@@ -214,6 +270,19 @@
                 <button class="btn btn-primary" onclick="restartGame()" data-i18n="playAgain">🔄 再玩一次</button>
                 <button class="btn btn-secondary" onclick="goBackToArcade()" data-i18n="backToArcade">🏠 回到街机厅</button>
             </div>
+            
+            <!-- 暂停对话框 -->
+            <div id="pauseScreen" class="ui-overlay hidden">
+                <h2 data-i18n="gamePaused">⏸️ 游戏暂停</h2>
+                <div class="pause-buttons">
+                    <button class="pause-btn continue" id="resumeBtn" data-i18n="resume">▶️ 继续游戏</button>
+                    <button class="pause-btn restart" id="restartFromPauseBtn" data-i18n="restart">🔄 重新开始</button>
+                </div>
+                <button class="pause-home-btn" id="backToArcadePauseBtn" data-i18n="backToArcade">🏠 回到街机厅</button>
+                <div style="color: #888; margin-top: 20px; font-size: 12px;" data-i18n="pauseHint">
+                    按 ESC 键也可以继续游戏
+                </div>
+            </div>
         </div>
         
         <div class="ad-slot" id="adRight"><ins class="adsbygoogle" style="display:block;width:100%;height:100%;" data-ad-client="ca-pub-3968599850270461" data-ad-slot="RIGHT_AD_SLOT_ID" data-ad-format="vertical" data-full-width-responsive="false"></ins><script>(adsbygoogle = window.adsbygoogle || []).push({});</script></div>
@@ -260,7 +329,11 @@ const i18n = {
         victoryTitle: '废土传奇！',
         victoryMessage: '你成功穿越了20波怪物潮！',
         totalGold: '总金币: {0}',
-        unlocked: '已解锁'
+        unlocked: '已解锁',
+        gamePaused: '⏸️ 游戏暂停',
+        resume: '▶️ 继续游戏',
+        restart: '🔄 重新开始',
+        pauseHint: '按 ESC 键也可以继续游戏'
     },
     en: {
         subtitle: 'Wasteland Survival v2.0',
@@ -300,7 +373,11 @@ const i18n = {
         victoryTitle: 'Wasteland Legend!',
         victoryMessage: 'You survived 20 waves of monsters!',
         totalGold: 'Total Gold: {0}',
-        unlocked: 'Unlocked'
+        unlocked: 'Unlocked',
+        gamePaused: '⏸️ Game Paused',
+        resume: '▶️ Resume',
+        restart: '🔄 Restart',
+        pauseHint: 'Press ESC to resume'
     }
 };
 
@@ -396,6 +473,22 @@ function init() {
     canvas.addEventListener('touchstart', (e) => { e.preventDefault(); handleTouch(e.touches, 'start'); }, { passive: false });
     canvas.addEventListener('touchmove', (e) => { e.preventDefault(); handleTouch(e.touches, 'move'); }, { passive: false });
     canvas.addEventListener('touchend', (e) => { e.preventDefault(); if (e.touches.length === 0) touchAimY = null; }, { passive: false });
+    
+    // 暂停按钮事件监听
+    document.getElementById('resumeBtn')?.addEventListener('click', resumeGame);
+    document.getElementById('restartFromPauseBtn')?.addEventListener('click', restartFromPause);
+    document.getElementById('backToArcadePauseBtn')?.addEventListener('click', goBackToArcade);
+    
+    // ESC键暂停/恢复
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (gameState === 'playing') {
+                pauseGame();
+            } else if (gameState === 'paused') {
+                resumeGame();
+            }
+        }
+    });
     
     // 检测语言
     detectLanguage();
@@ -627,6 +720,34 @@ function update() {
         waveInProgress = false; if (wave >= FINAL_WAVE) victory(); else setTimeout(openShop, 600);
     }
     updateHUD();
+}
+
+// ==================== 暂停控制 ====================
+function pauseGame() {
+    if (gameState === 'playing') {
+        gameState = 'paused';
+        document.getElementById('pauseScreen').classList.remove('hidden');
+        document.getElementById('hud').classList.add('hidden');
+        document.getElementById('ultButton').classList.add('hidden');
+    }
+}
+
+function resumeGame() {
+    if (gameState === 'paused') {
+        gameState = 'playing';
+        document.getElementById('pauseScreen').classList.add('hidden');
+        document.getElementById('hud').classList.remove('hidden');
+        document.getElementById('ultButton').classList.remove('hidden');
+        requestAnimationFrame(gameLoop);
+    }
+}
+
+function restartFromPause() {
+    document.getElementById('pauseScreen').classList.add('hidden');
+    document.getElementById('hud').classList.add('hidden');
+    document.getElementById('ultButton').classList.add('hidden');
+    restartGame();
+    startGame();
 }
 
 // ==================== 渲染 ====================
