@@ -158,6 +158,67 @@
             text-align: center;
             z-index: 50;
         }
+        
+        /* 暂停屏幕样式 */
+        #pauseScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        #pauseScreen.hidden {
+            display: none !important;
+        }
+        #pauseScreen h2 {
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px #4ade80;
+        }
+        .pause-buttons {
+            display: flex;
+            gap: 20px;
+        }
+        .pause-btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .pause-btn.continue {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+        }
+        .pause-btn.restart {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+        }
+        .pause-btn:hover {
+            transform: scale(1.05);
+        }
+        .pause-home-btn {
+            margin-top: 15px;
+            padding: 10px 25px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #6366f1 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .pause-home-btn:hover {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -203,6 +264,19 @@
                     </div>
                     <button class="btn" id="restartBtn">再跳一次</button>
                     <button class="btn" id="backToArcadeBtn" style="margin-top: 15px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">🏠 回到街机厅</button>
+                </div>
+                
+                <!-- 暂停对话框 -->
+                <div class="ui-overlay hidden" id="pauseScreen">
+                    <h2>⏸️ 游戏暂停</h2>
+                    <div class="pause-buttons">
+                        <button class="pause-btn continue" id="resumeBtn">▶️ 继续游戏</button>
+                        <button class="pause-btn restart" id="restartFromPauseBtn">🔄 重新开始</button>
+                    </div>
+                    <button class="pause-home-btn" id="backToArcadePauseBtn">🏠 回到街机厅</button>
+                    <div style="color: #888; margin-top: 20px; font-size: 12px;">
+                        按 ESC 键也可以继续游戏
+                    </div>
                 </div>
             </div>
         </div>
@@ -880,6 +954,33 @@
             requestAnimationFrame(gameLoop);
         }
 
+        // 暂停控制
+        function pauseGame() {
+            if (gameState === 'playing') {
+                gameState = 'paused';
+                document.getElementById('pauseScreen').classList.remove('hidden');
+                document.getElementById('scoreDisplay').classList.add('hidden');
+                document.getElementById('heightDisplay').classList.add('hidden');
+                document.getElementById('controlsHint').classList.add('hidden');
+            }
+        }
+
+        function resumeGame() {
+            if (gameState === 'paused') {
+                gameState = 'playing';
+                document.getElementById('pauseScreen').classList.add('hidden');
+                document.getElementById('scoreDisplay').classList.remove('hidden');
+                document.getElementById('heightDisplay').classList.remove('hidden');
+                document.getElementById('controlsHint').classList.remove('hidden');
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function restartFromPause() {
+            document.getElementById('pauseScreen').classList.add('hidden');
+            startGame();
+        }
+
         // 事件监听
         document.getElementById('startBtn').addEventListener('click', startGame);
         document.getElementById('backToArcadeStartBtn').addEventListener('click', () => {
@@ -887,6 +988,13 @@
         });
         document.getElementById('restartBtn').addEventListener('click', startGame);
         document.getElementById('backToArcadeBtn').addEventListener('click', () => {
+            window.location.href = '/';
+        });
+
+        // 暂停按钮事件监听
+        document.getElementById('resumeBtn')?.addEventListener('click', resumeGame);
+        document.getElementById('restartFromPauseBtn')?.addEventListener('click', restartFromPause);
+        document.getElementById('backToArcadePauseBtn')?.addEventListener('click', () => {
             window.location.href = '/';
         });
 
@@ -898,6 +1006,14 @@
             }
             if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
             if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+            // ESC 键暂停/恢复
+            if (e.key === 'Escape') {
+                if (gameState === 'playing') {
+                    pauseGame();
+                } else if (gameState === 'paused') {
+                    resumeGame();
+                }
+            }
         });
 
         window.addEventListener('keyup', (e) => {
