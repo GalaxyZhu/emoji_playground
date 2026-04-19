@@ -597,6 +597,7 @@
                         <button class="pause-btn continue" id="resumeBtn" data-i18n="resume">▶️ 继续游戏</button>
                         <button class="pause-btn restart" id="restartFromPauseBtn" data-i18n="restart">🔄 重新开始</button>
                     </div>
+                    <button class="btn btn-home" id="backToArcadePauseBtn" style="margin-top: 15px; padding: 10px 25px; font-size: 16px;">🏠 <span data-i18n="backToArcade">回到街机厅</span></button>
                     <div style="color: #888; margin-top: 20px; font-size: 12px;" data-i18n="pauseHint">
                         按 ESC 键也可以继续游戏
                     </div>
@@ -1007,6 +1008,7 @@
             document.getElementById('playAgainBtn')?.addEventListener('click', restartGame);
             document.getElementById('resumeBtn')?.addEventListener('click', resumeGame);
             document.getElementById('restartFromPauseBtn')?.addEventListener('click', restartFromPause);
+            document.getElementById('backToArcadePauseBtn')?.addEventListener('click', goBackToArcade);
             document.getElementById('backToArcadeStartBtn')?.addEventListener('click', goBackToArcade);
             document.getElementById('backToArcadeGameOverBtn')?.addEventListener('click', goBackToArcade);
 
