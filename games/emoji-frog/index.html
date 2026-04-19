@@ -241,14 +241,14 @@
                 <canvas id="gameCanvas"></canvas>
 
                 <div class="score-display hidden" id="scoreDisplay">0m</div>
-                <div class="height-display hidden" id="heightDisplay"><span id="highScoreLabel">最高</span>: 0m</div>
-                <div class="controls-hint hidden" id="controlsHint">A/D 或 ←→ 控制左右方向 | 左右穿墙</div>
+                <div class="height-display hidden" id="heightDisplay"><span id="highScoreLabel" data-i18n="heightDisplay">最高</span>: 0m</div>
+                <div class="controls-hint hidden" id="controlsHint" data-i18n="controlsHint">A/D 或 ←→ 控制左右方向 | 左右穿墙</div>
 
                 <div class="ui-overlay" id="startScreen">
                     <div class="emoji-title">🐸</div>
                     <h1>跳跳蛙</h1>
-                    <button class="btn" id="startBtn">开始跳跃</button>
-                    <button class="btn" id="backToArcadeStartBtn" style="margin-top: 15px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">🏠 回到街机厅</button>
+                    <button class="btn" id="startBtn" data-i18n="startGame">开始跳跃</button>
+                    <button class="btn" id="backToArcadeStartBtn" style="margin-top: 15px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);" data-i18n="backToArcade">🏠 回到街机厅</button>
                     <div class="instructions">
                         青蛙自动跳跃，你只需要控制左右方向<br>
                         A/D 或 ←→ 移动，左右穿墙<br>
@@ -258,23 +258,23 @@
 
                 <div class="ui-overlay hidden" id="gameOverScreen">
                     <div class="emoji-title">💀</div>
-                    <h1>游戏结束</h1>
+                    <h1 data-i18n="gameOver">游戏结束</h1>
                     <div class="instructions" style="font-size: 18px; margin-bottom: 20px;">
-                        <span id="heightLabel">高度</span>: <span id="finalScore" style="color: #4ade80; font-weight: bold;">0</span>m
+                        <span id="heightLabel" data-i18n="heightLabel">高度</span>: <span id="finalScore" style="color: #4ade80; font-weight: bold;">0</span>m
                     </div>
-                    <button class="btn" id="restartBtn">再跳一次</button>
-                    <button class="btn" id="backToArcadeBtn" style="margin-top: 15px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">🏠 回到街机厅</button>
+                    <button class="btn" id="restartBtn" data-i18n="restartGame">再跳一次</button>
+                    <button class="btn" id="backToArcadeBtn" style="margin-top: 15px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);" data-i18n="backToArcade">🏠 回到街机厅</button>
                 </div>
                 
                 <!-- 暂停对话框 -->
                 <div class="ui-overlay hidden" id="pauseScreen">
-                    <h2>⏸️ 游戏暂停</h2>
+                    <h2 data-i18n="gamePaused">⏸️ 游戏暂停</h2>
                     <div class="pause-buttons">
-                        <button class="pause-btn continue" id="resumeBtn">▶️ 继续游戏</button>
-                        <button class="pause-btn restart" id="restartFromPauseBtn">🔄 重新开始</button>
+                        <button class="pause-btn continue" id="resumeBtn" data-i18n="resume">▶️ 继续游戏</button>
+                        <button class="pause-btn restart" id="restartFromPauseBtn" data-i18n="restart">🔄 重新开始</button>
                     </div>
-                    <button class="pause-home-btn" id="backToArcadePauseBtn">🏠 回到街机厅</button>
-                    <div style="color: #888; margin-top: 20px; font-size: 12px;">
+                    <button class="pause-home-btn" id="backToArcadePauseBtn" data-i18n="backToArcade">🏠 回到街机厅</button>
+                    <div style="color: #888; margin-top: 20px; font-size: 12px;" data-i18n="pauseHint">
                         按 ESC 键也可以继续游戏
                     </div>
                 </div>
@@ -301,6 +301,52 @@
         const isEnglish = (forcedLang === 'zh' || forcedLang === 'en')
             ? forcedLang === 'en'
             : userLang.toLowerCase().startsWith('en');
+        
+        // i18n 翻译
+        const i18n = {
+            zh: {
+                gamePaused: '⏸️ 游戏暂停',
+                resume: '▶️ 继续游戏',
+                restart: '🔄 重新开始',
+                pauseHint: '按 ESC 键也可以继续游戏',
+                backToArcade: '🏠 回到街机厅',
+                startGame: '开始跳跃',
+                gameOver: '游戏结束',
+                heightLabel: '高度',
+                heightDisplay: '最高',
+                restartGame: '再跳一次',
+                controlsHint: 'A/D 或 ←→ 控制左右方向 | 左右穿墙'
+            },
+            en: {
+                gamePaused: '⏸️ Game Paused',
+                resume: '▶️ Resume',
+                restart: '🔄 Restart',
+                pauseHint: 'Press ESC to resume',
+                backToArcade: '🏠 Back to Arcade',
+                startGame: 'Start Jumping',
+                gameOver: 'Game Over',
+                heightLabel: 'Height',
+                heightDisplay: 'Best',
+                restartGame: 'Jump Again',
+                controlsHint: 'A/D or ←→ to move | Screen wrap'
+            }
+        };
+        
+        function t(key) {
+            return i18n[isEnglish ? 'en' : 'zh'][key] || key;
+        }
+        
+        // 应用翻译
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    el.placeholder = t(key);
+                } else {
+                    el.textContent = t(key);
+                }
+            });
+        }
 
         // 多语言文本
         const i18n = {
@@ -1068,6 +1114,9 @@
         // 初始化显示最高分
         const historyHighText = isEnglish ? 'Personal Best' : '历史最高';
         document.querySelector('#startScreen .instructions').innerHTML += `<br><br>${historyHighText}: ${Math.floor(maxHeight)}m`;
+        
+        // 应用国际化翻译
+        applyTranslations();
     </script>
     <script src="diagnosis.js"></script>
 </body>
