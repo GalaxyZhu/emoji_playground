@@ -1010,96 +1010,99 @@
             startGame();
         }
 
-        // 事件监听
-        document.getElementById('startBtn').addEventListener('click', startGame);
-        document.getElementById('backToArcadeStartBtn').addEventListener('click', () => {
-            window.location.href = '/';
-        });
-        document.getElementById('restartBtn').addEventListener('click', startGame);
-        document.getElementById('backToArcadeBtn').addEventListener('click', () => {
-            window.location.href = '/';
-        });
+        // DOM 加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 应用国际化翻译
+            applyTranslations();
+            
+            // 事件监听
+            document.getElementById('startBtn').addEventListener('click', startGame);
+            document.getElementById('backToArcadeStartBtn').addEventListener('click', () => {
+                window.location.href = '/';
+            });
+            document.getElementById('restartBtn').addEventListener('click', startGame);
+            document.getElementById('backToArcadeBtn').addEventListener('click', () => {
+                window.location.href = '/';
+            });
 
-        // 暂停按钮事件监听
-        document.getElementById('resumeBtn')?.addEventListener('click', resumeGame);
-        document.getElementById('restartFromPauseBtn')?.addEventListener('click', restartFromPause);
-        document.getElementById('backToArcadePauseBtn')?.addEventListener('click', () => {
-            window.location.href = '/';
-        });
+            // 暂停按钮事件监听
+            document.getElementById('resumeBtn')?.addEventListener('click', resumeGame);
+            document.getElementById('restartFromPauseBtn')?.addEventListener('click', restartFromPause);
+            document.getElementById('backToArcadePauseBtn')?.addEventListener('click', () => {
+                window.location.href = '/';
+            });
 
-        // 键盘控制
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
-                e.preventDefault();
-                jumpPressed = true;
-            }
-            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
-            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
-            // ESC 键暂停/恢复
-            if (e.key === 'Escape') {
-                if (gameState === 'playing') {
-                    pauseGame();
-                } else if (gameState === 'paused') {
-                    resumeGame();
+            // 键盘控制
+            window.addEventListener('keydown', (e) => {
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    jumpPressed = true;
                 }
-            }
-        });
+                if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+                if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+                // ESC 键暂停/恢复
+                if (e.key === 'Escape') {
+                    if (gameState === 'playing') {
+                        pauseGame();
+                    } else if (gameState === 'paused') {
+                        resumeGame();
+                    }
+                }
+            });
 
-        window.addEventListener('keyup', (e) => {
-            if (e.code === 'Space') {
+            window.addEventListener('keyup', (e) => {
+                if (e.code === 'Space') {
+                    jumpPressed = false;
+                }
+                if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+                if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+            });
+
+            // 触摸/点击控制
+            let touchStartX = 0;
+
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                touchStartX = e.touches[0].clientX;
+                jumpPressed = true;
+            }, { passive: false });
+
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touchX = e.touches[0].clientX;
+                const diff = touchX - touchStartX;
+
+                if (diff < -30) {
+                    keys.left = true;
+                    keys.right = false;
+                } else if (diff > 30) {
+                    keys.right = true;
+                    keys.left = false;
+                } else {
+                    keys.left = false;
+                    keys.right = false;
+                }
+            }, { passive: false });
+
+            canvas.addEventListener('touchend', () => {
                 jumpPressed = false;
-            }
-            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
-            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
-        });
-
-        // 触摸/点击控制
-        let touchStartX = 0;
-
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            touchStartX = e.touches[0].clientX;
-            jumpPressed = true;
-        }, { passive: false });
-
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            const touchX = e.touches[0].clientX;
-            const diff = touchX - touchStartX;
-
-            if (diff < -30) {
-                keys.left = true;
-                keys.right = false;
-            } else if (diff > 30) {
-                keys.right = true;
-                keys.left = false;
-            } else {
                 keys.left = false;
                 keys.right = false;
-            }
-        }, { passive: false });
+            });
 
-        canvas.addEventListener('touchend', () => {
-            jumpPressed = false;
-            keys.left = false;
-            keys.right = false;
+            // 鼠标点击也触发跳跃
+            canvas.addEventListener('mousedown', () => {
+                jumpPressed = true;
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                jumpPressed = false;
+            });
+
+            // 初始化显示最高分
+            const historyHighText = isEnglish ? 'Personal Best' : '历史最高';
+            document.querySelector('#startScreen .instructions').innerHTML += `<br><br>${historyHighText}: ${Math.floor(maxHeight)}m`;
         });
-
-        // 鼠标点击也触发跳跃
-        canvas.addEventListener('mousedown', () => {
-            jumpPressed = true;
-        });
-
-        canvas.addEventListener('mouseup', () => {
-            jumpPressed = false;
-        });
-
-        // 初始化显示最高分
-        const historyHighText = isEnglish ? 'Personal Best' : '历史最高';
-        document.querySelector('#startScreen .instructions').innerHTML += `<br><br>${historyHighText}: ${Math.floor(maxHeight)}m`;
-        
-        // 应用国际化翻译
-        applyTranslations();
     </script>
     <script src="diagnosis.js"></script>
 </body>
