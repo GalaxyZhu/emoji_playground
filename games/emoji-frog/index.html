@@ -348,25 +348,8 @@
             });
         }
 
-        // 多语言文本
-        const i18n = {
-            zh: {
-                title: '跳跳蛙',
-                startBtn: '开始跳跃',
-                instructions: '青蛙自动跳跃，你只需要控制左右方向<br>A/D 或 ←→ 移动，左右穿墙<br>跳得越高，分数越高！',
-                score: '分数',
-                highScore: '最高',
-                controlsHint: 'A/D 或 ←→ 控制左右方向 | 左右穿墙',
-                gameOver: '游戏结束',
-                height: '高度',
-                restartBtn: '再跳一次',
-                backToArcade: '🏠 回到街机厅'
-            },
-            en: {
-                title: 'Jumping Frog',
-                startBtn: 'Start Jumping',
-                instructions: 'The frog jumps automatically, you just control left/right<br>A/D or ←→ to move, wrap-around edges<br>Higher jump = higher score!',
-                score: 'Score',
+        // 游戏配置
+        const GAME_WIDTH = 400, GAME_HEIGHT = 700;
                 highScore: 'Best',
                 controlsHint: 'A/D or ←→ to move | Wrap-around edges',
                 gameOver: 'Game Over',
