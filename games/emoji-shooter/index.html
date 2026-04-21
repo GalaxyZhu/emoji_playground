@@ -71,14 +71,12 @@
                 .catch(() => {});
         })();
     </script>
+    <script src="../shared/i18n-detect.js"></script>
     <script>
         (function () {
-            const forced = new URLSearchParams(location.search).get('lang');
-            const preferredLang = (forced === 'zh' || forced === 'en')
-                ? forced
-                : ((navigator.language || navigator.userLanguage || 'zh-CN').toLowerCase().startsWith('en') ? 'en' : 'zh');
+            const preferredLang = GameI18n.detectLang();
             window.__emojiShooterPreferredLang = preferredLang;
-            document.documentElement.lang = preferredLang === 'en' ? 'en' : 'zh-CN';
+            GameI18n.setHtmlLang(preferredLang);
         })();
     </script>
     <style>
@@ -790,13 +788,7 @@
         };
         let currentLang = 'zh';
         function getPreferredLang() {
-            if (window.__emojiShooterPreferredLang === 'zh' || window.__emojiShooterPreferredLang === 'en') {
-                return window.__emojiShooterPreferredLang;
-            }
-            const forced = new URLSearchParams(location.search).get('lang');
-            if (forced === 'zh' || forced === 'en') return forced;
-            const lang = navigator.language || navigator.userLanguage || 'zh-CN';
-            return lang.toLowerCase().startsWith('en') ? 'en' : 'zh';
+            return window.__emojiShooterPreferredLang || GameI18n.detectLang();
         }
         function detectLanguage() {
             currentLang = getPreferredLang();

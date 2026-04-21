@@ -155,7 +155,10 @@
         <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
     </div>
 
+    <script src="../shared/i18n-detect.js"></script>
     <script>
+        // 同步语言设置（rolling 暂无 i18n，仅同步 html lang）
+        GameI18n.setHtmlLang(GameI18n.detectLang());
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         

@@ -474,6 +474,7 @@
         </div>
     </div>
 
+    <script src="../shared/i18n-detect.js"></script>
     <script>
         // 多语言配置
         const i18n = {
@@ -522,17 +523,8 @@
         };
 
         // 检测语言
-        let currentLang = 'zh';
-        function getPreferredLang() {
-            const forced = new URLSearchParams(location.search).get('lang');
-            if (forced === 'zh' || forced === 'en') return forced;
-            const lang = navigator.language || navigator.userLanguage || 'zh-CN';
-            return lang.toLowerCase().startsWith('en') ? 'en' : 'zh';
-        }
-        function detectLanguage() {
-            currentLang = getPreferredLang();
-            return currentLang;
-        }
+        let currentLang = GameI18n.detectLang();
+        GameI18n.setHtmlLang(currentLang);
 
         // 获取翻译文本
         function t(key) {
@@ -620,7 +612,7 @@
         
         // 初始化
         function init() {
-            detectLanguage();
+            currentLang = GameI18n.detectLang();
             applyTranslations();
             
             canvas = document.getElementById('gameCanvas');

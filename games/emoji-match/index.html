@@ -426,6 +426,7 @@
         </div>
     </div>
 
+    <script src="../shared/i18n-detect.js"></script>
     <script>
         // ==================== 国际化配置 ====================
         const i18n = {
@@ -469,12 +470,9 @@
             }
         };
 
-        // 检测语言：优先读取 URL 参数 lang=zh/en
-        const forcedLang = new URLSearchParams(location.search).get('lang');
-        const userLang = navigator.language || navigator.userLanguage || 'zh-CN';
-        const lang = (forcedLang === 'zh' || forcedLang === 'en')
-            ? forcedLang
-            : (userLang.toLowerCase().startsWith('en') ? 'en' : 'zh');
+        // 检测语言：使用通用模块（localStorage → 浏览器语言）
+        const lang = GameI18n.detectLang();
+        GameI18n.setHtmlLang(lang);
 
         // 应用翻译
         function applyI18n() {

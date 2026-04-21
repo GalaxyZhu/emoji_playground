@@ -382,15 +382,10 @@ const i18n = {
 };
 
 // 检测语言并应用
-let currentLang = 'zh';
-function getPreferredLang() {
-    const forced = new URLSearchParams(location.search).get('lang');
-    if (forced === 'zh' || forced === 'en') return forced;
-    const navLang = navigator.language || navigator.userLanguage || 'zh-CN';
-    return navLang.toLowerCase().startsWith('en') ? 'en' : 'zh';
-}
+let currentLang = GameI18n.detectLang();
+GameI18n.setHtmlLang(currentLang);
 function detectLanguage() {
-    currentLang = getPreferredLang();
+    currentLang = GameI18n.detectLang();
     applyTranslations();
 }
 
@@ -928,6 +923,7 @@ init();
     </script>
     
     <!-- 生存游戏诊断系统 -->
+    <script src="../shared/i18n-detect.js"></script>
     <script>
         const SurviveDiagnosis = {
             types: {

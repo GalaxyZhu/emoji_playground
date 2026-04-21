@@ -294,17 +294,17 @@
         </div>
     </div>
 
+    <script src="../shared/i18n-detect.js"></script>
     <script>
-        // 语言检测：优先读取 URL 参数 lang=zh/en
-        const forcedLang = new URLSearchParams(location.search).get('lang');
-        const userLang = navigator.language || navigator.userLanguage || 'zh-CN';
-        const isEnglish = (forcedLang === 'zh' || forcedLang === 'en')
-            ? forcedLang === 'en'
-            : userLang.toLowerCase().startsWith('en');
+        // 语言检测：使用通用模块（URL 参数 → localStorage → 浏览器语言）
+        const lang = GameI18n.detectLang();
+        GameI18n.setHtmlLang(lang);
+        const isEnglish = lang === 'en';
         
         // i18n 翻译
         const i18n = {
             zh: {
+                title: '跳跳蛙',
                 gamePaused: '⏸️ 游戏暂停',
                 resume: '▶️ 继续游戏',
                 restart: '🔄 重新开始',
@@ -315,9 +315,12 @@
                 heightLabel: '高度',
                 heightDisplay: '最高',
                 restartGame: '再跳一次',
-                controlsHint: 'A/D 或 ←→ 控制左右方向 | 左右穿墙'
+                controlsHint: 'A/D 或 ←→ 控制左右方向 | 左右穿墙',
+                instructions: '青蛙自动跳跃，你只需要控制左右方向<br>A/D 或 ←→ 移动，左右穿墙<br>跳得越高，分数越高！',
+                historyHigh: '历史最高'
             },
             en: {
+                title: 'Jumping Frog',
                 gamePaused: '⏸️ Game Paused',
                 resume: '▶️ Resume',
                 restart: '🔄 Restart',
@@ -328,7 +331,9 @@
                 heightLabel: 'Height',
                 heightDisplay: 'Best',
                 restartGame: 'Jump Again',
-                controlsHint: 'A/D or ←→ to move | Screen wrap'
+                controlsHint: 'A/D or ←→ to move | Screen wrap',
+                instructions: 'The frog jumps automatically, you only control left & right<br>A/D or ←→ to move, wrap-around edges<br>The higher you jump, the higher your score!',
+                historyHigh: 'Personal Best'
             }
         };
         
@@ -350,28 +355,6 @@
 
         // 游戏配置
         const GAME_WIDTH = 400, GAME_HEIGHT = 700;
-                highScore: 'Best',
-                controlsHint: 'A/D or ←→ to move | Wrap-around edges',
-                gameOver: 'Game Over',
-                height: 'Height',
-                restartBtn: 'Jump Again',
-                backToArcade: '🏠 Back to Arcade'
-            }
-        };
-
-        const t = isEnglish ? i18n.en : i18n.zh;
-
-        // 应用翻译
-        document.getElementById('startScreen').querySelector('h1').textContent = t.title;
-        document.getElementById('startBtn').textContent = t.startBtn;
-        document.getElementById('backToArcadeStartBtn').textContent = t.backToArcade;
-        document.getElementById('startScreen').querySelector('.instructions').innerHTML = t.instructions;
-        document.getElementById('gameOverScreen').querySelector('h1').textContent = t.gameOver;
-        document.getElementById('heightLabel').textContent = t.height;
-        document.getElementById('highScoreLabel').textContent = t.highScore;
-        document.getElementById('restartBtn').textContent = t.restartBtn;
-        document.getElementById('backToArcadeBtn').textContent = t.backToArcade;
-        document.getElementById('controlsHint').textContent = t.controlsHint;
 
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -535,7 +518,7 @@
             document.getElementById('scoreDisplay').classList.remove('hidden');
             document.getElementById('heightDisplay').classList.remove('hidden');
             document.getElementById('controlsHint').classList.remove('hidden');
-            document.getElementById('heightDisplay').textContent = `${t.highScore}: ${Math.floor(maxHeight)}m`;
+            document.getElementById('heightDisplay').textContent = `${t('heightDisplay')}: ${Math.floor(maxHeight)}m`;
 
             gameLoop();
         }
@@ -1012,8 +995,13 @@
 
         // DOM 加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
-            // 应用国际化翻译
+            // 应用国际化翻译（data-i18n 元素）
             applyTranslations();
+            
+            // 手动翻译没有 data-i18n 的元素
+            document.querySelector('#startScreen h1').textContent = t('title');
+            document.querySelector('#gameOverScreen h1').textContent = t('gameOver');
+            document.getElementById('startScreen').querySelector('.instructions').innerHTML = t('instructions');
             
             // 事件监听
             document.getElementById('startBtn').addEventListener('click', startGame);
@@ -1101,7 +1089,7 @@
 
             // 初始化显示最高分
             const historyHighText = isEnglish ? 'Personal Best' : '历史最高';
-            document.querySelector('#startScreen .instructions').innerHTML += `<br><br>${historyHighText}: ${Math.floor(maxHeight)}m`;
+            document.querySelector('#startScreen .instructions').innerHTML = t('instructions') + `<br><br>${historyHighText}: ${Math.floor(maxHeight)}m`;
         });
     </script>
     <script src="diagnosis.js"></script>
