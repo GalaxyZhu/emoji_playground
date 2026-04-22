@@ -1268,6 +1268,12 @@
         // ==================== Language Detection ====================
         function detectLanguage() {
             const isChinese = getCurrentLang() === 'zh';
+            const lang = isChinese ? 'zh' : 'en';
+            
+            // Banner slides: update data-zh/data-en elements
+            document.querySelectorAll('.banner-slide [data-zh][data-en]').forEach(el => {
+                el.textContent = el.getAttribute('data-' + lang);
+            });
             
             // Hero section
             const heroSubtitleZh = document.getElementById('heroSubtitleZh');
