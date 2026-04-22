@@ -681,6 +681,13 @@
         function handleKeyDown(e) {
             keys[e.key] = true;
             
+            // ESC 暂停/恢复，无论 playing 还是 paused 状态都生效
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                togglePause();
+                return;
+            }
+            
             if (gameState === 'playing') {
                 switch(e.key) {
                     case 'ArrowUp':
@@ -706,10 +713,6 @@
                     case 'D':
                         e.preventDefault();
                         movePlayer('right');
-                        break;
-                    case 'Escape':
-                        e.preventDefault();
-                        togglePause();
                         break;
                 }
             }
