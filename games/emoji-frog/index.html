@@ -158,6 +158,67 @@
             text-align: center;
             z-index: 50;
         }
+        
+        /* 暂停屏幕样式 */
+        #pauseScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+        #pauseScreen.hidden {
+            display: none !important;
+        }
+        #pauseScreen h2 {
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px #4ade80;
+        }
+        .pause-buttons {
+            display: flex;
+            gap: 20px;
+        }
+        .pause-btn {
+            padding: 12px 30px;
+            font-size: 16px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .pause-btn.continue {
+            background: linear-gradient(135deg, #4caf50 0%, #45a049 100%);
+            color: white;
+        }
+        .pause-btn.restart {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+        }
+        .pause-btn:hover {
+            transform: scale(1.05);
+        }
+        .pause-home-btn {
+            margin-top: 15px;
+            padding: 10px 25px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #6366f1 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .pause-home-btn:hover {
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -180,14 +241,14 @@
                 <canvas id="gameCanvas"></canvas>
 
                 <div class="score-display hidden" id="scoreDisplay">0m</div>
-                <div class="height-display hidden" id="heightDisplay"><span id="highScoreLabel">最高</span>: 0m</div>
-                <div class="controls-hint hidden" id="controlsHint">A/D 或 ←→ 控制左右方向 | 左右穿墙</div>
+                <div class="height-display hidden" id="heightDisplay"><span id="highScoreLabel" data-i18n="heightDisplay">最高</span>: 0m</div>
+                <div class="controls-hint hidden" id="controlsHint" data-i18n="controlsHint">A/D 或 ←→ 控制左右方向 | 左右穿墙</div>
 
                 <div class="ui-overlay" id="startScreen">
                     <div class="emoji-title">🐸</div>
                     <h1>跳跳蛙</h1>
-                    <button class="btn" id="startBtn">开始跳跃</button>
-                    <button class="btn" id="backToArcadeStartBtn" style="margin-top: 15px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">🏠 回到街机厅</button>
+                    <button class="btn" id="startBtn" data-i18n="startGame">开始跳跃</button>
+                    <button class="btn" id="backToArcadeStartBtn" style="margin-top: 15px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);" data-i18n="backToArcade">🏠 回到街机厅</button>
                     <div class="instructions">
                         青蛙自动跳跃，你只需要控制左右方向<br>
                         A/D 或 ←→ 移动，左右穿墙<br>
@@ -197,12 +258,25 @@
 
                 <div class="ui-overlay hidden" id="gameOverScreen">
                     <div class="emoji-title">💀</div>
-                    <h1>游戏结束</h1>
+                    <h1 data-i18n="gameOver">游戏结束</h1>
                     <div class="instructions" style="font-size: 18px; margin-bottom: 20px;">
-                        <span id="heightLabel">高度</span>: <span id="finalScore" style="color: #4ade80; font-weight: bold;">0</span>m
+                        <span id="heightLabel" data-i18n="heightLabel">高度</span>: <span id="finalScore" style="color: #4ade80; font-weight: bold;">0</span>m
                     </div>
-                    <button class="btn" id="restartBtn">再跳一次</button>
-                    <button class="btn" id="backToArcadeBtn" style="margin-top: 15px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);">🏠 回到街机厅</button>
+                    <button class="btn" id="restartBtn" data-i18n="restartGame">再跳一次</button>
+                    <button class="btn" id="backToArcadeBtn" style="margin-top: 15px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);" data-i18n="backToArcade">🏠 回到街机厅</button>
+                </div>
+                
+                <!-- 暂停对话框 -->
+                <div class="ui-overlay hidden" id="pauseScreen">
+                    <h2 data-i18n="gamePaused">⏸️ 游戏暂停</h2>
+                    <div class="pause-buttons">
+                        <button class="pause-btn continue" id="resumeBtn" data-i18n="resume">▶️ 继续游戏</button>
+                        <button class="pause-btn restart" id="restartFromPauseBtn" data-i18n="restart">🔄 重新开始</button>
+                    </div>
+                    <button class="pause-home-btn" id="backToArcadePauseBtn" data-i18n="backToArcade">🏠 回到街机厅</button>
+                    <div style="color: #888; margin-top: 20px; font-size: 12px;" data-i18n="pauseHint">
+                        按 ESC 键也可以继续游戏
+                    </div>
                 </div>
             </div>
         </div>
@@ -220,55 +294,67 @@
         </div>
     </div>
 
+    <script src="../shared/i18n-detect.js"></script>
     <script>
-        // 语言检测：优先读取 URL 参数 lang=zh/en
-        const forcedLang = new URLSearchParams(location.search).get('lang');
-        const userLang = navigator.language || navigator.userLanguage || 'zh-CN';
-        const isEnglish = (forcedLang === 'zh' || forcedLang === 'en')
-            ? forcedLang === 'en'
-            : userLang.toLowerCase().startsWith('en');
-
-        // 多语言文本
+        // 语言检测：使用通用模块（URL 参数 → localStorage → 浏览器语言）
+        const lang = GameI18n.detectLang();
+        GameI18n.setHtmlLang(lang);
+        const isEnglish = lang === 'en';
+        
+        // i18n 翻译
         const i18n = {
             zh: {
                 title: '跳跳蛙',
-                startBtn: '开始跳跃',
-                instructions: '青蛙自动跳跃，你只需要控制左右方向<br>A/D 或 ←→ 移动，左右穿墙<br>跳得越高，分数越高！',
-                score: '分数',
-                highScore: '最高',
-                controlsHint: 'A/D 或 ←→ 控制左右方向 | 左右穿墙',
+                gamePaused: '⏸️ 游戏暂停',
+                resume: '▶️ 继续游戏',
+                restart: '🔄 重新开始',
+                pauseHint: '按 ESC 键也可以继续游戏',
+                backToArcade: '🏠 回到街机厅',
+                startGame: '开始跳跃',
                 gameOver: '游戏结束',
-                height: '高度',
-                restartBtn: '再跳一次',
-                backToArcade: '🏠 回到街机厅'
+                heightLabel: '高度',
+                heightDisplay: '最高',
+                restartGame: '再跳一次',
+                controlsHint: 'A/D 或 ←→ 控制左右方向 | 左右穿墙',
+                instructions: '青蛙自动跳跃，你只需要控制左右方向<br>A/D 或 ←→ 移动，左右穿墙<br>跳得越高，分数越高！',
+                historyHigh: '历史最高'
             },
             en: {
                 title: 'Jumping Frog',
-                startBtn: 'Start Jumping',
-                instructions: 'The frog jumps automatically, you just control left/right<br>A/D or ←→ to move, wrap-around edges<br>Higher jump = higher score!',
-                score: 'Score',
-                highScore: 'Best',
-                controlsHint: 'A/D or ←→ to move | Wrap-around edges',
+                gamePaused: '⏸️ Game Paused',
+                resume: '▶️ Resume',
+                restart: '🔄 Restart',
+                pauseHint: 'Press ESC to resume',
+                backToArcade: '🏠 Back to Arcade',
+                startGame: 'Start Jumping',
                 gameOver: 'Game Over',
-                height: 'Height',
-                restartBtn: 'Jump Again',
-                backToArcade: '🏠 Back to Arcade'
+                heightLabel: 'Height',
+                heightDisplay: 'Best',
+                restartGame: 'Jump Again',
+                controlsHint: 'A/D or ←→ to move | Screen wrap',
+                instructions: 'The frog jumps automatically, you only control left & right<br>A/D or ←→ to move, wrap-around edges<br>The higher you jump, the higher your score!',
+                historyHigh: 'Personal Best'
             }
         };
-
-        const t = isEnglish ? i18n.en : i18n.zh;
-
+        
+        function t(key) {
+            return i18n[isEnglish ? 'en' : 'zh'][key] || key;
+        }
+        
         // 应用翻译
-        document.getElementById('startScreen').querySelector('h1').textContent = t.title;
-        document.getElementById('startBtn').textContent = t.startBtn;
-        document.getElementById('backToArcadeStartBtn').textContent = t.backToArcade;
-        document.getElementById('startScreen').querySelector('.instructions').innerHTML = t.instructions;
-        document.getElementById('gameOverScreen').querySelector('h1').textContent = t.gameOver;
-        document.getElementById('heightLabel').textContent = t.height;
-        document.getElementById('highScoreLabel').textContent = t.highScore;
-        document.getElementById('restartBtn').textContent = t.restartBtn;
-        document.getElementById('backToArcadeBtn').textContent = t.backToArcade;
-        document.getElementById('controlsHint').textContent = t.controlsHint;
+        function applyTranslations() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    el.placeholder = t(key);
+                } else {
+                    el.textContent = t(key);
+                }
+            });
+        }
+
+        // 游戏配置
+        const GAME_WIDTH = 400, GAME_HEIGHT = 700;
 
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -432,7 +518,7 @@
             document.getElementById('scoreDisplay').classList.remove('hidden');
             document.getElementById('heightDisplay').classList.remove('hidden');
             document.getElementById('controlsHint').classList.remove('hidden');
-            document.getElementById('heightDisplay').textContent = `${t.highScore}: ${Math.floor(maxHeight)}m`;
+            document.getElementById('heightDisplay').textContent = `${t('heightDisplay')}: ${Math.floor(maxHeight)}m`;
 
             gameLoop();
         }
@@ -880,78 +966,131 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // 事件监听
-        document.getElementById('startBtn').addEventListener('click', startGame);
-        document.getElementById('backToArcadeStartBtn').addEventListener('click', () => {
-            window.location.href = '/';
-        });
-        document.getElementById('restartBtn').addEventListener('click', startGame);
-        document.getElementById('backToArcadeBtn').addEventListener('click', () => {
-            window.location.href = '/';
-        });
+        // 暂停控制
+        function pauseGame() {
+            if (gameState === 'playing') {
+                gameState = 'paused';
+                document.getElementById('pauseScreen').classList.remove('hidden');
+                document.getElementById('scoreDisplay').classList.add('hidden');
+                document.getElementById('heightDisplay').classList.add('hidden');
+                document.getElementById('controlsHint').classList.add('hidden');
+            }
+        }
 
-        // 键盘控制
-        window.addEventListener('keydown', (e) => {
-            if (e.code === 'Space') {
+        function resumeGame() {
+            if (gameState === 'paused') {
+                gameState = 'playing';
+                document.getElementById('pauseScreen').classList.add('hidden');
+                document.getElementById('scoreDisplay').classList.remove('hidden');
+                document.getElementById('heightDisplay').classList.remove('hidden');
+                document.getElementById('controlsHint').classList.remove('hidden');
+                requestAnimationFrame(gameLoop);
+            }
+        }
+
+        function restartFromPause() {
+            document.getElementById('pauseScreen').classList.add('hidden');
+            startGame();
+        }
+
+        // DOM 加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 应用国际化翻译（data-i18n 元素）
+            applyTranslations();
+            
+            // 手动翻译没有 data-i18n 的元素
+            document.querySelector('#startScreen h1').textContent = t('title');
+            document.querySelector('#gameOverScreen h1').textContent = t('gameOver');
+            document.getElementById('startScreen').querySelector('.instructions').innerHTML = t('instructions');
+            
+            // 事件监听
+            document.getElementById('startBtn').addEventListener('click', startGame);
+            document.getElementById('backToArcadeStartBtn').addEventListener('click', () => {
+                window.location.href = '/';
+            });
+            document.getElementById('restartBtn').addEventListener('click', startGame);
+            document.getElementById('backToArcadeBtn').addEventListener('click', () => {
+                window.location.href = '/';
+            });
+
+            // 暂停按钮事件监听
+            document.getElementById('resumeBtn')?.addEventListener('click', resumeGame);
+            document.getElementById('restartFromPauseBtn')?.addEventListener('click', restartFromPause);
+            document.getElementById('backToArcadePauseBtn')?.addEventListener('click', () => {
+                window.location.href = '/';
+            });
+
+            // 键盘控制
+            window.addEventListener('keydown', (e) => {
+                if (e.code === 'Space') {
+                    e.preventDefault();
+                    jumpPressed = true;
+                }
+                if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
+                if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
+                // ESC 键暂停/恢复
+                if (e.key === 'Escape') {
+                    if (gameState === 'playing') {
+                        pauseGame();
+                    } else if (gameState === 'paused') {
+                        resumeGame();
+                    }
+                }
+            });
+
+            window.addEventListener('keyup', (e) => {
+                if (e.code === 'Space') {
+                    jumpPressed = false;
+                }
+                if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
+                if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
+            });
+
+            // 触摸/点击控制
+            let touchStartX = 0;
+
+            canvas.addEventListener('touchstart', (e) => {
                 e.preventDefault();
+                touchStartX = e.touches[0].clientX;
                 jumpPressed = true;
-            }
-            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = true;
-            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = true;
-        });
+            }, { passive: false });
 
-        window.addEventListener('keyup', (e) => {
-            if (e.code === 'Space') {
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                const touchX = e.touches[0].clientX;
+                const diff = touchX - touchStartX;
+
+                if (diff < -30) {
+                    keys.left = true;
+                    keys.right = false;
+                } else if (diff > 30) {
+                    keys.right = true;
+                    keys.left = false;
+                } else {
+                    keys.left = false;
+                    keys.right = false;
+                }
+            }, { passive: false });
+
+            canvas.addEventListener('touchend', () => {
                 jumpPressed = false;
-            }
-            if (e.code === 'ArrowLeft' || e.code === 'KeyA') keys.left = false;
-            if (e.code === 'ArrowRight' || e.code === 'KeyD') keys.right = false;
-        });
-
-        // 触摸/点击控制
-        let touchStartX = 0;
-
-        canvas.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            touchStartX = e.touches[0].clientX;
-            jumpPressed = true;
-        }, { passive: false });
-
-        canvas.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            const touchX = e.touches[0].clientX;
-            const diff = touchX - touchStartX;
-
-            if (diff < -30) {
-                keys.left = true;
-                keys.right = false;
-            } else if (diff > 30) {
-                keys.right = true;
-                keys.left = false;
-            } else {
                 keys.left = false;
                 keys.right = false;
-            }
-        }, { passive: false });
+            });
 
-        canvas.addEventListener('touchend', () => {
-            jumpPressed = false;
-            keys.left = false;
-            keys.right = false;
+            // 鼠标点击也触发跳跃
+            canvas.addEventListener('mousedown', () => {
+                jumpPressed = true;
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                jumpPressed = false;
+            });
+
+            // 初始化显示最高分
+            const historyHighText = isEnglish ? 'Personal Best' : '历史最高';
+            document.querySelector('#startScreen .instructions').innerHTML = t('instructions') + `<br><br>${historyHighText}: ${Math.floor(maxHeight)}m`;
         });
-
-        // 鼠标点击也触发跳跃
-        canvas.addEventListener('mousedown', () => {
-            jumpPressed = true;
-        });
-
-        canvas.addEventListener('mouseup', () => {
-            jumpPressed = false;
-        });
-
-        // 初始化显示最高分
-        const historyHighText = isEnglish ? 'Personal Best' : '历史最高';
-        document.querySelector('#startScreen .instructions').innerHTML += `<br><br>${historyHighText}: ${Math.floor(maxHeight)}m`;
     </script>
     <script src="diagnosis.js"></script>
 </body>

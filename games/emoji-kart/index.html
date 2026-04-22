@@ -126,6 +126,7 @@
         <button class="btn btn-home" onclick="location.href='../../index.html'">🏠 <span id="backToArcade">回到街机厅</span></button>
     </div>
 
+    <script src="../shared/i18n-detect.js"></script>
     <script>
         // 语言检测和翻译系统
         const i18n = {
@@ -172,15 +173,8 @@ Get the first place!`
                 return this.texts[this.lang][key] || key;
             },
             detect() {
-                const forced = new URLSearchParams(location.search).get('lang');
-                if (forced === 'zh' || forced === 'en') {
-                    this.lang = forced;
-                    document.documentElement.lang = this.lang === 'en' ? 'en' : 'zh-CN';
-                    return;
-                }
-                const navLang = navigator.language || navigator.userLanguage || 'zh-CN';
-                this.lang = navLang.toLowerCase().startsWith('en') ? 'en' : 'zh';
-                document.documentElement.lang = this.lang === 'en' ? 'en' : 'zh-CN';
+                this.lang = GameI18n.detectLang();
+                GameI18n.setHtmlLang(this.lang);
             },
             apply() {
                 // 应用翻译

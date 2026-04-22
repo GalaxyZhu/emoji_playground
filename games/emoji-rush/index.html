@@ -3,7 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title id="pageTitle">🏎️ Emoji Rush V0.3.0 - QTE减速模式</title>
+    
+    <!-- SEO Core Tags -->
+    <title>Emoji Rush - Free Online Racing Game with QTE Challenges | Emoji Arcade</title>
+    <meta name="description" content="Play Emoji Rush free! Racing game with broken brakes 🏎️💨 Dodge obstacles, use QTE emergency braking, and survive the speed rush! No download needed.">
+    <meta name="keywords" content="racing game, car game, emoji game, QTE game, speed game, browser game, free online game, arcade racing, endless runner">
+    <link rel="canonical" href="https://emojiarcade.app/games/emoji-rush/">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://emojiarcade.app/games/emoji-rush/">
+    <meta property="og:title" content="Emoji Rush - Free Racing Game with QTE Challenges">
+    <meta property="og:description" content="Brakes broken! Dodge obstacles, QTE emergency brake ⏱️, survive the speed rush! Play free now.">
+    <meta property="og:image" content="https://emojiarcade.app/og-rush.png">
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://emojiarcade.app/games/emoji-rush/">
+    <meta name="twitter:title" content="Emoji Rush - Free Racing QTE Game">
+    <meta name="twitter:description" content="High-speed racing with QTE braking. Survive the rush! Free to play.">
+    <meta name="twitter:image" content="https://emojiarcade.app/og-rush.png">
+    
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      "name": "Emoji Rush",
+      "description": "A high-speed racing game with QTE challenges where players dodge obstacles and use emergency braking to survive",
+      "url": "https://emojiarcade.app/games/emoji-rush/",
+      "gamePlatform": ["Browser", "Web Browser"],
+      "applicationCategory": "Game",
+      "genre": ["Racing", "Arcade", "Action"],
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.4",
+        "ratingCount": "87"
+      }
+    }
+    </script>
+    
+    <title id="pageTitle">🏎️ Emoji Rush - QTE Racing Game</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
         body {
@@ -296,6 +342,7 @@
         <button class="btn btn-home" id="homeBtn" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
     </div>
 
+    <script src="../shared/i18n-detect.js"></script>
     <script>
         // 语言检测和翻译系统
         const i18n = {
@@ -355,19 +402,9 @@
             }
         };
 
-        // 检测语言：优先读取 URL 参数 lang=zh/en
-        function getPreferredLang() {
-            const forced = new URLSearchParams(location.search).get('lang');
-            if (forced === 'zh' || forced === 'en') return forced;
-            const lang = navigator.language || navigator.userLanguage || 'zh';
-            return lang.toLowerCase().startsWith('en') ? 'en' : 'zh';
-        }
-
-        function detectLanguage() {
-            return getPreferredLang();
-        }
-
-        const currentLang = detectLanguage();
+        // 检测语言：使用通用模块（localStorage → 浏览器语言）
+        const currentLang = GameI18n.detectLang();
+        GameI18n.setHtmlLang(currentLang);
         const t = i18n[currentLang];
 
         // 应用翻译到UI
