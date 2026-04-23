@@ -932,7 +932,6 @@
                 const game = gameConfigs[id];
                 if (game) {
                     const card = createStaticGameCard(id, game, lang);
-                    card.style.opacity = '1';
                     grid.appendChild(card);
                 }
             });
@@ -942,7 +941,6 @@
         function createStaticGameCard(id, game, lang) {
             const card = document.createElement('div');
             card.className = 'game-card';
-            card.style.opacity = '0.6';
             card.onclick = () => launchGame({
                 id,
                 name: game.name,
@@ -997,7 +995,6 @@
         function createComingSoonCard(id, game, lang) {
             const card = document.createElement('div');
             card.className = 'game-card coming-soon';
-            card.style.opacity = '0.6';
             card.onclick = () => launchGame({
                 id,
                 name: game.name,
