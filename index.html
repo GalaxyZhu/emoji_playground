@@ -932,6 +932,7 @@
                 const game = gameConfigs[id];
                 if (game) {
                     const card = createStaticGameCard(id, game, lang);
+                    card.style.opacity = '1';
                     grid.appendChild(card);
                 }
             });
