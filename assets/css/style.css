@@ -357,6 +357,10 @@ body {
   border: 1px solid rgba(136, 136, 153, 0.3);
 }
 
+.game-card.coming-soon {
+  opacity: 0.6 !important;
+}
+
 .game-info {
   padding: 20px;
 }
