@@ -526,6 +526,11 @@ section:nth-of-type(3) .game-card {
   border: 1px solid rgba(188, 19, 254, 0.15);
 }
 
+/* 特例：酝酿中卡片保持半透明 */
+section:nth-of-type(3) .game-card.coming-soon {
+  opacity: 0.6 !important;
+}
+
 section:nth-of-type(3) .game-card:hover {
   border-color: rgba(188, 19, 254, 0.4);
   box-shadow: var(--card-shadow), 0 0 25px rgba(188, 19, 254, 0.15);
