@@ -1,0 +1,484 @@
+/* ===== 基础重置 ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f0f23 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== 头部 ===== */
+.header {
+    width: 100%;
+    padding: 8px 15px;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.game-title {
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #00f5ff, #bc13fe);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* ===== HUD ===== */
+.hud {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 12px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+
+.hud-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+.hud-icon {
+    font-size: 14px;
+}
+
+.hud-label {
+    font-size: 11px;
+}
+
+.hud-value {
+    font-weight: 700;
+    color: #fff;
+    font-size: 14px;
+    min-width: 24px;
+    text-align: center;
+}
+
+.time-bar {
+    width: 60px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    position: relative;
+}
+
+.time-fill {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
+    border-radius: 3px;
+    transition: width 0.5s linear;
+}
+
+.hud-item.combo {
+    animation: comboPulse 0.5s ease;
+}
+
+@keyframes comboPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* ===== 难度选择 ===== */
+.difficulty-bar {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 4px 12px;
+    flex-shrink: 0;
+}
+
+.diff-btn {
+    padding: 6px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 20px;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.3s;
+}
+
+.diff-btn.active, .diff-btn:hover {
+    background: linear-gradient(135deg, #bc13fe, #ff006e);
+    border-color: transparent;
+    color: #fff;
+    font-weight: 600;
+}
+
+/* ===== 游戏棋盘 ===== */
+.game-board {
+    display: grid;
+    gap: 3px;
+    padding: 6px;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+    flex: 1;
+    width: 100%;
+    max-width: min(98vw, 680px);
+    min-height: 50vh;
+    min-width: 0;
+    overflow: visible;
+    grid-auto-rows: 1fr;
+    align-content: start;
+}
+
+/* 单元格 */
+.cell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(16px, 4.5vw, 28px);
+    cursor: pointer;
+    border-radius: 6px;
+    background: linear-gradient(135deg, #2a2a4e 0%, #1a1a3e 100%);
+    border: 2px solid rgba(255, 255, 255, 0.08);
+    transition: all 0.2s ease;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 36px;
+    min-width: 36px;
+}
+
+.cell:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.cell.selected {
+    border-color: #fbbf24;
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.5), inset 0 0 10px rgba(251, 191, 36, 0.2);
+    transform: scale(1.1);
+    animation: selectedPulse 1s ease infinite;
+    z-index: 2;
+}
+
+@keyframes selectedPulse {
+    0%, 100% { box-shadow: 0 0 15px rgba(251, 191, 36, 0.5), inset 0 0 10px rgba(251, 191, 36, 0.2); }
+    50% { box-shadow: 0 0 25px rgba(251, 191, 36, 0.8), inset 0 0 15px rgba(251, 191, 36, 0.4); }
+}
+
+.cell.matched {
+    animation: matchPop 0.4s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes matchPop {
+    0% { transform: scale(1.1); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.6; }
+    100% { transform: scale(0); opacity: 0; }
+}
+
+.cell.shake {
+    animation: shake 0.4s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+}
+
+.cell.hint {
+    animation: hintPulse 1s ease infinite;
+    border-color: #22c55e;
+    box-shadow: 0 0 10px rgba(34, 197, 94, 0.4);
+}
+
+@keyframes hintPulse {
+    0%, 100% { box-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
+    50% { box-shadow: 0 0 20px rgba(34, 197, 94, 0.8); }
+}
+
+.cell.empty {
+    background: transparent;
+    border: 2px dashed rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+    opacity: 0.3;
+}
+
+/* ===== 连线层 ===== */
+.line-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.line-path {
+    fill: none;
+    stroke: url(#lineGrad);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 4px #00f5ff);
+    animation: lineDraw 0.3s ease forwards;
+}
+
+@keyframes lineDraw {
+    from { stroke-dasharray: 1000; stroke-dashoffset: 1000; }
+    to { stroke-dasharray: 1000; stroke-dashoffset: 0; }
+}
+
+/* ===== 粒子层 ===== */
+.particle-layer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 50;
+}
+
+.particle {
+    position: absolute;
+    font-size: 14px;
+    animation: particleFly 0.8s ease forwards;
+    pointer-events: none;
+}
+
+@keyframes particleFly {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
+
+/* ===== 底部工具栏 ===== */
+.toolbar {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 8px 12px;
+    flex-shrink: 0;
+}
+
+.tool-btn {
+    position: relative;
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 18px;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tool-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.tool-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.tool-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 18px;
+    height: 18px;
+    background: #ef4444;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ===== 控制按钮 ===== */
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 8px 12px 16px;
+    flex-shrink: 0;
+}
+
+.btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #00f5ff, #00ccff);
+    color: #000;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 245, 255, 0.4);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-home {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+}
+
+.btn-home:hover {
+    box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* ===== 弹窗 ===== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a1a3e 0%, #0f0f23 100%);
+    padding: 30px 40px;
+    border-radius: 20px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    max-width: 90%;
+    width: 320px;
+}
+
+.modal-title {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #ff006e, #00f5ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.modal-content .btn {
+    width: 100%;
+    margin: 8px 0;
+}
+
+/* ===== 诊断弹窗样式（由 diagnosis.js 动态插入） ===== */
+#diagnosisModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.92);
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    touch-action: pan-y !important;
+}
+
+#diagnosisModal > div {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 420px;
+    width: 90%;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+    touch-action: pan-y !important;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 480px) {
+    .hud {
+        gap: 10px;
+        padding: 6px 8px;
+    }
+    
+    .hud-item {
+        font-size: 11px;
+    }
+    
+    .hud-value {
+        font-size: 12px;
+    }
+    
+    .game-board {
+        gap: 3px;
+        padding: 6px;
+    }
+    
+    .cell {
+        font-size: min(6vw, 22px);
+        border-radius: 6px;
+        min-height: 32px;
+    }
+    
+    .toolbar {
+        gap: 8px;
+    }
+    
+    .tool-btn {
+        padding: 8px 12px;
+        font-size: 16px;
+    }
+    
+    .controls {
+        gap: 8px;
+    }
+    
+    .btn {
+        padding: 8px 18px;
+        font-size: 13px;
+    }
+}

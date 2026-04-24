@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🔗 Emoji Link-Up - Play Free Online Emoji Connect Game | Emoji Arcade</title>
+    <meta name="description" content="Play Emoji Link-Up online for free! Connect matching emojis with lines in this addictive puzzle game. Fast-paced, brain-teasing fun!">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- 游戏头部 -->
+    <div class="header">
+        <div class="game-title">🔗 Emoji Link-Up</div>
+    </div>
+
+    <!-- HUD -->
+    <div class="hud">
+        <div class="hud-item">
+            <span class="hud-icon">⭐</span>
+            <span class="hud-label" data-i18n="score">分数</span>
+            <span class="hud-value" id="score">0</span>
+        </div>
+        <div class="hud-item">
+            <span class="hud-icon">⏱️</span>
+            <span class="hud-label" data-i18n="time">时间</span>
+            <div class="time-bar"><div class="time-fill" id="timeFill"></div></div>
+            <span class="hud-value" id="timer">90</span>
+        </div>
+        <div class="hud-item">
+            <span class="hud-icon">🎯</span>
+            <span class="hud-label" data-i18n="pairs">剩余</span>
+            <span class="hud-value" id="remaining">24</span>
+        </div>
+        <div class="hud-item combo" id="comboBox" style="display:none;">
+            <span class="hud-icon">🔥</span>
+            <span class="hud-value" id="combo">x1</span>
+        </div>
+    </div>
+
+    <!-- 难度选择 -->
+    <div class="difficulty-bar">
+        <button class="diff-btn active" data-diff="easy" data-cols="8" data-rows="6" data-time="90" data-emojis="12">
+            <span data-i18n="easy">简单</span>
+        </button>
+        <button class="diff-btn" data-diff="medium" data-cols="10" data-rows="8" data-time="120" data-emojis="20">
+            <span data-i18n="medium">中等</span>
+        </button>
+        <button class="diff-btn" data-diff="hard" data-cols="12" data-rows="10" data-time="150" data-emojis="30">
+            <span data-i18n="hard">困难</span>
+        </button>
+    </div>
+
+    <!-- 游戏棋盘 -->
+    <div class="game-board" id="gameBoard"></div>
+
+    <!-- 底部工具栏 -->
+    <div class="toolbar">
+        <button class="tool-btn" id="btnHint" title="提示">
+            <span class="tool-icon">🔍</span>
+            <span class="tool-count" id="hintCount">3</span>
+        </button>
+        <button class="tool-btn" id="btnShuffle" title="重排">
+            <span class="tool-icon">🔄</span>
+            <span class="tool-count" id="shuffleCount">3</span>
+        </button>
+        <button class="tool-btn" id="btnPause" title="暂停">
+            <span class="tool-icon">⏸️</span>
+        </button>
+    </div>
+
+    <!-- 控制按钮 -->
+    <div class="controls">
+        <button class="btn btn-primary" id="btnNewGame" data-i18n="newGame">🎮 开始游戏</button>
+        <button class="btn btn-home" onclick="location.href='../../index.html'" data-i18n="backToArcade">🏠 回到街机厅</button>
+    </div>
+
+    <!-- 连线层（SVG 覆盖在棋盘上） -->
+    <svg class="line-layer" id="lineLayer" style="display:none;">
+        <defs>
+            <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" style="stop-color:#00f5ff;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#bc13fe;stop-opacity:1" />
+            </linearGradient>
+        </defs>
+    </svg>
+
+    <!-- 粒子容器 -->
+    <div class="particle-layer" id="particleLayer"></div>
+
+    <!-- 暂停弹窗 -->
+    <div class="modal" id="pauseModal">
+        <div class="modal-content">
+            <div class="modal-title" data-i18n="paused">⏸️ 暂停</div>
+            <button class="btn btn-primary" id="btnResume" data-i18n="resume">▶️ 继续</button>
+            <button class="btn btn-secondary" id="btnRestart" data-i18n="restart">🔄 重新开始</button>
+        </div>
+    </div>
+
+    <!-- 诊断弹窗（由 diagnosis.js 填充） -->
+    <div id="diagnosisContainer"></div>
+
+    <script src="game.js"></script>
+    <script src="diagnosis.js"></script>
+</body>
+</html>
