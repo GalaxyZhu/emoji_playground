@@ -92,9 +92,10 @@ const HopDiagnosis = {
             : ({ common: 'Common', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' }[type.rarityClass] || 'Common');
         
         const html = `
-            <div id="diagnosisModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:99999;display:flex;justify-content:center;align-items:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;"
-                 onclick="if(event.target===this)HopDiagnosis.hide()">
-                <div style="background:linear-gradient(135deg,#1a3a2e 0%,#0d1f15 100%);border-radius:20px;padding:30px;max-width:420px;width:90%;border:2px solid rgba(74,222,128,0.3);position:relative;max-height:90vh;overflow-y:auto;-webkit-overflow-scrolling:touch;">
+            <div id="diagnosisModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 0;box-sizing:border-box;touch-action:pan-y!important;"
+                 onclick="HopDiagnosis.hide()">
+                <div style="background:linear-gradient(135deg,#1a3a2e 0%,#0d1f15 100%);border-radius:20px;padding:30px;max-width:420px;width:90%;border:2px solid rgba(74,222,128,0.3);position:relative;margin:auto;touch-action:pan-y!important;"
+                     onclick="event.stopPropagation()">
                     <div style="position:absolute;top:15px;right:15px;width:50px;height:50px;border:2px solid #ef4444;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#ef4444;font-weight:bold;font-size:12px;transform:rotate(-15deg);opacity:0.8;">${t.confirmed}</div>
                     
                     <div style="text-align:center;margin-bottom:15px;padding:15px;background:rgba(255,255,255,0.03);border-radius:12px;">

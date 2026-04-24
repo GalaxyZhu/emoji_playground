@@ -1,234 +1,191 @@
-// Emoji Shooter 游戏后诊断系统 (i18n 版本)
-// 在 gameOver() 函数后添加此代码
+// Emoji Shooter 诊断系统
+// 从 index.html 抽离，统一维护
 
-// ==================== 游戏数据收集器 ====================
-const ShooterDataCollector = {
-    shotsFired: 0,
-    shotsHit: 0,
-    reloads: 0,
-    panicShots: 0,
-    lastShotTime: 0,
-    rapidFireCount: 0,
-    
-    reset() {
-        this.shotsFired = 0;
-        this.shotsHit = 0;
-        this.reloads = 0;
-        this.panicShots = 0;
-        this.lastShotTime = 0;
-        this.rapidFireCount = 0;
-    },
-    
-    logShot(hit) {
-        this.shotsFired++;
-        if (hit) this.shotsHit++;
-        
-        const now = Date.now();
-        if (now - this.lastShotTime < 500) {
-            this.rapidFireCount++;
-            if (this.rapidFireCount > 5) {
-                this.panicShots++;
-            }
-        } else {
-            this.rapidFireCount = 1;
-        }
-        this.lastShotTime = now;
-    },
-    
-    getStats() {
-        const accuracy = this.shotsFired > 0 ? (this.shotsHit / this.shotsFired * 100).toFixed(1) : 0;
-        return {
-            shotsFired: this.shotsFired,
-            shotsHit: this.shotsHit,
-            accuracy: parseFloat(accuracy),
-            panicShots: this.panicShots,
-            enemiesKilled: window.enemiesKilled || 0,
-            wave: window.wave || 1,
-            score: window.score || 0
-        };
-    }
-};
-
-// ==================== 玩家类型判定器 ====================
-const ShooterArchetypeDetector = {
-    detect(stats) {
-        const { shotsFired, shotsHit, accuracy, panicShots, enemiesKilled } = stats;
-        
-        if (accuracy > 85 && enemiesKilled > 10) {
-            return 'SNP';
-        }
-        
-        if (shotsFired > 100 && accuracy < 20 && panicShots > 10) {
-            return 'PAN';
-        }
-        
-        if (shotsFired > 50 && accuracy < 30) {
-            return 'SPR';
-        }
-        
-        return 'SPD';
-    }
-};
-
-// ==================== 诊断报告UI ====================
-const ShooterDiagnosisUI = {
+const ShooterDiagnosis = {
     types: {
-        SPD: { icon: '🔫', rarityClass: 'rarity-common', rarePercent: '28%' },
-        SNP: { icon: '🎯', rarityClass: 'rarity-rare', rarePercent: '5%' },
-        SPR: { icon: '🏃', rarityClass: 'rarity-common', rarePercent: '22%' },
-        PAN: { icon: '😱', rarityClass: 'rarity-common', rarePercent: '35%' }
+        SPD: {
+            icon: '🔫', title: '人体描边大师', titleEn: 'Human Outline Artist',
+            quote: '"敌人没死，但我键盘先死了。"', quoteEn: '"Enemy alive, keyboard dead."',
+            rare: '常见', rareEn: 'Common', rarePercent: '28%', rarityClass: 'common',
+            roasts: ['你的准星在敌人周围画了一个完美的圆', '敌人以为你在故意放水', '建议转行做气象预报'],
+            roastsEn: ['Your crosshair draws a perfect circle around enemies', 'Enemies think you\'re going easy on them', 'Consider a career in weather forecasting']
+        },
+        SNP: {
+            icon: '🎯', title: '锁头挂嫌疑人', titleEn: 'Aimbot Suspect',
+            quote: '"我说我没开，你信吗？"', quoteEn: '"I swear I\'m not cheating."',
+            rare: '稀有', rareEn: 'Rare', rarePercent: '5%', rarityClass: 'rare',
+            roasts: ['你的鼠标dpi调成了心灵感应模式', '敌人举报键按烂了', '建议去打职业'],
+            roastsEn: ['Your mouse DPI is set to telepathy mode', 'Enemies broke their report button', 'Consider going pro']
+        },
+        SPR: {
+            icon: '🏃', title: '无限换弹癌', titleEn: 'Reload Addict',
+            quote: '"弹匣还有29发？不行，必须换。"', quoteEn: '"29 rounds left? Must reload."',
+            rare: '常见', rareEn: 'Common', rarePercent: '22%', rarityClass: 'common',
+            roasts: ['敌人永远在你换弹时出现', 'R键磨损最严重', '建议玩近战游戏'],
+            roastsEn: ['Enemies always appear when you reload', 'Your R key has the most wear', 'Consider melee games']
+        },
+        PAN: {
+            icon: '😱', title: 'Panic射击手', titleEn: 'Panic Shooter',
+            quote: '"看到敌人→狂按鼠标→祈祷。"', quoteEn: '"See enemy → Spam click → Pray."',
+            rare: '常见', rareEn: 'Common', rarePercent: '35%', rarityClass: 'common',
+            roasts: ['战术就是吓死对方', '弹药商该给你颁奖', '敌人是被你吵死的'],
+            roastsEn: ['Your tactic is to scare enemies to death', 'Ammo dealers should sponsor you', 'Enemies die from noise pollution']
+        }
     },
-    
+
+    detectType(stats) {
+        const accuracy = stats.shotsFired > 0 ? (stats.shotsHit / stats.shotsFired * 100) : 0;
+        if (accuracy > 80 && stats.enemiesKilled > 10) return 'SNP';
+        if (stats.shotsFired > 80 && accuracy < 25) return 'PAN';
+        if (stats.shotsFired > 40 && accuracy < 35) return 'SPR';
+        return 'SPD';
+    },
+
     show(stats) {
-        const typeCode = ShooterArchetypeDetector.detect(stats);
+        const typeCode = this.detectType(stats);
         const type = this.types[typeCode];
-        const title = i18n.t(`type.shooter.${typeCode}.title`);
-        const titleEn = i18n.t(`type.shooter.${typeCode}.titleEn`);
-        const quote = i18n.t(`type.shooter.${typeCode}.quote`);
-        const rarity = i18n.t(`type.${type.rarityClass.replace('rarity-', 'rarity.')}`);
-        const roasts = i18n.tArray(`type.shooter.${typeCode}.roasts`);
-        const roast = roasts[Math.floor(Math.random() * roasts.length)];
-        
+        const isZh = (typeof currentLang !== 'undefined' && currentLang === 'zh');
+
+        const roast = isZh
+            ? type.roasts[Math.floor(Math.random() * type.roasts.length)]
+            : type.roastsEn[Math.floor(Math.random() * type.roastsEn.length)];
+        const quote = isZh ? type.quote : type.quoteEn;
+        const title = isZh ? type.title : type.titleEn;
+        const rareLabel = isZh ? type.rare : type.rareEn;
+        const accuracy = stats.shotsFired > 0 ? (stats.shotsHit / stats.shotsFired * 100).toFixed(1) : 0;
+        const isNewHighScore = stats.score > 0 && stats.score >= stats.highScore;
+
+        const rarityColors = {
+            common: 'linear-gradient(135deg,#94a3b8,#64748b)',
+            rare: 'linear-gradient(135deg,#60a5fa,#3b82f6)',
+            epic: 'linear-gradient(135deg,#a855f7,#7c3aed)',
+            legendary: 'linear-gradient(135deg,#fbbf24,#f59e0b)'
+        };
+
+        const texts = {
+            zh: {
+                confirmed: '确诊',
+                newRecord: '✨ 新纪录！',
+                finalScore: '最终得分',
+                highScore: '最高分',
+                diagnosis: '🎮 Emoji Shooter 诊断',
+                roastTitle: '💬 专属吐槽',
+                shots: '射击',
+                hits: '命中',
+                kills: '击杀',
+                wave: '波次',
+                share: '分享你的诊断报告',
+                playAgain: '🔄 再来一局'
+            },
+            en: {
+                confirmed: 'DIAGNOSED',
+                newRecord: '✨ NEW RECORD!',
+                finalScore: 'Final Score',
+                highScore: 'High Score',
+                diagnosis: '🎮 Emoji Shooter Diagnosis',
+                roastTitle: '💬 Roast',
+                shots: 'Shots',
+                hits: 'Hits',
+                kills: 'Kills',
+                wave: 'Wave',
+                share: 'Share your diagnosis',
+                playAgain: '🔄 Play Again'
+            }
+        };
+
+        const t = texts[isZh ? 'zh' : 'en'];
+
         const html = `
-            <div id="diagnosisModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:10000;display:flex;justify-content:center;align-items:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;"
-                 onclick="if(event.target===this)ShooterDiagnosisUI.hide()">
-                <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:20px;padding:30px;max-width:400px;width:90%;border:2px solid rgba(255,255,255,0.1);position:relative;"
+            <div id="diagnosisModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:99999;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px 0;box-sizing:border-box;touch-action:pan-y!important;"
+                 onclick="ShooterDiagnosis.hide()">
+                <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:20px;padding:30px;max-width:420px;width:90%;border:2px solid rgba(255,255,255,0.1);position:relative;margin:auto;touch-action:pan-y!important;"
                      onclick="event.stopPropagation()">
-                    
-                    <div style="position:absolute;top:20px;right:20px;width:60px;height:60px;border:3px solid #ef4444;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#ef4444;font-weight:bold;font-size:14px;transform:rotate(-15deg);opacity:0.8;">${i18n.t('diagnosis.confirmed')}</div>
-                    
+                    <div style="position:absolute;top:15px;right:15px;width:50px;height:50px;border:2px solid #ef4444;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#ef4444;font-weight:bold;font-size:12px;transform:rotate(-15deg);opacity:0.8;">${t.confirmed}</div>
+
+                    <div style="text-align:center;margin-bottom:15px;padding:15px;background:rgba(255,255,255,0.03);border-radius:12px;">
+                        <div style="font-size:13px;color:#94a3b8;margin-bottom:5px;">${isNewHighScore ? t.newRecord : t.finalScore}</div>
+                        <div style="font-size:36px;font-weight:800;background:linear-gradient(90deg,#fbbf24,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">${stats.score}</div>
+                        <div style="font-size:12px;color:#64748b;margin-top:5px;">${t.highScore}: ${stats.highScore}</div>
+                    </div>
+
                     <div style="text-align:center;margin-bottom:20px;">
-                        <div style="font-size:60px;margin-bottom:10px;">${type.icon}</div>
-                        <div style="background:rgba(255,255,255,0.1);padding:5px 15px;border-radius:20px;font-size:12px;color:#94a3b8;display:inline-block;margin-bottom:10px;">${i18n.t('game.tag')}</div>
-                        <h2 style="font-size:24px;font-weight:800;background:linear-gradient(90deg,#fbbf24,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:5px;">${title}</h2>
-                        <div style="display:inline-flex;align-items:center;gap:5px;margin-top:15px;padding:8px 20px;border-radius:25px;font-weight:700;font-size:13px;${this.getRarityStyle(type.rarityClass)}">
-                            <span>🌟</span><span>${rarity} · ${type.rarePercent}</span>
+                        <div style="font-size:50px;margin-bottom:10px;">${type.icon}</div>
+                        <div style="background:rgba(255,255,255,0.1);padding:4px 12px;border-radius:15px;font-size:11px;color:#94a3b8;display:inline-block;margin-bottom:8px;">${t.diagnosis}</div>
+                        <h2 style="font-size:22px;font-weight:800;background:linear-gradient(90deg,#fbbf24,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:3px;">${title}</h2>
+                        <div style="display:inline-flex;align-items:center;gap:4px;margin-top:12px;padding:6px 16px;border-radius:20px;font-weight:700;font-size:12px;background:${rarityColors[type.rarityClass]};color:${type.rarityClass==='legendary'?'#000':'#fff'};">
+                            🌟 ${rareLabel} · ${type.rarePercent}
                         </div>
                     </div>
-                    
-                    <div style="background:rgba(99,102,241,0.1);border-left:4px solid #6366f1;padding:15px;margin:15px 0;border-radius:0 10px 10px 0;font-style:italic;color:#cbd5e1;font-size:14px;">
-                        ${quote}
+                    <div style="background:rgba(99,102,241,0.1);border-left:3px solid #6366f1;padding:12px;margin:12px 0;border-radius:0 8px 8px 0;font-style:italic;color:#cbd5e1;font-size:13px;">${quote}</div>
+                    <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:10px;border-radius:8px;margin:12px 0;">
+                        <div style="color:#ef4444;font-size:11px;font-weight:600;margin-bottom:4px;">${t.roastTitle}</div>
+                        <div style="color:#fca5a5;font-size:13px;">${roast}</div>
                     </div>
-                    
-                    <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:12px;border-radius:10px;margin:15px 0;">
-                        <div style="color:#ef4444;font-size:12px;font-weight:600;margin-bottom:5px;">${i18n.t('diagnosis.roast.title')}</div>
-                        <div style="color:#fca5a5;font-size:14px;">${roast}</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0;">
+                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#ef4444;">${stats.shotsFired || '?'}</div><div style="font-size:11px;color:#94a3b8;">${t.shots}</div></div>
+                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#22c55e;">${stats.shotsHit || '?'}</div><div style="font-size:11px;color:#94a3b8;">${t.hits} ${accuracy}%</div></div>
+                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#fbbf24;">${stats.enemiesKilled}</div><div style="font-size:11px;color:#94a3b8;">${t.kills}</div></div>
+                        <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#a855f7;">${stats.wave}</div><div style="font-size:11px;color:#94a3b8;">${t.wave}</div></div>
                     </div>
-                    
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0;">
-                        <div style="background:rgba(255,255,255,0.05);padding:15px;border-radius:10px;text-align:center;">
-                            <div style="font-size:20px;font-weight:800;color:#ef4444;">${stats.shotsFired}</div>
-                            <div style="font-size:12px;color:#94a3b8;">${i18n.t('shooter.shots_fired')}</div>
-                            <div style="font-size:11px;color:#64748b;margin-top:3px;">${i18n.t('shooter.keyboard_tired')}</div>
+                    <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:15px;margin-top:15px;">
+                        <div style="text-align:center;color:#94a3b8;font-size:11px;margin-bottom:10px;">${t.share}</div>
+                        <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+                            <button onclick="ShooterDiagnosis.share('twitter')" style="padding:8px 14px;border-radius:15px;border:none;background:#1da1f2;color:white;font-weight:600;cursor:pointer;font-size:12px;">🐦</button>
+                            <button onclick="ShooterDiagnosis.share('weibo')" style="padding:8px 14px;border-radius:15px;border:none;background:#e6162d;color:white;font-weight:600;cursor:pointer;font-size:12px;">📱</button>
+                            <button onclick="ShooterDiagnosis.share('copy')" style="padding:8px 14px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:12px;">📋</button>
                         </div>
-                        <div style="background:rgba(255,255,255,0.05);padding:15px;border-radius:10px;text-align:center;">
-                            <div style="font-size:20px;font-weight:800;color:#22c55e;">${stats.shotsHit}</div>
-                            <div style="font-size:12px;color:#94a3b8;">${i18n.t('shooter.shots_hit')}</div>
-                            <div style="font-size:11px;color:#64748b;margin-top:3px;">${i18n.t('shooter.accuracy_label')}${stats.accuracy}%</div>
-                        </div>
-                        <div style="background:rgba(255,255,255,0.05);padding:15px;border-radius:10px;text-align:center;">
-                            <div style="font-size:20px;font-weight:800;color:#fbbf24;">${stats.enemiesKilled}</div>
-                            <div style="font-size:12px;color:#94a3b8;">${i18n.t('shooter.kills')}</div>
-                            <div style="font-size:11px;color:#64748b;margin-top:3px;">${i18n.t('stat.died_at_wave', {wave: stats.wave})}</div>
-                        </div>
-                        <div style="background:rgba(255,255,255,0.05);padding:15px;border-radius:10px;text-align:center;">
-                            <div style="font-size:20px;font-weight:800;color:#a855f7;">${stats.score}</div>
-                            <div style="font-size:12px;color:#94a3b8;">${i18n.t('stat.score')}</div>
-                            <div style="font-size:11px;color:#64748b;margin-top:3px;">${i18n.t('stat.keep_trying')}</div>
-                        </div>
-                    </div>
-                    
-                    <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:15px;margin-top:20px;">
-                        <div style="text-align:center;color:#94a3b8;font-size:12px;margin-bottom:12px;">${i18n.t('diagnosis.share.title')}</div>
-                        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
-                            <button onclick="ShooterDiagnosisUI.shareTwitter()" style="padding:10px 18px;border-radius:20px;border:none;background:#1da1f2;color:white;font-weight:600;cursor:pointer;font-size:13px;">${i18n.t('btn.twitter')}</button>
-                            <button onclick="ShooterDiagnosisUI.shareWeibo()" style="padding:10px 18px;border-radius:20px;border:none;background:#e6162d;color:white;font-weight:600;cursor:pointer;font-size:13px;">${i18n.t('btn.weibo')}</button>
-                            <button onclick="ShooterDiagnosisUI.copyText()" style="padding:10px 18px;border-radius:20px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:13px;">${i18n.t('btn.copy')}</button>
-                            <button onclick="ShooterDiagnosisUI.hide()" style="padding:10px 18px;border-radius:20px;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-weight:600;cursor:pointer;font-size:13px;">${i18n.t('btn.replay')}</button>
+                        <div style="display:flex;gap:8px;margin-top:12px;">
+                            <button onclick="ShooterDiagnosis.hide()" style="flex:1;padding:12px;border-radius:15px;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-weight:600;cursor:pointer;font-size:14px;">${t.playAgain}</button>
+                            <button onclick="goBackToArcade()" style="padding:12px 16px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:14px;">🏠</button>
                         </div>
                     </div>
                 </div>
             </div>
         `;
-        
+
         const existing = document.getElementById('diagnosisModal');
         if (existing) existing.remove();
-        
         document.body.insertAdjacentHTML('beforeend', html);
-        
-        this.currentType = { ...type, title, titleEn, quote, rarity };
+        this.currentType = type;
         this.currentStats = stats;
     },
-    
+
     hide() {
         const modal = document.getElementById('diagnosisModal');
         if (modal) modal.remove();
-        if (typeof startGame === 'function') startGame();
+        if (typeof restartGame === 'function') restartGame();
     },
-    
-    getRarityStyle(rarityClass) {
-        const styles = {
-            'rarity-common': 'background:linear-gradient(135deg,#94a3b8,#64748b);color:#fff;',
-            'rarity-rare': 'background:linear-gradient(135deg,#60a5fa,#3b82f6);color:#fff;',
-            'rarity-epic': 'background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;',
-            'rarity-legendary': 'background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#000;'
-        };
-        return styles[rarityClass] || styles['rarity-common'];
-    },
-    
-    shareTwitter() {
+
+    share(platform) {
         const type = this.currentType;
-        const text = encodeURIComponent(i18n.t('share.text', { 
-            title: type.title, 
-            quote: type.quote 
-        }));
-        const url = encodeURIComponent('https://emojiarcade.app');
-        window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
-    },
-    
-    shareWeibo() {
-        const type = this.currentType;
-        const text = encodeURIComponent(i18n.t('share.weibo', {
-            title: type.title,
-            icon: type.icon,
-            quote: type.quote
-        }));
-        const url = encodeURIComponent('https://emojiarcade.app');
-        window.open(`https://service.weibo.com/share/share.php?title=${text}&url=${url}`, '_blank');
-    },
-    
-    copyText() {
-        const type = this.currentType;
-        const text = i18n.t('share.copy', {
-            icon: type.icon,
-            title: type.title,
-            titleEn: type.titleEn,
-            rare: type.rarity,
-            rarePercent: type.rarePercent,
-            quote: type.quote
-        });
-        navigator.clipboard.writeText(text).then(() => alert(i18n.t('toast.copied')));
+        const isZh = (typeof currentLang !== 'undefined' && currentLang === 'zh');
+
+        const shareTitle = isZh ? type.title : type.titleEn;
+        const shareQuote = isZh ? type.quote : type.quoteEn;
+        const shareRare = isZh ? type.rare : type.rareEn;
+
+        let shareText;
+        if (platform === 'twitter') {
+            shareText = `🎮 Just diagnosed as "${shareTitle}" in Emoji Shooter!\n${shareQuote}\n\nFind out what player "disease" you have 👉 emojiarcade.app`;
+            window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`, '_blank');
+        } else if (platform === 'weibo') {
+            shareText = `🎮 Emoji Arcade 诊断报告\n\n${type.icon} ${shareTitle}\n${shareQuote}\n\n测测你是什么玩家"病症" 👉 emojiarcade.app`;
+            window.open(`https://service.weibo.com/share/share.php?title=${encodeURIComponent(shareText)}`, '_blank');
+        } else if (platform === 'copy') {
+            shareText = `🎮 Emoji Arcade 诊断报告\n\n${type.icon} ${shareTitle} (${isZh ? type.titleEn : type.title})\n🌟 ${shareRare} · ${type.rarePercent}\n💬 ${shareQuote}`;
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareText).then(() => {
+                    alert(isZh ? '已复制到剪贴板！' : 'Copied to clipboard!');
+                });
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = shareText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert(isZh ? '已复制到剪贴板！' : 'Copied to clipboard!');
+            }
+        }
     }
 };
-
-// ==================== 修改原游戏代码 ====================
-const originalShoot = window.shoot;
-window.shoot = function() {
-    ShooterDataCollector.logShot(false);
-    if (originalShoot) originalShoot();
-};
-
-const originalGameOver = window.gameOver;
-window.gameOver = function() {
-    if (originalGameOver) originalGameOver();
-    const stats = ShooterDataCollector.getStats();
-    setTimeout(() => ShooterDiagnosisUI.show(stats), 500);
-};
-
-const originalStartGame = window.startGame;
-window.startGame = function() {
-    ShooterDataCollector.reset();
-    if (originalStartGame) originalStartGame();
-};
-
-console.log('🎮 Emoji Shooter Diagnosis (i18n) loaded');
