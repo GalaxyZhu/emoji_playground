@@ -389,11 +389,21 @@ function createModalDOM() {
  */
 function askNickname() {
   return new Promise((resolve) => {
+    // 确保 DOM 已创建
+    createModalDOM();
+
     const modal = document.getElementById('leaderboard-modal');
     if (!modal) return resolve(null);
 
+    // 显示父容器（但不要显示排行榜内容本身）
+    modal.style.display = 'flex';
+
     const nicknameModal = modal.querySelector('.lb-nickname-modal');
     const input = modal.querySelector('.lb-nickname-input');
+
+    // 隐藏排行榜主体，只显示昵称弹窗
+    const container = modal.querySelector('.lb-container');
+    if (container) container.style.display = 'none';
 
     // 设置 resolve 回调
     const submitBtn = modal.querySelector('.lb-nickname-submit');
@@ -405,18 +415,26 @@ function askNickname() {
     submitBtn.parentNode.replaceChild(newSubmit, submitBtn);
     skipBtn.parentNode.replaceChild(newSkip, skipBtn);
 
+    const cleanup = () => {
+      nicknameModal.style.display = 'none';
+      if (container) container.style.display = '';
+      modal.classList.remove('active');
+      if (!modal.classList.contains('active')) {
+        modal.style.display = 'none';
+      }
+      input.value = '';
+    };
+
     newSubmit.addEventListener('click', () => {
       const val = input.value.trim();
       if (val) {
-        nicknameModal.style.display = 'none';
-        input.value = '';
+        cleanup();
         resolve(val);
       }
     });
 
     newSkip.addEventListener('click', () => {
-      nicknameModal.style.display = 'none';
-      input.value = '';
+      cleanup();
       resolve(null);
     });
 
