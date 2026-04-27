@@ -914,6 +914,13 @@ function endGame(won) {
                 difficulty: difficulty
             });
             console.log('[endGame] Diagnosis shown');
+            // 延迟检查 DOM 是否真的存在
+            setTimeout(() => {
+                const modal = document.getElementById('diagnosisModal');
+                console.log('[endGame] DOM check - diagnosisModal exists:', !!modal,
+                            'display:', modal?.style?.display,
+                            'visible:', modal?.offsetParent !== null);
+            }, 200);
         } catch (e) {
             console.error('[endGame] Diagnosis show failed:', e);
         }

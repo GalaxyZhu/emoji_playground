@@ -209,7 +209,12 @@ Find your player type 👇`
         `;
 
         const container = document.getElementById('diagnosisContainer');
+        if (!container) {
+            console.error('[diagnosis] diagnosisContainer NOT found in DOM!');
+            return;
+        }
         container.innerHTML = html;
+        console.log('[diagnosis] Modal rendered, diagnosisModal exists:', !!document.getElementById('diagnosisModal'));
         this.currentType = type;
         this.currentStats = stats;
         this.texts = t;
