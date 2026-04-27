@@ -131,6 +131,11 @@ function bindEvents() {
         if (e.key === 'Escape') togglePause();
         if (e.key === 'h' || e.key === 'H') useHint();
         if (e.key === 'r' || e.key === 'R') useShuffle();
+        // DEBUG: Shift+C 一键消除所有（preview 测试用）
+        if ((e.key === 'c' || e.key === 'C') && e.shiftKey) {
+            e.preventDefault();
+            cheatClearAll();
+        }
     });
 }
 
@@ -824,6 +829,34 @@ function togglePause() {
 
 function hidePause() {
     document.getElementById('pauseModal').classList.remove('show');
+}
+
+// ==================== DEBUG 作弊：一键消除所有（preview 测试用）====================
+function cheatClearAll() {
+    if (!game.isRunning || game.isPaused) return;
+    
+    // 清除之前选中
+    deselect();
+    clearHints();
+    
+    const interval = setInterval(() => {
+        const pair = findAnyValidPair();
+        if (!pair) {
+            clearInterval(interval);
+            if (game.pairsRemaining <= 0) {
+                endGame(true);
+            }
+            return;
+        }
+        
+        // 基础分，不累积 combo
+        game.successfulMoves++;
+        game.score += 10;
+        game.pairsRemaining--;
+        
+        removeCells(pair[0].r, pair[0].c, pair[1].r, pair[1].c);
+        updateHUD();
+    }, 80);
 }
 
 // ==================== 游戏结束 ====================
