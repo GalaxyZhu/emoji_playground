@@ -387,43 +387,131 @@ function createModalDOM() {
 /**
  * 请求玩家输入昵称
  */
+/**
+ * 请求玩家输入昵称（独立弹窗，不依赖 leaderboard modal）
+ */
 function askNickname() {
   return new Promise((resolve) => {
-    // 确保 DOM 已创建
-    createModalDOM();
+    const id = 'lb-nickname-only';
+    let modal = document.getElementById(id);
 
-    const modal = document.getElementById('leaderboard-modal');
-    if (!modal) return resolve(null);
+    // 创建独立弹窗 DOM
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = id;
+      modal.innerHTML = `
+        <div class="lb-nick-overlay"></div>
+        <div class="lb-nick-box">
+          <p class="lb-nick-label">${t('enterNickname')}</p>
+          <input type="text" class="lb-nick-input" maxlength="16" placeholder="${t('nicknamePlaceholder')}" />
+          <div class="lb-nick-actions">
+            <button class="lb-nick-submit">${t('submit')}</button>
+            <button class="lb-nick-skip">${t('skip')}</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
 
-    // 显示父容器（但不要显示排行榜内容本身）
-    modal.style.display = 'flex';
+      // 注入独立样式（只注入一次）
+      if (!document.getElementById('lb-nick-styles')) {
+        const style = document.createElement('style');
+        style.id = 'lb-nick-styles';
+        style.textContent = `
+          #${id} {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          }
+          #${id}.active { display: flex; }
+          .lb-nick-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+          }
+          .lb-nick-box {
+            position: relative;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 340px;
+            width: 85%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+          }
+          .lb-nick-label {
+            margin: 0 0 18px;
+            color: #f8fafc;
+            font-size: 1rem;
+            font-weight: 600;
+          }
+          .lb-nick-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 16px;
+            border: 1px solid #475569;
+            border-radius: 12px;
+            background: #0f172a;
+            color: #f8fafc;
+            font-size: 1rem;
+            outline: none;
+            margin-bottom: 18px;
+          }
+          .lb-nick-input:focus { border-color: #38bdf8; }
+          .lb-nick-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+          }
+          .lb-nick-submit {
+            flex: 1;
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-size: 0.9375rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.15s;
+          }
+          .lb-nick-submit:hover { background: #7dd3fc; }
+          .lb-nick-skip {
+            flex: 1;
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid #475569;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-size: 0.9375rem;
+            cursor: pointer;
+            transition: all 0.15s;
+          }
+          .lb-nick-skip:hover { border-color: #94a3b8; color: #e2e8f0; }
+        `;
+        document.head.appendChild(style);
+      }
+    }
 
-    const nicknameModal = modal.querySelector('.lb-nickname-modal');
-    const input = modal.querySelector('.lb-nickname-input');
+    const input = modal.querySelector('.lb-nick-input');
+    const submitBtn = modal.querySelector('.lb-nick-submit');
+    const skipBtn = modal.querySelector('.lb-nick-skip');
 
-    // 隐藏排行榜主体，只显示昵称弹窗
-    const container = modal.querySelector('.lb-container');
-    if (container) container.style.display = 'none';
+    // 清理并关闭
+    const cleanup = () => {
+      input.value = '';
+      modal.classList.remove('active');
+    };
 
-    // 设置 resolve 回调
-    const submitBtn = modal.querySelector('.lb-nickname-submit');
-    const skipBtn = modal.querySelector('.lb-nickname-skip');
-
-    // 移除旧监听器并添加新的（通过 clone 替换）
+    // 绑定事件（每次重新绑定，避免残留）
     const newSubmit = submitBtn.cloneNode(true);
     const newSkip = skipBtn.cloneNode(true);
     submitBtn.parentNode.replaceChild(newSubmit, submitBtn);
     skipBtn.parentNode.replaceChild(newSkip, skipBtn);
-
-    const cleanup = () => {
-      nicknameModal.style.display = 'none';
-      if (container) container.style.display = '';
-      modal.classList.remove('active');
-      if (!modal.classList.contains('active')) {
-        modal.style.display = 'none';
-      }
-      input.value = '';
-    };
 
     newSubmit.addEventListener('click', () => {
       const val = input.value.trim();
@@ -443,8 +531,15 @@ function askNickname() {
       if (e.key === 'Escape') newSkip.click();
     });
 
-    nicknameModal.style.display = 'flex';
-    setTimeout(() => input.focus(), 100);
+    // 点击遮罩关闭
+    modal.querySelector('.lb-nick-overlay').onclick = () => {
+      cleanup();
+      resolve(null);
+    };
+
+    // 显示弹窗
+    modal.classList.add('active');
+    setTimeout(() => input.focus(), 50);
   });
 }
 
