@@ -833,22 +833,35 @@ function hidePause() {
 
 // ==================== DEBUG 作弊：一键消除所有（preview 测试用）====================
 function cheatClearAll() {
-    if (!game.isRunning || game.isPaused) return;
+    if (!game.isRunning || game.isPaused) {
+        console.log('[cheat] blocked: isRunning=' + game.isRunning + ' isPaused=' + game.isPaused);
+        return;
+    }
 
     deselect();
     clearHints();
+    console.log('[cheat] START. pairsRemaining=' + game.pairsRemaining);
+
+    let steps = 0;
+    const MAX_STEPS = 200;
 
     const step = () => {
+        steps++;
+        if (steps > MAX_STEPS) {
+            console.warn('[cheat] MAX_STEPS reached, forcing endGame');
+            endGame(true);
+            return;
+        }
+
         const pair = findAnyValidPair();
-        console.log('[cheat] pairsRemaining:', game.pairsRemaining, 'pair found:', !!pair);
+        console.log('[cheat] step', steps, 'pairsRemaining=', game.pairsRemaining, 'pair=', !!pair);
 
         if (!pair) {
             if (game.pairsRemaining <= 0) {
                 console.log('[cheat] All cleared! Calling endGame...');
                 endGame(true);
             } else {
-                // 死局，自动重排后继续
-                console.log('[cheat] Deadlock detected, auto-shuffling...');
+                console.log('[cheat] Deadlock, auto-shuffle. remaining=', game.pairsRemaining);
                 autoShuffle();
                 setTimeout(step, 80);
             }
