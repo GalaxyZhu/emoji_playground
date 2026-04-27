@@ -227,18 +227,23 @@ Find your player type 👇`
     },
 
     showLeaderboard() {
+        console.log('[diagnosis] showLeaderboard clicked. window.Leaderboard exists:', typeof window.Leaderboard !== 'undefined');
         if (typeof window.Leaderboard === 'undefined') {
             alert('Leaderboard loading... Please try again in a moment.');
             return;
         }
         const isZh = this.texts?.confirmed === '确诊';
         window.Leaderboard.getTop50().then(entries => {
+            console.log('[diagnosis] getTop50 success, entries count:', entries?.length);
             const uid = window.Leaderboard.getCurrentUser()?.uid;
+            console.log('[diagnosis] currentUser uid:', uid);
             const playerEntry = entries.find(e => e.uid === uid);
             const playerRank = playerEntry ? playerEntry.rank : null;
+            console.log('[diagnosis] playerRank:', playerRank);
             window.Leaderboard.showModal(entries, playerRank);
+            console.log('[diagnosis] showModal called');
         }).catch(err => {
-            console.error('Failed to load leaderboard:', err);
+            console.error('[diagnosis] getTop50 failed:', err);
             alert(isZh ? '排行榜加载失败，请稍后重试' : 'Failed to load leaderboard. Please try again.');
         });
     },
