@@ -834,6 +834,7 @@ function endGame(won) {
 
     const duration = Math.floor((Date.now() - game.startTime) / 1000);
     const avgTime = game.successfulMoves > 0 ? (duration / game.successfulMoves).toFixed(1) : '0';
+    const difficulty = document.querySelector('.diff-btn.active')?.dataset.diff || 'easy';
 
     // 调用诊断系统
     if (typeof LinkUpDiagnosis !== 'undefined') {
@@ -845,9 +846,27 @@ function endGame(won) {
             failedClicks: game.failedClicks,
             maxCombo: game.maxCombo,
             avgTime: parseFloat(avgTime),
-            hintsUsed: DIFFICULTY[document.querySelector('.diff-btn.active')?.dataset.diff || 'easy'].hint - game.hints,
+            hintsUsed: DIFFICULTY[difficulty].hint - game.hints,
             remainingTime: game.remainingTime,
-            difficulty: document.querySelector('.diff-btn.active')?.dataset.diff || 'easy'
+            difficulty: difficulty
+        });
+    }
+
+    // 提交分数到全球排行榜
+    if (typeof window.Leaderboard !== 'undefined') {
+        window.Leaderboard.submit(game.score, {
+            difficulty: difficulty,
+            won: won,
+            duration: duration,
+            maxCombo: game.maxCombo,
+            successfulMoves: game.successfulMoves,
+            failedClicks: game.failedClicks
+        }).then(result => {
+            if (result.isNewBest) {
+                console.log('🎉 New high score submitted!');
+            }
+        }).catch(err => {
+            console.error('Leaderboard submit failed:', err);
         });
     }
 }

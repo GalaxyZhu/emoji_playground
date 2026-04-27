@@ -101,5 +101,12 @@
 
     <script src="game.js"></script>
     <script src="diagnosis.js"></script>
+    <script type="module">
+        import { Leaderboard } from '../../assets/js/leaderboard.js';
+        window.Leaderboard = Leaderboard;
+        // 自动初始化（静默失败不影响游戏）
+        const lang = document.documentElement.lang?.startsWith('zh') ? 'zh' : 'en';
+        Leaderboard.init('emoji-linkup', lang).catch(() => {});
+    </script>
 </body>
 </html>
