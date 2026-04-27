@@ -242,6 +242,7 @@ Find your player type 👇`
             alert(isZh ? '排行榜加载失败，请稍后重试' : 'Failed to load leaderboard. Please try again.');
         });
     },
+    share(platform) {
         const t = this.texts || this.getTexts();
         const type = this.currentType;
         const stats = this.currentStats;
