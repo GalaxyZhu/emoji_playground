@@ -888,7 +888,7 @@ function cheatClearAll() {
 }
 
 // ==================== 游戏结束 ====================
-function endGame(won) {
+async function endGame(won) {
     console.log('[endGame] called, won:', won, 'score:', game.score, 'pairsRemaining:', game.pairsRemaining);
     clearInterval(game.timer);
     game.isRunning = false;
@@ -898,7 +898,26 @@ function endGame(won) {
     const avgTime = game.successfulMoves > 0 ? (duration / game.successfulMoves).toFixed(1) : '0';
     const difficulty = document.querySelector('.diff-btn.active')?.dataset.diff || 'easy';
 
-    // 调用诊断系统
+    // 先提交分数（如果需要会弹出昵称输入框，确保在诊断弹窗之前完成）
+    if (typeof window.Leaderboard !== 'undefined') {
+        try {
+            const result = await window.Leaderboard.submit(game.score, {
+                difficulty: difficulty,
+                won: won,
+                duration: duration,
+                maxCombo: game.maxCombo,
+                successfulMoves: game.successfulMoves,
+                failedClicks: game.failedClicks
+            });
+            if (result.isNewBest) {
+                console.log('🎉 New high score submitted!');
+            }
+        } catch (err) {
+            console.error('Leaderboard submit failed:', err);
+        }
+    }
+
+    // 分数提交完成后，再显示诊断弹窗
     if (typeof LinkUpDiagnosis !== 'undefined') {
         try {
             LinkUpDiagnosis.show({
@@ -914,34 +933,9 @@ function endGame(won) {
                 difficulty: difficulty
             });
             console.log('[endGame] Diagnosis shown');
-            // 延迟检查 DOM 是否真的存在
-            setTimeout(() => {
-                const modal = document.getElementById('diagnosisModal');
-                console.log('[endGame] DOM check - diagnosisModal exists:', !!modal,
-                            'display:', modal?.style?.display,
-                            'visible:', modal?.offsetParent !== null);
-            }, 200);
         } catch (e) {
             console.error('[endGame] Diagnosis show failed:', e);
         }
-    }
-
-    // 提交分数到全球排行榜
-    if (typeof window.Leaderboard !== 'undefined') {
-        window.Leaderboard.submit(game.score, {
-            difficulty: difficulty,
-            won: won,
-            duration: duration,
-            maxCombo: game.maxCombo,
-            successfulMoves: game.successfulMoves,
-            failedClicks: game.failedClicks
-        }).then(result => {
-            if (result.isNewBest) {
-                console.log('🎉 New high score submitted!');
-            }
-        }).catch(err => {
-            console.error('Leaderboard submit failed:', err);
-        });
     }
 }
 
