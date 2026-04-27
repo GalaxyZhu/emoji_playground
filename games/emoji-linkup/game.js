@@ -834,33 +834,49 @@ function hidePause() {
 // ==================== DEBUG 作弊：一键消除所有（preview 测试用）====================
 function cheatClearAll() {
     if (!game.isRunning || game.isPaused) return;
-    
-    // 清除之前选中
+
     deselect();
     clearHints();
-    
-    const interval = setInterval(() => {
+
+    const step = () => {
         const pair = findAnyValidPair();
+        console.log('[cheat] pairsRemaining:', game.pairsRemaining, 'pair found:', !!pair);
+
         if (!pair) {
-            clearInterval(interval);
             if (game.pairsRemaining <= 0) {
+                console.log('[cheat] All cleared! Calling endGame...');
                 endGame(true);
+            } else {
+                // 死局，自动重排后继续
+                console.log('[cheat] Deadlock detected, auto-shuffling...');
+                autoShuffle();
+                setTimeout(step, 80);
             }
             return;
         }
-        
-        // 基础分，不累积 combo
+
         game.successfulMoves++;
         game.score += 10;
         game.pairsRemaining--;
-        
+
         removeCells(pair[0].r, pair[0].c, pair[1].r, pair[1].c);
         updateHUD();
-    }, 80);
+
+        if (game.pairsRemaining <= 0) {
+            console.log('[cheat] Last pair cleared! Calling endGame...');
+            endGame(true);
+            return;
+        }
+
+        setTimeout(step, 80);
+    };
+
+    step();
 }
 
 // ==================== 游戏结束 ====================
 function endGame(won) {
+    console.log('[endGame] called, won:', won, 'score:', game.score, 'pairsRemaining:', game.pairsRemaining);
     clearInterval(game.timer);
     game.isRunning = false;
     game.isPaused = false;
@@ -871,18 +887,23 @@ function endGame(won) {
 
     // 调用诊断系统
     if (typeof LinkUpDiagnosis !== 'undefined') {
-        LinkUpDiagnosis.show({
-            score: game.score,
-            won: won,
-            duration: duration,
-            successfulMoves: game.successfulMoves,
-            failedClicks: game.failedClicks,
-            maxCombo: game.maxCombo,
-            avgTime: parseFloat(avgTime),
-            hintsUsed: DIFFICULTY[difficulty].hint - game.hints,
-            remainingTime: game.remainingTime,
-            difficulty: difficulty
-        });
+        try {
+            LinkUpDiagnosis.show({
+                score: game.score,
+                won: won,
+                duration: duration,
+                successfulMoves: game.successfulMoves,
+                failedClicks: game.failedClicks,
+                maxCombo: game.maxCombo,
+                avgTime: parseFloat(avgTime),
+                hintsUsed: DIFFICULTY[difficulty].hint - game.hints,
+                remainingTime: game.remainingTime,
+                difficulty: difficulty
+            });
+            console.log('[endGame] Diagnosis shown');
+        } catch (e) {
+            console.error('[endGame] Diagnosis show failed:', e);
+        }
     }
 
     // 提交分数到全球排行榜
