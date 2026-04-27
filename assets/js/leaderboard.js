@@ -565,34 +565,46 @@ async function ensureNickname(uid) {
 }
 
 /**
- * 获取排行榜列表
+ * 获取排行榜列表（内存排序，避免 Firestore 索引要求）
  */
 async function fetchLeaderboard() {
   if (!db || !currentGameId) return [];
 
   const colRef = collection(db, 'leaderboards', currentGameId, 'scores');
-  const q = query(colRef, orderBy('score', 'desc'), limit(50));
-  const snap = await getDocs(q);
+  const snap = await getDocs(colRef);
 
-  return snap.docs.map((d, idx) => ({
-    rank: idx + 1,
+  const entries = snap.docs.map(d => ({
     ...d.data(),
     id: d.id,
+  }));
+
+  // 内存排序：按 score 降序，取前50
+  entries.sort((a, b) => (b.score || 0) - (a.score || 0));
+
+  return entries.slice(0, 50).map((e, idx) => ({
+    rank: idx + 1,
+    ...e,
   }));
 }
 
 /**
- * 获取玩家个人最佳成绩
+ * 获取玩家个人最佳成绩（内存过滤，避免复合索引）
  */
 async function fetchPlayerBest(uid) {
   if (!db || !currentGameId || !uid) return null;
 
   const colRef = collection(db, 'leaderboards', currentGameId, 'scores');
-  const q = query(colRef, where('uid', '==', uid), orderBy('score', 'desc'), limit(1));
-  const snap = await getDocs(q);
+  const snap = await getDocs(colRef);
 
-  if (snap.empty) return null;
-  return { id: snap.docs[0].id, ...snap.docs[0].data() };
+  const userScores = snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .filter(e => e.uid === uid);
+
+  if (!userScores.length) return null;
+
+  // 内存排序取最高分
+  userScores.sort((a, b) => (b.score || 0) - (a.score || 0));
+  return userScores[0];
 }
 
 /**
