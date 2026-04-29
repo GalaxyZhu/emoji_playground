@@ -42,10 +42,10 @@ const LinkUpDiagnosis = {
     },
 
     getTexts() {
-        // 尝试读取游戏语言，默认中文
-        const isZh = (typeof lang !== 'undefined' && lang === 'zh') ||
-                     document.documentElement.lang?.startsWith('zh') ||
-                     true;
+        // 读取游戏当前语言（优先用 game.js 的 currentLang）
+        const gameLang = (typeof currentLang !== 'undefined') ? currentLang : null;
+        const isZh = gameLang === 'zh' ||
+                     (!gameLang && document.documentElement.lang?.startsWith('zh'));
         return isZh ? {
             confirmed: '确诊',
             tag: '🔗 Emoji Link-Up 诊断',

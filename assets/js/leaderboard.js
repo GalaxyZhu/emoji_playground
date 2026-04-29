@@ -189,7 +189,7 @@ function createModalDOM() {
       #leaderboard-modal {
         position: fixed;
         inset: 0;
-        z-index: 9999;
+        z-index: 100000;
         display: none;
         align-items: center;
         justify-content: center;
