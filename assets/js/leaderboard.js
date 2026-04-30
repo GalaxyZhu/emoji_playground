@@ -855,6 +855,121 @@ const Leaderboard = {
   getCurrentUser() {
     return currentUser;
   },
+
+  /**
+   * 获取用户全局战绩（所有游戏）
+   * @returns {Promise<Array>}  [{gameId, bestScore, bestTime, playCount, lastPlayed}]
+   */
+  async getUserGlobalStats() {
+    if (!currentUser || !db) {
+      throw new Error('Leaderboard not initialized. Call init() first.');
+    }
+    const uid = currentUser.uid;
+    const games = ['emoji-linkup', 'emoji-shooter', 'emoji-match', 'emoji-survive',
+                   'emoji-rush', 'emoji-drift', 'emoji-hop', 'emoji-frog',
+                   'emoji-kart', 'emoji-rolling'];
+    const results = [];
+
+    for (const gameId of games) {
+      try {
+        const colRef = collection(db, 'leaderboards', gameId, 'scores');
+        const snap = await getDocs(colRef);
+        const userScores = snap.docs
+          .map(d => d.data())
+          .filter(e => e.uid === uid);
+
+        if (userScores.length) {
+          // 判断排序方式
+          const isTimeMode = gameId === 'emoji-linkup'; // 可以扩展为从配置读取
+          let bestEntry;
+          if (isTimeMode) {
+            bestEntry = userScores.sort((a, b) => (a.duration || Infinity) - (b.duration || Infinity))[0];
+          } else {
+            bestEntry = userScores.sort((a, b) => (b.score || 0) - (a.score || 0))[0];
+          }
+
+          const timestamps = userScores.map(s => s.timestamp?.toDate?.() || new Date(s.timestamp)).filter(Boolean);
+          const lastPlayed = timestamps.length ? new Date(Math.max(...timestamps)) : null;
+
+          results.push({
+            gameId,
+            bestScore: bestEntry.score,
+            bestTime: bestEntry.duration,
+            playCount: userScores.length,
+            lastPlayed,
+          });
+        }
+      } catch (err) {
+        console.warn(`[getUserGlobalStats] Failed for ${gameId}:`, err);
+      }
+    }
+
+    return results;
+  },
+
+  /**
+   * 获取用户成就列表
+   * @returns {Promise<Array>}
+   */
+  async getAchievements() {
+    if (!currentUser || !db) return [];
+    const uid = currentUser.uid;
+
+    try {
+      const snap = await getDocs(collection(db, 'players', uid, 'achievements'));
+      return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    } catch (err) {
+      console.warn('[getAchievements] error:', err);
+      return [];
+    }
+  },
+
+  /**
+   * 检查并授予成就
+   * @param {string} gameId
+   * @param {object} stats {score, duration, won, successfulMoves, maxCombo, ...}
+   */
+  async checkAndAwardAchievements(gameId, stats) {
+    if (!currentUser || !db) return [];
+    const uid = currentUser.uid;
+    const newAchievements = [];
+
+    const definitions = [
+      { id: 'first-clear',    name: 'First Clear',    nameZh: '初出茅庐',   icon: '🏅',
+        check: () => stats.won },
+      { id: 'linkup-clear',   name: 'Link-Up Novice', nameZh: '连连看学徒', icon: '🥉',
+        check: () => gameId === 'emoji-linkup' && stats.won },
+      { id: 'linkup-10',      name: 'Link-Up Pro',    nameZh: '连连看高手', icon: '🥈',
+        check: () => gameId === 'emoji-linkup' && stats.won },
+      { id: 'linkup-50',      name: 'Link-Up Master', nameZh: '连连看大师', icon: '🥇',
+        check: () => gameId === 'emoji-linkup' && stats.won },
+      { id: 'lightning',      name: 'Lightning Hands',nameZh: '闪电手',     icon: '⚡',
+        check: () => stats.duration && stats.duration < 30 },
+      { id: 'combo-king',     name: 'Combo King',     nameZh: '连击王',     icon: '🔥',
+        check: () => stats.maxCombo >= 20 },
+      { id: 'shooter-clear',  name: 'Sharp Shooter',  nameZh: '神枪手',     icon: '🎯',
+        check: () => gameId === 'emoji-shooter' && stats.won },
+      { id: 'racer-clear',    name: 'Speed Racer',    nameZh: '赛车手',     icon: '🏎️',
+        check: () => (gameId === 'emoji-rush' || gameId === 'emoji-drift' || gameId === 'emoji-kart') && stats.won },
+    ];
+
+    for (const def of definitions) {
+      if (!def.check()) continue;
+
+      const achRef = doc(db, 'players', uid, 'achievements', def.id);
+      const snap = await getDoc(achRef);
+
+      if (!snap.exists()) {
+        await setDoc(achRef, {
+          ...def,
+          unlockedAt: serverTimestamp(),
+        });
+        newAchievements.push(def);
+      }
+    }
+
+    return newAchievements;
+  },
 };
 
 // 兼容 CommonJS / ESM / 浏览器全局

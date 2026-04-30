@@ -534,13 +534,42 @@
                     <button class="lang-option" id="langOptionEn" type="button" role="menuitem" data-lang="en">English</button>
                 </div>
             </div>
-            <!-- Not logged in -->
-            <div class="user-placeholder" id="loginBtn" onclick="showLoginModal()">
-                <span id="loginText">Login</span>
-            </div>
-            <!-- Logged in (hidden by default) -->
-            <div class="user-avatar" id="userAvatar" style="display: none;" onclick="showUserMenu()">
-                🎮
+            <!-- User System -->
+            <div class="user-area" id="userArea">
+                <!-- Not logged in -->
+                <div class="user-placeholder" id="loginBtn" onclick="showNicknameModal()">
+                    <span id="loginText">Login</span>
+                </div>
+                <!-- Logged in -->
+                <div class="user-avatar" id="userAvatar" style="display: none;" onclick="toggleUserDropdown(event)">
+                    <span class="emoji">🎮</span>
+                    <span id="userNickname">Player</span>
+                    <span class="lang-caret">▾</span>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="user-dropdown-item" onclick="showProfileModal('stats')">
+                            <span>🏆</span>
+                            <span id="menuMyStats">My Stats</span>
+                        </div>
+                        <div class="user-dropdown-item" onclick="showProfileModal('achievements')">
+                            <span>🥇</span>
+                            <span id="menuAchievements">Achievements</span>
+                        </div>
+                        <div class="user-dropdown-divider"></div>
+                        <div class="user-dropdown-item" onclick="showNicknameModal(true)">
+                            <span>🔄</span>
+                            <span id="menuChangeNick">Change Nickname</span>
+                        </div>
+                        <div class="user-dropdown-item" id="appleLinkItem" onclick="linkAppleID()">
+                            <span>🍎</span>
+                            <span id="menuLinkApple">Link Apple ID</span>
+                        </div>
+                        <div class="user-dropdown-divider"></div>
+                        <div class="user-dropdown-item" onclick="logoutUser()">
+                            <span>🚪</span>
+                            <span id="menuLogout">Logout</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
@@ -764,9 +793,43 @@
     </div>
 
     <!-- Login Modal (reserved) -->
-    <div id="loginModal" style="display: none;">
-        <!-- User system to be implemented -->
+    <!-- Nickname Modal -->
+    <div id="nicknameModal">
+        <div class="user-modal-overlay" onclick="hideNicknameModal()"></div>
+        <div class="user-modal-box">
+            <div class="user-modal-title" id="nickModalTitle">Set Your Nickname</div>
+            <div class="user-modal-subtitle" id="nickModalSub">Play with a fun name</div>
+            <div class="nickname-display" id="nicknameDisplay">Happy Panda</div>
+            <div class="nickname-actions">
+                <button class="user-btn user-btn-primary" id="nickConfirmBtn" onclick="confirmNickname()">Use This</button>
+                <button class="user-btn user-btn-secondary" id="nickRefreshBtn" onclick="refreshNickname()">🔄 Another</button>
+            </div>
+        </div>
     </div>
+
+    <!-- User Profile Modal -->
+    <div id="userProfileModal">
+        <div class="user-modal-overlay" onclick="hideProfileModal()"></div>
+        <div class="user-modal-box" style="max-width: 420px;">
+            <div class="user-modal-title" id="profileModalTitle">My Profile</div>
+            <div class="profile-tabs">
+                <button class="profile-tab active" id="tabStats" onclick="switchProfileTab('stats')">🏆 Stats</button>
+                <button class="profile-tab" id="tabAchievements" onclick="switchProfileTab('achievements')">🥇 Achievements</button>
+            </div>
+            <div class="profile-content" id="profileContent">
+                <!-- Content injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Leaderboard } from './assets/js/leaderboard.js?v=7';
+        import { generateNickname, generateNicknameOptions } from './assets/js/nickname-generator.js';
+        
+        window.Leaderboard = Leaderboard;
+        window.generateNickname = generateNickname;
+        window.generateNicknameOptions = generateNicknameOptions;
+    </script>
 
     <script>
         // ==================== 游戏数据（支持双语） ====================
@@ -906,37 +969,310 @@
             }
         };
         
-        // ==================== User System (reserved) ====================
+        // ==================== User System ====================
         let currentUser = null;
+        let generatedNickname = '';
+        let userDropdownOpen = false;
+        
+        const USER_STORAGE_KEY = 'emoji_arcade_user_v2';
+        const NICKNAME_STORAGE_KEY = 'emoji_arcade_nickname';
         
         function initUserSystem() {
-            currentUser = Storage.getUser();
-            if (currentUser) {
-                showLoggedInUser();
+            // Try to restore saved user
+            const saved = localStorage.getItem(USER_STORAGE_KEY);
+            if (saved) {
+                try {
+                    currentUser = JSON.parse(saved);
+                    showLoggedInState();
+                    return;
+                } catch(e) {}
+            }
+            
+            // Auto anonymous login via leaderboard
+            initLeaderboardUser();
+        }
+        
+        async function initLeaderboardUser() {
+            if (typeof window.Leaderboard === 'undefined') {
+                // Module not loaded yet, retry
+                setTimeout(initLeaderboardUser, 500);
+                return;
+            }
+            
+            try {
+                // Use a dummy game ID just to init auth
+                await window.Leaderboard.init('emoji-arcade-home', getCurrentLang());
+                const firebaseUser = window.Leaderboard.getCurrentUser();
+                
+                if (firebaseUser) {
+                    // Check if nickname already set
+                    const savedNick = localStorage.getItem(NICKNAME_STORAGE_KEY);
+                    if (savedNick) {
+                        currentUser = { uid: firebaseUser.uid, nickname: savedNick };
+                        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(currentUser));
+                        showLoggedInState();
+                    } else {
+                        // Show nickname modal for first-time user
+                        showNicknameModal();
+                    }
+                }
+            } catch (err) {
+                console.warn('[UserSystem] Leaderboard init failed:', err);
             }
         }
         
-        function showLoggedInUser() {
+        function showLoggedInState() {
             document.getElementById('loginBtn').style.display = 'none';
-            document.getElementById('userAvatar').style.display = 'flex';
-        }
-        
-        function showLoginModal() {
-            const lang = getCurrentLang();
-            if (lang === 'zh') {
-                alert('🎮 用户系统即将上线！\n\n现在可以匿名游玩，所有分数保存在本地。');
-            } else {
-                alert('🎮 User system coming soon!\n\nPlay anonymously for now. All scores saved locally.');
+            const avatar = document.getElementById('userAvatar');
+            avatar.style.display = 'flex';
+            document.getElementById('userNickname').textContent = currentUser?.nickname || 'Player';
+            
+            // Hide Apple link if already linked
+            const appleItem = document.getElementById('appleLinkItem');
+            if (currentUser?.appleLinked && appleItem) {
+                appleItem.style.display = 'none';
             }
         }
         
-        function showUserMenu() {
+        function showNicknameModal(isChange = false) {
             const lang = getCurrentLang();
+            const title = document.getElementById('nickModalTitle');
+            const sub = document.getElementById('nickModalSub');
+            const btn = document.getElementById('nickConfirmBtn');
+            
             if (lang === 'zh') {
-                alert('🎮 用户中心即将上线！');
+                title.textContent = isChange ? '修改昵称' : '设置昵称';
+                sub.textContent = isChange ? '换个新名字吧' : '选一个有趣的名字开始游戏';
+                btn.textContent = '确认使用';
             } else {
-                alert('🎮 User center coming soon!');
+                title.textContent = isChange ? 'Change Nickname' : 'Set Your Nickname';
+                sub.textContent = isChange ? 'Try a new name' : 'Pick a fun name to start playing';
+                btn.textContent = 'Use This';
             }
+            
+            refreshNickname();
+            document.getElementById('nicknameModal').classList.add('active');
+        }
+        
+        function hideNicknameModal() {
+            document.getElementById('nicknameModal').classList.remove('active');
+        }
+        
+        function refreshNickname() {
+            if (typeof window.generateNickname === 'function') {
+                generatedNickname = window.generateNickname();
+            } else {
+                // Fallback
+                const adjs = ['Happy','Lucky','Crazy','Sleepy'];
+                const nouns = ['Panda','Dragon','Wizard','Ninja'];
+                generatedNickname = adjs[Math.floor(Math.random()*4)] + ' ' + nouns[Math.floor(Math.random()*4)];
+            }
+            document.getElementById('nicknameDisplay').textContent = generatedNickname;
+        }
+        
+        async function confirmNickname() {
+            const nickname = generatedNickname || document.getElementById('nicknameDisplay').textContent;
+            
+            // Save to localStorage
+            localStorage.setItem(NICKNAME_STORAGE_KEY, nickname);
+            
+            // Save to Firebase
+            if (typeof window.Leaderboard !== 'undefined') {
+                try {
+                    const user = window.Leaderboard.getCurrentUser();
+                    if (user) {
+                        currentUser = { uid: user.uid, nickname };
+                        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(currentUser));
+                        
+                        // Submit a dummy score to ensure player doc is created with nickname
+                        await window.Leaderboard.submit(0, { 
+                            nickname, 
+                            isSetup: true,
+                            difficulty: 'normal'
+                        });
+                    }
+                } catch (err) {
+                    console.warn('[UserSystem] Failed to save nickname:', err);
+                }
+            }
+            
+            hideNicknameModal();
+            showLoggedInState();
+        }
+        
+        function toggleUserDropdown(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('userDropdown');
+            userDropdownOpen = !userDropdownOpen;
+            dropdown.classList.toggle('active', userDropdownOpen);
+            
+            if (userDropdownOpen) {
+                document.addEventListener('click', closeUserDropdown);
+            }
+        }
+        
+        function closeUserDropdown() {
+            userDropdownOpen = false;
+            document.getElementById('userDropdown').classList.remove('active');
+            document.removeEventListener('click', closeUserDropdown);
+        }
+        
+        function logoutUser() {
+            localStorage.removeItem(USER_STORAGE_KEY);
+            localStorage.removeItem(NICKNAME_STORAGE_KEY);
+            currentUser = null;
+            document.getElementById('loginBtn').style.display = 'flex';
+            document.getElementById('userAvatar').style.display = 'none';
+            closeUserDropdown();
+            
+            // Re-init anonymous login for fresh session
+            initLeaderboardUser();
+        }
+        
+        // Profile Modal
+        let currentProfileTab = 'stats';
+        
+        async function showProfileModal(tab = 'stats') {
+            currentProfileTab = tab;
+            const lang = getCurrentLang();
+            const modal = document.getElementById('userProfileModal');
+            const title = document.getElementById('profileModalTitle');
+            
+            title.textContent = lang === 'zh' ? '我的档案' : 'My Profile';
+            
+            switchProfileTab(tab);
+            modal.classList.add('active');
+        }
+        
+        function hideProfileModal() {
+            document.getElementById('userProfileModal').classList.remove('active');
+        }
+        
+        function switchProfileTab(tab) {
+            currentProfileTab = tab;
+            document.getElementById('tabStats').classList.toggle('active', tab === 'stats');
+            document.getElementById('tabAchievements').classList.toggle('active', tab === 'achievements');
+            
+            if (tab === 'stats') {
+                renderStatsTab();
+            } else {
+                renderAchievementsTab();
+            }
+        }
+        
+        async function renderStatsTab() {
+            const lang = getCurrentLang();
+            const content = document.getElementById('profileContent');
+            
+            if (!currentUser) {
+                content.innerHTML = `<div class="empty-state">${lang === 'zh' ? '请先登录' : 'Please log in first'}</div>`;
+                return;
+            }
+            
+            content.innerHTML = '<div class="empty-state">Loading...</div>';
+            
+            try {
+                if (typeof window.Leaderboard !== 'undefined') {
+                    const stats = await window.Leaderboard.getUserGlobalStats();
+                    
+                    if (!stats.length) {
+                        content.innerHTML = `<div class="empty-state">${lang === 'zh' ? '还没有游玩记录，快去试试吧！' : 'No play history yet. Go play!'}</div>`;
+                        return;
+                    }
+                    
+                    const gameNameMap = {
+                        'emoji-linkup': { name: 'Emoji Link-Up', emoji: '🔗' },
+                        'emoji-shooter': { name: 'Emoji Shooter', emoji: '🗿' },
+                        'emoji-match': { name: 'Emoji Match', emoji: '🧩' },
+                        'emoji-survive': { name: 'Emoji Survive', emoji: '🛻' },
+                        'emoji-rush': { name: 'Emoji Rush', emoji: '🏎️' },
+                        'emoji-drift': { name: 'Emoji Drift', emoji: '🚗' },
+                        'emoji-kart': { name: 'Emoji Kart', emoji: '🏎️' },
+                        'emoji-hop': { name: 'Monkey Crossing', emoji: '🐵' },
+                        'emoji-frog': { name: 'Emoji Frog', emoji: '🐸' },
+                        'emoji-rolling': { name: 'Emoji Rolling', emoji: '🚜' },
+                    };
+                    
+                    let html = '';
+                    
+                    stats.forEach(s => {
+                        const game = gameNameMap[s.gameId] || { name: s.gameId, emoji: '🎮' };
+                        const isTimeGame = s.gameId === 'emoji-linkup';
+                        const bestDisplay = isTimeGame 
+                            ? (s.bestTime ? `${s.bestTime}s` : '--')
+                            : (s.bestScore ?? '--');
+                        
+                        html += `
+                            <div class="profile-game-row">
+                                <span class="profile-game-emoji">${game.emoji}</span>
+                                <div class="profile-game-info">
+                                    <div class="profile-game-name">${game.name}</div>
+                                    <div class="profile-game-stat">${s.playCount} plays</div>
+                                </div>
+                                <div class="profile-game-best">${bestDisplay}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    content.innerHTML = html;
+                } else {
+                    content.innerHTML = `<div class="empty-state">${lang === 'zh' ? '系统加载中...' : 'System loading...'}</div>`;
+                }
+            } catch (err) {
+                console.error('[Profile] Failed to load stats:', err);
+                content.innerHTML = `<div class="empty-state">${lang === 'zh' ? '加载失败' : 'Failed to load'}</div>`;
+            }
+        }
+        
+        async function renderAchievementsTab() {
+            const lang = getCurrentLang();
+            const content = document.getElementById('profileContent');
+            
+            const achievementDefs = [
+                { id: 'first-clear',    name: 'First Clear',    nameZh: '初出茅庐',   icon: '🏅' },
+                { id: 'linkup-clear',   name: 'Link-Up Novice', nameZh: '连连看学徒', icon: '🥉' },
+                { id: 'linkup-10',      name: 'Link-Up Pro',    nameZh: '连连看高手', icon: '🥈' },
+                { id: 'linkup-50',      name: 'Link-Up Master', nameZh: '连连看大师', icon: '🥇' },
+                { id: 'lightning',      name: 'Lightning Hands',nameZh: '闪电手',     icon: '⚡' },
+                { id: 'combo-king',     name: 'Combo King',     nameZh: '连击王',     icon: '🔥' },
+                { id: 'shooter-clear',  name: 'Sharp Shooter',  nameZh: '神枪手',     icon: '🎯' },
+                { id: 'racer-clear',    name: 'Speed Racer',    nameZh: '赛车手',     icon: '🏎️' },
+            ];
+            
+            let unlockedIds = [];
+            
+            try {
+                if (typeof window.Leaderboard !== 'undefined' && currentUser) {
+                    const achievements = await window.Leaderboard.getAchievements();
+                    unlockedIds = achievements.map(a => a.id);
+                }
+            } catch (err) {
+                console.warn('[Profile] Failed to load achievements:', err);
+            }
+            
+            let html = '<div class="achievement-grid">';
+            achievementDefs.forEach(ach => {
+                const isUnlocked = unlockedIds.includes(ach.id);
+                const name = lang === 'zh' ? ach.nameZh : ach.name;
+                html += `
+                    <div class="achievement-item ${isUnlocked ? '' : 'locked'}" title="${name}">
+                        <div class="achievement-icon">${ach.icon}</div>
+                        <div class="achievement-name">${name}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            content.innerHTML = html;
+        }
+        
+        // Apple ID linking (placeholder)
+        async function linkAppleID() {
+            const lang = getCurrentLang();
+            alert(lang === 'zh' 
+                ? '🍎 Apple ID 绑定功能即将上线' 
+                : '🍎 Apple ID linking coming soon');
+            closeUserDropdown();
         }
         
         // ==================== 游戏加载（支持双语）====================
@@ -1546,6 +1882,184 @@
         });
     </script>
     
+    <!-- User System Styles -->
+    <style>
+        /* User Avatar & Dropdown */
+        .user-avatar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .user-avatar:hover { background: rgba(255,255,255,0.2); }
+        .user-avatar .emoji { font-size: 16px; }
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 8px 0;
+            min-width: 180px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            z-index: 10000;
+            display: none;
+        }
+        .user-dropdown.active { display: block; }
+        .user-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .user-dropdown-item:hover { background: #27354d; }
+        .user-dropdown-divider {
+            height: 1px;
+            background: #334155;
+            margin: 6px 12px;
+        }
+        
+        /* Nickname Modal */
+        #nicknameModal, #userProfileModal {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        #nicknameModal.active, #userProfileModal.active { display: flex; }
+        .user-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+        }
+        .user-modal-box {
+            position: relative;
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 360px;
+            width: 85%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .user-modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 8px;
+        }
+        .user-modal-subtitle {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+        .nickname-display {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fbbf24;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: rgba(251,191,36,0.1);
+            border-radius: 12px;
+        }
+        .nickname-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .user-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .user-btn-primary { background: #38bdf8; color: #0f172a; }
+        .user-btn-primary:hover { background: #7dd3fc; }
+        .user-btn-secondary { background: transparent; color: #94a3b8; border: 1px solid #475569; }
+        .user-btn-secondary:hover { border-color: #94a3b8; color: #e2e8f0; }
+        
+        /* Profile Modal */
+        .profile-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .profile-tab {
+            flex: 1;
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255,255,255,0.05);
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .profile-tab.active { background: #38bdf8; color: #0f172a; }
+        .profile-content { text-align: left; }
+        .profile-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 16px 0 8px;
+        }
+        .profile-game-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .profile-game-emoji { font-size: 20px; }
+        .profile-game-info { flex: 1; }
+        .profile-game-name { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+        .profile-game-stat { font-size: 12px; color: #94a3b8; }
+        .profile-game-best { font-size: 14px; font-weight: 700; color: #fbbf24; text-align: right; min-width: 60px; }
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .achievement-item {
+            text-align: center;
+            padding: 12px 8px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+        }
+        .achievement-item.locked { opacity: 0.4; }
+        .achievement-icon { font-size: 28px; margin-bottom: 4px; }
+        .achievement-name { font-size: 11px; color: #94a3b8; }
+        .empty-state {
+            text-align: center;
+            padding: 32px;
+            color: #64748b;
+            font-size: 14px;
+        }
+    </style>
+
     <!-- Service Worker Registration for PWA -->
     <script>
         if ('serviceWorker' in navigator) {
