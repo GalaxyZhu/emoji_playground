@@ -560,6 +560,7 @@ function askNickname() {
 
 /**
  * 检查并获取玩家昵称
+ * 优先读取首页用户系统统一设置的昵称，避免重复弹窗
  */
 async function ensureNickname(uid) {
   if (!db || !currentGameId) return null;
@@ -567,11 +568,19 @@ async function ensureNickname(uid) {
   const playerDocRef = doc(db, 'leaderboards', currentGameId, 'players', uid);
   const snap = await getDoc(playerDocRef);
 
-  if (snap.exists()) {
-    return snap.data().nickname || null;
+  // 如果 Firestore 已有昵称，直接返回
+  if (snap.exists() && snap.data().nickname) {
+    return snap.data().nickname;
   }
 
-  // 未设置过昵称，弹出输入框
+  // 优先读取首页用户系统设置的昵称（统一入口）
+  const globalNickname = localStorage.getItem('emoji_arcade_nickname');
+  if (globalNickname) {
+    await setDoc(playerDocRef, { nickname: globalNickname, updatedAt: serverTimestamp() });
+    return globalNickname;
+  }
+
+  // 完全没有昵称，弹出输入框（兜底）
   const nickname = await askNickname();
   if (nickname) {
     await setDoc(playerDocRef, { nickname, updatedAt: serverTimestamp() });
