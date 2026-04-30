@@ -42,10 +42,10 @@ const LinkUpDiagnosis = {
     },
 
     getTexts() {
-        // 尝试读取游戏语言，默认中文
-        const isZh = (typeof lang !== 'undefined' && lang === 'zh') ||
-                     document.documentElement.lang?.startsWith('zh') ||
-                     true;
+        // 读取游戏当前语言（优先用 game.js 的 currentLang）
+        const gameLang = (typeof currentLang !== 'undefined') ? currentLang : null;
+        const isZh = gameLang === 'zh' ||
+                     (!gameLang && document.documentElement.lang?.startsWith('zh'));
         return isZh ? {
             confirmed: '确诊',
             tag: '🔗 Emoji Link-Up 诊断',
@@ -195,6 +195,10 @@ Find your player type 👇`
                             <button onclick="LinkUpDiagnosis.share('weibo')" style="padding:8px 14px;border-radius:15px;border:none;background:#e6162d;color:white;font-weight:600;cursor:pointer;font-size:12px;">📱</button>
                             <button onclick="LinkUpDiagnosis.share('copy')" style="padding:8px 14px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:12px;">📋</button>
                         </div>
+                        <!-- 排行榜按钮 -->
+                        <div style="margin-top:10px;">
+                            <button onclick="LinkUpDiagnosis.showLeaderboard()" style="width:100%;padding:10px;border-radius:12px;border:none;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#0f172a;font-weight:700;cursor:pointer;font-size:14px;">🏆 ${isZh ? '查看全球排行榜' : 'View Global Leaderboard'}</button>
+                        </div>
                         <div style="display:flex;gap:8px;margin-top:12px;">
                             <button onclick="LinkUpDiagnosis.hide()" style="flex:1;padding:12px;border-radius:15px;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-weight:600;cursor:pointer;font-size:14px;">${t.replay}</button>
                             <button onclick="location.href='../../index.html'" style="padding:12px 16px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:14px;">🏠</button>
@@ -205,7 +209,12 @@ Find your player type 👇`
         `;
 
         const container = document.getElementById('diagnosisContainer');
+        if (!container) {
+            console.error('[diagnosis] diagnosisContainer NOT found in DOM!');
+            return;
+        }
         container.innerHTML = html;
+        console.log('[diagnosis] Modal rendered, diagnosisModal exists:', !!document.getElementById('diagnosisModal'));
         this.currentType = type;
         this.currentStats = stats;
         this.texts = t;
@@ -217,6 +226,27 @@ Find your player type 👇`
         if (typeof newGame === 'function') newGame();
     },
 
+    showLeaderboard() {
+        console.log('[diagnosis] showLeaderboard clicked. window.Leaderboard exists:', typeof window.Leaderboard !== 'undefined');
+        if (typeof window.Leaderboard === 'undefined') {
+            alert('Leaderboard loading... Please try again in a moment.');
+            return;
+        }
+        const isZh = this.texts?.confirmed === '确诊';
+        window.Leaderboard.getTop50().then(entries => {
+            console.log('[diagnosis] getTop50 success, entries count:', entries?.length);
+            const uid = window.Leaderboard.getCurrentUser()?.uid;
+            console.log('[diagnosis] currentUser uid:', uid);
+            const playerEntry = entries.find(e => e.uid === uid);
+            const playerRank = playerEntry ? playerEntry.rank : null;
+            console.log('[diagnosis] playerRank:', playerRank);
+            window.Leaderboard.showModal(entries, playerRank);
+            console.log('[diagnosis] showModal called');
+        }).catch(err => {
+            console.error('[diagnosis] getTop50 failed:', err);
+            alert(isZh ? '排行榜加载失败，请稍后重试' : 'Failed to load leaderboard. Please try again.');
+        });
+    },
     share(platform) {
         const t = this.texts || this.getTexts();
         const type = this.currentType;

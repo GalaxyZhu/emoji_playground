@@ -131,6 +131,11 @@ function bindEvents() {
         if (e.key === 'Escape') togglePause();
         if (e.key === 'h' || e.key === 'H') useHint();
         if (e.key === 'r' || e.key === 'R') useShuffle();
+        // DEBUG: Shift+C 一键消除所有（preview 测试用）
+        if ((e.key === 'c' || e.key === 'C') && e.shiftKey) {
+            e.preventDefault();
+            cheatClearAll();
+        }
     });
 }
 
@@ -826,29 +831,111 @@ function hidePause() {
     document.getElementById('pauseModal').classList.remove('show');
 }
 
+// ==================== DEBUG 作弊：一键消除所有（preview 测试用）====================
+function cheatClearAll() {
+    if (!game.isRunning || game.isPaused) {
+        console.log('[cheat] blocked: isRunning=' + game.isRunning + ' isPaused=' + game.isPaused);
+        return;
+    }
+
+    deselect();
+    clearHints();
+    console.log('[cheat] START. pairsRemaining=' + game.pairsRemaining);
+
+    let steps = 0;
+    const MAX_STEPS = 200;
+
+    const step = () => {
+        steps++;
+        if (steps > MAX_STEPS) {
+            console.warn('[cheat] MAX_STEPS reached, forcing endGame');
+            endGame(true);
+            return;
+        }
+
+        const pair = findAnyValidPair();
+        console.log('[cheat] step', steps, 'pairsRemaining=', game.pairsRemaining, 'pair=', !!pair);
+
+        if (!pair) {
+            if (game.pairsRemaining <= 0) {
+                console.log('[cheat] All cleared! Calling endGame...');
+                endGame(true);
+            } else {
+                console.log('[cheat] Deadlock, auto-shuffle. remaining=', game.pairsRemaining);
+                autoShuffle();
+                setTimeout(step, 80);
+            }
+            return;
+        }
+
+        game.successfulMoves++;
+        game.score += 10;
+        game.pairsRemaining--;
+
+        removeCells(pair[0].r, pair[0].c, pair[1].r, pair[1].c);
+        updateHUD();
+
+        if (game.pairsRemaining <= 0) {
+            console.log('[cheat] Last pair cleared! Calling endGame...');
+            endGame(true);
+            return;
+        }
+
+        setTimeout(step, 80);
+    };
+
+    step();
+}
+
 // ==================== 游戏结束 ====================
-function endGame(won) {
+async function endGame(won) {
+    console.log('[endGame] called, won:', won, 'score:', game.score, 'pairsRemaining:', game.pairsRemaining);
     clearInterval(game.timer);
     game.isRunning = false;
     game.isPaused = false;
 
     const duration = Math.floor((Date.now() - game.startTime) / 1000);
     const avgTime = game.successfulMoves > 0 ? (duration / game.successfulMoves).toFixed(1) : '0';
+    const difficulty = document.querySelector('.diff-btn.active')?.dataset.diff || 'easy';
 
-    // 调用诊断系统
+    // 先提交分数（如果需要会弹出昵称输入框，确保在诊断弹窗之前完成）
+    if (typeof window.Leaderboard !== 'undefined') {
+        try {
+            const result = await window.Leaderboard.submit(game.score, {
+                difficulty: difficulty,
+                won: won,
+                duration: duration,
+                maxCombo: game.maxCombo,
+                successfulMoves: game.successfulMoves,
+                failedClicks: game.failedClicks
+            });
+            if (result.isNewBest) {
+                console.log('🎉 New high score submitted!');
+            }
+        } catch (err) {
+            console.error('Leaderboard submit failed:', err);
+        }
+    }
+
+    // 分数提交完成后，再显示诊断弹窗
     if (typeof LinkUpDiagnosis !== 'undefined') {
-        LinkUpDiagnosis.show({
-            score: game.score,
-            won: won,
-            duration: duration,
-            successfulMoves: game.successfulMoves,
-            failedClicks: game.failedClicks,
-            maxCombo: game.maxCombo,
-            avgTime: parseFloat(avgTime),
-            hintsUsed: DIFFICULTY[document.querySelector('.diff-btn.active')?.dataset.diff || 'easy'].hint - game.hints,
-            remainingTime: game.remainingTime,
-            difficulty: document.querySelector('.diff-btn.active')?.dataset.diff || 'easy'
-        });
+        try {
+            LinkUpDiagnosis.show({
+                score: game.score,
+                won: won,
+                duration: duration,
+                successfulMoves: game.successfulMoves,
+                failedClicks: game.failedClicks,
+                maxCombo: game.maxCombo,
+                avgTime: parseFloat(avgTime),
+                hintsUsed: DIFFICULTY[difficulty].hint - game.hints,
+                remainingTime: game.remainingTime,
+                difficulty: difficulty
+            });
+            console.log('[endGame] Diagnosis shown');
+        } catch (e) {
+            console.error('[endGame] Diagnosis show failed:', e);
+        }
     }
 }
 

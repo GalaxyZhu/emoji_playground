@@ -534,13 +534,48 @@
                     <button class="lang-option" id="langOptionEn" type="button" role="menuitem" data-lang="en">English</button>
                 </div>
             </div>
-            <!-- Not logged in -->
-            <div class="user-placeholder" id="loginBtn" onclick="showLoginModal()">
-                <span id="loginText">Login</span>
-            </div>
-            <!-- Logged in (hidden by default) -->
-            <div class="user-avatar" id="userAvatar" style="display: none;" onclick="showUserMenu()">
-                🎮
+            <!-- User System -->
+            <div class="user-area" id="userArea">
+                <!-- Not logged in -->
+                <div class="user-placeholder" id="loginBtn" onclick="showNicknameModal()">
+                    <span id="loginText">Login</span>
+                </div>
+                <!-- Logged in -->
+                <div class="user-avatar" id="userAvatar" style="display: none;" onclick="toggleUserDropdown(event)">
+                    <span class="emoji" id="userEmoji">🎮</span>
+                    <div class="user-dropdown" id="userDropdown">
+                        <!-- Nickname header -->
+                        <div class="user-dropdown-header" id="dropdownNickname" style="padding: 8px 16px; font-size: 14px; font-weight: 700; color: #fbbf24; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 4px;">
+                            Player
+                        </div>
+                        <div class="user-dropdown-item" onclick="showProfileModal('stats')">
+                            <span>🏆</span>
+                            <span id="menuMyStats">My Stats</span>
+                        </div>
+                        <div class="user-dropdown-item" onclick="showProfileModal('achievements')">
+                            <span>🥇</span>
+                            <span id="menuAchievements">Achievements</span>
+                        </div>
+                        <div class="user-dropdown-divider"></div>
+                        <div class="user-dropdown-item" onclick="showAvatarModal()">
+                            <span>🎨</span>
+                            <span id="menuChangeAvatar">Change Avatar</span>
+                        </div>
+                        <div class="user-dropdown-item" onclick="showNicknameModal(true)">
+                            <span>🔄</span>
+                            <span id="menuChangeNick">Change Nickname</span>
+                        </div>
+                        <div class="user-dropdown-item" id="accountLinkItem" onclick="linkAccount()">
+                            <span>🔗</span>
+                            <span id="menuLinkAccount">Link Account</span>
+                        </div>
+                        <div class="user-dropdown-divider"></div>
+                        <div class="user-dropdown-item" onclick="logoutUser()">
+                            <span>🚪</span>
+                            <span id="menuLogout">Logout</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
@@ -764,9 +799,68 @@
     </div>
 
     <!-- Login Modal (reserved) -->
-    <div id="loginModal" style="display: none;">
-        <!-- User system to be implemented -->
+    <!-- Nickname Modal -->
+    <div id="nicknameModal">
+        <div class="user-modal-overlay" onclick="hideNicknameModal()"></div>
+        <div class="user-modal-box">
+            <div class="user-modal-title" id="nickModalTitle">Set Your Nickname</div>
+            <div class="user-modal-subtitle" id="nickModalSub">Play with a fun name</div>
+            <div class="nickname-display" id="nicknameDisplay">Happy Panda</div>
+            <div class="nickname-actions">
+                <button class="user-btn user-btn-primary" id="nickConfirmBtn" onclick="confirmNickname()">Use This</button>
+                <button class="user-btn user-btn-secondary" id="nickRefreshBtn" onclick="refreshNickname()">🔄 Another</button>
+            </div>
+        </div>
     </div>
+
+    <!-- User Profile Modal -->
+    <div id="userProfileModal">
+        <div class="user-modal-overlay" onclick="hideProfileModal()"></div>
+        <div class="user-modal-box" style="max-width: 420px;">
+            <div class="user-modal-title" id="profileModalTitle">My Profile</div>
+            <div class="profile-tabs">
+                <button class="profile-tab active" id="tabStats" onclick="switchProfileTab('stats')">🏆 Stats</button>
+                <button class="profile-tab" id="tabAchievements" onclick="switchProfileTab('achievements')">🥇 Achievements</button>
+            </div>
+            <div class="profile-content" id="profileContent">
+                <!-- Content injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Avatar Selection Modal -->
+    <div id="avatarModal">
+        <div class="user-modal-overlay" onclick="hideAvatarModal()"></div>
+        <div class="user-modal-box" style="max-width: 340px;">
+            <div class="user-modal-title" id="avatarModalTitle">Choose Your Avatar</div>
+            <div class="user-modal-subtitle" id="avatarModalSub">Pick an emoji that suits you</div>
+            <div class="avatar-grid" id="avatarGrid">
+                <!-- Emojis injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutConfirmModal">
+        <div class="user-modal-overlay" onclick="hideLogoutConfirmModal()"></div>
+        <div class="user-modal-box" style="max-width: 340px;">
+            <div class="user-modal-title" id="logoutConfirmTitle">Confirm Logout</div>
+            <div class="user-modal-subtitle" id="logoutConfirmSub">You haven't linked a social account. After logging out, you won't be able to log back into this account. Are you sure?</div>
+            <div class="nickname-actions">
+                <button class="user-btn user-btn-secondary" id="logoutCancelBtn" onclick="hideLogoutConfirmModal()">Cancel</button>
+                <button class="user-btn user-btn-primary" id="logoutConfirmBtn" onclick="executeLogout()">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { Leaderboard } from './assets/js/leaderboard.js?v=7';
+        import { generateNickname, generateNicknameOptions } from './assets/js/nickname-generator.js';
+        
+        window.Leaderboard = Leaderboard;
+        window.generateNickname = generateNickname;
+        window.generateNicknameOptions = generateNicknameOptions;
+    </script>
 
     <script>
         // ==================== 游戏数据（支持双语） ====================
@@ -906,37 +1000,503 @@
             }
         };
         
-        // ==================== User System (reserved) ====================
+        // ==================== User System ====================
         let currentUser = null;
+        let generatedNickname = '';
+        let userDropdownOpen = false;
+        let selectedAvatar = '🎮';
+        
+        const USER_STORAGE_KEY = 'emoji_arcade_user_v2';
+        const NICKNAME_STORAGE_KEY = 'emoji_arcade_nickname';
+        const AVATAR_STORAGE_KEY = 'emoji_arcade_avatar';
+        
+        const AVATAR_OPTIONS = [
+            '🎮', '🎯', '🏆', '🥇', '🎲', '🎪', '🎨', '🎭',
+            '🎸', '🎺', '🎻', '🎹', '🎬', '🎤', '🎧', '🎵',
+            '🎶', '🏀', '⚽', '🎾', '🏈', '⚾', '🏐', '🏓',
+            '🎳', '🏹', '🛹', '🛷', '🥊', '🏋️', '🧘', '🏄',
+        ];
         
         function initUserSystem() {
-            currentUser = Storage.getUser();
-            if (currentUser) {
-                showLoggedInUser();
+            // Restore saved avatar
+            const savedAvatar = localStorage.getItem(AVATAR_STORAGE_KEY);
+            if (savedAvatar) selectedAvatar = savedAvatar;
+            
+            // Try to restore saved user
+            const saved = localStorage.getItem(USER_STORAGE_KEY);
+            if (saved) {
+                try {
+                    currentUser = JSON.parse(saved);
+                    showLoggedInState();
+                    return;
+                } catch(e) {}
+            }
+            
+            // Auto anonymous login via leaderboard
+            initLeaderboardUser();
+        }
+        
+        async function initLeaderboardUser() {
+            if (typeof window.Leaderboard === 'undefined') {
+                // Module not loaded yet, retry
+                setTimeout(initLeaderboardUser, 500);
+                return;
+            }
+            
+            try {
+                // Use a dummy game ID just to init auth
+                await window.Leaderboard.init('emoji-arcade-home', getCurrentLang());
+                const firebaseUser = window.Leaderboard.getCurrentUser();
+                
+                if (firebaseUser) {
+                    // Check if nickname already set
+                    const savedNick = localStorage.getItem(NICKNAME_STORAGE_KEY);
+                    if (savedNick) {
+                        currentUser = { uid: firebaseUser.uid, nickname: savedNick };
+                        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(currentUser));
+                        showLoggedInState();
+                    }
+                    // NOTE: Do NOT auto-show nickname modal. Wait for user to click Login.
+                }
+            } catch (err) {
+                console.warn('[UserSystem] Leaderboard init failed:', err);
             }
         }
         
-        function showLoggedInUser() {
+        function showLoggedInState() {
             document.getElementById('loginBtn').style.display = 'none';
-            document.getElementById('userAvatar').style.display = 'flex';
-        }
-        
-        function showLoginModal() {
-            const lang = getCurrentLang();
-            if (lang === 'zh') {
-                alert('🎮 用户系统即将上线！\n\n现在可以匿名游玩，所有分数保存在本地。');
-            } else {
-                alert('🎮 User system coming soon!\n\nPlay anonymously for now. All scores saved locally.');
+            const avatar = document.getElementById('userAvatar');
+            avatar.style.display = 'flex';
+            
+            // Show emoji avatar only, no nickname text
+            document.getElementById('userEmoji').textContent = selectedAvatar;
+            
+            // Update dropdown header with nickname
+            const header = document.getElementById('dropdownNickname');
+            if (header) {
+                header.textContent = currentUser?.nickname || 'Player';
+            }
+            
+            // Hide account link if already linked
+            const accountItem = document.getElementById('accountLinkItem');
+            if (currentUser?.accountLinked && accountItem) {
+                accountItem.style.display = 'none';
             }
         }
         
-        function showUserMenu() {
+        function showNicknameModal(isChange = false) {
             const lang = getCurrentLang();
+            const title = document.getElementById('nickModalTitle');
+            const sub = document.getElementById('nickModalSub');
+            const btn = document.getElementById('nickConfirmBtn');
+            
             if (lang === 'zh') {
-                alert('🎮 用户中心即将上线！');
+                title.textContent = isChange ? '修改昵称' : '设置昵称';
+                sub.textContent = isChange ? '换个新名字吧' : '选一个有趣的名字开始游戏';
+                btn.textContent = '确认使用';
+                document.getElementById('nickRefreshBtn').textContent = '🔄 换一个';
             } else {
-                alert('🎮 User center coming soon!');
+                title.textContent = isChange ? 'Change Nickname' : 'Set Your Nickname';
+                sub.textContent = isChange ? 'Try a new name' : 'Pick a fun name to start playing';
+                btn.textContent = 'Use This';
+                document.getElementById('nickRefreshBtn').textContent = '🔄 Another';
             }
+            
+            refreshNickname();
+            
+            // Reset button states (in case previous operation failed)
+            const confirmBtn = document.getElementById('nickConfirmBtn');
+            const refreshBtn = document.getElementById('nickRefreshBtn');
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = lang === 'zh' ? '确认使用' : 'Use This';
+            }
+            if (refreshBtn) refreshBtn.disabled = false;
+            
+            // Reset error style
+            if (sub) sub.style.color = '';
+            
+            document.getElementById('nicknameModal').classList.add('active');
+        }
+        
+        function hideNicknameModal() {
+            document.getElementById('nicknameModal').classList.remove('active');
+        }
+        
+        function refreshNickname() {
+            if (typeof window.generateNickname === 'function') {
+                generatedNickname = window.generateNickname();
+            } else {
+                // Fallback
+                const adjs = ['Happy','Lucky','Crazy','Sleepy'];
+                const nouns = ['Panda','Dragon','Wizard','Ninja'];
+                generatedNickname = adjs[Math.floor(Math.random()*4)] + ' ' + nouns[Math.floor(Math.random()*4)];
+            }
+            document.getElementById('nicknameDisplay').textContent = generatedNickname;
+        }
+        
+        async function confirmNickname() {
+            const nickname = generatedNickname || document.getElementById('nicknameDisplay').textContent;
+            const lang = getCurrentLang();
+            const isZh = lang === 'zh';
+            
+            // UI feedback: show loading state
+            const confirmBtn = document.getElementById('nickConfirmBtn');
+            const refreshBtn = document.getElementById('nickRefreshBtn');
+            const originalText = confirmBtn.textContent;
+            confirmBtn.textContent = isZh ? '保存中...' : 'Saving...';
+            confirmBtn.disabled = true;
+            if (refreshBtn) refreshBtn.disabled = true;
+            
+            // Save to localStorage
+            localStorage.setItem(NICKNAME_STORAGE_KEY, nickname);
+            
+            // Set default avatar if not set
+            if (!localStorage.getItem(AVATAR_STORAGE_KEY)) {
+                localStorage.setItem(AVATAR_STORAGE_KEY, '🎮');
+                selectedAvatar = '🎮';
+            }
+            
+            // Save to Firebase
+            if (typeof window.Leaderboard !== 'undefined') {
+                try {
+                    const user = window.Leaderboard.getCurrentUser();
+                    if (user) {
+                        currentUser = { uid: user.uid, nickname };
+                        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(currentUser));
+                        
+                        // Submit a dummy score to ensure player doc is created with nickname
+                        await window.Leaderboard.submit(0, { 
+                            nickname, 
+                            isSetup: true,
+                            difficulty: 'normal'
+                        });
+                    }
+                } catch (err) {
+                    console.warn('[UserSystem] Failed to save nickname:', err);
+                    // Show error to user
+                    const subEl = document.getElementById('nickModalSub');
+                    if (subEl) {
+                        subEl.textContent = isZh ? '保存失败，请重试' : 'Save failed, please retry';
+                        subEl.style.color = '#ef4444';
+                    }
+                } finally {
+                    // Restore button state
+                    confirmBtn.textContent = originalText;
+                    confirmBtn.disabled = false;
+                    if (refreshBtn) refreshBtn.disabled = false;
+                }
+            }
+            
+            hideNicknameModal();
+            showLoggedInState();
+            
+            // Reset error style on close
+            const subEl2 = document.getElementById('nickModalSub');
+            if (subEl2) subEl2.style.color = '';
+        }
+        
+        // Avatar Selection
+        function showAvatarModal() {
+            const lang = getCurrentLang();
+            document.getElementById('avatarModalTitle').textContent = 
+                lang === 'zh' ? '选择头像' : 'Choose Your Avatar';
+            document.getElementById('avatarModalSub').textContent = 
+                lang === 'zh' ? '选一个代表你的 emoji' : 'Pick an emoji that suits you';
+            
+            renderAvatarGrid();
+            document.getElementById('avatarModal').classList.add('active');
+            closeUserDropdown();
+        }
+        
+        function hideAvatarModal() {
+            document.getElementById('avatarModal').classList.remove('active');
+        }
+        
+        function renderAvatarGrid() {
+            const grid = document.getElementById('avatarGrid');
+            let html = '';
+            AVATAR_OPTIONS.forEach(emoji => {
+                const isSelected = emoji === selectedAvatar;
+                html += `<div class="avatar-option ${isSelected ? 'selected' : ''}" onclick="selectAvatar('${emoji}')">${emoji}</div>`;
+            });
+            grid.innerHTML = html;
+        }
+        
+        function selectAvatar(emoji) {
+            selectedAvatar = emoji;
+            localStorage.setItem(AVATAR_STORAGE_KEY, emoji);
+            
+            // Update grid UI
+            document.querySelectorAll('.avatar-option').forEach(el => {
+                el.classList.toggle('selected', el.textContent === emoji);
+            });
+            
+            // Update header immediately
+            document.getElementById('userEmoji').textContent = emoji;
+            
+            // Close modal after brief delay so user sees the selection
+            setTimeout(hideAvatarModal, 200);
+        }
+        
+        function toggleUserDropdown(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('userDropdown');
+            userDropdownOpen = !userDropdownOpen;
+            dropdown.classList.toggle('active', userDropdownOpen);
+            
+            if (userDropdownOpen) {
+                document.addEventListener('click', closeUserDropdown);
+            }
+        }
+        
+        function closeUserDropdown() {
+            userDropdownOpen = false;
+            document.getElementById('userDropdown').classList.remove('active');
+            document.removeEventListener('click', closeUserDropdown);
+        }
+        
+        function logoutUser() {
+            const lang = getCurrentLang();
+            const isZh = lang === 'zh';
+            
+            // Check if user has linked a social account
+            const hasLinkedAccount = currentUser?.accountLinked === true;
+            
+            if (hasLinkedAccount) {
+                // Linked accounts can log back in, no warning needed
+                executeLogout();
+            } else {
+                // Anonymous user - show warning
+                document.getElementById('logoutConfirmTitle').textContent = 
+                    isZh ? '确认退出' : 'Confirm Logout';
+                document.getElementById('logoutConfirmSub').textContent = 
+                    isZh 
+                        ? '你当前未绑定社交账号。退出后将无法再次登录此账号，进度将丢失。是否确定退出？'
+                        : "You haven't linked a social account. After logging out, you won't be able to log back into this account and your progress will be lost. Are you sure?";
+                document.getElementById('logoutCancelBtn').textContent = 
+                    isZh ? '取消' : 'Cancel';
+                document.getElementById('logoutConfirmBtn').textContent = 
+                    isZh ? '注销账号' : 'Logout';
+                
+                document.getElementById('logoutConfirmModal').classList.add('active');
+            }
+            
+            closeUserDropdown();
+        }
+        
+        function hideLogoutConfirmModal() {
+            document.getElementById('logoutConfirmModal').classList.remove('active');
+        }
+        
+        function executeLogout() {
+            hideLogoutConfirmModal();
+            localStorage.removeItem(USER_STORAGE_KEY);
+            localStorage.removeItem(NICKNAME_STORAGE_KEY);
+            localStorage.removeItem(AVATAR_STORAGE_KEY);
+            currentUser = null;
+            selectedAvatar = '🎮';
+            document.getElementById('loginBtn').style.display = 'flex';
+            document.getElementById('userAvatar').style.display = 'none';
+            
+            // Re-init anonymous login for fresh session
+            initLeaderboardUser();
+        }
+        
+        // Profile Modal
+        let currentProfileTab = 'stats';
+        
+        async function showProfileModal(tab = 'stats') {
+            currentProfileTab = tab;
+            const lang = getCurrentLang();
+            const modal = document.getElementById('userProfileModal');
+            const title = document.getElementById('profileModalTitle');
+            
+            title.textContent = lang === 'zh' ? '我的档案' : 'My Profile';
+            
+            switchProfileTab(tab);
+            modal.classList.add('active');
+        }
+        
+        function hideProfileModal() {
+            document.getElementById('userProfileModal').classList.remove('active');
+        }
+        
+        function switchProfileTab(tab) {
+            currentProfileTab = tab;
+            document.getElementById('tabStats').classList.toggle('active', tab === 'stats');
+            document.getElementById('tabAchievements').classList.toggle('active', tab === 'achievements');
+            
+            if (tab === 'stats') {
+                renderStatsTab();
+            } else {
+                renderAchievementsTab();
+            }
+        }
+        
+        async function renderStatsTab() {
+            const lang = getCurrentLang();
+            const content = document.getElementById('profileContent');
+            
+            if (!currentUser) {
+                content.innerHTML = `<div class="empty-state">${lang === 'zh' ? '请先登录' : 'Please log in first'}</div>`;
+                return;
+            }
+            
+            content.innerHTML = '<div class="empty-state">Loading...</div>';
+            
+            try {
+                if (typeof window.Leaderboard !== 'undefined') {
+                    const stats = await window.Leaderboard.getUserGlobalStats();
+                    
+                    if (!stats.length) {
+                        content.innerHTML = `<div class="empty-state">${lang === 'zh' ? '还没有游玩记录，快去试试吧！' : 'No play history yet. Go play!'}</div>`;
+                        return;
+                    }
+                    
+                    const gameNameMap = {
+                        'emoji-linkup': { name: 'Emoji Link-Up', emoji: '🔗' },
+                        'emoji-shooter': { name: 'Emoji Shooter', emoji: '🗿' },
+                        'emoji-match': { name: 'Emoji Match', emoji: '🧩' },
+                        'emoji-survive': { name: 'Emoji Survive', emoji: '🛻' },
+                        'emoji-rush': { name: 'Emoji Rush', emoji: '🏎️' },
+                        'emoji-drift': { name: 'Emoji Drift', emoji: '🚗' },
+                        'emoji-kart': { name: 'Emoji Kart', emoji: '🏎️' },
+                        'emoji-hop': { name: 'Monkey Crossing', emoji: '🐵' },
+                        'emoji-frog': { name: 'Emoji Frog', emoji: '🐸' },
+                        'emoji-rolling': { name: 'Emoji Rolling', emoji: '🚜' },
+                    };
+                    
+                    let html = '';
+                    
+                    stats.forEach(s => {
+                        const game = gameNameMap[s.gameId] || { name: s.gameId, emoji: '🎮' };
+                        const isTimeGame = s.gameId === 'emoji-linkup';
+                        const bestDisplay = isTimeGame 
+                            ? (s.bestTime ? `${s.bestTime}s` : '--')
+                            : (s.bestScore ?? '--');
+                        
+                        html += `
+                            <div class="profile-game-row">
+                                <span class="profile-game-emoji">${game.emoji}</span>
+                                <div class="profile-game-info">
+                                    <div class="profile-game-name">${game.name}</div>
+                                    <div class="profile-game-stat">${s.playCount} plays</div>
+                                </div>
+                                <div class="profile-game-best">${bestDisplay}</div>
+                            </div>
+                        `;
+                    });
+                    
+                    content.innerHTML = html;
+                } else {
+                    content.innerHTML = `<div class="empty-state">${lang === 'zh' ? '系统加载中...' : 'System loading...'}</div>`;
+                }
+            } catch (err) {
+                console.error('[Profile] Failed to load stats:', err);
+                content.innerHTML = `<div class="empty-state">${lang === 'zh' ? '加载失败' : 'Failed to load'}</div>`;
+            }
+        }
+        
+        async function renderAchievementsTab() {
+            const lang = getCurrentLang();
+            const content = document.getElementById('profileContent');
+            
+            const achievementDefs = [
+                { id: 'first-clear',    name: 'First Clear',    nameZh: '初出茅庐',   icon: '🏅' },
+                { id: 'linkup-clear',   name: 'Link-Up Novice', nameZh: '连连看学徒', icon: '🥉' },
+                { id: 'linkup-10',      name: 'Link-Up Pro',    nameZh: '连连看高手', icon: '🥈' },
+                { id: 'linkup-50',      name: 'Link-Up Master', nameZh: '连连看大师', icon: '🥇' },
+                { id: 'lightning',      name: 'Lightning Hands',nameZh: '闪电手',     icon: '⚡' },
+                { id: 'combo-king',     name: 'Combo King',     nameZh: '连击王',     icon: '🔥' },
+                { id: 'shooter-clear',  name: 'Sharp Shooter',  nameZh: '神枪手',     icon: '🎯' },
+                { id: 'racer-clear',    name: 'Speed Racer',    nameZh: '赛车手',     icon: '🏎️' },
+            ];
+            
+            let unlockedIds = [];
+            
+            try {
+                if (typeof window.Leaderboard !== 'undefined' && currentUser) {
+                    const achievements = await window.Leaderboard.getAchievements();
+                    unlockedIds = achievements.map(a => a.id);
+                }
+            } catch (err) {
+                console.warn('[Profile] Failed to load achievements:', err);
+            }
+            
+            let html = '<div class="achievement-grid">';
+            achievementDefs.forEach(ach => {
+                const isUnlocked = unlockedIds.includes(ach.id);
+                const name = lang === 'zh' ? ach.nameZh : ach.name;
+                html += `
+                    <div class="achievement-item ${isUnlocked ? '' : 'locked'}" title="${name}">
+                        <div class="achievement-icon">${ach.icon}</div>
+                        <div class="achievement-name">${name}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            content.innerHTML = html;
+        }
+        
+        // Account linking (OAuth providers)
+        async function linkAccount() {
+            const lang = getCurrentLang();
+            const isZh = lang === 'zh';
+            
+            // Show provider selection modal
+            const providers = [
+                { id: 'apple',  icon: '🍎', name: 'Apple',    nameZh: 'Apple' },
+                { id: 'google', icon: '🔵', name: 'Google',   nameZh: 'Google' },
+            ];
+            
+            let html = `
+                <div style="text-align:center; padding: 20px;">
+                    <div style="font-size: 16px; font-weight: 700; color: #f8fafc; margin-bottom: 8px;">
+                        ${isZh ? '绑定社交账号' : 'Link Social Account'}
+                    </div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">
+                        ${isZh ? '绑定后可在多设备同步进度' : 'Sync progress across devices'}
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+            `;
+            
+            providers.forEach(p => {
+                const label = isZh ? p.nameZh : p.name;
+                html += `
+                    <button onclick="alert('${isZh ? '🔧 ' + label + ' 登录开发中' : '🔧 ' + label + ' login coming soon'}')" 
+                            style="padding: 12px 16px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; justify-content: center;">
+                        <span style="font-size: 20px;">${p.icon}</span>
+                        <span>${isZh ? '绑定' : 'Link'} ${label}</span>
+                    </button>
+                `;
+            });
+            
+            html += `
+                    </div>
+                    <div style="margin-top: 16px; font-size: 12px; color: #64748b;">
+                        ${isZh ? '目前匿名游玩已支持全部功能' : 'Anonymous play supports all features already'}
+                    </div>
+                </div>
+            `;
+            
+            // Create temporary modal
+            const tempModal = document.createElement('div');
+            tempModal.id = 'tempAccountModal';
+            tempModal.innerHTML = `
+                <div style="position: fixed; inset: 0; z-index: 100001; display: flex; align-items: center; justify-content: center;"
+                     onclick="if(event.target===this){document.getElementById('tempAccountModal').remove();}">
+                    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.85);"
+                         onclick="document.getElementById('tempAccountModal').remove();"></div>
+                    <div style="position: relative; background: #1e293b; border-radius: 16px; padding: 24px; max-width: 320px; width: 85%; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+                        ${html}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(tempModal);
+            
+            closeUserDropdown();
         }
         
         // ==================== 游戏加载（支持双语）====================
@@ -1363,6 +1923,27 @@
                 if (safariNoticeEn) safariNoticeEn.style.display = 'none';
                 
                 document.getElementById('loginText').textContent = '登录';
+                
+                // User menu
+                const menuMyStats = document.getElementById('menuMyStats');
+                const menuAchievements = document.getElementById('menuAchievements');
+                const menuChangeAvatar = document.getElementById('menuChangeAvatar');
+                const menuChangeNick = document.getElementById('menuChangeNick');
+                const menuLinkAccount = document.getElementById('menuLinkAccount');
+                const menuLogout = document.getElementById('menuLogout');
+                
+                if (menuMyStats) menuMyStats.textContent = '我的战绩';
+                if (menuAchievements) menuAchievements.textContent = '成就奖牌';
+                if (menuChangeAvatar) menuChangeAvatar.textContent = '更换头像';
+                if (menuChangeNick) menuChangeNick.textContent = '修改昵称';
+                if (menuLinkAccount) menuLinkAccount.textContent = '绑定账号';
+                if (menuLogout) menuLogout.textContent = '退出登录';
+                
+                // Update dropdown header if logged in
+                if (currentUser) {
+                    const header = document.getElementById('dropdownNickname');
+                    if (header) header.textContent = currentUser.nickname || 'Player';
+                }
             } else {
                 // Show English, hide Chinese
                 if (heroSubtitleZh) heroSubtitleZh.style.display = 'none';
@@ -1391,6 +1972,27 @@
                 if (safariNoticeEn) safariNoticeEn.style.display = 'block';
                 
                 document.getElementById('loginText').textContent = 'Login';
+                
+                // User menu
+                const menuMyStats = document.getElementById('menuMyStats');
+                const menuAchievements = document.getElementById('menuAchievements');
+                const menuChangeAvatar = document.getElementById('menuChangeAvatar');
+                const menuChangeNick = document.getElementById('menuChangeNick');
+                const menuLinkAccount = document.getElementById('menuLinkAccount');
+                const menuLogout = document.getElementById('menuLogout');
+                
+                if (menuMyStats) menuMyStats.textContent = 'My Stats';
+                if (menuAchievements) menuAchievements.textContent = 'Achievements';
+                if (menuChangeAvatar) menuChangeAvatar.textContent = 'Change Avatar';
+                if (menuChangeNick) menuChangeNick.textContent = 'Change Nickname';
+                if (menuLinkAccount) menuLinkAccount.textContent = 'Link Account';
+                if (menuLogout) menuLogout.textContent = 'Logout';
+                
+                // Update dropdown header if logged in
+                if (currentUser) {
+                    const header = document.getElementById('dropdownNickname');
+                    if (header) header.textContent = currentUser.nickname || 'Player';
+                }
             }
         }
         
@@ -1546,6 +2148,212 @@
         });
     </script>
     
+    <!-- User System Styles -->
+    <style>
+        /* User Avatar & Dropdown */
+        .user-avatar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .user-avatar:hover { background: rgba(255,255,255,0.2); }
+        .user-avatar .emoji { font-size: 16px; }
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 8px 0;
+            min-width: 180px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            z-index: 10000;
+            display: none;
+        }
+        .user-dropdown.active { display: block; }
+        .user-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            font-size: 14px;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .user-dropdown-item:hover { background: #27354d; }
+        .user-dropdown-divider {
+            height: 1px;
+            background: #334155;
+            margin: 6px 12px;
+        }
+        
+        /* Nickname Modal */
+        #nicknameModal, #userProfileModal, #avatarModal, #logoutConfirmModal {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        #nicknameModal.active, #userProfileModal.active, #avatarModal.active, #logoutConfirmModal.active { display: flex; }
+        .user-modal-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+        }
+        .user-modal-box {
+            position: relative;
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 360px;
+            width: 85%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .user-modal-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 8px;
+        }
+        .user-modal-subtitle {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+        .nickname-display {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fbbf24;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: rgba(251,191,36,0.1);
+            border-radius: 12px;
+        }
+        .nickname-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .user-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .user-btn-primary { background: #38bdf8; color: #0f172a; }
+        .user-btn-primary:hover { background: #7dd3fc; }
+        .user-btn-secondary { background: transparent; color: #94a3b8; border: 1px solid #475569; }
+        .user-btn-secondary:hover { border-color: #94a3b8; color: #e2e8f0; }
+        
+        /* Profile Modal */
+        .profile-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        .profile-tab {
+            flex: 1;
+            padding: 8px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255,255,255,0.05);
+            color: #94a3b8;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .profile-tab.active { background: #38bdf8; color: #0f172a; }
+        .profile-content { text-align: left; }
+        .profile-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 16px 0 8px;
+        }
+        .profile-game-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .profile-game-emoji { font-size: 20px; }
+        .profile-game-info { flex: 1; }
+        .profile-game-name { font-size: 14px; font-weight: 600; color: #e2e8f0; }
+        .profile-game-stat { font-size: 12px; color: #94a3b8; }
+        .profile-game-best { font-size: 14px; font-weight: 700; color: #fbbf24; text-align: right; min-width: 60px; }
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .achievement-item {
+            text-align: center;
+            padding: 12px 8px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 10px;
+        }
+        .achievement-item.locked { opacity: 0.4; }
+        .achievement-icon { font-size: 28px; margin-bottom: 4px; }
+        .achievement-name { font-size: 11px; color: #94a3b8; }
+        .empty-state {
+            text-align: center;
+            padding: 32px;
+            color: #64748b;
+            font-size: 14px;
+        }
+        
+        /* Avatar Selection Grid */
+        .avatar-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .avatar-option {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            padding: 10px;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.03);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .avatar-option:hover {
+            background: rgba(255,255,255,0.08);
+            transform: scale(1.1);
+        }
+        .avatar-option.selected {
+            border-color: #38bdf8;
+            background: rgba(56,189,248,0.15);
+        }
+    </style>
+
     <!-- Service Worker Registration for PWA -->
     <script>
         if ('serviceWorker' in navigator) {
@@ -1569,8 +2377,5 @@
             // 可以在这里显示自定义的安装按钮
         });
     </script>
-</body>
-</html>
-  </script>
 </body>
 </html>
