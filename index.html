@@ -543,7 +543,6 @@
                 <!-- Logged in -->
                 <div class="user-avatar" id="userAvatar" style="display: none;" onclick="toggleUserDropdown(event)">
                     <span class="emoji" id="userEmoji">🎮</span>
-                    <span class="lang-caret">▾</span>
                     <div class="user-dropdown" id="userDropdown">
                         <!-- Nickname header -->
                         <div class="user-dropdown-header" id="dropdownNickname" style="padding: 8px 16px; font-size: 14px; font-weight: 700; color: #fbbf24; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 4px;">
@@ -837,6 +836,19 @@
             <div class="user-modal-subtitle" id="avatarModalSub">Pick an emoji that suits you</div>
             <div class="avatar-grid" id="avatarGrid">
                 <!-- Emojis injected by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div id="logoutConfirmModal">
+        <div class="user-modal-overlay" onclick="hideLogoutConfirmModal()"></div>
+        <div class="user-modal-box" style="max-width: 340px;">
+            <div class="user-modal-title" id="logoutConfirmTitle">Confirm Logout</div>
+            <div class="user-modal-subtitle" id="logoutConfirmSub">You haven't linked a social account. After logging out, you won't be able to log back into this account. Are you sure?</div>
+            <div class="nickname-actions">
+                <button class="user-btn user-btn-secondary" id="logoutCancelBtn" onclick="hideLogoutConfirmModal()">Cancel</button>
+                <button class="user-btn user-btn-primary" id="logoutConfirmBtn" onclick="executeLogout()">Logout</button>
             </div>
         </div>
     </div>
@@ -1207,6 +1219,40 @@
         }
         
         function logoutUser() {
+            const lang = getCurrentLang();
+            const isZh = lang === 'zh';
+            
+            // Check if user has linked a social account
+            const hasLinkedAccount = currentUser?.accountLinked === true;
+            
+            if (hasLinkedAccount) {
+                // Linked accounts can log back in, no warning needed
+                executeLogout();
+            } else {
+                // Anonymous user - show warning
+                document.getElementById('logoutConfirmTitle').textContent = 
+                    isZh ? '确认退出' : 'Confirm Logout';
+                document.getElementById('logoutConfirmSub').textContent = 
+                    isZh 
+                        ? '你当前未绑定社交账号。退出后将无法再次登录此账号，进度将丢失。是否确定退出？'
+                        : "You haven't linked a social account. After logging out, you won't be able to log back into this account and your progress will be lost. Are you sure?";
+                document.getElementById('logoutCancelBtn').textContent = 
+                    isZh ? '取消' : 'Cancel';
+                document.getElementById('logoutConfirmBtn').textContent = 
+                    isZh ? '注销账号' : 'Logout';
+                
+                document.getElementById('logoutConfirmModal').classList.add('active');
+            }
+            
+            closeUserDropdown();
+        }
+        
+        function hideLogoutConfirmModal() {
+            document.getElementById('logoutConfirmModal').classList.remove('active');
+        }
+        
+        function executeLogout() {
+            hideLogoutConfirmModal();
             localStorage.removeItem(USER_STORAGE_KEY);
             localStorage.removeItem(NICKNAME_STORAGE_KEY);
             localStorage.removeItem(AVATAR_STORAGE_KEY);
@@ -1214,7 +1260,6 @@
             selectedAvatar = '🎮';
             document.getElementById('loginBtn').style.display = 'flex';
             document.getElementById('userAvatar').style.display = 'none';
-            closeUserDropdown();
             
             // Re-init anonymous login for fresh session
             initLeaderboardUser();
@@ -2117,7 +2162,7 @@
         }
         
         /* Nickname Modal */
-        #nicknameModal, #userProfileModal, #avatarModal {
+        #nicknameModal, #userProfileModal, #avatarModal, #logoutConfirmModal {
             position: fixed;
             inset: 0;
             z-index: 100000;
@@ -2125,7 +2170,7 @@
             align-items: center;
             justify-content: center;
         }
-        #nicknameModal.active, #userProfileModal.active, #avatarModal.active { display: flex; }
+        #nicknameModal.active, #userProfileModal.active, #avatarModal.active, #logoutConfirmModal.active { display: flex; }
         .user-modal-overlay {
             position: absolute;
             inset: 0;
