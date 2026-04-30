@@ -566,9 +566,9 @@
                             <span>🔄</span>
                             <span id="menuChangeNick">Change Nickname</span>
                         </div>
-                        <div class="user-dropdown-item" id="appleLinkItem" onclick="linkAppleID()">
-                            <span>🍎</span>
-                            <span id="menuLinkApple">Link Apple ID</span>
+                        <div class="user-dropdown-item" id="accountLinkItem" onclick="linkAccount()">
+                            <span>🔗</span>
+                            <span id="menuLinkAccount">Link Account</span>
                         </div>
                         <div class="user-dropdown-divider"></div>
                         <div class="user-dropdown-item" onclick="logoutUser()">
@@ -1065,10 +1065,10 @@
                 header.textContent = currentUser?.nickname || 'Player';
             }
             
-            // Hide Apple link if already linked
-            const appleItem = document.getElementById('appleLinkItem');
-            if (currentUser?.appleLinked && appleItem) {
-                appleItem.style.display = 'none';
+            // Hide account link if already linked
+            const accountItem = document.getElementById('accountLinkItem');
+            if (currentUser?.accountLinked && accountItem) {
+                accountItem.style.display = 'none';
             }
         }
         
@@ -1357,12 +1357,62 @@
             content.innerHTML = html;
         }
         
-        // Apple ID linking (placeholder)
-        async function linkAppleID() {
+        // Account linking (OAuth providers)
+        async function linkAccount() {
             const lang = getCurrentLang();
-            alert(lang === 'zh' 
-                ? '🍎 Apple ID 绑定功能即将上线' 
-                : '🍎 Apple ID linking coming soon');
+            const isZh = lang === 'zh';
+            
+            // Show provider selection modal
+            const providers = [
+                { id: 'apple',  icon: '🍎', name: 'Apple',    nameZh: 'Apple' },
+                { id: 'google', icon: '🔵', name: 'Google',   nameZh: 'Google' },
+            ];
+            
+            let html = `
+                <div style="text-align:center; padding: 20px;">
+                    <div style="font-size: 16px; font-weight: 700; color: #f8fafc; margin-bottom: 8px;">
+                        ${isZh ? '绑定社交账号' : 'Link Social Account'}
+                    </div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-bottom: 20px;">
+                        ${isZh ? '绑定后可在多设备同步进度' : 'Sync progress across devices'}
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+            `;
+            
+            providers.forEach(p => {
+                const label = isZh ? p.nameZh : p.name;
+                html += `
+                    <button onclick="alert('${isZh ? '🔧 ' + label + ' 登录开发中' : '🔧 ' + label + ' login coming soon'}')" 
+                            style="padding: 12px 16px; border-radius: 10px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 10px; justify-content: center;">
+                        <span style="font-size: 20px;">${p.icon}</span>
+                        <span>${isZh ? '绑定' : 'Link'} ${label}</span>
+                    </button>
+                `;
+            });
+            
+            html += `
+                    </div>
+                    <div style="margin-top: 16px; font-size: 12px; color: #64748b;">
+                        ${isZh ? '目前匿名游玩已支持全部功能' : 'Anonymous play supports all features already'}
+                    </div>
+                </div>
+            `;
+            
+            // Create temporary modal
+            const tempModal = document.createElement('div');
+            tempModal.id = 'tempAccountModal';
+            tempModal.innerHTML = `
+                <div style="position: fixed; inset: 0; z-index: 100001; display: flex; align-items: center; justify-content: center;"
+                     onclick="if(event.target===this){document.getElementById('tempAccountModal').remove();}">
+                    <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.85);"
+                         onclick="document.getElementById('tempAccountModal').remove();"></div>
+                    <div style="position: relative; background: #1e293b; border-radius: 16px; padding: 24px; max-width: 320px; width: 85%; box-shadow: 0 20px 60px rgba(0,0,0,0.5);">
+                        ${html}
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(tempModal);
+            
             closeUserDropdown();
         }
         
@@ -1790,6 +1840,27 @@
                 if (safariNoticeEn) safariNoticeEn.style.display = 'none';
                 
                 document.getElementById('loginText').textContent = '登录';
+                
+                // User menu
+                const menuMyStats = document.getElementById('menuMyStats');
+                const menuAchievements = document.getElementById('menuAchievements');
+                const menuChangeAvatar = document.getElementById('menuChangeAvatar');
+                const menuChangeNick = document.getElementById('menuChangeNick');
+                const menuLinkAccount = document.getElementById('menuLinkAccount');
+                const menuLogout = document.getElementById('menuLogout');
+                
+                if (menuMyStats) menuMyStats.textContent = '我的战绩';
+                if (menuAchievements) menuAchievements.textContent = '成就奖牌';
+                if (menuChangeAvatar) menuChangeAvatar.textContent = '更换头像';
+                if (menuChangeNick) menuChangeNick.textContent = '修改昵称';
+                if (menuLinkAccount) menuLinkAccount.textContent = '绑定账号';
+                if (menuLogout) menuLogout.textContent = '退出登录';
+                
+                // Update dropdown header if logged in
+                if (currentUser) {
+                    const header = document.getElementById('dropdownNickname');
+                    if (header) header.textContent = currentUser.nickname || 'Player';
+                }
             } else {
                 // Show English, hide Chinese
                 if (heroSubtitleZh) heroSubtitleZh.style.display = 'none';
@@ -1818,6 +1889,27 @@
                 if (safariNoticeEn) safariNoticeEn.style.display = 'block';
                 
                 document.getElementById('loginText').textContent = 'Login';
+                
+                // User menu
+                const menuMyStats = document.getElementById('menuMyStats');
+                const menuAchievements = document.getElementById('menuAchievements');
+                const menuChangeAvatar = document.getElementById('menuChangeAvatar');
+                const menuChangeNick = document.getElementById('menuChangeNick');
+                const menuLinkAccount = document.getElementById('menuLinkAccount');
+                const menuLogout = document.getElementById('menuLogout');
+                
+                if (menuMyStats) menuMyStats.textContent = 'My Stats';
+                if (menuAchievements) menuAchievements.textContent = 'Achievements';
+                if (menuChangeAvatar) menuChangeAvatar.textContent = 'Change Avatar';
+                if (menuChangeNick) menuChangeNick.textContent = 'Change Nickname';
+                if (menuLinkAccount) menuLinkAccount.textContent = 'Link Account';
+                if (menuLogout) menuLogout.textContent = 'Logout';
+                
+                // Update dropdown header if logged in
+                if (currentUser) {
+                    const header = document.getElementById('dropdownNickname');
+                    if (header) header.textContent = currentUser.nickname || 'Player';
+                }
             }
         }
         
