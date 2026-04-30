@@ -1144,7 +1144,7 @@
             const confirmBtn = document.getElementById('nickConfirmBtn');
             const refreshBtn = document.getElementById('nickRefreshBtn');
             const originalText = confirmBtn.textContent;
-            confirmBtn.textContent = isZh ? '修改中...' : 'Saving...';
+            confirmBtn.textContent = isZh ? '保存中...' : 'Saving...';
             confirmBtn.disabled = true;
             if (refreshBtn) refreshBtn.disabled = true;
             
@@ -1175,10 +1175,10 @@
                 } catch (err) {
                     console.warn('[UserSystem] Failed to save nickname:', err);
                     // Show error to user
-                    const sub = document.getElementById('nickModalSub');
-                    if (sub) {
-                        sub.textContent = isZh ? '保存失败，请重试' : 'Save failed, please retry';
-                        sub.style.color = '#ef4444';
+                    const subEl = document.getElementById('nickModalSub');
+                    if (subEl) {
+                        subEl.textContent = isZh ? '保存失败，请重试' : 'Save failed, please retry';
+                        subEl.style.color = '#ef4444';
                     }
                 } finally {
                     // Restore button state
@@ -1192,8 +1192,8 @@
             showLoggedInState();
             
             // Reset error style on close
-            const sub = document.getElementById('nickModalSub');
-            if (sub) sub.style.color = '';
+            const subEl2 = document.getElementById('nickModalSub');
+            if (subEl2) subEl2.style.color = '';
         }
         
         // Avatar Selection
