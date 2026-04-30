@@ -602,14 +602,19 @@ async function fetchLeaderboard() {
     id: d.id,
   }));
 
-  // 内存排序：按主指标排序，取前50
-  if (rankBy === 'time') {
-    entries.sort((a, b) => (a.duration || Infinity) - (b.duration || Infinity));
-  } else {
-    entries.sort((a, b) => (b.score || 0) - (a.score || 0));
-  }
+  // 内存排序：按主指标排序
+  entries.sort((a, b) => {
+    if (rankBy === 'time') {
+      return (a.duration || Infinity) - (b.duration || Infinity);
+    }
+    return (b.score || 0) - (a.score || 0);
+  });
 
-  return entries.slice(0, 50).map((e, idx) => ({
+  // 过滤掉无昵称的测试记录，提升排行榜观感
+  const validEntries = entries.filter(e => e.nickname && e.nickname !== 'Anonymous');
+
+  // 取前50，补上排名
+  return validEntries.slice(0, 50).map((e, idx) => ({
     rank: idx + 1,
     ...e,
   }));
