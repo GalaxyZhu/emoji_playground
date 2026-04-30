@@ -260,7 +260,7 @@ function createModalDOM() {
         border-left: 3px solid #eab308;
       }
       .lb-rank {
-        width: 32px;
+        width: 48px;
         text-align: center;
         font-weight: 700;
         font-size: 0.875rem;
@@ -282,12 +282,12 @@ function createModalDOM() {
         font-weight: 600;
         color: #38bdf8;
         text-align: right;
-        min-width: 60px;
+        min-width: 48px;
       }
       .lb-time {
         font-size: 0.75rem;
         color: #64748b;
-        min-width: 70px;
+        min-width: 56px;
         text-align: right;
       }
       .lb-player-info {
