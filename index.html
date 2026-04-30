@@ -1011,10 +1011,8 @@
                         currentUser = { uid: firebaseUser.uid, nickname: savedNick };
                         localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(currentUser));
                         showLoggedInState();
-                    } else {
-                        // Show nickname modal for first-time user
-                        showNicknameModal();
                     }
+                    // NOTE: Do NOT auto-show nickname modal. Wait for user to click Login.
                 }
             } catch (err) {
                 console.warn('[UserSystem] Leaderboard init failed:', err);
@@ -1044,10 +1042,12 @@
                 title.textContent = isChange ? '修改昵称' : '设置昵称';
                 sub.textContent = isChange ? '换个新名字吧' : '选一个有趣的名字开始游戏';
                 btn.textContent = '确认使用';
+                document.getElementById('nickRefreshBtn').textContent = '🔄 换一个';
             } else {
                 title.textContent = isChange ? 'Change Nickname' : 'Set Your Nickname';
                 sub.textContent = isChange ? 'Try a new name' : 'Pick a fun name to start playing';
                 btn.textContent = 'Use This';
+                document.getElementById('nickRefreshBtn').textContent = '🔄 Another';
             }
             
             refreshNickname();
