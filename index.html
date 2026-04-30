@@ -1103,6 +1103,20 @@
             }
             
             refreshNickname();
+            
+            // Reset button states (in case previous operation failed)
+            const confirmBtn = document.getElementById('nickConfirmBtn');
+            const refreshBtn = document.getElementById('nickRefreshBtn');
+            if (confirmBtn) {
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = lang === 'zh' ? '确认使用' : 'Use This';
+            }
+            if (refreshBtn) refreshBtn.disabled = false;
+            
+            // Reset error style
+            const sub = document.getElementById('nickModalSub');
+            if (sub) sub.style.color = '';
+            
             document.getElementById('nicknameModal').classList.add('active');
         }
         
@@ -1124,6 +1138,16 @@
         
         async function confirmNickname() {
             const nickname = generatedNickname || document.getElementById('nicknameDisplay').textContent;
+            const lang = getCurrentLang();
+            const isZh = lang === 'zh';
+            
+            // UI feedback: show loading state
+            const confirmBtn = document.getElementById('nickConfirmBtn');
+            const refreshBtn = document.getElementById('nickRefreshBtn');
+            const originalText = confirmBtn.textContent;
+            confirmBtn.textContent = isZh ? '修改中...' : 'Saving...';
+            confirmBtn.disabled = true;
+            if (refreshBtn) refreshBtn.disabled = true;
             
             // Save to localStorage
             localStorage.setItem(NICKNAME_STORAGE_KEY, nickname);
@@ -1151,11 +1175,26 @@
                     }
                 } catch (err) {
                     console.warn('[UserSystem] Failed to save nickname:', err);
+                    // Show error to user
+                    const sub = document.getElementById('nickModalSub');
+                    if (sub) {
+                        sub.textContent = isZh ? '保存失败，请重试' : 'Save failed, please retry';
+                        sub.style.color = '#ef4444';
+                    }
+                } finally {
+                    // Restore button state
+                    confirmBtn.textContent = originalText;
+                    confirmBtn.disabled = false;
+                    if (refreshBtn) refreshBtn.disabled = false;
                 }
             }
             
             hideNicknameModal();
             showLoggedInState();
+            
+            // Reset error style on close
+            const sub = document.getElementById('nickModalSub');
+            if (sub) sub.style.color = '';
         }
         
         // Avatar Selection
