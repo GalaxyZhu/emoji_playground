@@ -35,6 +35,8 @@ const i18n = {
     player: 'Player',
     score: 'Score',
     time: 'Time',
+    duration: 'Time',
+    when: 'Record',
     close: 'Close',
     enterNickname: 'Enter your nickname to join the leaderboard',
     nicknamePlaceholder: 'Your nickname',
@@ -66,9 +68,22 @@ const i18n = {
 };
 
 let currentLang = 'zh';
+let rankBy = 'score'; // 'score' | 'time'
 
 function t(key) {
   return i18n[currentLang]?.[key] ?? i18n.en[key];
+}
+
+/**
+ * 格式化耗时（秒 → 可读字符串）
+ */
+function formatDuration(seconds) {
+  if (seconds == null || isNaN(seconds)) return '--';
+  const s = Math.floor(seconds);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  const rs = s % 60;
+  return `${m}m ${rs}s`;
 }
 
 import { firebaseConfig } from './firebase-config.js';
@@ -578,8 +593,12 @@ async function fetchLeaderboard() {
     id: d.id,
   }));
 
-  // 内存排序：按 score 降序，取前50
-  entries.sort((a, b) => (b.score || 0) - (a.score || 0));
+  // 内存排序：按主指标排序，取前50
+  if (rankBy === 'time') {
+    entries.sort((a, b) => (a.duration || Infinity) - (b.duration || Infinity));
+  } else {
+    entries.sort((a, b) => (b.score || 0) - (a.score || 0));
+  }
 
   return entries.slice(0, 50).map((e, idx) => ({
     rank: idx + 1,
@@ -602,8 +621,13 @@ async function fetchPlayerBest(uid) {
 
   if (!userScores.length) return null;
 
-  // 内存排序取最高分
-  userScores.sort((a, b) => (b.score || 0) - (a.score || 0));
+  if (rankBy === 'time') {
+    // 耗时越短越好
+    userScores.sort((a, b) => (a.duration || Infinity) - (b.duration || Infinity));
+  } else {
+    // 分数越高越好
+    userScores.sort((a, b) => (b.score || 0) - (a.score || 0));
+  }
   return userScores[0];
 }
 
@@ -619,7 +643,14 @@ function renderList(entries, playerUid) {
     return;
   }
 
-  const header = `<div class="lb-list-header">
+  const header = rankBy === 'time'
+    ? `<div class="lb-list-header">
+    <span class="lb-rank">${t('rank')}</span>
+    <span class="lb-name">${t('player')}</span>
+    <span class="lb-score">${t('duration')}</span>
+    <span class="lb-time">${t('when')}</span>
+  </div>`
+    : `<div class="lb-list-header">
     <span class="lb-rank">${t('rank')}</span>
     <span class="lb-name">${t('player')}</span>
     <span class="lb-score">${t('score')}</span>
@@ -628,12 +659,18 @@ function renderList(entries, playerUid) {
 
   const rows = entries.map((entry) => {
     const isSelf = entry.uid === playerUid;
+    const primaryValue = rankBy === 'time'
+      ? formatDuration(entry.duration)
+      : (entry.score ?? '--');
+    const secondaryValue = rankBy === 'time'
+      ? formatTime(entry.timestamp)
+      : formatTime(entry.timestamp);
     return `
       <div class="lb-item ${isSelf ? 'lb-self' : ''}">
         <span class="lb-rank">${entry.rank}</span>
         <span class="lb-name">${escapeHtml(entry.nickname || 'Anonymous')}</span>
-        <span class="lb-score">${entry.score}</span>
-        <span class="lb-time">${formatTime(entry.timestamp)}</span>
+        <span class="lb-score">${primaryValue}</span>
+        <span class="lb-time">${secondaryValue}</span>
       </div>
     `;
   }).join('');
@@ -644,17 +681,24 @@ function renderList(entries, playerUid) {
 /**
  * 渲染玩家信息栏
  */
-function renderPlayerInfo(bestScore, rank) {
+function renderPlayerInfo(bestEntry, rank) {
   const modal = document.getElementById('leaderboard-modal');
   const infoEl = modal.querySelector('.lb-player-info');
 
-  if (bestScore === null) {
+  if (bestEntry === null) {
     infoEl.innerHTML = '';
     return;
   }
 
   const rankText = rank ? `<span class="lb-highlight">#${rank}</span>` : t('noRank');
-  infoEl.innerHTML = `${t('yourBest')}: <span class="lb-highlight">${bestScore} ${t('points')}</span> · ${t('rankSuffix')}: ${rankText}`;
+
+  if (rankBy === 'time') {
+    const bestTime = formatDuration(bestEntry.duration);
+    infoEl.innerHTML = `${t('yourBest')}: <span class="lb-highlight">${bestTime}</span> · ${t('rankSuffix')}: ${rankText}`;
+  } else {
+    const bestScore = bestEntry.score ?? 0;
+    infoEl.innerHTML = `${t('yourBest')}: <span class="lb-highlight">${bestScore} ${t('points')}</span> · ${t('rankSuffix')}: ${rankText}`;
+  }
 }
 
 /**
@@ -676,9 +720,10 @@ const Leaderboard = {
    * @param {string} gameId 游戏标识，如 "emoji-linkup"
    * @param {string} lang   语言，"zh" 或 "en"
    */
-  async init(gameId, lang = 'zh') {
+  async init(gameId, lang = 'zh', sortMode = 'score') {
     currentGameId = gameId;
     currentLang = lang === 'en' ? 'en' : 'zh';
+    rankBy = sortMode === 'time' ? 'time' : 'score';
 
     if (!app) {
       app = initializeApp(firebaseConfig);
@@ -780,8 +825,7 @@ const Leaderboard = {
     // 获取玩家最佳并渲染底部信息
     const uid = currentUser?.uid;
     const selfEntry = entries?.find((e) => e.uid === uid);
-    const bestScore = selfEntry ? selfEntry.score : null;
-    renderPlayerInfo(bestScore, playerRank);
+    renderPlayerInfo(selfEntry || null, playerRank);
 
     modal.classList.add('active');
   },
@@ -822,3 +866,4 @@ if (typeof module !== 'undefined' && module.exports) {
 
 export { Leaderboard };
 export default Leaderboard;
+;
