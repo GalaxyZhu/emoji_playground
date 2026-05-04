@@ -536,6 +536,11 @@
             </div>
             <!-- User System -->
             <div class="user-area" id="userArea">
+                <!-- Token Balance (always visible) -->
+                <div class="token-balance" id="tokenBalanceBtn" onclick="TokenUI.showTokenCenter()">
+                    <span class="token-icon">🪙</span>
+                    <span class="token-amount" id="tokenBalance">0</span>
+                </div>
                 <!-- Not logged in -->
                 <div class="user-placeholder" id="loginBtn" onclick="showNicknameModal()">
                     <span id="loginText">Login</span>
@@ -2352,7 +2357,366 @@
             border-color: #38bdf8;
             background: rgba(56,189,248,0.15);
         }
+
+        /* ==================== Token System Styles ==================== */
+        .token-balance {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            background: rgba(251,191,36,0.15);
+            border: 1px solid rgba(251,191,36,0.3);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 700;
+            color: #fbbf24;
+            transition: all 0.2s;
+            margin-right: 8px;
+        }
+        .token-balance:hover {
+            background: rgba(251,191,36,0.25);
+            transform: scale(1.05);
+        }
+        .token-balance .token-icon { font-size: 16px; }
+        .token-balance .token-amount {
+            font-size: 14px;
+            font-weight: 700;
+            transition: transform 0.3s, color 0.3s;
+        }
+
+        /* Check-in Modal */
+        .checkin-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 200000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+        .checkin-overlay.active { display: flex; }
+        .checkin-box {
+            background: #1e293b;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 360px;
+            width: 85%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 1px solid rgba(251,191,36,0.2);
+            animation: scaleIn 0.3s;
+        }
+        .checkin-icon { font-size: 64px; margin-bottom: 16px; animation: bounce 1s infinite; }
+        .checkin-title { font-size: 22px; font-weight: 700; color: #fbbf24; margin-bottom: 8px; }
+        .checkin-reward { font-size: 36px; font-weight: 800; color: #22c55e; margin: 12px 0; }
+        .checkin-sub { font-size: 14px; color: #94a3b8; margin-bottom: 24px; }
+        .checkin-btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            background: #fbbf24;
+            color: #0f172a;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .checkin-btn:hover { background: #fcd34d; transform: translateY(-2px); }
+
+        /* Coin Deduction Modal */
+        .deduction-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 200001;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .deduction-overlay.active { display: flex; }
+        .deduction-box {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 340px;
+            width: 85%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .deduction-emoji { font-size: 48px; margin-bottom: 12px; }
+        .deduction-title { font-size: 18px; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+        .deduction-sub { font-size: 14px; color: #94a3b8; margin-bottom: 20px; }
+        .deduction-balance { font-size: 16px; color: #fbbf24; font-weight: 700; margin-bottom: 20px; }
+        .deduction-actions { display: flex; gap: 10px; }
+
+        /* Insufficient Modal */
+        .insufficient-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 200002;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .insufficient-overlay.active { display: flex; }
+
+        /* Ad Watching Modal */
+        .adwatch-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 200003;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .adwatch-overlay.active { display: flex; }
+        .adwatch-box {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 32px;
+            max-width: 400px;
+            width: 85%;
+            text-align: center;
+        }
+        .adwatch-title { font-size: 18px; font-weight: 700; color: #f8fafc; margin-bottom: 20px; }
+        .adwatch-screen {
+            width: 100%;
+            height: 160px;
+            background: #0f172a;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            margin-bottom: 20px;
+            border: 1px solid #334155;
+        }
+        .adwatch-bar-container {
+            width: 100%;
+            height: 8px;
+            background: #334155;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        .adwatch-bar {
+            height: 100%;
+            background: #38bdf8;
+            border-radius: 4px;
+            transition: width 0.1s linear;
+            width: 0%;
+        }
+        .adwatch-progress { font-size: 13px; color: #94a3b8; }
+
+        /* Token Center Modal */
+        .token-center-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 200004;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .token-center-overlay.active { display: flex; }
+        .token-center-box {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 28px;
+            max-width: 420px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .token-center-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .token-center-title { font-size: 20px; font-weight: 700; color: #fbbf24; }
+        .token-center-close {
+            font-size: 24px;
+            color: #94a3b8;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 4px;
+        }
+        .token-center-close:hover { color: #f8fafc; }
+        .token-center-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .token-stat-card {
+            background: rgba(255,255,255,0.03);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .token-stat-value { font-size: 28px; font-weight: 800; color: #fbbf24; }
+        .token-stat-label { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+        .token-center-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .token-action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px;
+            border-radius: 12px;
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .token-action-btn:disabled { cursor: not-allowed; }
+        .token-action-btn.primary { background: #22c55e; color: #fff; }
+        .token-action-btn.primary:hover:not(:disabled) { background: #34d399; }
+        .token-action-btn.secondary { background: #38bdf8; color: #0f172a; }
+        .token-action-btn.secondary:hover:not(:disabled) { background: #7dd3fc; }
+        .token-action-btn.vip { background: rgba(168,85,247,0.2); color: #a855f7; border: 1px solid rgba(168,85,247,0.3); }
+        .token-action-btn.vip:hover { background: rgba(168,85,247,0.3); }
+        .token-center-notice {
+            text-align: center;
+            font-size: 14px;
+            color: #22c55e;
+            margin-bottom: 12px;
+            display: none;
+        }
+        .token-tx-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .token-tx-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .token-tx-icon { font-size: 18px; min-width: 24px; text-align: center; }
+        .token-tx-info { flex: 1; }
+        .token-tx-note { font-size: 13px; color: #e2e8f0; }
+        .token-tx-time { font-size: 11px; color: #64748b; }
+        .token-tx-amount { font-size: 14px; font-weight: 700; min-width: 40px; text-align: right; }
+        .token-tx-empty { text-align: center; padding: 20px; color: #64748b; font-size: 13px; }
+        .token-tx-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin: 16px 0 8px;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
     </style>
+
+    <!-- ==================== Token System Modals ==================== -->
+    
+    <!-- Daily Check-in Modal -->
+    <div class="checkin-overlay" id="checkInModal">
+        <div class="checkin-box">
+            <div class="checkin-icon">📅</div>
+            <div class="checkin-title" id="checkinTitle">Daily Check-in</div>
+            <div class="checkin-reward">+10 🪙</div>
+            <div class="checkin-sub" id="checkinSub">Come back every day for more coins!</div>
+            <button class="checkin-btn" id="checkinBtn" onclick="TokenSystem.dailyCheckIn(); TokenUI.hideCheckInModal(); TokenUI.updateBalanceDisplay(); TokenUI.bounceBalance();">
+                Claim Reward
+            </button>
+        </div>
+    </div>
+    
+    <!-- Coin Deduction Modal (before entering game) -->
+    <div class="deduction-overlay" id="coinDeductionModal">
+        <div class="deduction-box">
+            <div class="deduction-emoji">🪙</div>
+            <div class="deduction-title" id="deductionGameName">Game Name</div>
+            <div class="deduction-sub" id="deductionSub">Start game requires 🪙×1</div>
+            <div class="deduction-balance">Current Balance: 🪙×<span id="deductionBalance">0</span></div>
+            <div class="deduction-actions">
+                <button class="user-btn user-btn-secondary" id="deductionCancelBtn">Cancel</button>
+                <button class="user-btn user-btn-primary" id="deductionConfirmBtn">Confirm</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Insufficient Coins Modal -->
+    <div class="insufficient-overlay" id="insufficientModal">
+        <div class="user-modal-box">
+            <div class="user-modal-title" id="insufficientTitle">Not Enough Coins</div>
+            <div class="user-modal-subtitle" id="insufficientSub">🪙 Balance is 0</div>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;">
+                <button class="user-btn user-btn-primary" id="insufficientWatchBtn">📺 Watch Ad (+5)</button>
+                <button class="user-btn user-btn-secondary" id="insufficientCancelBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ad Watching Modal (simulated) -->
+    <div class="adwatch-overlay" id="adWatchingModal">
+        <div class="adwatch-box">
+            <div class="adwatch-title" id="adWatchTitle">Ad Playing...</div>
+            <div class="adwatch-screen">📺</div>
+            <div class="adwatch-bar-container">
+                <div class="adwatch-bar" id="adProgressBar"></div>
+            </div>
+            <div class="adwatch-progress" id="adProgressText">Loading...</div>
+        </div>
+    </div>
+    
+    <!-- Token Center Modal -->
+    <div class="token-center-overlay" id="tokenCenterModal">
+        <div class="token-center-box">
+            <div class="token-center-header">
+                <div class="token-center-title" id="tokenCenterTitle">🪙 Coin Center</div>
+                <button class="token-center-close" id="tokenCenterCloseBtn">✕</button>
+            </div>
+            
+            <div class="token-center-stats">
+                <div class="token-stat-card">
+                    <div class="token-stat-value" id="tokenCenterBalance">0</div>
+                    <div class="token-stat-label">Balance</div>
+                </div>
+                <div class="token-stat-card">
+                    <div class="token-stat-value" id="tokenCenterConsumed">0</div>
+                    <div class="token-stat-label">Total Spent</div>
+                </div>
+            </div>
+            
+            <div class="token-center-notice" id="tokenCenterNotice"></div>
+            
+            <div class="token-center-actions">
+                <button class="token-action-btn primary" id="tokenCenterCheckinBtn">✅ Daily Check-in (+10)</button>
+                <button class="token-action-btn secondary" id="tokenCenterAdBtn">📺 Watch Ad (+5)</button>
+                <button class="token-action-btn vip" id="tokenCenterVipBtn">👑 Activate VIP (Debug)</button>
+            </div>
+            
+            <div class="token-tx-section-title">Recent Transactions</div>
+            <div class="token-tx-list" id="tokenTransactionList">
+                <div class="token-tx-empty">No records yet</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Token System Module -->
+    <script src="assets/js/token-system.js"></script>
 
     <!-- Service Worker Registration for PWA -->
     <script>

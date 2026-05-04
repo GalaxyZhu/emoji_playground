@@ -47,7 +47,7 @@
     }
   ],
   "features": {
-    "userSystem": false,
+    "userSystem": true,
     "leaderboard": false,
     "achievements": false
   }
