@@ -311,6 +311,33 @@
         // 显示签到弹窗
         showCheckInModal() {
             const modal = document.getElementById('checkInModal');
+            const lang = (typeof getCurrentLang === 'function') ? getCurrentLang() : 'en';
+            const isZh = lang === 'zh';
+
+            const title = document.getElementById('checkinTitle');
+            const reward = document.getElementById('checkinReward');
+            const sub = document.getElementById('checkinSub');
+            const btn = document.getElementById('checkinBtn');
+
+            if (title) title.textContent = isZh ? '每日签到' : 'Daily Check-in';
+            if (reward) reward.textContent = isZh ? '+10 🪙' : '+10 🪙';
+            if (sub) sub.textContent = isZh ? '每天回来领取更多游戏币！' : 'Come back every day for more coins!';
+            if (btn) btn.textContent = isZh ? '领取奖励' : 'Claim Reward';
+
+            // 绑定签到按钮事件（覆盖旧的）
+            if (btn) {
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+                newBtn.addEventListener('click', async () => {
+                    const result = await TokenSystem.dailyCheckIn();
+                    if (result.success) {
+                        this.hideCheckInModal();
+                        this.updateBalanceDisplay();
+                        this.bounceBalance();
+                    }
+                });
+            }
+
             if (modal) modal.classList.add('active');
         },
 
@@ -450,7 +477,7 @@
             if (modal) modal.classList.remove('active');
         },
 
-        // 金币中心
+        // 我的游戏币
         async showTokenCenter() {
             const modal = document.getElementById('tokenCenterModal');
             const lang = (typeof getCurrentLang === 'function') ? getCurrentLang() : 'en';
@@ -458,7 +485,7 @@
 
             // 更新标题
             const title = document.getElementById('tokenCenterTitle');
-            if (title) title.textContent = isZh ? '\ud83e\ude99 金币中心' : '\ud83e\ude99 Coin Center';
+            if (title) title.textContent = isZh ? '\ud83e\ude99 我的游戏币' : '\ud83e\ude99 My Coins';
 
             // 更新余额
             const bal = document.getElementById('tokenCenterBalance');
@@ -467,6 +494,14 @@
             // 更新总消耗
             const consumed = document.getElementById('tokenCenterConsumed');
             if (consumed) consumed.textContent = TokenSystem.getTotalConsumed();
+
+            // 更新标签（i18n）
+            const balanceLabel = document.getElementById('tokenCenterBalanceLabel');
+            const spentLabel = document.getElementById('tokenCenterSpentLabel');
+            const txTitle = document.getElementById('tokenCenterTxTitle');
+            if (balanceLabel) balanceLabel.textContent = isZh ? '余额' : 'Balance';
+            if (spentLabel) spentLabel.textContent = isZh ? '总消耗' : 'Total Spent';
+            if (txTitle) txTitle.textContent = isZh ? '最近交易' : 'Recent Transactions';
 
             // 更新签到状态
             const checkinBtn = document.getElementById('tokenCenterCheckinBtn');
@@ -510,7 +545,7 @@
                 adBtn.parentNode.replaceChild(newAdBtn, adBtn);
                 newAdBtn.addEventListener('click', () => {
                     this.hideTokenCenter();
-                    this.showAdWatching({ id: 'token-center', name: 'Coin Center' });
+                    this.showAdWatching({ id: 'token-center', name: 'My Coins' });
                 });
             }
 

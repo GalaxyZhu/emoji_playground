@@ -2635,11 +2635,9 @@
         <div class="checkin-box">
             <div class="checkin-icon">📅</div>
             <div class="checkin-title" id="checkinTitle">Daily Check-in</div>
-            <div class="checkin-reward">+10 🪙</div>
+            <div class="checkin-reward" id="checkinReward">+10 🪙</div>
             <div class="checkin-sub" id="checkinSub">Come back every day for more coins!</div>
-            <button class="checkin-btn" id="checkinBtn" onclick="TokenSystem.dailyCheckIn(); TokenUI.hideCheckInModal(); TokenUI.updateBalanceDisplay(); TokenUI.bounceBalance();">
-                Claim Reward
-            </button>
+            <button class="checkin-btn" id="checkinBtn">Claim Reward</button>
         </div>
     </div>
     
@@ -2685,18 +2683,18 @@
     <div class="token-center-overlay" id="tokenCenterModal">
         <div class="token-center-box">
             <div class="token-center-header">
-                <div class="token-center-title" id="tokenCenterTitle">🪙 Coin Center</div>
+                <div class="token-center-title" id="tokenCenterTitle">🪙 My Coins</div>
                 <button class="token-center-close" id="tokenCenterCloseBtn">✕</button>
             </div>
             
             <div class="token-center-stats">
                 <div class="token-stat-card">
                     <div class="token-stat-value" id="tokenCenterBalance">0</div>
-                    <div class="token-stat-label">Balance</div>
+                    <div class="token-stat-label" id="tokenCenterBalanceLabel">Balance</div>
                 </div>
                 <div class="token-stat-card">
                     <div class="token-stat-value" id="tokenCenterConsumed">0</div>
-                    <div class="token-stat-label">Total Spent</div>
+                    <div class="token-stat-label" id="tokenCenterSpentLabel">Total Spent</div>
                 </div>
             </div>
             
@@ -2708,9 +2706,9 @@
                 <button class="token-action-btn vip" id="tokenCenterVipBtn">👑 Activate VIP (Debug)</button>
             </div>
             
-            <div class="token-tx-section-title">Recent Transactions</div>
+            <div class="token-tx-section-title" id="tokenCenterTxTitle">Recent Transactions</div>
             <div class="token-tx-list" id="tokenTransactionList">
-                <div class="token-tx-empty">No records yet</div>
+                <div class="token-tx-empty" id="tokenCenterTxEmpty">No records yet</div>
             </div>
         </div>
     </div>
