@@ -1,7 +1,7 @@
 /**
  * Token System - Emoji Arcade 虚拟代币系统
- * Preview 版：localStorage 实现
- * 后续可无缝替换为 Firebase Firestore
+ * V2: 支持 Firebase Firestore 后端 + localStorage Fallback
+ * 自动检测 Firebase 可用性，无缝切换后端
  */
 (function() {
     'use strict';
@@ -17,8 +17,8 @@
         USER_INITIALIZED: 'user_initialized'
     };
 
-    // ==================== 底层存储 ====================
-    function get(key) {
+    // ==================== 底层存储（localStorage Fallback）====================
+    function _lsGet(key) {
         try {
             const raw = localStorage.getItem(STORAGE_PREFIX + key);
             return raw ? JSON.parse(raw) : null;
@@ -27,35 +27,33 @@
         }
     }
 
-    function set(key, value) {
+    function _lsSet(key, value) {
         localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value));
     }
 
-    function getTodayStr() {
+    function _todayStr() {
         const now = new Date();
         return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     }
 
-    function formatDate(dateStr) {
-        if (!dateStr) return 'Never';
-        const d = new Date(dateStr);
-        return d.toLocaleDateString();
+    function _nowStr() {
+        return new Date().toISOString();
     }
 
-    // ==================== 核心 API ====================
-    const TokenSystem = {
+    // ==================== 后端抽象层 ====================
+    // localStorage 后端实现
+    const _localBackend = {
         // --- 初始化 ---
         initUser() {
-            const initialized = get(KEYS.USER_INITIALIZED);
+            const initialized = _lsGet(KEYS.USER_INITIALIZED);
             if (!initialized) {
-                // 新用户：送30币
-                set(KEYS.BALANCE, 30);
-                set(KEYS.LAST_CHECKIN, null);
-                set(KEYS.TOTAL_CONSUMED, 0);
-                set(KEYS.TRANSACTIONS, []);
-                set(KEYS.IS_VIP, false);
-                set(KEYS.USER_INITIALIZED, true);
-                console.log('[TokenSystem] New user initialized with 30 coins');
+                _lsSet(KEYS.BALANCE, 30);
+                _lsSet(KEYS.LAST_CHECKIN, null);
+                _lsSet(KEYS.TOTAL_CONSUMED, 0);
+                _lsSet(KEYS.TRANSACTIONS, []);
+                _lsSet(KEYS.IS_VIP, false);
+                _lsSet(KEYS.USER_INITIALIZED, true);
+                console.log('[TokenSystem] New user initialized with 30 coins (localStorage)');
                 return { isNew: true, balance: 30 };
             }
             console.log('[TokenSystem] Existing user, balance:', this.getBalance());
@@ -70,25 +68,23 @@
 
         // --- 余额查询 ---
         getBalance() {
-            return get(KEYS.BALANCE) ?? 0;
+            return _lsGet(KEYS.BALANCE) ?? 0;
         },
 
         getTotalConsumed() {
-            return get(KEYS.TOTAL_CONSUMED) ?? 0;
+            return _lsGet(KEYS.TOTAL_CONSUMED) ?? 0;
         },
 
         isVip() {
-            return get(KEYS.IS_VIP) === true;
+            return _lsGet(KEYS.IS_VIP) === true;
         },
 
         setVip(vip) {
-            set(KEYS.IS_VIP, vip === true);
+            _lsSet(KEYS.IS_VIP, vip === true);
         },
 
-        // --- 扣币（游戏入口）---
-        // 返回 { success, balance, error }
+        // --- 扣币 ---
         deductCoin(gameId) {
-            // VIP 免扣
             if (this.isVip()) {
                 this._addTransaction('consume', 0, gameId, 'VIP free play');
                 return { success: true, balance: this.getBalance(), vip: true };
@@ -99,25 +95,20 @@
                 return { success: false, balance: current, error: 'INSUFFICIENT' };
             }
 
-            // 模拟事务：先读后写（Preview版无并发问题，但保留事务结构）
-            if (current < 1) {
-                return { success: false, balance: current, error: 'INSUFFICIENT' };
-            }
             const newBalance = current - 1;
-            const newConsumed = (get(KEYS.TOTAL_CONSUMED) ?? 0) + 1;
+            const newConsumed = (_lsGet(KEYS.TOTAL_CONSUMED) ?? 0) + 1;
             
-            set(KEYS.BALANCE, newBalance);
-            set(KEYS.TOTAL_CONSUMED, newConsumed);
+            _lsSet(KEYS.BALANCE, newBalance);
+            _lsSet(KEYS.TOTAL_CONSUMED, newConsumed);
             this._addTransaction('consume', 1, gameId, `Play ${gameId}`);
 
             return { success: true, balance: newBalance };
         },
 
         // --- 签到 ---
-        // 返回 { success, amount, balance, alreadyCheckedIn }
         dailyCheckIn() {
-            const today = getTodayStr();
-            const lastCheckin = get(KEYS.LAST_CHECKIN);
+            const today = _todayStr();
+            const lastCheckin = _lsGet(KEYS.LAST_CHECKIN);
             
             if (lastCheckin === today) {
                 return { success: false, alreadyCheckedIn: true, balance: this.getBalance() };
@@ -126,16 +117,16 @@
             const current = this.getBalance();
             const newBalance = current + 10;
             
-            set(KEYS.BALANCE, newBalance);
-            set(KEYS.LAST_CHECKIN, today);
+            _lsSet(KEYS.BALANCE, newBalance);
+            _lsSet(KEYS.LAST_CHECKIN, today);
             this._addTransaction('checkin', 10, null, 'Daily check-in');
 
             return { success: true, amount: 10, balance: newBalance };
         },
 
         canCheckIn() {
-            const today = getTodayStr();
-            const last = get(KEYS.LAST_CHECKIN);
+            const today = _todayStr();
+            const last = _lsGet(KEYS.LAST_CHECKIN);
             return last !== today;
         },
 
@@ -143,37 +134,154 @@
         watchAdReward() {
             const current = this.getBalance();
             const newBalance = current + 5;
-            set(KEYS.BALANCE, newBalance);
+            _lsSet(KEYS.BALANCE, newBalance);
             this._addTransaction('ad_reward', 5, null, 'Watch ad reward');
             return { success: true, amount: 5, balance: newBalance };
         },
 
         // --- 交易记录 ---
         _addTransaction(type, amount, gameId, note) {
-            const txs = get(KEYS.TRANSACTIONS) || [];
+            const txs = _lsGet(KEYS.TRANSACTIONS) || [];
             txs.unshift({
                 type,
                 amount,
                 gameId,
                 note,
-                timestamp: new Date().toISOString()
+                timestamp: _nowStr()
             });
-            // 只保留最近 50 条
             if (txs.length > 50) txs.length = 50;
-            set(KEYS.TRANSACTIONS, txs);
+            _lsSet(KEYS.TRANSACTIONS, txs);
         },
 
         getTransactions(limit = 20) {
-            const txs = get(KEYS.TRANSACTIONS) || [];
+            const txs = _lsGet(KEYS.TRANSACTIONS) || [];
             return txs.slice(0, limit);
         },
 
-        // --- 调试用：加币 ---
+        // --- 调试 ---
         debugAddCoins(amount) {
             const current = this.getBalance();
-            set(KEYS.BALANCE, current + amount);
+            _lsSet(KEYS.BALANCE, current + amount);
             this._addTransaction('debug', amount, null, 'Debug add');
             return this.getBalance();
+        }
+    };
+
+    // Firebase 后端代理（动态绑定 FirebaseUser 方法）
+    const _fbBackend = {
+        initUser() { return window.FirebaseUser.initUser(); },
+        resetUser() { window.FirebaseUser.resetUser(); },
+        getBalance() { return window.FirebaseUser.getBalance(); },
+        getTotalConsumed() { return window.FirebaseUser.getTotalConsumed(); },
+        isVip() { return window.FirebaseUser.isVip(); },
+        setVip(vip) { return window.FirebaseUser.setVip(vip); },
+        deductCoin(gameId) { return window.FirebaseUser.deductCoin(gameId); },
+        dailyCheckIn() { return window.FirebaseUser.dailyCheckIn(); },
+        canCheckIn() { return window.FirebaseUser.canCheckIn(); },
+        watchAdReward() { return window.FirebaseUser.watchAdReward(); },
+        _addTransaction(type, amount, gameId, note) { return window.FirebaseUser._addTransaction(type, amount, gameId, note); },
+        getTransactions(limit) { return window.FirebaseUser.getTransactions(limit); },
+        debugAddCoins(amount) { return window.FirebaseUser.debugAddCoins(amount); }
+    };
+
+    // 当前激活的后端
+    let _activeBackend = _localBackend;
+    let _backendChecked = false;
+
+    function _useFirebase() {
+        return window.FirebaseUser && window.FirebaseUser.isReady();
+    }
+
+    function _switchBackend() {
+        if (_useFirebase() && _activeBackend !== _fbBackend) {
+            _activeBackend = _fbBackend;
+            console.log('[TokenSystem] Switched to Firebase backend');
+            TokenUI.updateBalanceDisplay();
+        }
+    }
+
+    // 定期检查 Firebase 是否就绪
+    function _startBackendPolling() {
+        const check = setInterval(() => {
+            if (_useFirebase()) {
+                _switchBackend();
+                clearInterval(check);
+            }
+        }, 500);
+        setTimeout(() => clearInterval(check), 10000);
+    }
+
+    // ==================== 核心 API（代理到当前后端）====================
+    const TokenSystem = {
+        // 初始化
+        async initUser() {
+            _switchBackend();
+            return await _activeBackend.initUser();
+        },
+
+        resetUser() {
+            _activeBackend.resetUser();
+        },
+
+        // 余额查询（同步，因为 FirebaseUser 读缓存）
+        getBalance() {
+            _switchBackend();
+            return _activeBackend.getBalance();
+        },
+
+        getTotalConsumed() {
+            _switchBackend();
+            return _activeBackend.getTotalConsumed();
+        },
+
+        isVip() {
+            _switchBackend();
+            return _activeBackend.isVip();
+        },
+
+        async setVip(vip) {
+            _switchBackend();
+            return await _activeBackend.setVip(vip);
+        },
+
+        // 扣币
+        async deductCoin(gameId) {
+            _switchBackend();
+            return await _activeBackend.deductCoin(gameId);
+        },
+
+        // 签到
+        async dailyCheckIn() {
+            _switchBackend();
+            return await _activeBackend.dailyCheckIn();
+        },
+
+        canCheckIn() {
+            _switchBackend();
+            return _activeBackend.canCheckIn();
+        },
+
+        // 看广告奖励
+        async watchAdReward() {
+            _switchBackend();
+            return await _activeBackend.watchAdReward();
+        },
+
+        // 交易记录
+        async _addTransaction(type, amount, gameId, note) {
+            _switchBackend();
+            return await _activeBackend._addTransaction(type, amount, gameId, note);
+        },
+
+        getTransactions(limit = 20) {
+            _switchBackend();
+            return _activeBackend.getTransactions(limit);
+        },
+
+        // 调试
+        async debugAddCoins(amount) {
+            _switchBackend();
+            return await _activeBackend.debugAddCoins(amount);
         }
     };
 
@@ -226,14 +334,14 @@
             // 更新文案
             const sub = document.getElementById('deductionSub');
             if (sub) sub.textContent = isZh 
-                ? '进入游戏需投币 🪙×1' 
-                : 'Start game requires 🪙×1';
+                ? '进入游戏需投币 \ud83e\ude99\u00d71' 
+                : 'Start game requires \ud83e\ude99\u00d71';
             if (btn) btn.textContent = isZh ? '确认投币' : 'Confirm';
 
             // 绑定事件（先清旧）
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
-            newBtn.addEventListener('click', () => {
+            newBtn.addEventListener('click', async () => {
                 this.hideCoinDeductionModal();
                 if (onConfirm) onConfirm();
             });
@@ -270,9 +378,9 @@
 
             if (title) title.textContent = isZh ? '余额不足' : 'Not Enough Coins';
             if (sub) sub.textContent = isZh 
-                ? `🪙 余额为 0，无法进入 ${game.name}` 
-                : `🪙 Balance is 0, cannot enter ${game.name}`;
-            if (watchBtn) watchBtn.textContent = isZh ? '📺 看广告领 5 币' : '📺 Watch Ad (+5)';
+                ? `\ud83e\ude99 余额为 0，无法进入 ${game.name}` 
+                : `\ud83e\ude99 Balance is 0, cannot enter ${game.name}`;
+            if (watchBtn) watchBtn.textContent = isZh ? '\ud83d\udcfa 看广告领 5 币' : '\ud83d\udcfa Watch Ad (+5)';
             if (cancelBtn) cancelBtn.textContent = isZh ? '取消' : 'Cancel';
 
             // 看广告按钮
@@ -320,20 +428,16 @@
                 if (bar) bar.style.width = progress + '%';
                 if (progress >= 100) {
                     clearInterval(interval);
-                    setTimeout(() => {
+                    setTimeout(async () => {
                         this.hideAdWatching();
-                        const result = TokenSystem.watchAdReward();
+                        const result = await TokenSystem.watchAdReward();
                         this.updateBalanceDisplay();
                         this.bounceBalance();
                         
                         // 再次尝试进入游戏
                         if (result.balance >= 1) {
                             this.showCoinDeductionModal(game, () => {
-                                const deduct = TokenSystem.deductCoin(game.id);
-                                if (deduct.success) {
-                                    this.updateBalanceDisplay();
-                                    _doLaunchGame(game);
-                                }
+                                _doLaunchGame(game);
                             });
                         }
                     }, 200);
@@ -347,14 +451,14 @@
         },
 
         // 金币中心
-        showTokenCenter() {
+        async showTokenCenter() {
             const modal = document.getElementById('tokenCenterModal');
             const lang = (typeof getCurrentLang === 'function') ? getCurrentLang() : 'en';
             const isZh = lang === 'zh';
 
             // 更新标题
             const title = document.getElementById('tokenCenterTitle');
-            if (title) title.textContent = isZh ? '🪙 金币中心' : '🪙 Coin Center';
+            if (title) title.textContent = isZh ? '\ud83e\ude99 金币中心' : '\ud83e\ude99 Coin Center';
 
             // 更新余额
             const bal = document.getElementById('tokenCenterBalance');
@@ -369,17 +473,17 @@
             const canCheckin = TokenSystem.canCheckIn();
             if (checkinBtn) {
                 checkinBtn.textContent = canCheckin 
-                    ? (isZh ? '✅ 每日签到 (+10)' : '✅ Daily Check-in (+10)')
-                    : (isZh ? '✅ 今日已签到' : '✅ Checked in today');
+                    ? (isZh ? '\u2705 每日签到 (+10)' : '\u2705 Daily Check-in (+10)')
+                    : (isZh ? '\u2705 今日已签到' : '\u2705 Checked in today');
                 checkinBtn.disabled = !canCheckin;
                 checkinBtn.style.opacity = canCheckin ? '1' : '0.5';
 
                 // 重绑事件
                 const newBtn = checkinBtn.cloneNode(true);
                 checkinBtn.parentNode.replaceChild(newBtn, checkinBtn);
-                newBtn.addEventListener('click', () => {
+                newBtn.addEventListener('click', async () => {
                     if (!TokenSystem.canCheckIn()) return;
-                    const result = TokenSystem.dailyCheckIn();
+                    const result = await TokenSystem.dailyCheckIn();
                     if (result.success) {
                         this.updateBalanceDisplay();
                         this.bounceBalance();
@@ -389,8 +493,8 @@
                         const notice = document.getElementById('tokenCenterNotice');
                         if (notice) {
                             notice.textContent = isZh 
-                                ? `🎉 签到成功！+${result.amount} 🪙` 
-                                : `🎉 Check-in success! +${result.amount} 🪙`;
+                                ? `\ud83c\udf89 签到成功！+${result.amount} \ud83e\ude99` 
+                                : `\ud83c\udf89 Check-in success! +${result.amount} \ud83e\ude99`;
                             notice.style.display = 'block';
                             setTimeout(() => notice.style.display = 'none', 3000);
                         }
@@ -401,7 +505,7 @@
             // 看广告按钮
             const adBtn = document.getElementById('tokenCenterAdBtn');
             if (adBtn) {
-                adBtn.textContent = isZh ? '📺 看广告 (+5)' : '📺 Watch Ad (+5)';
+                adBtn.textContent = isZh ? '\ud83d\udcfa 看广告 (+5)' : '\ud83d\udcfa Watch Ad (+5)';
                 const newAdBtn = adBtn.cloneNode(true);
                 adBtn.parentNode.replaceChild(newAdBtn, adBtn);
                 newAdBtn.addEventListener('click', () => {
@@ -415,19 +519,19 @@
             if (list) {
                 const txs = TokenSystem.getTransactions(10);
                 if (txs.length === 0) {
-                    list.innerHTML = `<div class="token-tx-empty">${isZh ? '暂无记录' : 'No records yet'}</div>`;
+                    list.innerHTML = `<div class="token-tx-empty">${isZh ? '\u6682\u65e0\u8bb0\u5f55' : 'No records yet'}</div>`;
                 } else {
                     list.innerHTML = txs.map(tx => {
                         const time = new Date(tx.timestamp).toLocaleString();
-                        let icon = '🪙';
+                        let icon = '\ud83e\ude99';
                         let color = '#94a3b8';
-                        if (tx.type === 'consume') { icon = '➖'; color = '#ef4444'; }
-                        if (tx.type === 'checkin') { icon = '📅'; color = '#22c55e'; }
-                        if (tx.type === 'ad_reward') { icon = '📺'; color = '#38bdf8'; }
-                        if (tx.type === 'debug') { icon = '🐛'; color = '#a855f7'; }
+                        if (tx.type === 'consume') { icon = '\u2796'; color = '#ef4444'; }
+                        if (tx.type === 'checkin') { icon = '\ud83d\udcc5'; color = '#22c55e'; }
+                        if (tx.type === 'ad_reward') { icon = '\ud83d\udcfa'; color = '#38bdf8'; }
+                        if (tx.type === 'debug') { icon = '\ud83d\udc1b'; color = '#a855f7'; }
                         
                         const typeLabel = isZh ? {
-                            consume: '消耗', checkin: '签到', ad_reward: '广告', debug: '调试'
+                            consume: '\u6d88\u8017', checkin: '\u7b7e\u5230', ad_reward: '\u5e7f\u544a', debug: '\u8c03\u8bd5'
                         }[tx.type] || tx.type : tx.type;
 
                         return `
@@ -449,12 +553,12 @@
             if (vipBtn) {
                 const isVip = TokenSystem.isVip();
                 vipBtn.textContent = isVip 
-                    ? (isZh ? '👑 VIP 已激活' : '👑 VIP Active')
-                    : (isZh ? '👑 激活 VIP（调试）' : '👑 Activate VIP (Debug)');
+                    ? (isZh ? '\ud83d\udc51 VIP \u5df2\u6fc0\u6d3b' : '\ud83d\udc51 VIP Active')
+                    : (isZh ? '\ud83d\udc51 \u6fc0\u6d3b VIP\uff08\u8c03\u8bd5\uff09' : '\ud83d\udc51 Activate VIP (Debug)');
                 const newVipBtn = vipBtn.cloneNode(true);
                 vipBtn.parentNode.replaceChild(newVipBtn, vipBtn);
-                newVipBtn.addEventListener('click', () => {
-                    TokenSystem.setVip(!isVip);
+                newVipBtn.addEventListener('click', async () => {
+                    await TokenSystem.setVip(!isVip);
                     this.showTokenCenter();
                 });
             }
@@ -490,7 +594,7 @@
         if (typeof window.launchGame === 'function' && !_originalLaunchGame) {
             _originalLaunchGame = window.launchGame;
             
-            window.launchGame = function(game) {
+            window.launchGame = async function(game) {
                 // 未就绪游戏直接走原逻辑
                 if (game.status !== 'ready') {
                     _originalLaunchGame(game);
@@ -506,7 +610,7 @@
                     return;
                 }
 
-                const deduct = TokenSystem.deductCoin(game.id);
+                const deduct = await TokenSystem.deductCoin(game.id);
                 
                 if (deduct.success) {
                     TokenUI.updateBalanceDisplay();
@@ -536,8 +640,8 @@
     window.TokenUI = TokenUI;
 
     // 初始化钩子
-    function init() {
-        TokenSystem.initUser();
+    async function init() {
+        await TokenSystem.initUser();
         TokenUI.updateBalanceDisplay();
         
         // 尝试拦截 launchGame（可能被覆盖，所以多次尝试）
@@ -556,6 +660,9 @@
 
         // 自动签到检测
         autoCheckIn();
+
+        // 启动后端轮询（检测 Firebase 切换）
+        _startBackendPolling();
 
         console.log('[TokenSystem] Initialized. Balance:', TokenSystem.getBalance());
     }

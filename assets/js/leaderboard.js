@@ -86,7 +86,7 @@ function formatDuration(seconds) {
   return `${m}m ${rs}s`;
 }
 
-import { firebaseConfig } from './firebase-config.js';
+
 
 // ── 初始化 ──────────────────────────────────────────
 let app;
@@ -740,7 +740,7 @@ const Leaderboard = {
     rankBy = sortMode === 'time' ? 'time' : 'score';
 
     if (!app) {
-      app = initializeApp(firebaseConfig);
+      app = initializeApp(window.firebaseConfig);
       db = getFirestore(app);
       auth = getAuth(app);
     }
