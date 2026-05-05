@@ -1,9 +1,8 @@
 /**
  * Firebase 配置
  * Emoji Arcade - 全局 Firebase 初始化配置
- * 以全局变量形式暴露，供 IIFE 脚本使用
  */
-window.firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyCxDmifyCSkCWiCzt0hIfPjACBP0vWr8ss",
     authDomain: "emojiarcade.firebaseapp.com",
     projectId: "emojiarcade",
