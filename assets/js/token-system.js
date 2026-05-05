@@ -1,23 +1,44 @@
 /**
  * Token System - Emoji Arcade 虚拟代币系统
- * V2: 支持 Firebase Firestore 后端 + localStorage Fallback
- * 自动检测 Firebase 可用性，无缝切换后端
+ * V3: 区分游客(guest)和会员(member)
+ *   - 游客: 初始5币, 每日最多玩3次, 签到+5币, 看广告+3币
+ *   - 会员: 初始30币, 无次数限制, 签到+10币, 看广告+5币
+ *   - 支持 Firebase Firestore 后端 + localStorage Fallback
  */
 (function() {
     'use strict';
 
     const STORAGE_PREFIX = 'emoji_arcade_token_';
-    
+    const GUEST_PREFIX = 'emoji_arcade_guest_';
+
     const KEYS = {
         BALANCE: 'balance',
         LAST_CHECKIN: 'last_checkin',
         TOTAL_CONSUMED: 'total_consumed',
         TRANSACTIONS: 'transactions',
         IS_VIP: 'is_vip',
-        USER_INITIALIZED: 'user_initialized'
+        USER_INITIALIZED: 'user_initialized',
+        // 游客专属
+        TODAY_PLAYS: 'today_plays',
+        TODAY_PLAYS_DATE: 'today_plays_date',
+        IS_GUEST: 'is_guest'
     };
 
-    // ==================== 底层存储（localStorage Fallback）====================
+    // 游客/会员配置
+    const GUEST = {
+        INITIAL_BALANCE: 5,
+        MAX_PLAYS_PER_DAY: 3,
+        CHECKIN_REWARD: 5,
+        AD_REWARD: 3
+    };
+
+    const MEMBER = {
+        INITIAL_BALANCE: 30,
+        CHECKIN_REWARD: 10,
+        AD_REWARD: 5
+    };
+
+    // ==================== 底层存储 ====================
     function _lsGet(key) {
         try {
             const raw = localStorage.getItem(STORAGE_PREFIX + key);
@@ -40,24 +61,56 @@
         return new Date().toISOString();
     }
 
-    // ==================== 后端抽象层 ====================
-    // localStorage 后端实现
+    // 检测当前身份
+    function _isGuest() {
+        // 未登录 = 游客（检测 FirebaseUser 是否已登录）
+        if (window.FirebaseUser && window.FirebaseUser.isLoggedIn && window.FirebaseUser.isLoggedIn()) {
+            return false;
+        }
+        // 兜底：localStorage 标记
+        return _lsGet(KEYS.IS_GUEST) !== false;
+    }
+
+    function _getConfig() {
+        return _isGuest() ? GUEST : MEMBER;
+    }
+
+    // ==================== localStorage 后端 ====================
     const _localBackend = {
-        // --- 初始化 ---
         initUser() {
             const initialized = _lsGet(KEYS.USER_INITIALIZED);
+            const isGuest = _isGuest();
+            const cfg = isGuest ? GUEST : MEMBER;
+
             if (!initialized) {
-                _lsSet(KEYS.BALANCE, 30);
+                _lsSet(KEYS.BALANCE, cfg.INITIAL_BALANCE);
                 _lsSet(KEYS.LAST_CHECKIN, null);
                 _lsSet(KEYS.TOTAL_CONSUMED, 0);
                 _lsSet(KEYS.TRANSACTIONS, []);
                 _lsSet(KEYS.IS_VIP, false);
+                _lsSet(KEYS.IS_GUEST, isGuest);
+                _lsSet(KEYS.TODAY_PLAYS, 0);
+                _lsSet(KEYS.TODAY_PLAYS_DATE, _todayStr());
                 _lsSet(KEYS.USER_INITIALIZED, true);
-                console.log('[TokenSystem] New user initialized with 30 coins (localStorage)');
-                return { isNew: true, balance: 30 };
+                console.log(`[TokenSystem] New ${isGuest ? 'guest' : 'member'} initialized with ${cfg.INITIAL_BALANCE} coins (localStorage)`);
+                return { isNew: true, balance: cfg.INITIAL_BALANCE, isGuest };
             }
-            console.log('[TokenSystem] Existing user, balance:', this.getBalance());
-            return { isNew: false, balance: this.getBalance() };
+
+            // 如果身份变了（游客→会员），重新初始化给30币
+            const wasGuest = _lsGet(KEYS.IS_GUEST);
+            if (wasGuest === true && !isGuest) {
+                // 升级到会员：保留余额，如果低于30则补足到30
+                const currentBal = _lsGet(KEYS.BALANCE) ?? 0;
+                const newBal = Math.max(currentBal, MEMBER.INITIAL_BALANCE);
+                _lsSet(KEYS.BALANCE, newBal);
+                _lsSet(KEYS.IS_GUEST, false);
+                _lsSet(KEYS.TODAY_PLAYS, 0);
+                console.log(`[TokenSystem] Guest upgraded to member, balance set to ${newBal}`);
+                return { isNew: false, balance: newBal, isGuest: false, upgraded: true };
+            }
+
+            console.log('[TokenSystem] Existing user, balance:', this.getBalance(), 'guest:', isGuest);
+            return { isNew: false, balance: this.getBalance(), isGuest };
         },
 
         resetUser() {
@@ -66,7 +119,6 @@
             });
         },
 
-        // --- 余额查询 ---
         getBalance() {
             return _lsGet(KEYS.BALANCE) ?? 0;
         },
@@ -83,11 +135,39 @@
             _lsSet(KEYS.IS_VIP, vip === true);
         },
 
-        // --- 扣币 ---
+        // 获取今日游戏次数（自动重置）
+        _getTodayPlays() {
+            const date = _lsGet(KEYS.TODAY_PLAYS_DATE);
+            const today = _todayStr();
+            if (date !== today) {
+                _lsSet(KEYS.TODAY_PLAYS, 0);
+                _lsSet(KEYS.TODAY_PLAYS_DATE, today);
+                return 0;
+            }
+            return _lsGet(KEYS.TODAY_PLAYS) ?? 0;
+        },
+
+        _incrementPlay() {
+            const count = this._getTodayPlays();
+            _lsSet(KEYS.TODAY_PLAYS, count + 1);
+        },
+
         deductCoin(gameId) {
+            const isGuest = _isGuest();
+
+            // VIP 免扣
             if (this.isVip()) {
                 this._addTransaction('consume', 0, gameId, 'VIP free play');
                 return { success: true, balance: this.getBalance(), vip: true };
+            }
+
+            // 游客限制：每日最多3次
+            if (isGuest) {
+                const plays = this._getTodayPlays();
+                if (plays >= GUEST.MAX_PLAYS_PER_DAY) {
+                    return { success: false, balance: this.getBalance(), error: 'GUEST_LIMIT',
+                             message: '游客每日最多玩3次，登录后可无限畅玩！' };
+                }
             }
 
             const current = this.getBalance();
@@ -97,31 +177,37 @@
 
             const newBalance = current - 1;
             const newConsumed = (_lsGet(KEYS.TOTAL_CONSUMED) ?? 0) + 1;
-            
+
             _lsSet(KEYS.BALANCE, newBalance);
             _lsSet(KEYS.TOTAL_CONSUMED, newConsumed);
             this._addTransaction('consume', 1, gameId, `Play ${gameId}`);
 
+            // 如果是游客，记录今日次数
+            if (isGuest) {
+                this._incrementPlay();
+            }
+
             return { success: true, balance: newBalance };
         },
 
-        // --- 签到 ---
         dailyCheckIn() {
             const today = _todayStr();
             const lastCheckin = _lsGet(KEYS.LAST_CHECKIN);
-            
+            const isGuest = _isGuest();
+            const reward = isGuest ? GUEST.CHECKIN_REWARD : MEMBER.CHECKIN_REWARD;
+
             if (lastCheckin === today) {
                 return { success: false, alreadyCheckedIn: true, balance: this.getBalance() };
             }
 
             const current = this.getBalance();
-            const newBalance = current + 10;
-            
+            const newBalance = current + reward;
+
             _lsSet(KEYS.BALANCE, newBalance);
             _lsSet(KEYS.LAST_CHECKIN, today);
-            this._addTransaction('checkin', 10, null, 'Daily check-in');
+            this._addTransaction('checkin', reward, null, 'Daily check-in');
 
-            return { success: true, amount: 10, balance: newBalance };
+            return { success: true, amount: reward, balance: newBalance };
         },
 
         canCheckIn() {
@@ -130,25 +216,19 @@
             return last !== today;
         },
 
-        // --- 看广告奖励 ---
         watchAdReward() {
+            const isGuest = _isGuest();
+            const reward = isGuest ? GUEST.AD_REWARD : MEMBER.AD_REWARD;
             const current = this.getBalance();
-            const newBalance = current + 5;
+            const newBalance = current + reward;
             _lsSet(KEYS.BALANCE, newBalance);
-            this._addTransaction('ad_reward', 5, null, 'Watch ad reward');
-            return { success: true, amount: 5, balance: newBalance };
+            this._addTransaction('ad_reward', reward, null, 'Watch ad reward');
+            return { success: true, amount: reward, balance: newBalance };
         },
 
-        // --- 交易记录 ---
         _addTransaction(type, amount, gameId, note) {
             const txs = _lsGet(KEYS.TRANSACTIONS) || [];
-            txs.unshift({
-                type,
-                amount,
-                gameId,
-                note,
-                timestamp: _nowStr()
-            });
+            txs.unshift({ type, amount, gameId, note, timestamp: _nowStr() });
             if (txs.length > 50) txs.length = 50;
             _lsSet(KEYS.TRANSACTIONS, txs);
         },
@@ -158,7 +238,6 @@
             return txs.slice(0, limit);
         },
 
-        // --- 调试 ---
         debugAddCoins(amount) {
             const current = this.getBalance();
             _lsSet(KEYS.BALANCE, current + amount);
@@ -167,7 +246,7 @@
         }
     };
 
-    // Firebase 后端代理（动态绑定 FirebaseUser 方法）
+    // ==================== Firebase 后端代理 ====================
     const _fbBackend = {
         initUser() { return window.FirebaseUser.initUser(); },
         resetUser() { window.FirebaseUser.resetUser(); },
@@ -184,12 +263,11 @@
         debugAddCoins(amount) { return window.FirebaseUser.debugAddCoins(amount); }
     };
 
-    // 当前激活的后端
     let _activeBackend = _localBackend;
     let _backendChecked = false;
 
     function _useFirebase() {
-        return window.FirebaseUser && window.FirebaseUser.isReady();
+        return window.FirebaseUser && window.FirebaseUser.isReady && window.FirebaseUser.isReady();
     }
 
     function _switchBackend() {
@@ -200,7 +278,6 @@
         }
     }
 
-    // 定期检查 Firebase 是否就绪
     function _startBackendPolling() {
         const check = setInterval(() => {
             if (_useFirebase()) {
@@ -211,9 +288,8 @@
         setTimeout(() => clearInterval(check), 10000);
     }
 
-    // ==================== 核心 API（代理到当前后端）====================
+    // ==================== 核心 API ====================
     const TokenSystem = {
-        // 初始化
         async initUser() {
             _switchBackend();
             return await _activeBackend.initUser();
@@ -223,7 +299,6 @@
             _activeBackend.resetUser();
         },
 
-        // 余额查询（同步，因为 FirebaseUser 读缓存）
         getBalance() {
             _switchBackend();
             return _activeBackend.getBalance();
@@ -244,13 +319,21 @@
             return await _activeBackend.setVip(vip);
         },
 
-        // 扣币
+        isGuest() {
+            return _isGuest();
+        },
+
+        getGuestRemainingPlays() {
+            if (!_isGuest()) return Infinity;
+            const plays = _localBackend._getTodayPlays();
+            return Math.max(0, GUEST.MAX_PLAYS_PER_DAY - plays);
+        },
+
         async deductCoin(gameId) {
             _switchBackend();
             return await _activeBackend.deductCoin(gameId);
         },
 
-        // 签到
         async dailyCheckIn() {
             _switchBackend();
             return await _activeBackend.dailyCheckIn();
@@ -261,13 +344,11 @@
             return _activeBackend.canCheckIn();
         },
 
-        // 看广告奖励
         async watchAdReward() {
             _switchBackend();
             return await _activeBackend.watchAdReward();
         },
 
-        // 交易记录
         async _addTransaction(type, amount, gameId, note) {
             _switchBackend();
             return await _activeBackend._addTransaction(type, amount, gameId, note);
@@ -278,7 +359,6 @@
             return _activeBackend.getTransactions(limit);
         },
 
-        // 调试
         async debugAddCoins(amount) {
             _switchBackend();
             return await _activeBackend.debugAddCoins(amount);
@@ -287,7 +367,6 @@
 
     // ==================== UI 控制器 ====================
     const TokenUI = {
-        // 更新右上角余额显示
         updateBalanceDisplay() {
             const el = document.getElementById('tokenBalance');
             if (el) {
@@ -295,7 +374,6 @@
             }
         },
 
-        // 余额跳动动画
         bounceBalance() {
             const el = document.getElementById('tokenBalance');
             if (el) {
@@ -308,23 +386,31 @@
             }
         },
 
-        // 显示签到弹窗
         showCheckInModal() {
             const modal = document.getElementById('checkInModal');
             const lang = (typeof getCurrentLang === 'function') ? getCurrentLang() : 'en';
             const isZh = lang === 'zh';
+            const isGuest = TokenSystem.isGuest();
+            const reward = isGuest ? GUEST.CHECKIN_REWARD : MEMBER.CHECKIN_REWARD;
 
             const title = document.getElementById('checkinTitle');
-            const reward = document.getElementById('checkinReward');
+            const rewardEl = document.getElementById('checkinReward');
             const sub = document.getElementById('checkinSub');
             const btn = document.getElementById('checkinBtn');
 
             if (title) title.textContent = isZh ? '每日签到' : 'Daily Check-in';
-            if (reward) reward.textContent = isZh ? '+10 🪙' : '+10 🪙';
-            if (sub) sub.textContent = isZh ? '每天回来领取更多游戏币！' : 'Come back every day for more coins!';
+            if (rewardEl) rewardEl.textContent = `+${reward} 🪙`;
+            if (sub) {
+                if (isGuest && isZh) {
+                    sub.textContent = '游客签到 +5 🪙，登录后可领 +10 🪙！';
+                } else if (isGuest) {
+                    sub.textContent = 'Guest check-in +5 🪙, login for +10 🪙!';
+                } else {
+                    sub.textContent = isZh ? '每天回来领取更多游戏币！' : 'Come back every day for more coins!';
+                }
+            }
             if (btn) btn.textContent = isZh ? '领取奖励' : 'Claim Reward';
 
-            // 绑定签到按钮事件（覆盖旧的）
             if (btn) {
                 const newBtn = btn.cloneNode(true);
                 btn.parentNode.replaceChild(newBtn, btn);
@@ -346,7 +432,6 @@
             if (modal) modal.classList.remove('active');
         },
 
-        // 显示投币弹窗
         showCoinDeductionModal(game, onConfirm, onCancel) {
             const modal = document.getElementById('coinDeductionModal');
             const title = document.getElementById('deductionGameName');
@@ -354,18 +439,24 @@
             const btn = document.getElementById('deductionConfirmBtn');
             const lang = (typeof getCurrentLang === 'function') ? getCurrentLang() : 'en';
             const isZh = lang === 'zh';
+            const isGuest = TokenSystem.isGuest();
+            const remaining = TokenSystem.getGuestRemainingPlays();
 
             if (title) title.textContent = game.name;
             if (balance) balance.textContent = TokenSystem.getBalance();
 
-            // 更新文案
             const sub = document.getElementById('deductionSub');
-            if (sub) sub.textContent = isZh 
-                ? '进入游戏需投币 \ud83e\ude99\u00d71' 
-                : 'Start game requires \ud83e\ude99\u00d71';
+            if (sub) {
+                if (isGuest && isZh) {
+                    sub.textContent = `进入游戏需投币 🪙×1（今日还剩 ${remaining} 次，登录后无限）`;
+                } else if (isGuest) {
+                    sub.textContent = `Start game requires 🪙×1 (${remaining} plays left today, unlimited after login)`;
+                } else {
+                    sub.textContent = isZh ? '进入游戏需投币 🪙×1' : 'Start game requires 🪙×1';
+                }
+            }
             if (btn) btn.textContent = isZh ? '确认投币' : 'Confirm';
 
-            // 绑定事件（先清旧）
             const newBtn = btn.cloneNode(true);
             btn.parentNode.replaceChild(newBtn, btn);
             newBtn.addEventListener('click', async () => {
@@ -391,26 +482,30 @@
             if (modal) modal.classList.remove('active');
         },
 
-        // 显示余额不足弹窗
         showInsufficientModal(game) {
             const modal = document.getElementById('insufficientModal');
             const lang = (typeof getCurrentLang === 'function') ? getCurrentLang() : 'en';
             const isZh = lang === 'zh';
+            const isGuest = TokenSystem.isGuest();
 
-            // 更新文案
             const title = document.getElementById('insufficientTitle');
             const sub = document.getElementById('insufficientSub');
             const watchBtn = document.getElementById('insufficientWatchBtn');
             const cancelBtn = document.getElementById('insufficientCancelBtn');
 
             if (title) title.textContent = isZh ? '余额不足' : 'Not Enough Coins';
-            if (sub) sub.textContent = isZh 
-                ? `\ud83e\ude99 余额为 0，无法进入 ${game.name}` 
-                : `\ud83e\ude99 Balance is 0, cannot enter ${game.name}`;
-            if (watchBtn) watchBtn.textContent = isZh ? '\ud83d\udcfa 看广告领 5 币' : '\ud83d\udcfa Watch Ad (+5)';
+            if (sub) {
+                if (isGuest && isZh) {
+                    sub.textContent = `🪙 余额为 0，游客每日限玩 ${GUEST.MAX_PLAYS_PER_DAY} 次。看广告或登录可获更多！`;
+                } else if (isGuest) {
+                    sub.textContent = `🪙 Balance is 0. Guests limited to ${GUEST.MAX_PLAYS_PER_DAY} plays/day. Watch ad or login for more!`;
+                } else {
+                    sub.textContent = isZh ? `🪙 余额为 0，无法进入 ${game.name}` : `🪙 Balance is 0, cannot enter ${game.name}`;
+                }
+            }
+            if (watchBtn) watchBtn.textContent = isZh ? `📺 看广告领 ${GUEST.AD_REWARD} 币` : `📺 Watch Ad (+${GUEST.AD_REWARD})`;
             if (cancelBtn) cancelBtn.textContent = isZh ? '取消' : 'Cancel';
 
-            // 看广告按钮
             if (watchBtn) {
                 const newBtn = watchBtn.cloneNode(true);
                 watchBtn.parentNode.replaceChild(newBtn, watchBtn);
@@ -420,7 +515,6 @@
                 });
             }
 
-            // 取消按钮
             if (cancelBtn) {
                 const newCancel = cancelBtn.cloneNode(true);
                 cancelBtn.parentNode.replaceChild(newCancel, cancelBtn);
@@ -435,7 +529,6 @@
             if (modal) modal.classList.remove('active');
         },
 
-        // 显示广告观看中（模拟）
         showAdWatching(game) {
             const modal = document.getElementById('adWatchingModal');
             const bar = document.getElementById('adProgressBar');
@@ -445,10 +538,8 @@
 
             if (text) text.textContent = isZh ? '广告播放中...' : 'Playing ad...';
             if (bar) bar.style.width = '0%';
-
             if (modal) modal.classList.add('active');
 
-            // 模拟广告进度
             let progress = 0;
             const interval = setInterval(() => {
                 progress += 5;
@@ -460,8 +551,6 @@
                         const result = await TokenSystem.watchAdReward();
                         this.updateBalanceDisplay();
                         this.bounceBalance();
-                        
-                        // 再次尝试进入游戏
                         if (result.balance >= 1) {
                             this.showCoinDeductionModal(game, () => {
                                 _doLaunchGame(game);
@@ -477,25 +566,22 @@
             if (modal) modal.classList.remove('active');
         },
 
-        // 我的游戏币
         async showTokenCenter() {
             const modal = document.getElementById('tokenCenterModal');
             const lang = (typeof getCurrentLang === 'function') ? getCurrentLang() : 'en';
             const isZh = lang === 'zh';
+            const isGuest = TokenSystem.isGuest();
+            const cfg = isGuest ? GUEST : MEMBER;
 
-            // 更新标题
             const title = document.getElementById('tokenCenterTitle');
-            if (title) title.textContent = isZh ? '\ud83e\ude99 我的游戏币' : '\ud83e\ude99 My Coins';
+            if (title) title.textContent = isZh ? '🪙 我的游戏币' : '🪙 My Coins';
 
-            // 更新余额
             const bal = document.getElementById('tokenCenterBalance');
             if (bal) bal.textContent = TokenSystem.getBalance();
 
-            // 更新总消耗
             const consumed = document.getElementById('tokenCenterConsumed');
             if (consumed) consumed.textContent = TokenSystem.getTotalConsumed();
 
-            // 更新标签（i18n）
             const balanceLabel = document.getElementById('tokenCenterBalanceLabel');
             const spentLabel = document.getElementById('tokenCenterSpentLabel');
             const txTitle = document.getElementById('tokenCenterTxTitle');
@@ -503,17 +589,31 @@
             if (spentLabel) spentLabel.textContent = isZh ? '总消耗' : 'Total Spent';
             if (txTitle) txTitle.textContent = isZh ? '最近交易' : 'Recent Transactions';
 
-            // 更新签到状态
+            // 游客提示
+            const guestNotice = document.getElementById('tokenCenterGuestNotice');
+            if (guestNotice) {
+                if (isGuest && isZh) {
+                    guestNotice.innerHTML = `👤 <b>游客模式</b> · 每日限玩 ${GUEST.MAX_PLAYS_PER_DAY} 次 · <a href="#" onclick="window.dispatchEvent(new CustomEvent('requestLogin')); return false;" style="color:#38bdf8;text-decoration:underline;">登录</a> 解锁无限`;
+                    guestNotice.style.display = 'block';
+                } else if (isGuest) {
+                    guestNotice.innerHTML = `👤 <b>Guest Mode</b> · ${GUEST.MAX_PLAYS_PER_DAY} plays/day · <a href="#" onclick="window.dispatchEvent(new CustomEvent('requestLogin')); return false;" style="color:#38bdf8;text-decoration:underline;">Login</a> for unlimited`;
+                    guestNotice.style.display = 'block';
+                } else {
+                    guestNotice.style.display = 'none';
+                }
+            }
+
+            // 签到按钮
             const checkinBtn = document.getElementById('tokenCenterCheckinBtn');
             const canCheckin = TokenSystem.canCheckIn();
             if (checkinBtn) {
-                checkinBtn.textContent = canCheckin 
-                    ? (isZh ? '\u2705 每日签到 (+10)' : '\u2705 Daily Check-in (+10)')
-                    : (isZh ? '\u2705 今日已签到' : '\u2705 Checked in today');
+                const reward = cfg.CHECKIN_REWARD;
+                checkinBtn.textContent = canCheckin
+                    ? (isZh ? `✅ 每日签到 (+${reward})` : `✅ Daily Check-in (+${reward})`)
+                    : (isZh ? '✅ 今日已签到' : '✅ Checked in today');
                 checkinBtn.disabled = !canCheckin;
                 checkinBtn.style.opacity = canCheckin ? '1' : '0.5';
 
-                // 重绑事件
                 const newBtn = checkinBtn.cloneNode(true);
                 checkinBtn.parentNode.replaceChild(newBtn, checkinBtn);
                 newBtn.addEventListener('click', async () => {
@@ -522,14 +622,12 @@
                     if (result.success) {
                         this.updateBalanceDisplay();
                         this.bounceBalance();
-                        // 刷新弹窗内容
                         this.showTokenCenter();
-                        // 显示签到成功提示
                         const notice = document.getElementById('tokenCenterNotice');
                         if (notice) {
-                            notice.textContent = isZh 
-                                ? `\ud83c\udf89 签到成功！+${result.amount} \ud83e\ude99` 
-                                : `\ud83c\udf89 Check-in success! +${result.amount} \ud83e\ude99`;
+                            notice.textContent = isZh
+                                ? `🎉 签到成功！+${result.amount} 🪙`
+                                : `🎉 Check-in success! +${result.amount} 🪙`;
                             notice.style.display = 'block';
                             setTimeout(() => notice.style.display = 'none', 3000);
                         }
@@ -540,7 +638,7 @@
             // 看广告按钮
             const adBtn = document.getElementById('tokenCenterAdBtn');
             if (adBtn) {
-                adBtn.textContent = isZh ? '\ud83d\udcfa 看广告 (+5)' : '\ud83d\udcfa Watch Ad (+5)';
+                adBtn.textContent = isZh ? `📺 看广告 (+${cfg.AD_REWARD})` : `📺 Watch Ad (+${cfg.AD_REWARD})`;
                 const newAdBtn = adBtn.cloneNode(true);
                 adBtn.parentNode.replaceChild(newAdBtn, adBtn);
                 newAdBtn.addEventListener('click', () => {
@@ -549,24 +647,23 @@
                 });
             }
 
-            // 渲染交易记录
+            // 交易记录
             const list = document.getElementById('tokenTransactionList');
             if (list) {
                 const txs = TokenSystem.getTransactions(10);
                 if (txs.length === 0) {
-                    list.innerHTML = `<div class="token-tx-empty">${isZh ? '\u6682\u65e0\u8bb0\u5f55' : 'No records yet'}</div>`;
+                    list.innerHTML = `<div class="token-tx-empty">${isZh ? '暂无记录' : 'No records yet'}</div>`;
                 } else {
                     list.innerHTML = txs.map(tx => {
                         const time = new Date(tx.timestamp).toLocaleString();
-                        let icon = '\ud83e\ude99';
-                        let color = '#94a3b8';
-                        if (tx.type === 'consume') { icon = '\u2796'; color = '#ef4444'; }
-                        if (tx.type === 'checkin') { icon = '\ud83d\udcc5'; color = '#22c55e'; }
-                        if (tx.type === 'ad_reward') { icon = '\ud83d\udcfa'; color = '#38bdf8'; }
-                        if (tx.type === 'debug') { icon = '\ud83d\udc1b'; color = '#a855f7'; }
-                        
+                        let icon = '🪙', color = '#94a3b8';
+                        if (tx.type === 'consume') { icon = '➖'; color = '#ef4444'; }
+                        if (tx.type === 'checkin') { icon = '📅'; color = '#22c55e'; }
+                        if (tx.type === 'ad_reward') { icon = '📺'; color = '#38bdf8'; }
+                        if (tx.type === 'debug') { icon = '🐛'; color = '#a855f7'; }
+
                         const typeLabel = isZh ? {
-                            consume: '\u6d88\u8017', checkin: '\u7b7e\u5230', ad_reward: '\u5e7f\u544a', debug: '\u8c03\u8bd5'
+                            consume: '消耗', checkin: '签到', ad_reward: '广告', debug: '调试'
                         }[tx.type] || tx.type : tx.type;
 
                         return `
@@ -583,13 +680,13 @@
                 }
             }
 
-            // VIP 调试按钮（预留）
+            // VIP 调试按钮
             const vipBtn = document.getElementById('tokenCenterVipBtn');
             if (vipBtn) {
                 const isVip = TokenSystem.isVip();
-                vipBtn.textContent = isVip 
-                    ? (isZh ? '\ud83d\udc51 VIP \u5df2\u6fc0\u6d3b' : '\ud83d\udc51 VIP Active')
-                    : (isZh ? '\ud83d\udc51 \u6fc0\u6d3b VIP\uff08\u8c03\u8bd5\uff09' : '\ud83d\udc51 Activate VIP (Debug)');
+                vipBtn.textContent = isVip
+                    ? (isZh ? '👑 VIP 已激活' : '👑 VIP Active')
+                    : (isZh ? '👑 激活 VIP（调试）' : '👑 Activate VIP (Debug)');
                 const newVipBtn = vipBtn.cloneNode(true);
                 vipBtn.parentNode.replaceChild(newVipBtn, vipBtn);
                 newVipBtn.addEventListener('click', async () => {
@@ -616,7 +713,6 @@
     };
 
     // ==================== 游戏启动拦截器 ====================
-    // 保存原始 launchGame 的引用
     let _originalLaunchGame = null;
 
     function _doLaunchGame(game) {
@@ -628,16 +724,12 @@
     function interceptLaunchGame() {
         if (typeof window.launchGame === 'function' && !_originalLaunchGame) {
             _originalLaunchGame = window.launchGame;
-            
+
             window.launchGame = async function(game) {
-                // 未就绪游戏直接走原逻辑
                 if (game.status !== 'ready') {
                     _originalLaunchGame(game);
                     return;
                 }
-
-                const lang = (typeof getCurrentLang === 'function') ? getCurrentLang() : 'en';
-                const isZh = lang === 'zh';
 
                 // VIP 免扣
                 if (TokenSystem.isVip()) {
@@ -646,13 +738,19 @@
                 }
 
                 const deduct = await TokenSystem.deductCoin(game.id);
-                
+
                 if (deduct.success) {
                     TokenUI.updateBalanceDisplay();
                     _originalLaunchGame(game);
                 } else if (deduct.error === 'INSUFFICIENT') {
-                    // 余额不足 -> 显示引导
                     TokenUI.showInsufficientModal(game);
+                } else if (deduct.error === 'GUEST_LIMIT') {
+                    // 游客次数用完：提示登录
+                    const lang = (typeof getCurrentLang === 'function') ? getCurrentLang() : 'en';
+                    const isZh = lang === 'zh';
+                    alert(isZh
+                        ? `👤 游客每日最多玩 ${GUEST.MAX_PLAYS_PER_DAY} 次\n登录后可无限畅玩！`
+                        : `👤 Guests limited to ${GUEST.MAX_PLAYS_PER_DAY} plays/day\nLogin for unlimited access!`);
                 }
             };
             console.log('[TokenSystem] launchGame intercepted');
@@ -663,7 +761,6 @@
     function autoCheckIn() {
         const canCheckin = TokenSystem.canCheckIn();
         if (canCheckin) {
-            // 延迟一点弹出，等页面加载完
             setTimeout(() => {
                 TokenUI.showCheckInModal();
             }, 1500);
@@ -673,17 +770,17 @@
     // ==================== 导出入口 ====================
     window.TokenSystem = TokenSystem;
     window.TokenUI = TokenUI;
+    window.GUEST_CONFIG = GUEST;
+    window.MEMBER_CONFIG = MEMBER;
 
     // 初始化钩子
     async function init() {
         await TokenSystem.initUser();
         TokenUI.updateBalanceDisplay();
-        
-        // 尝试拦截 launchGame（可能被覆盖，所以多次尝试）
+
         if (typeof window.launchGame === 'function') {
             interceptLaunchGame();
         } else {
-            // 等页面脚本加载完
             const check = setInterval(() => {
                 if (typeof window.launchGame === 'function') {
                     interceptLaunchGame();
@@ -693,16 +790,12 @@
             setTimeout(() => clearInterval(check), 5000);
         }
 
-        // 自动签到检测
         autoCheckIn();
-
-        // 启动后端轮询（检测 Firebase 切换）
         _startBackendPolling();
 
-        console.log('[TokenSystem] Initialized. Balance:', TokenSystem.getBalance());
+        console.log('[TokenSystem] Initialized. Guest:', TokenSystem.isGuest(), 'Balance:', TokenSystem.getBalance());
     }
 
-    // DOM 就绪后初始化
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', init);
     } else {

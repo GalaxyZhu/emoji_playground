@@ -1,7 +1,7 @@
 /**
  * Firebase User Layer - Firestore 数据层
  * Emoji Arcade 第二阶段后端迁移
- * 保持 TokenSystem API 兼容，无缝替换 localStorage
+ * V2: 不再自动匿名登录，改为用户主动点击登录时才认证
  */
 (function() {
     'use strict';
@@ -9,11 +9,12 @@
     // ==================== Firebase 初始化 ====================
     let app, db, auth, currentUser, userDocRef;
     let _firestoreReady = false;
-    let _pendingQueue = []; // Firestore 初始化前的操作队列
+    let _pendingQueue = [];
+    let _loginInProgress = false;
 
     function initFirebase() {
         if (typeof firebase === 'undefined') {
-            console.warn('[FirebaseUser] Firebase SDK not loaded, falling back to localStorage');
+            console.warn('[FirebaseUser] Firebase SDK not loaded');
             return false;
         }
         if (typeof firebaseConfig === 'undefined') {
@@ -22,33 +23,13 @@
         }
 
         try {
-            app = firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-            auth = firebase.auth();
-
-            // 匿名登录（每个设备一个匿名用户）
-            auth.signInAnonymously()
-                .then((cred) => {
-                    currentUser = cred.user;
-                    userDocRef = db.collection('users').doc(currentUser.uid);
-                    _firestoreReady = true;
-                    console.log('[FirebaseUser] Anonymous auth success, uid:', currentUser.uid);
-
-                    // 初始化用户文档（如果不存在）
-                    return _initUserDoc();
-                })
-                .then(() => {
-                    // 清空队列
-                    while (_pendingQueue.length > 0) {
-                        const fn = _pendingQueue.shift();
-                        fn();
-                    }
-                })
-                .catch((err) => {
-                    console.error('[FirebaseUser] Auth or init error:', err);
-                    _firestoreReady = false;
-                });
-
+            // 如果已经初始化过，不要重复
+            if (!app) {
+                app = firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                auth = firebase.auth();
+            }
+            console.log('[FirebaseUser] SDK initialized (not logged in yet)');
             return true;
         } catch (e) {
             console.error('[FirebaseUser] Init error:', e);
@@ -56,7 +37,7 @@
         }
     }
 
-    // 初始化用户文档：如果不存在则创建
+    // 初始化用户文档：如果不存在则创建（给30币）
     async function _initUserDoc() {
         if (!userDocRef) return;
         const snap = await userDocRef.get();
@@ -68,7 +49,9 @@
                 isVip: false,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            console.log('[FirebaseUser] New user doc created with 30 coins');
+            console.log('[FirebaseUser] New member doc created with 30 coins');
+        } else {
+            console.log('[FirebaseUser] Existing member, balance:', snap.data().balance);
         }
     }
 
@@ -86,9 +69,43 @@
         return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     }
 
+    // ==================== 主动登录 ====================
+    async function doAnonymousLogin() {
+        if (_loginInProgress) return { error: 'LOGIN_IN_PROGRESS' };
+        if (!auth) return { error: 'NO_AUTH' };
+        if (_firestoreReady) return { uid: currentUser?.uid, alreadyLoggedIn: true };
+
+        _loginInProgress = true;
+        try {
+            const cred = await auth.signInAnonymously();
+            currentUser = cred.user;
+            userDocRef = db.collection('users').doc(currentUser.uid);
+            _firestoreReady = true;
+            console.log('[FirebaseUser] Anonymous login success, uid:', currentUser.uid);
+
+            // 初始化用户文档
+            await _initUserDoc();
+
+            // 启动余额监听
+            startBalanceListener();
+
+            // 清空队列
+            while (_pendingQueue.length > 0) {
+                const fn = _pendingQueue.shift();
+                fn();
+            }
+
+            _loginInProgress = false;
+            return { uid: currentUser.uid, isNew: true };
+        } catch (err) {
+            console.error('[FirebaseUser] Login failed:', err);
+            _loginInProgress = false;
+            return { error: err.code || 'LOGIN_FAILED', message: err.message };
+        }
+    }
+
     // ==================== Firestore 存储层 ====================
     const _firestoreBackend = {
-        // --- 初始化 ---
         async initUser() {
             if (!userDocRef) return { isNew: false, balance: 0, offline: true };
             try {
@@ -104,7 +121,7 @@
                     return { isNew: true, balance: 30 };
                 }
                 const data = snap.data();
-                return { isNew: false, balance: data.balance ?? 0 };
+                return { isNew: false, balance: data.balance ?? 30 };
             } catch (e) {
                 console.error('[FirebaseUser] initUser error:', e);
                 return { isNew: false, balance: 0, offline: true };
@@ -117,7 +134,6 @@
             }
         },
 
-        // --- 余额查询（读缓存）---
         getBalance() {
             return window._fbBalanceCache ?? 0;
         },
@@ -140,10 +156,8 @@
             }
         },
 
-        // --- 扣币（事务）---
         async deductCoin(gameId) {
             if (!userDocRef) return { success: false, balance: 0, error: 'OFFLINE' };
-            const today = getTodayStr();
             try {
                 const result = await db.runTransaction(async (tx) => {
                     const snap = await tx.get(userDocRef);
@@ -180,7 +194,6 @@
             }
         },
 
-        // --- 签到 ---
         async dailyCheckIn() {
             if (!userDocRef) return { success: false, alreadyCheckedIn: false, balance: 0, error: 'OFFLINE' };
             const today = getTodayStr();
@@ -230,7 +243,6 @@
             }
         },
 
-        // --- 看广告奖励 ---
         async watchAdReward() {
             if (!userDocRef) return { success: false, balance: 0, error: 'OFFLINE' };
             try {
@@ -259,16 +271,14 @@
             }
         },
 
-        // --- 交易记录（Firestore 版不做子集合，留空接口兼容）---
         _addTransaction(type, amount, gameId, note) {
             // Firestore 版暂不记录交易明细
         },
 
         getTransactions(limit) {
-            return []; // Firestore 版暂不返回
+            return [];
         },
 
-        // --- 调试 ---
         async debugAddCoins(amount) {
             if (!userDocRef) return 0;
             const snap = await userDocRef.get();
@@ -287,6 +297,15 @@
             return _firestoreReady;
         },
 
+        isLoggedIn() {
+            return _firestoreReady && !!currentUser;
+        },
+
+        // 主动登录入口
+        async login() {
+            return await doAnonymousLogin();
+        },
+
         initUser() { return _firestoreBackend.initUser(); },
         resetUser() { _firestoreBackend.resetUser(); },
         getBalance() { return _firestoreBackend.getBalance(); },
@@ -302,7 +321,6 @@
         debugAddCoins(amount) { return _firestoreBackend.debugAddCoins(amount); },
 
         refreshCache() {
-            // 由 snapshot listener 自动维护缓存
             return Promise.resolve();
         }
     };
@@ -316,7 +334,6 @@
                 window._fbBalanceCache = data.balance ?? 0;
                 window._fbConsumedCache = data.totalConsumed ?? 0;
                 window._fbVipCache = data.isVip === true;
-                // 触发 UI 更新
                 if (typeof window.TokenUI !== 'undefined') {
                     window.TokenUI.updateBalanceDisplay();
                 }
@@ -328,20 +345,7 @@
 
     // ==================== 启动 ====================
     const initOk = initFirebase();
-    if (initOk) {
-        // 匿名认证完成后启动监听
-        const checkInterval = setInterval(() => {
-            if (_firestoreReady && userDocRef) {
-                clearInterval(checkInterval);
-                startBalanceListener();
-            }
-        }, 500);
-        // 安全清理
-        setTimeout(() => clearInterval(checkInterval), 30000);
-    }
-
-    // 标记 Firebase 层已加载
     window._firebaseUserLoaded = true;
-    console.log('[FirebaseUser] Module loaded, init status:', initOk);
+    console.log('[FirebaseUser] Module loaded, auto-login disabled. Call FirebaseUser.login() to authenticate.');
 
 })();

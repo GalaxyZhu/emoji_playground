@@ -540,12 +540,14 @@
                 <div class="token-balance" id="tokenBalanceBtn" onclick="TokenUI.showTokenCenter()">
                     <span class="token-icon">🪙</span>
                     <span class="token-amount" id="tokenBalance">0</span>
+                    <span class="guest-badge" id="guestBadge">游客</span>
                 </div>
-                <!-- Not logged in -->
-                <div class="user-placeholder" id="loginBtn" onclick="showNicknameModal()">
-                    <span id="loginText">Login</span>
+                <!-- Guest: Login button -->
+                <div class="login-trigger" id="loginBtn" onclick="handleLoginClick()">
+                    <span class="login-icon">👤</span>
+                    <span id="loginText">登录</span>
                 </div>
-                <!-- Logged in -->
+                <!-- Member: Avatar + dropdown -->
                 <div class="user-avatar" id="userAvatar" style="display: none;" onclick="toggleUserDropdown(event)">
                     <span class="emoji" id="userEmoji">🎮</span>
                     <div class="user-dropdown" id="userDropdown">
@@ -1037,41 +1039,65 @@
                 } catch(e) {}
             }
             
-            // Auto anonymous login via leaderboard
-            initLeaderboardUser();
+            // V2: 不再自动匿名登录，保持游客状态
+            showGuestState();
         }
         
-        async function initLeaderboardUser() {
-            if (typeof window.Leaderboard === 'undefined') {
-                // Module not loaded yet, retry
-                setTimeout(initLeaderboardUser, 500);
-                return;
+        function showGuestState() {
+            document.getElementById('loginBtn').style.display = 'flex';
+            document.getElementById('userAvatar').style.display = 'none';
+            const badge = document.getElementById('guestBadge');
+            if (badge) badge.style.display = 'inline-block';
+            
+            const loginText = document.getElementById('loginText');
+            if (loginText) loginText.textContent = getCurrentLang() === 'zh' ? '登录' : 'Login';
+        }
+        
+        async function handleLoginClick() {
+            const lang = getCurrentLang();
+            const isZh = lang === 'zh';
+            
+            // 先执行 Firebase 匿名登录
+            if (window.FirebaseUser && window.FirebaseUser.login) {
+                const btn = document.getElementById('loginBtn');
+                if (btn) {
+                    btn.style.opacity = '0.6';
+                    btn.style.pointerEvents = 'none';
+                }
+                
+                const result = await window.FirebaseUser.login();
+                
+                if (btn) {
+                    btn.style.opacity = '';
+                    btn.style.pointerEvents = '';
+                }
+                
+                if (result.error) {
+                    console.error('[UserSystem] Login failed:', result.error);
+                    // 降级：直接以游客模式显示昵称弹窗
+                    showNicknameModal();
+                    return;
+                }
+                
+                // 登录成功，触发 token-system 后端切换
+                if (window.TokenSystem && window.TokenSystem.initUser) {
+                    await window.TokenSystem.initUser();
+                    if (window.TokenUI) window.TokenUI.updateBalanceDisplay();
+                }
             }
             
-            try {
-                // Use a dummy game ID just to init auth
-                await window.Leaderboard.init('emoji-arcade-home', getCurrentLang());
-                const firebaseUser = window.Leaderboard.getCurrentUser();
-                
-                if (firebaseUser) {
-                    // Check if nickname already set
-                    const savedNick = localStorage.getItem(NICKNAME_STORAGE_KEY);
-                    if (savedNick) {
-                        currentUser = { uid: firebaseUser.uid, nickname: savedNick };
-                        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(currentUser));
-                        showLoggedInState();
-                    }
-                    // NOTE: Do NOT auto-show nickname modal. Wait for user to click Login.
-                }
-            } catch (err) {
-                console.warn('[UserSystem] Leaderboard init failed:', err);
-            }
+            // 显示昵称弹窗
+            showNicknameModal();
         }
         
         function showLoggedInState() {
             document.getElementById('loginBtn').style.display = 'none';
             const avatar = document.getElementById('userAvatar');
             avatar.style.display = 'flex';
+            
+            // 隐藏游客标识
+            const badge = document.getElementById('guestBadge');
+            if (badge) badge.style.display = 'none';
             
             // Show emoji avatar only, no nickname text
             document.getElementById('userEmoji').textContent = selectedAvatar;
