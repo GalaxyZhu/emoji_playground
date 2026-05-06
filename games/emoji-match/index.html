@@ -325,27 +325,101 @@
         
         /* 响应式 */
         @media (max-width: 600px) {
-            .game-board.easy { gap: 6px; }
-            .game-board.medium { gap: 5px; }
-            .game-board.hard { gap: 4px; }
+            .game-board {
+                padding: 8px;
+                max-width: calc(100vw - 16px);
+                gap: 3px;
+            }
+            
+            .game-board.easy { gap: 5px; }
+            .game-board.medium { gap: 4px; }
+            .game-board.hard { gap: 3px; }
+            
+            .card {
+                min-height: 38px;
+            }
             
             .card-face {
-                font-size: min(7vw, 30px);
+                font-size: min(5.5vw, 28px);
+            }
+            
+            .card-front::after {
+                font-size: 16px;
             }
             
             .players-bar {
-                gap: 10px;
-                padding: 8px 12px;
+                gap: 8px;
+                padding: 6px 10px;
+                margin: 10px 0;
             }
             
             .player {
-                padding: 6px 10px;
+                padding: 5px 8px;
             }
             
             .player-avatar {
                 width: 30px;
                 height: 30px;
                 font-size: 16px;
+            }
+            
+            .player-name {
+                font-size: 11px;
+            }
+            
+            .player-score {
+                font-size: 16px;
+            }
+            
+            .game-title {
+                font-size: 18px;
+            }
+            
+            .difficulty-bar {
+                gap: 6px;
+                margin: 8px 0;
+            }
+            
+            .diff-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .status-bar {
+                gap: 12px;
+                margin: 8px 0;
+            }
+            
+            .status-item {
+                font-size: 13px;
+            }
+            
+            .controls {
+                gap: 8px;
+                margin-bottom: 15px;
+            }
+            
+            .btn {
+                padding: 8px 18px;
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .game-board {
+                padding: 4px;
+                max-width: calc(100vw - 8px);
+                gap: 2px;
+            }
+            
+            .game-board.hard { gap: 2px; }
+            
+            .card {
+                min-height: 32px;
+            }
+            
+            .card-face {
+                font-size: min(5vw, 24px);
             }
         }
     </style>
