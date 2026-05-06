@@ -1093,15 +1093,23 @@
                 }
             }
             
+            // 自动生成昵称并保存，不弹窗
+            if (window.generateNickname) {
+                generatedNickname = window.generateNickname();
+            } else {
+                const adjs = ['Happy','Lucky','Crazy','Sleepy'];
+                const nouns = ['Panda','Dragon','Wizard','Ninja'];
+                generatedNickname = adjs[Math.floor(Math.random()*4)] + ' ' + nouns[Math.floor(Math.random()*4)];
+            }
+            await saveNickname(generatedNickname);
+            showLoggedInState();
+            
             // 恢复按钮状态
             if (btn) {
                 btn.style.opacity = '';
                 btn.style.pointerEvents = '';
             }
             if (loginText) loginText.textContent = isZh ? '登录' : 'Login';
-            
-            // 显示昵称弹窗
-            showNicknameModal();
         }
 
         // 监听来自 token-system 的登录请求
@@ -1185,19 +1193,8 @@
             document.getElementById('nicknameDisplay').textContent = generatedNickname;
         }
         
-        async function confirmNickname() {
-            const nickname = generatedNickname || document.getElementById('nicknameDisplay').textContent;
-            const lang = getCurrentLang();
-            const isZh = lang === 'zh';
-            
-            // UI feedback: show loading state
-            const confirmBtn = document.getElementById('nickConfirmBtn');
-            const refreshBtn = document.getElementById('nickRefreshBtn');
-            const originalText = confirmBtn.textContent;
-            confirmBtn.textContent = isZh ? '保存中...' : 'Saving...';
-            confirmBtn.disabled = true;
-            if (refreshBtn) refreshBtn.disabled = true;
-            
+        // 核心保存逻辑（不依赖弹窗UI）
+        async function saveNickname(nickname) {
             // Save to localStorage
             localStorage.setItem(NICKNAME_STORAGE_KEY, nickname);
             
@@ -1237,6 +1234,22 @@
                     console.warn('[UserSystem] Failed to submit setup score:', err);
                 }
             }
+        }
+
+        async function confirmNickname() {
+            const nickname = generatedNickname || document.getElementById('nicknameDisplay').textContent;
+            const lang = getCurrentLang();
+            const isZh = lang === 'zh';
+            
+            // UI feedback: show loading state
+            const confirmBtn = document.getElementById('nickConfirmBtn');
+            const refreshBtn = document.getElementById('nickRefreshBtn');
+            const originalText = confirmBtn.textContent;
+            confirmBtn.textContent = isZh ? '保存中...' : 'Saving...';
+            confirmBtn.disabled = true;
+            if (refreshBtn) refreshBtn.disabled = true;
+            
+            await saveNickname(nickname);
             
             // Restore button state
             confirmBtn.textContent = originalText;
