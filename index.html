@@ -1092,6 +1092,11 @@
             // 显示昵称弹窗
             showNicknameModal();
         }
+
+        // 监听来自 token-system 的登录请求
+        window.addEventListener('requestLogin', () => {
+            handleLoginClick();
+        });
         
         function showLoggedInState() {
             document.getElementById('loginBtn').style.display = 'none';

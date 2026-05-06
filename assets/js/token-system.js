@@ -415,7 +415,7 @@
             const btn = document.getElementById('checkinBtn');
 
             if (title) title.textContent = isZh ? '每日签到' : 'Daily Check-in';
-            if (rewardEl) rewardEl.textContent = `+${reward} 🪙`;
+            if (rewardEl) rewardEl.textContent = isGuest ? (isZh ? '登录后 +10 🪙' : 'Login for +10 🪙') : `+${reward} 🪙`;
             if (sub) {
                 if (isGuest && isZh) {
                     sub.textContent = '👤 游客无法签到，登录后可每日领取 10 🪙！';
@@ -425,19 +425,30 @@
                     sub.textContent = isZh ? '每天回来领取更多游戏币！' : 'Come back every day for more coins!';
                 }
             }
-            if (btn) btn.textContent = isZh ? '领取奖励' : 'Claim Reward';
 
             if (btn) {
                 const newBtn = btn.cloneNode(true);
                 btn.parentNode.replaceChild(newBtn, btn);
-                newBtn.addEventListener('click', async () => {
-                    const result = await TokenSystem.dailyCheckIn();
-                    if (result.success) {
+
+                if (isGuest) {
+                    // 游客：按钮变成"去登录"
+                    newBtn.textContent = isZh ? '👤 去登录' : '👤 Login';
+                    newBtn.style.background = 'linear-gradient(135deg, var(--neon-blue), var(--neon-purple))';
+                    newBtn.addEventListener('click', () => {
                         this.hideCheckInModal();
-                        this.updateBalanceDisplay();
-                        this.bounceBalance();
-                    }
-                });
+                        window.dispatchEvent(new CustomEvent('requestLogin'));
+                    });
+                } else {
+                    newBtn.textContent = isZh ? '领取奖励' : 'Claim Reward';
+                    newBtn.addEventListener('click', async () => {
+                        const result = await TokenSystem.dailyCheckIn();
+                        if (result.success) {
+                            this.hideCheckInModal();
+                            this.updateBalanceDisplay();
+                            this.bounceBalance();
+                        }
+                    });
+                }
             }
 
             if (modal) modal.classList.add('active');
@@ -775,6 +786,11 @@
 
     // ==================== 签到自动检测 ====================
     function autoCheckIn() {
+        // 游客不自动弹签到
+        if (TokenSystem.isGuest()) {
+            console.log('[TokenSystem] Guest mode - skip auto check-in');
+            return;
+        }
         const canCheckin = TokenSystem.canCheckIn();
         if (canCheckin) {
             setTimeout(() => {
