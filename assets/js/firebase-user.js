@@ -23,11 +23,42 @@
         }
 
         try {
-            // 如果已经初始化过，不要重复
             if (!app) {
                 app = firebase.initializeApp(firebaseConfig);
                 db = firebase.firestore();
                 auth = firebase.auth();
+                
+                // 监听 auth 状态变化：页面刷新后自动恢复
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        currentUser = user;
+                        userDocRef = db.collection('users').doc(currentUser.uid);
+                        _firestoreReady = true;
+                        window._fbBalanceCache = undefined; // 强制重新读取
+                        console.log('[FirebaseUser] Auth state restored, uid:', user.uid);
+                        
+                        // 启动余额监听
+                        startBalanceListener();
+                        
+                        // 清空队列
+                        while (_pendingQueue.length > 0) {
+                            const fn = _pendingQueue.shift();
+                            fn();
+                        }
+                        
+                        // 通知 token-system 后端已就绪
+                        if (typeof window.TokenSystem !== 'undefined' && window.TokenSystem.initUser) {
+                            window.TokenSystem.initUser().then(() => {
+                                if (window.TokenUI) window.TokenUI.updateBalanceDisplay();
+                            });
+                        }
+                    } else {
+                        currentUser = null;
+                        userDocRef = null;
+                        _firestoreReady = false;
+                        console.log('[FirebaseUser] Auth state: signed out');
+                    }
+                });
             }
             console.log('[FirebaseUser] SDK initialized (not logged in yet)');
             return true;
@@ -311,11 +342,23 @@
         },
 
         isLoggedIn() {
-            return _firestoreReady && !!currentUser;
+            // 优先检查内存变量，fallback 到 auth.currentUser（页面刷新后自动恢复）
+            return !!currentUser || !!(auth && auth.currentUser);
         },
 
         // 主动登录入口
         async login() {
+            // 如果 auth 已经自动恢复，直接返回成功
+            if (auth && auth.currentUser && !_loginInProgress) {
+                if (!currentUser) {
+                    currentUser = auth.currentUser;
+                    userDocRef = db.collection('users').doc(currentUser.uid);
+                    _firestoreReady = true;
+                    window._fbBalanceCache = undefined;
+                    startBalanceListener();
+                }
+                return { uid: auth.currentUser.uid, alreadyLoggedIn: true };
+            }
             return await doAnonymousLogin();
         },
 
