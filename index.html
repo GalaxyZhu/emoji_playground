@@ -1047,7 +1047,10 @@
             document.getElementById('loginBtn').style.display = 'flex';
             document.getElementById('userAvatar').style.display = 'none';
             const badge = document.getElementById('guestBadge');
-            if (badge) badge.style.display = 'inline-block';
+            if (badge) {
+                badge.style.display = 'inline-block';
+                badge.textContent = getCurrentLang() === 'zh' ? '游客' : 'Guest';
+            }
             
             const loginText = document.getElementById('loginText');
             if (loginText) loginText.textContent = getCurrentLang() === 'zh' ? '登录' : 'Login';
@@ -1955,6 +1958,12 @@
                 
                 document.getElementById('loginText').textContent = '登录';
                 
+                // Guest badge
+                const guestBadge = document.getElementById('guestBadge');
+                if (guestBadge && guestBadge.style.display !== 'none') {
+                    guestBadge.textContent = '游客';
+                }
+                
                 // User menu
                 const menuMyStats = document.getElementById('menuMyStats');
                 const menuAchievements = document.getElementById('menuAchievements');
@@ -2003,6 +2012,12 @@
                 if (safariNoticeEn) safariNoticeEn.style.display = 'block';
                 
                 document.getElementById('loginText').textContent = 'Login';
+                
+                // Guest badge
+                const guestBadge = document.getElementById('guestBadge');
+                if (guestBadge && guestBadge.style.display !== 'none') {
+                    guestBadge.textContent = 'Guest';
+                }
                 
                 // User menu
                 const menuMyStats = document.getElementById('menuMyStats');

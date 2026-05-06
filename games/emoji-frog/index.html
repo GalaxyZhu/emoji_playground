@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>🐸 跳跳蛙原型 V0.1</title>
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3968599850270461" crossorigin="anonymous"></script>
+    <!-- Google AdSense REMOVED -->
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
         body {
@@ -29,37 +28,9 @@
             background: #0d0d1a;
         }
 
-        /* 广告位 */
-        .ad-slot {
-            width: 15%;
-            min-width: 96px;
-            background: linear-gradient(180deg, #1a3a2e 0%, #0d1f15 100%);
-            border: 2px dashed #2d5a3d;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: #4ade80;
-            font-size: 14px;
-            text-align: center;
-            padding: 10px;
-        }
-
-        .ad-slot .ad-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-            opacity: 0.5;
-        }
-
-        .ad-slot .ad-text {
-            writing-mode: vertical-rl;
-            text-orientation: upright;
-            letter-spacing: 4px;
-        }
-
         /* 游戏主区域 */
         #gameArea {
-            width: 70%;
+            width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -223,18 +194,6 @@
 </head>
 <body>
     <div id="mainContainer">
-        <!-- 左侧广告栏 -->
-        <div class="ad-slot" id="adLeft">
-            <ins class="adsbygoogle"
-                 style="display:block;width:100%;height:100%;"
-                 data-ad-client="ca-pub-3968599850270461"
-                 data-ad-slot="LEFT_AD_SLOT_ID"
-                 data-ad-format="vertical"
-                 data-full-width-responsive="false">
-            </ins>
-            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-        </div>
-
         <!-- 游戏主区域 -->
         <div id="gameArea">
             <div id="gameContainer">
@@ -279,18 +238,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- 右侧广告栏 -->
-        <div class="ad-slot" id="adRight">
-            <ins class="adsbygoogle"
-                 style="display:block;width:100%;height:100%;"
-                 data-ad-client="ca-pub-3968599850270461"
-                 data-ad-slot="RIGHT_AD_SLOT_ID"
-                 data-ad-format="vertical"
-                 data-full-width-responsive="false">
-            </ins>
-            <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
         </div>
     </div>
 

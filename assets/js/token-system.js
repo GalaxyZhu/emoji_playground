@@ -26,10 +26,10 @@
 
     // 游客/会员配置
     const GUEST = {
-        INITIAL_BALANCE: 5,
-        MAX_PLAYS_PER_DAY: 3,
-        CHECKIN_REWARD: 5,
-        AD_REWARD: 3
+        INITIAL_BALANCE: 10,      // 一次性给够，用完提示登录
+        MAX_PLAYS_PER_DAY: 10,    // 10个币 = 10次游戏
+        CHECKIN_REWARD: 0,        // 游客无签到奖励
+        AD_REWARD: 3              // 游客看广告仍可赚币
     };
 
     const MEMBER = {
@@ -194,7 +194,23 @@
             const today = _todayStr();
             const lastCheckin = _lsGet(KEYS.LAST_CHECKIN);
             const isGuest = _isGuest();
-            const reward = isGuest ? GUEST.CHECKIN_REWARD : MEMBER.CHECKIN_REWARD;
+
+            // 游客无签到奖励
+            if (isGuest) {
+                const lang = (typeof getCurrentLang === 'function') ? getCurrentLang() : 'en';
+                const isZh = lang === 'zh';
+                return {
+                    success: false,
+                    alreadyCheckedIn: false,
+                    balance: this.getBalance(),
+                    error: 'GUEST_NO_CHECKIN',
+                    message: isZh
+                        ? '游客无法签到，登录后可每日领取 10 币！'
+                        : 'Guests cannot check in. Login for daily 10 coins!'
+                };
+            }
+
+            const reward = MEMBER.CHECKIN_REWARD;
 
             if (lastCheckin === today) {
                 return { success: false, alreadyCheckedIn: true, balance: this.getBalance() };
@@ -402,9 +418,9 @@
             if (rewardEl) rewardEl.textContent = `+${reward} 🪙`;
             if (sub) {
                 if (isGuest && isZh) {
-                    sub.textContent = '游客签到 +5 🪙，登录后可领 +10 🪙！';
+                    sub.textContent = '👤 游客无法签到，登录后可每日领取 10 🪙！';
                 } else if (isGuest) {
-                    sub.textContent = 'Guest check-in +5 🪙, login for +10 🪙!';
+                    sub.textContent = '👤 Guests cannot check in. Login for daily 10 🪙!';
                 } else {
                     sub.textContent = isZh ? '每天回来领取更多游戏币！' : 'Come back every day for more coins!';
                 }
