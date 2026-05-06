@@ -235,6 +235,13 @@ Find your player type 👇`
         const isZh = this.texts?.confirmed === '确诊';
         window.Leaderboard.getTop50().then(entries => {
             console.log('[diagnosis] getTop50 success, entries count:', entries?.length);
+            if (!entries || entries.length === 0) {
+                // 空列表：可能是权限未配置，也可能是真的没数据
+                alert(isZh
+                    ? '🏆 排行榜功能即将上线，敬请期待！\n\n（当前暂无数据，来玩几局成为第一个上榜的玩家吧！）'
+                    : '🏆 Leaderboard coming soon!\n\n(No data yet — play a few rounds to be the first!');
+                return;
+            }
             const uid = window.Leaderboard.getCurrentUser()?.uid;
             console.log('[diagnosis] currentUser uid:', uid);
             const playerEntry = entries.find(e => e.uid === uid);
@@ -244,7 +251,10 @@ Find your player type 👇`
             console.log('[diagnosis] showModal called');
         }).catch(err => {
             console.error('[diagnosis] getTop50 failed:', err);
-            alert(isZh ? '排行榜加载失败，请稍后重试' : 'Failed to load leaderboard. Please try again.');
+            const msg = err.code === 'permission-denied'
+                ? (isZh ? '🔒 排行榜权限配置中，即将开放！' : '🔒 Leaderboard permissions being configured, coming soon!')
+                : (isZh ? '排行榜加载失败，请稍后重试' : 'Failed to load leaderboard. Please try again.');
+            alert(msg);
         });
     },
     share(platform) {

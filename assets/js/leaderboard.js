@@ -594,30 +594,39 @@ async function ensureNickname(uid) {
 async function fetchLeaderboard() {
   if (!db || !currentGameId) return [];
 
-  const colRef = collection(db, 'leaderboards', currentGameId, 'scores');
-  const snap = await getDocs(colRef);
+  try {
+    const colRef = collection(db, 'leaderboards', currentGameId, 'scores');
+    const snap = await getDocs(colRef);
 
-  const entries = snap.docs.map(d => ({
-    ...d.data(),
-    id: d.id,
-  }));
+    const entries = snap.docs.map(d => ({
+      ...d.data(),
+      id: d.id,
+    }));
 
-  // 内存排序：按主指标排序
-  entries.sort((a, b) => {
-    if (rankBy === 'time') {
-      return (a.duration || Infinity) - (b.duration || Infinity);
+    // 内存排序：按主指标排序
+    entries.sort((a, b) => {
+      if (rankBy === 'time') {
+        return (a.duration || Infinity) - (b.duration || Infinity);
+      }
+      return (b.score || 0) - (a.score || 0);
+    });
+
+    // 过滤掉无昵称的测试记录，提升排行榜观感
+    const validEntries = entries.filter(e => e.nickname && e.nickname !== 'Anonymous');
+
+    // 取前50，补上排名
+    return validEntries.slice(0, 50).map((e, idx) => ({
+      rank: idx + 1,
+      ...e,
+    }));
+  } catch (err) {
+    // 权限被拒绝：静默降级，返回空列表
+    if (err.code === 'permission-denied') {
+      console.warn('[Leaderboard] Permission denied - rules not configured for anonymous reads');
+      return [];
     }
-    return (b.score || 0) - (a.score || 0);
-  });
-
-  // 过滤掉无昵称的测试记录，提升排行榜观感
-  const validEntries = entries.filter(e => e.nickname && e.nickname !== 'Anonymous');
-
-  // 取前50，补上排名
-  return validEntries.slice(0, 50).map((e, idx) => ({
-    rank: idx + 1,
-    ...e,
-  }));
+    throw err;
+  }
 }
 
 /**
