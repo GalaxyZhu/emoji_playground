@@ -49,9 +49,16 @@
                 isVip: false,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
+            window._fbBalanceCache = 30;
+            window._fbConsumedCache = 0;
+            window._fbVipCache = false;
             console.log('[FirebaseUser] New member doc created with 30 coins');
         } else {
-            console.log('[FirebaseUser] Existing member, balance:', snap.data().balance);
+            const data = snap.data();
+            window._fbBalanceCache = data.balance ?? 30;
+            window._fbConsumedCache = data.totalConsumed ?? 0;
+            window._fbVipCache = data.isVip === true;
+            console.log('[FirebaseUser] Existing member, balance:', data.balance);
         }
     }
 
@@ -118,9 +125,15 @@
                         isVip: false,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
+                    window._fbBalanceCache = 30;
+                    window._fbConsumedCache = 0;
+                    window._fbVipCache = false;
                     return { isNew: true, balance: 30 };
                 }
                 const data = snap.data();
+                window._fbBalanceCache = data.balance ?? 30;
+                window._fbConsumedCache = data.totalConsumed ?? 0;
+                window._fbVipCache = data.isVip === true;
                 return { isNew: false, balance: data.balance ?? 30 };
             } catch (e) {
                 console.error('[FirebaseUser] initUser error:', e);

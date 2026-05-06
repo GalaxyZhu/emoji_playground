@@ -1060,23 +1060,27 @@
             const lang = getCurrentLang();
             const isZh = lang === 'zh';
             
+            const btn = document.getElementById('loginBtn');
+            const loginText = document.getElementById('loginText');
+            
+            // 明显的 loading 状态
+            if (btn) {
+                btn.style.opacity = '0.6';
+                btn.style.pointerEvents = 'none';
+            }
+            if (loginText) loginText.textContent = isZh ? '登录中...' : 'Logging in...';
+            
             // 先执行 Firebase 匿名登录
             if (window.FirebaseUser && window.FirebaseUser.login) {
-                const btn = document.getElementById('loginBtn');
-                if (btn) {
-                    btn.style.opacity = '0.6';
-                    btn.style.pointerEvents = 'none';
-                }
-                
                 const result = await window.FirebaseUser.login();
-                
-                if (btn) {
-                    btn.style.opacity = '';
-                    btn.style.pointerEvents = '';
-                }
                 
                 if (result.error) {
                     console.error('[UserSystem] Login failed:', result.error);
+                    if (btn) {
+                        btn.style.opacity = '';
+                        btn.style.pointerEvents = '';
+                    }
+                    if (loginText) loginText.textContent = isZh ? '登录' : 'Login';
                     // 降级：直接以游客模式显示昵称弹窗
                     showNicknameModal();
                     return;
@@ -1088,6 +1092,13 @@
                     if (window.TokenUI) window.TokenUI.updateBalanceDisplay();
                 }
             }
+            
+            // 恢复按钮状态
+            if (btn) {
+                btn.style.opacity = '';
+                btn.style.pointerEvents = '';
+            }
+            if (loginText) loginText.textContent = isZh ? '登录' : 'Login';
             
             // 显示昵称弹窗
             showNicknameModal();
