@@ -1196,36 +1196,41 @@
                 selectedAvatar = '🎮';
             }
             
-            // Save to Firebase
+            // Save to Firebase / local user
+            let uid = null;
             if (typeof window.Leaderboard !== 'undefined') {
                 try {
                     const user = window.Leaderboard.getCurrentUser();
-                    if (user) {
-                        currentUser = { uid: user.uid, nickname };
-                        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(currentUser));
-                        
-                        // Submit a dummy score to ensure player doc is created with nickname
-                        await window.Leaderboard.submit(0, { 
-                            nickname, 
-                            isSetup: true,
-                            difficulty: 'normal'
-                        });
-                    }
+                    if (user) uid = user.uid;
                 } catch (err) {
-                    console.warn('[UserSystem] Failed to save nickname:', err);
-                    // Show error to user
-                    const subEl = document.getElementById('nickModalSub');
-                    if (subEl) {
-                        subEl.textContent = isZh ? '保存失败，请重试' : 'Save failed, please retry';
-                        subEl.style.color = '#ef4444';
-                    }
-                } finally {
-                    // Restore button state
-                    confirmBtn.textContent = originalText;
-                    confirmBtn.disabled = false;
-                    if (refreshBtn) refreshBtn.disabled = false;
+                    console.warn('[UserSystem] Failed to get user from Leaderboard:', err);
                 }
             }
+            // Fallback to FirebaseUser uid
+            if (!uid && window.FirebaseUser && window.FirebaseUser.isLoggedIn && window.FirebaseUser.isLoggedIn()) {
+                const fbUser = await window.FirebaseUser.login();
+                if (fbUser && fbUser.uid) uid = fbUser.uid;
+            }
+            currentUser = { uid: uid || 'local-' + Date.now(), nickname };
+            localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(currentUser));
+            
+            // Submit dummy score if Leaderboard available
+            if (uid && typeof window.Leaderboard !== 'undefined') {
+                try {
+                    await window.Leaderboard.submit(0, { 
+                        nickname, 
+                        isSetup: true,
+                        difficulty: 'normal'
+                    });
+                } catch (err) {
+                    console.warn('[UserSystem] Failed to submit setup score:', err);
+                }
+            }
+            
+            // Restore button state
+            confirmBtn.textContent = originalText;
+            confirmBtn.disabled = false;
+            if (refreshBtn) refreshBtn.disabled = false;
             
             hideNicknameModal();
             showLoggedInState();
