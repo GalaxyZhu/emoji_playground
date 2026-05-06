@@ -1,298 +1,356 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>隐私政策 - Emoji Arcade</title>
-    <meta name="description" content="Emoji Arcade 隐私政策 - 了解我们如何保护您的数据隐私">
+    <title>Privacy Policy | 隐私政策 - Emoji Arcade</title>
+    <meta name="description" content="Privacy Policy and Virtual Asset Protection for Emoji Arcade users.">
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #0a0a1a;
             color: #e0e0e0;
-            line-height: 1.8;
+            line-height: 1.7;
             min-height: 100vh;
         }
-        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
         .header {
             text-align: center;
-            margin-bottom: 40px;
-            padding: 30px 0;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
         }
-        .logo { font-size: 48px; margin-bottom: 10px; }
-        h1 { font-size: 28px; color: #fff; margin-bottom: 10px; }
-        .subtitle { color: #888; font-size: 14px; }
+        .header h1 {
+            font-size: 1.8rem;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+        .header .subtitle {
+            font-size: 0.9rem;
+            color: #888;
+        }
         .lang-switch {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.1);
-            padding: 8px 16px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .lang-switch button {
+            padding: 6px 16px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: transparent;
+            color: #888;
             border-radius: 20px;
             cursor: pointer;
-            font-size: 14px;
-            z-index: 100;
-            transition: background 0.3s;
+            font-size: 0.85rem;
+            transition: all 0.3s;
         }
-        .lang-switch:hover { background: rgba(255,255,255,0.2); }
-        [data-lang="en"] { display: none; }
-        body.lang-en [data-lang="zh"] { display: none; }
-        body.lang-en [data-lang="en"] { display: block; }
-        body.lang-en [data-lang="en"].inline { display: inline; }
-        .last-updated {
-            background: rgba(255,255,255,0.05);
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            font-size: 14px;
-            color: #aaa;
+        .lang-switch button.active {
+            background: linear-gradient(135deg, #00f5ff, #bc13fe);
+            border-color: transparent;
+            color: #fff;
         }
-        h2 { font-size: 20px; color: #fff; margin: 30px 0 15px; padding-bottom: 10px; border-bottom: 2px solid #ff6b6b; }
-        h3 { font-size: 16px; color: #ddd; margin: 20px 0 10px; }
-        p { margin-bottom: 15px; text-align: justify; }
-        ul { margin: 15px 0 15px 25px; }
-        li { margin-bottom: 8px; }
-        .highlight {
-            background: rgba(255,107,107,0.1);
-            padding: 15px 20px;
-            border-left: 4px solid #ff6b6b;
-            margin: 20px 0;
-            border-radius: 0 8px 8px 0;
+        .content section {
+            margin-bottom: 32px;
         }
-        .footer-nav {
-            margin-top: 50px;
-            padding-top: 30px;
-            border-top: 1px solid rgba(255,255,255,0.1);
+        .content h2 {
+            font-size: 1.2rem;
+            color: #fff;
+            margin-bottom: 12px;
+            padding-left: 12px;
+            border-left: 3px solid #00f5ff;
+        }
+        .content h3 {
+            font-size: 1rem;
+            color: #ddd;
+            margin: 16px 0 8px;
+        }
+        .content p {
+            margin-bottom: 10px;
+            color: #bbb;
+        }
+        .content ul {
+            margin: 8px 0 12px 20px;
+            color: #bbb;
+        }
+        .content li {
+            margin-bottom: 6px;
+        }
+        .content strong {
+            color: #00f5ff;
+        }
+        .content a {
+            color: #bc13fe;
+            text-decoration: none;
+        }
+        .content a:hover { text-decoration: underline; }
+        .divider {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 24px 0;
+        }
+        .footer {
             text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            color: #666;
+            font-size: 0.85rem;
         }
-        .footer-nav a { color: #66b3ff; text-decoration: none; margin: 0 15px; font-size: 14px; }
-        .footer-nav a:hover { text-decoration: underline; }
+        .footer a {
+            color: #888;
+            text-decoration: none;
+        }
+        .footer a:hover { color: #fff; }
+
+        /* Language display control */
+        .zh-only, .en-only { display: none; }
+        html[lang="zh"] .zh-only { display: block; }
+        html[lang="en"] .en-only { display: block; }
+
+        /* Bilingual inline display for headers */
+        .bilingual { display: flex; flex-wrap: wrap; gap: 0 8px; }
+        .bilingual .slash { color: #666; }
+
+        @media (max-width: 600px) {
+            .header h1 { font-size: 1.4rem; }
+            .content h2 { font-size: 1.05rem; }
+        }
     </style>
 </head>
 <body>
-    <div class="lang-switch" onclick="toggleLanguage()">
-        <span data-lang="zh">🌐 English</span>
-        <span data-lang="en">🌐 中文</span>
-    </div>
-    
     <div class="container">
         <div class="header">
-            <div class="logo">🛡️</div>
-            <h1 data-lang="zh">隐私政策</h1>
-            <h1 data-lang="en">Privacy Policy</h1>
-            <div class="subtitle" data-lang="zh">Emoji Arcade 用户隐私保护说明</div>
-            <div class="subtitle" data-lang="en">Emoji Arcade User Privacy Protection</div>
+            <div class="lang-switch">
+                <button id="btnZh" onclick="setLang('zh')">中文</button>
+                <button id="btnEn" onclick="setLang('en')">English</button>
+            </div>
+            <h1>
+                <span class="zh-only">隐私政策</span>
+                <span class="en-only">Privacy Policy</span>
+            </h1>
+            <div class="subtitle">
+                <span class="zh-only">Emoji Arcade 用户隐私与虚拟资产保护说明</span>
+                <span class="en-only">Emoji Arcade User Privacy & Virtual Asset Protection</span>
+            </div>
+            <div class="subtitle" style="margin-top:6px; font-size:0.8rem; color:#666;">
+                <span class="zh-only">最后更新日期：2026年5月6日</span>
+                <span class="en-only">Last Updated: May 6, 2026</span>
+            </div>
         </div>
-        
-        <div class="last-updated">
-            <strong data-lang="zh">最后更新日期：</strong>
-            <strong data-lang="en">Last Updated:</strong>
-            2026年4月8日 / April 8, 2026
-        </div>
-        
-        <p data-lang="zh">欢迎使用 Emoji Arcade！我们非常重视您的隐私保护。本隐私政策将帮助您了解我们如何收集、使用和保护您的个人信息。请您仔细阅读以下内容。</p>
-        <p data-lang="en">Welcome to Emoji Arcade! We take your privacy very seriously. This Privacy Policy will help you understand how we collect, use, and protect your personal information. Please read the following carefully.</p>
-        
-        <h2 data-lang="zh">一、我们收集的信息</h2>
-        <h2 data-lang="en">1. Information We Collect</h2>
-        
-        <h3 data-lang="zh">1.1 自动收集的信息</h3>
-        <h3 data-lang="en">1.1 Automatically Collected Information</h3>
-        
-        <p data-lang="zh">当您访问我们的网站时，我们可能会自动收集以下信息：</p>
-        <p data-lang="en">When you visit our website, we may automatically collect the following information:</p>
-        
-        <ul data-lang="zh">
-            <li><strong>设备信息：</strong>浏览器类型、操作系统、屏幕分辨率等设备技术信息</li>
-            <li><strong>使用数据：</strong>游戏游玩时长、得分记录、访问页面等使用统计</li>
-            <li><strong>日志信息：</strong>IP地址、访问时间、页面浏览记录等服务器日志</li>
-            <li><strong>Cookie信息：</strong>用于记住您的语言偏好和游戏设置</li>
-        </ul>
-        
-        <ul data-lang="en">
-            <li><strong>Device Information:</strong> Browser type, operating system, screen resolution, and other technical information</li>
-            <li><strong>Usage Data:</strong> Game play time, score records, page visits, and usage statistics</li>
-            <li><strong>Log Information:</strong> IP address, access time, page view records, and server logs</li>
-            <li><strong>Cookies:</strong> Used to remember your language preferences and game settings</li>
-        </ul>
-        
-        <h3 data-lang="zh">1.2 您主动提供的信息</h3>
-        <h3 data-lang="en">1.2 Information You Provide</h3>
-        
-        <p data-lang="zh">目前 Emoji Arcade 不需要注册账号即可游玩。未来若推出用户系统，我们可能收集：</p>
-        <p data-lang="en">Currently, Emoji Arcade does not require account registration to play. If we launch a user system in the future, we may collect:</p>
-        
-        <ul data-lang="zh">
-            <li>用户名或昵称</li>
-            <li>电子邮箱地址（用于找回账号或接收通知）</li>
-            <li>头像（可选）</li>
-        </ul>
-        
-        <ul data-lang="en">
-            <li>Username or nickname</li>
-            <li>Email address (for account recovery or notifications)</li>
-            <li>Avatar (optional)</li>
-        </ul>
-        
-        <h2 data-lang="zh">二、我们如何使用信息</h2>
-        <h2 data-lang="en">2. How We Use Information</h2>
-        
-        <p data-lang="zh">我们使用收集到的信息用于以下目的：</p>
-        <p data-lang="en">We use the collected information for the following purposes:</p>
-        
-        <ul data-lang="zh">
-            <li><strong>提供游戏服务：</strong>记录您的游戏进度和最高分</li>
-            <li><strong>改进产品体验：</strong>分析用户行为，优化游戏设计和网站功能</li>
-            <li><strong>技术维护：</strong>排查故障、保障网站安全稳定运行</li>
-            <li><strong>个性化推荐：</strong>根据您的游戏偏好推荐相关内容（未来功能）</li>
-            <li><strong>广告投放：</strong>通过 Google AdSense 展示相关广告（见下方说明）</li>
-        </ul>
-        
-        <ul data-lang="en">
-            <li><strong>Provide Game Services:</strong> Record your game progress and high scores</li>
-            <li><strong>Improve Product Experience:</strong> Analyze user behavior to optimize game design and website features</li>
-            <li><strong>Technical Maintenance:</strong> Troubleshoot issues and ensure website security and stability</li>
-            <li><strong>Personalized Recommendations:</strong> Recommend relevant content based on your game preferences (future feature)</li>
-            <li><strong>Advertising:</strong> Display relevant ads through Google AdSense (see details below)</li>
-        </ul>
-        
-        <h2 data-lang="zh">三、Cookies 和类似技术</h2>
-        <h2 data-lang="en">3. Cookies and Similar Technologies</h2>
-        
-        <p data-lang="zh">我们使用 Cookies 和本地存储技术来提升您的使用体验：</p>
-        <p data-lang="en">We use cookies and local storage technologies to enhance your experience:</p>
-        
-        <ul data-lang="zh">
-            <li><strong>必要型 Cookies：</strong>用于记住您的语言设置和游戏偏好</li>
-            <li><strong>分析型 Cookies：</strong>通过 Vercel Analytics 收集匿名的访问统计数据</li>
-            <li><strong>广告 Cookies：</strong>Google AdSense 可能使用 Cookies 来展示个性化广告</li>
-        </ul>
-        
-        <ul data-lang="en">
-            <li><strong>Essential Cookies:</strong> Used to remember your language settings and game preferences</li>
-            <li><strong>Analytics Cookies:</strong> Collect anonymous visit statistics through Vercel Analytics</li>
-            <li><strong>Advertising Cookies:</strong> Google AdSense may use cookies to show personalized ads</li>
-        </ul>
-        
-        <div class="highlight">
-            <strong data-lang="zh">💡 提示：</strong>
-            <strong data-lang="en">💡 Tip:</strong>
-            <span data-lang="zh">您可以通过浏览器设置随时清除 Cookies 或选择不接受第三方 Cookies。但请注意，禁用 Cookies 可能影响部分功能的正常使用。</span>
-            <span data-lang="en">You can clear cookies or choose not to accept third-party cookies through your browser settings at any time. However, please note that disabling cookies may affect the normal use of some features.</span>
-        </div>
-        
-        <h2 data-lang="zh">四、第三方服务</h2>
-        <h2 data-lang="en">4. Third-Party Services</h2>
-        
-        <p data-lang="zh">我们的网站使用以下第三方服务，这些服务可能有独立的隐私政策：</p>
-        <p data-lang="en">Our website uses the following third-party services, which may have their own privacy policies:</p>
-        
-        <ul data-lang="zh">
-            <li><strong>Google AdSense：</strong>用于展示广告。Google 可能会使用 Cookie 来展示基于您过往访问本网站或其他网站的个性化广告。了解更多请访问 <a href="https://policies.google.com/privacy" style="color:#66b3ff;" target="_blank">Google 隐私政策</a></li>
-            <li><strong>Vercel Analytics：</strong>用于收集匿名的网站访问统计数据，帮助我们了解网站使用情况</li>
-            <li><strong>Vercel Hosting：</strong>我们的网站托管在 Vercel 平台</li>
-        </ul>
-        
-        <ul data-lang="en">
-            <li><strong>Google AdSense:</strong> Used to display ads. Google may use cookies to show personalized ads based on your past visits to this or other websites. Learn more at <a href="https://policies.google.com/privacy" style="color:#66b3ff;" target="_blank">Google Privacy Policy</a></li>
-            <li><strong>Vercel Analytics:</strong> Used to collect anonymous website visit statistics to help us understand website usage</li>
-            <li><strong>Vercel Hosting:</strong> Our website is hosted on the Vercel platform</li>
-        </ul>
-        
-        <h2 data-lang="zh">五、数据安全</h2>
-        <h2 data-lang="en">5. Data Security</h2>
-        
-        <p data-lang="zh">我们采取多种安全措施保护您的信息：</p>
-        <p data-lang="en">We take various security measures to protect your information:</p>
-        
-        <ul data-lang="zh">
-            <li>使用 HTTPS 加密传输所有数据</li>
-            <li>不存储任何敏感个人信息（如身份证号、银行卡号等）</li>
-            <li>游戏分数等数据仅存储在您的浏览器本地存储中</li>
-            <li>定期审查和更新安全措施</li>
-        </ul>
-        
-        <ul data-lang="en">
-            <li>All data is transmitted using HTTPS encryption</li>
-            <li>We do not store any sensitive personal information (such as ID numbers, bank card numbers, etc.)</li>
-            <li>Game scores and other data are stored only in your browser's local storage</li>
-            <li>Regular review and update of security measures</li>
-        </ul>
-        
-        <h2 data-lang="zh">六、儿童隐私</h2>
-        <h2 data-lang="en">6. Children's Privacy</h2>
-        
-        <p data-lang="zh">Emoji Arcade 的游戏内容适合所有年龄段。但根据 Google AdSense 政策要求，我们的网站不适合 13 岁以下儿童使用。如果您是家长或监护人，发现您的孩子向我们提供了个人信息，请联系我们，我们将立即删除相关信息。</p>
-        <p data-lang="en">Emoji Arcade's game content is suitable for all ages. However, according to Google AdSense policy requirements, our website is not intended for children under 13. If you are a parent or guardian and discover that your child has provided us with personal information, please contact us and we will delete the relevant information immediately.</p>
-        
-        <h2 data-lang="zh">七、您的权利</h2>
-        <h2 data-lang="en">7. Your Rights</h2>
-        
-        <p data-lang="zh">根据适用的数据保护法律，您拥有以下权利：</p>
-        <p data-lang="en">Under applicable data protection laws, you have the following rights:</p>
-        
-        <ul data-lang="zh">
-            <li><strong>访问权：</strong>了解我们是否持有您的个人数据</li>
-            <li><strong>更正权：</strong>要求更正不准确的个人信息</li>
-            <li><strong>删除权：</strong>要求删除您的个人数据（如未来推出用户系统）</li>
-            <li><strong>限制处理权：</strong>限制我们对您个人数据的处理</li>
-            <li><strong>数据可携带权：</strong>获取您的数据副本（如适用）</li>
-        </ul>
-        
-        <ul data-lang="en">
-            <li><strong>Right to Access:</strong> Know whether we hold your personal data</li>
-            <li><strong>Right to Rectification:</strong> Request correction of inaccurate personal information</li>
-            <li><strong>Right to Erasure:</strong> Request deletion of your personal data (if user system is launched in the future)</li>
-            <li><strong>Right to Restrict Processing:</strong> Restrict our processing of your personal data</li>
-            <li><strong>Right to Data Portability:</strong> Obtain a copy of your data (where applicable)</li>
-        </ul>
-        
-        <h2 data-lang="zh">八、政策更新</h2>
-        <h2 data-lang="en">8. Policy Updates</h2>
-        
-        <p data-lang="zh">我们可能会不时更新本隐私政策。任何重大变更将在本页面显著位置通知，并在页面顶部更新"最后更新日期"。建议您定期查看本页面以了解最新政策。</p>
-        <p data-lang="en">We may update this Privacy Policy from time to time. Any significant changes will be notified prominently on this page, and the "Last Updated" date at the top of the page will be updated. We recommend that you check this page regularly to stay informed of the latest policy.</p>
-        
-        <h2 data-lang="zh">九、联系我们</h2>
-        <h2 data-lang="en">9. Contact Us</h2>
-        
-        <p data-lang="zh">如果您对本隐私政策有任何疑问、担忧或请求，请通过以下方式联系我们：</p>
-        <p data-lang="en">If you have any questions, concerns, or requests regarding this Privacy Policy, please contact us:</p>
-        
-        <ul>
-            <li>📧 Email: privacy@emojiarcade.app</li>
-            <li>🐦 Twitter: @EmojiArcade</li>
-        </ul>
-        
-        <div class="highlight">
-            <span data-lang="zh">我们承诺认真对待您的隐私。如果您认为我们未能遵守本隐私政策，请随时与我们联系，我们将尽快处理您的反馈。</span>
-            <span data-lang="en">We are committed to taking your privacy seriously. If you believe we have not complied with this Privacy Policy, please contact us and we will address your feedback as soon as possible.</span>
-        </div>
-        
-        <div class="footer-nav">
-            <a href="index.html">🏠 <span data-lang="zh" class="inline">返回首页</span><span data-lang="en" class="inline">Home</span></a>
-            <a href="terms.html">📋 <span data-lang="zh" class="inline">使用条款</span><span data-lang="en" class="inline">Terms</span></a>
-            <a href="about.html">ℹ️ <span data-lang="zh" class="inline">关于我们</span><span data-lang="en" class="inline">About</span></a>
+
+        <!-- Section 1 -->
+        <section class="content">
+            <h2>
+                <span class="zh-only">一、我们收集的信息</span>
+                <span class="en-only">1. Information We Collect</span>
+            </h2>
+
+            <h3>
+                <span class="zh-only">1.1 您主动提供的信息（用户账号）</span>
+                <span class="en-only">1.1 Information You Provide (User Account)</span>
+            </h3>
+            <p class="zh-only">
+                随着用户系统的上线，我们通过 <strong>Firebase Authentication</strong> 收集以下信息：
+            </p>
+            <p class="en-only">
+                With the launch of our User System, we collect information through <strong>Firebase Authentication</strong>:
+            </p>
+            <ul>
+                <li class="zh-only"><strong>身份数据：</strong>您的唯一用户 ID (UID)、显示名称。</li>
+                <li class="en-only"><strong>Identity Data:</strong> Your unique User ID (UID), display name.</li>
+            </ul>
+
+            <h3>
+                <span class="zh-only">1.2 游戏与虚拟资产数据</span>
+                <span class="en-only">1.2 Game & Virtual Asset Data</span>
+            </h3>
+            <p class="zh-only">
+                为了提供持久的游戏体验，我们在 <strong>Google Firebase Firestore</strong> 中存储：
+            </p>
+            <p class="en-only">
+                To provide a persistent gaming experience, we store the following in <strong>Google Firebase Firestore</strong>:
+            </p>
+            <ul>
+                <li class="zh-only"><strong>游戏币 (🪙)：</strong>您的当前余额、每日签到时间戳及交易记录。</li>
+                <li class="en-only"><strong>Arcade Coins (🪙):</strong> Your current balance, daily check-in timestamps, and transaction history.</li>
+                <li class="zh-only"><strong>游戏进度：</strong>最高分记录及全球排行榜排名。</li>
+                <li class="en-only"><strong>Game Progress:</strong> High scores and leaderboard rankings.</li>
+            </ul>
+
+            <h3>
+                <span class="zh-only">1.3 自动收集的信息</span>
+                <span class="en-only">1.3 Automatically Collected Information</span>
+            </h3>
+            <ul>
+                <li class="zh-only"><strong>使用数据：</strong>游戏时长、访问页面及通过 Vercel Analytics 收集的技术日志。</li>
+                <li class="en-only"><strong>Usage Data:</strong> Time spent on games, page visits, and technical logs via Vercel Analytics.</li>
+                <li class="zh-only"><strong>Cookies：</strong>用于维持您的登录会话并记住网站偏好设置。</li>
+                <li class="en-only"><strong>Cookies:</strong> Used to maintain your login session and remember site preferences.</li>
+            </ul>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Section 2 -->
+        <section class="content">
+            <h2>
+                <span class="zh-only">二、我们如何使用信息</span>
+                <span class="en-only">2. How We Use Information</span>
+            </h2>
+            <ul>
+                <li class="zh-only"><strong>身份验证：</strong>管理您的账号并确保初始金币在不同设备间同步。</li>
+                <li class="en-only"><strong>Authentication:</strong> To manage your account and sync your initial balance across devices.</li>
+                <li class="zh-only"><strong>每日奖励：</strong>验证签到时间戳以确认每日签到奖励资格。</li>
+                <li class="en-only"><strong>Daily Rewards:</strong> To verify your check-in timestamp for daily bonus eligibility.</li>
+                <li class="zh-only"><strong>商业化变现：</strong>通过 Google AdSense 投放激励视频广告，允许您通过观看广告赚取金币。</li>
+                <li class="en-only"><strong>Monetization:</strong> To deliver Rewarded Ads via Google AdSense, allowing you to earn coins by watching videos.</li>
+                <li class="zh-only"><strong>全球排行榜：</strong>在全球竞赛中展示您的昵称和分数。</li>
+                <li class="en-only"><strong>Leaderboards:</strong> To display your nickname and score in global competitions.</li>
+            </ul>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Section 3 -->
+        <section class="content">
+            <h2>
+                <span class="zh-only">三、虚拟资产免责声明（Arcade Coins）</span>
+                <span class="en-only">3. Virtual Assets Disclaimer (Arcade Coins)</span>
+            </h2>
+            <ul>
+                <li class="zh-only"><strong>无实际货币价值：</strong>Arcade Coins (🪙) 仅作为平台内模拟"投币"机制的虚拟积分。</li>
+                <li class="en-only"><strong>Non-Monetary Value:</strong> Arcade Coins (🪙) are strictly virtual points used for in-game "coin-op" mechanics.</li>
+                <li class="zh-only"><strong>不可退款/兑换：</strong>金币不具有任何现实世界的货币价值，不可提现、出售或兑换为法定货币。</li>
+                <li class="en-only"><strong>No Refund/Exchange:</strong> Coins have no real-world monetary value and cannot be withdrawn, sold, or exchanged for real currency.</li>
+                <li class="zh-only"><strong>资产管理：</strong>我们保留管理和调整虚拟资产余额的权利，以维护平台的公平性与完整性。</li>
+                <li class="en-only"><strong>Management:</strong> We reserve the right to regulate and adjust virtual asset balances to maintain platform integrity.</li>
+            </ul>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Section 4 -->
+        <section class="content">
+            <h2>
+                <span class="zh-only">四、第三方服务与 Cookies</span>
+                <span class="en-only">4. Third-Party Services & Cookies</span>
+            </h2>
+            <p class="zh-only">我们与以下必要服务商共享数据：</p>
+            <p class="en-only">We share data with the following essential providers:</p>
+            <ul>
+                <li class="zh-only">
+                    <strong>Google AdSense：</strong>使用 Cookies 根据您过往的访问记录投放广告。您可以通过访问
+                    <a href="https://adssettings.google.com" target="_blank">广告设置</a> 选择停用个性化广告。
+                </li>
+                <li class="en-only">
+                    <strong>Google AdSense:</strong> Uses cookies to serve ads based on your prior visits. Users may opt out of personalized advertising by visiting
+                    <a href="https://adssettings.google.com" target="_blank">Ads Settings</a>.
+                </li>
+                <li class="zh-only">
+                    <strong>Google Firebase：</strong>我们主要的后端服务商，用于用户身份验证及安全的云端数据库管理 (Firestore)。
+                </li>
+                <li class="en-only">
+                    <strong>Google Firebase:</strong> Our primary backend for user authentication and secure database management (Firestore).
+                </li>
+                <li class="zh-only">
+                    <strong>Vercel：</strong>我们的托管服务商及网站匿名分析工具。
+                </li>
+                <li class="en-only">
+                    <strong>Vercel:</strong> Our hosting and web analytics provider.
+                </li>
+            </ul>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Section 5 -->
+        <section class="content">
+            <h2>
+                <span class="zh-only">五、数据安全与您的权利</span>
+                <span class="en-only">5. Data Security & Your Rights</span>
+            </h2>
+            <ul>
+                <li class="zh-only"><strong>安全保障：</strong>所有数据均通过 HTTPS 加密传输，并受 Firebase 安全规则保护，防止未经授权的访问。</li>
+                <li class="en-only"><strong>Security:</strong> All data is transmitted via HTTPS and secured by Firebase Security Rules to prevent unauthorized access.</li>
+                <li class="zh-only"><strong>删除权：</strong>您拥有"被遗忘权"。您可以通过联系我们请求删除您的账号及所有关联的游戏数据。</li>
+                <li class="en-only"><strong>Deletion:</strong> You have the "Right to be Forgotten." You may request the deletion of your account and all associated game data by contacting us.</li>
+                <li class="zh-only"><strong>合规性：</strong>我们尊重全球隐私标准（如 GDPR/CCPA），并提供数据访问与更正工具。</li>
+                <li class="en-only"><strong>GDPR/CCPA Compliance:</strong> We respect global privacy standards and provide tools for data access and rectification.</li>
+            </ul>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Section 6 -->
+        <section class="content">
+            <h2>
+                <span class="zh-only">六、儿童隐私</span>
+                <span class="en-only">6. Children's Privacy</span>
+            </h2>
+            <p class="zh-only">
+                Emoji Arcade 的游戏内容适合全年龄段，但根据 AdSense 政策要求，本网站不旨在收集 13 岁以下儿童的数据。
+            </p>
+            <p class="en-only">
+                Emoji Arcade is a family-friendly platform, but in compliance with AdSense policies, we do not intentionally collect data from children under 13.
+            </p>
+        </section>
+
+        <div class="divider"></div>
+
+        <!-- Section 7 -->
+        <section class="content">
+            <h2>
+                <span class="zh-only">七、联系我们</span>
+                <span class="en-only">7. Contact Us</span>
+            </h2>
+            <p class="zh-only">
+                📧 <strong>Email:</strong> <a href="mailto:galaxyzhu@gmail.com">galaxyzhu@gmail.com</a>
+            </p>
+            <p class="en-only">
+                📧 <strong>Email:</strong> <a href="mailto:galaxyzhu@gmail.com">galaxyzhu@gmail.com</a>
+            </p>
+            <p class="zh-only">
+                🐦 <strong>Twitter:</strong> <a href="https://twitter.com/galaxyzhu" target="_blank">@galaxyzhu</a>
+            </p>
+            <p class="en-only">
+                🐦 <strong>Twitter:</strong> <a href="https://twitter.com/galaxyzhu" target="_blank">@galaxyzhu</a>
+            </p>
+        </section>
+
+        <div class="footer">
+            <a href="index.html">← 
+                <span class="zh-only">回到 Emoji Arcade</span>
+                <span class="en-only">Back to Emoji Arcade</span>
+            </a>
         </div>
     </div>
-    
+
     <script>
-        function detectLanguage() {
-            const lang = navigator.language || navigator.userLanguage;
-            const isChinese = lang.startsWith('zh');
-            if (!isChinese) {
-                document.body.classList.add('lang-en');
-            }
+        function detectLang() {
+            const url = new URL(window.location.href);
+            const param = url.searchParams.get('lang');
+            if (param === 'zh' || param === 'en') return param;
+            const nav = navigator.language || navigator.userLanguage;
+            return nav.startsWith('zh') ? 'zh' : 'en';
         }
-        
-        function toggleLanguage() {
-            document.body.classList.toggle('lang-en');
+
+        function setLang(lang) {
+            document.documentElement.lang = lang;
+            document.getElementById('btnZh').classList.toggle('active', lang === 'zh');
+            document.getElementById('btnEn').classList.toggle('active', lang === 'en');
+            history.replaceState(null, '', '?lang=' + lang);
         }
-        
-        detectLanguage();
+
+        // Initialize
+        const initialLang = detectLang();
+        setLang(initialLang);
     </script>
 </body>
 </html>
