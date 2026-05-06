@@ -99,6 +99,7 @@
     <!-- 诊断弹窗（由 diagnosis.js 填充） -->
     <div id="diagnosisContainer"></div>
 
+    <script src="../../assets/js/firebase-config.js"></script>
     <script src="game.js?v=6"></script>
     <script src="diagnosis.js?v=6"></script>
     <script type="module">
@@ -106,7 +107,9 @@
         window.Leaderboard = Leaderboard;
         // 自动初始化（静默失败不影响游戏）
         const lang = document.documentElement.lang?.startsWith('zh') ? 'zh' : 'en';
-        Leaderboard.init('emoji-linkup', lang, 'time').catch(() => {});
+        Leaderboard.init('emoji-linkup', lang, 'time').catch((err) => {
+            console.warn('[Leaderboard] Init failed:', err);
+        });
     </script>
 </body>
 </html>

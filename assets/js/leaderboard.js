@@ -758,6 +758,7 @@ const Leaderboard = {
             currentUser = cred.user;
             resolve(cred.user);
           } catch (err) {
+            console.error('[Leaderboard] Anonymous login failed:', err);
             reject(err);
           }
         }

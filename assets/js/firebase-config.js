@@ -11,3 +11,6 @@ const firebaseConfig = {
     appId: "1:248496652872:web:1e629607979ff9057a8e7d",
     measurementId: "G-Q47YKBF6RV"
 };
+
+// Also expose on window for modular Firebase v9+ API consumers (e.g. leaderboard.js)
+window.firebaseConfig = firebaseConfig;
