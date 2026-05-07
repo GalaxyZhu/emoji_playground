@@ -394,7 +394,6 @@ function levelComplete() {
   // 显示过关画面（短暂）
   const lds = $.levelDoneScreen;
   lds.querySelector('.ld-score').textContent = state.score;
-  lds.querySelector('.ld-level').textContent = state.level;
   lds.querySelector('.ld-time').textContent = Math.ceil(state.timeLeft) + 's';
   lds.querySelector('.ld-combo').textContent = state.maxCombo;
 
