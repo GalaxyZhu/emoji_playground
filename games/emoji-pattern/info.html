@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emoji劲舞团 Emoji Pattern - 游戏详情 | Emoji Arcade</title>
+    <meta name="description" content="Emoji劲舞团是一款考验记忆力和反应速度的序列消除游戏。记住Emoji顺序，按顺序消灭它们！无需下载，点开即玩！">
+    <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+        .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+        .game-header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(0,245,255,0.1) 0%, rgba(255,107,107,0.1) 100%);
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+        .game-emoji { font-size: 80px; margin-bottom: 15px; }
+        h1 { font-size: 32px; color: #fff; margin-bottom: 10px; }
+        .tagline { color: #888; font-size: 16px; margin-bottom: 20px; }
+        .meta-tags {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 25px;
+        }
+        .meta-tag {
+            background: rgba(255,255,255,0.1);
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+        .play-btn {
+            display: inline-block;
+            padding: 15px 50px;
+            background: linear-gradient(135deg, #00f5ff 0%, #ff6b6b 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .play-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0,245,255,0.3);
+        }
+        h2 {
+            font-size: 22px;
+            color: #fff;
+            margin: 35px 0 15px;
+            padding-left: 15px;
+            border-left: 4px solid #00f5ff;
+        }
+        .section {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .section h3 {
+            color: #fff;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+        .section p, .section li {
+            color: #bbb;
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+        .section ul { padding-left: 20px; }
+        .section li { margin-bottom: 6px; }
+        .highlight {
+            color: #00f5ff;
+            font-weight: 600;
+        }
+        .warning { color: #ff6b6b; }
+        .success { color: #4ade80; }
+        .emoji-demo {
+            font-size: 28px;
+            text-align: center;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            margin: 15px 0;
+        }
+        .grid-demo {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            gap: 8px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        .grid-cell {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            font-size: 28px;
+        }
+        .grid-cell.active { background: rgba(0,245,255,0.2); border: 2px solid #00f5ff; }
+        .grid-cell.done { opacity: 0.3; }
+        .sequence-demo {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        .seq-demo-item {
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            font-size: 22px;
+        }
+        .seq-demo-item.done { opacity: 0.3; }
+        .seq-demo-item.active { background: rgba(0,245,255,0.2); border: 2px solid #00f5ff; }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 20px;
+            transition: color 0.3s;
+        }
+        .back-link:hover { color: #fff; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00f5ff;
+        }
+        .stat-label {
+            font-size: 13px;
+            color: #888;
+            margin-top: 5px;
+        }
+        @media (max-width: 600px) {
+            h1 { font-size: 24px; }
+            .game-emoji { font-size: 60px; }
+            .play-btn { padding: 12px 35px; font-size: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../../index.html" class="back-link">← 返回 Emoji Arcade</a>
+        
+        <div class="game-header">
+            <div class="game-emoji">🎯</div>
+            <h1>Emoji劲舞团 · Emoji Pattern</h1>
+            <p class="tagline">按顺序消灭Emoji，挑战你的眼力和手速！</p>
+            <div class="meta-tags">
+                <span class="meta-tag">🧠 记忆</span>
+                <span class="meta-tag">⚡ 反应</span>
+                <span class="meta-tag">📱 触屏</span>
+                <span class="meta-tag">🌐 免下载</span>
+            </div>
+            <a href="index.html" class="play-btn">▶️ 开始游戏</a>
+        </div>
+
+        <h2>🎮 游戏玩法</h2>
+        <div class="section">
+            <h3>核心机制</h3>
+            <p>顶部显示<strong class="highlight">目标Emoji序列</strong>。你需要按顺序消灭矩阵中所有匹配的Emoji：</p>
+            <div class="sequence-demo">
+                <div class="seq-demo-item active">🍎</div>
+                <div class="seq-demo-item">🍌</div>
+            </div>
+            <div class="grid-demo">
+                <div class="grid-cell">🍎</div>
+                <div class="grid-cell">🍇</div>
+                <div class="grid-cell done">🍎</div>
+                <div class="grid-cell">🍌</div>
+                <div class="grid-cell">🍉</div>
+                <div class="grid-cell active">🍌</div>
+                <div class="grid-cell">🍒</div>
+                <div class="grid-cell">🍎</div>
+                <div class="grid-cell">🍓</div>
+            </div>
+            <p>1. 先消灭所有 <strong class="highlight">🍎</strong>（第一阶段目标）<br>
+               2. 再消灭所有 <strong class="highlight">🍌</strong>（第二阶段目标）<br>
+               3. 消灭完整条序列 = <strong class="success">过关！</strong></p>
+        </div>
+
+        <div class="section">
+            <h3>计分规则</h3>
+            <ul>
+                <li>✅ 正确消灭：<span class="highlight">+50分</span>（基础）</li>
+                <li>🔥 连击加成：5连击 <span class="highlight">×1.5</span> / 10连击 <span class="highlight">×2</span> / 20连击 <span class="highlight">×3</span></li>
+                <li>⚡ 极速奖励：10秒内过关额外 <span class="highlight">+200分</span></li>
+                <li>🎉 过关奖励：<span class="highlight">+500×关卡数</span></li>
+                <li>⭐ 星级评定：时间剩余80%且无失误 = <span class="success">⭐⭐⭐</span></li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h3>惩罚机制</h3>
+            <ul>
+                <li>❌ 错误点击：<span class="warning">-2秒</span> 时间 + 连击重置</li>
+                <li>⚠️ 连续3次错误 → <span class="warning">游戏结束</span></li>
+                <li>⏰ 时间耗尽 → <span class="warning">游戏结束</span></li>
+            </ul>
+        </div>
+
+        <h2>🎯 关卡设计</h2>
+        <div class="section">
+            <p>共 <strong class="highlight">12关</strong>，前6关为固定设计，后6关动态生成，难度递增：</p>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">3×3</div>
+                    <div class="stat-label">Lv.1-2 网格</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">5×5</div>
+                    <div class="stat-label">Lv.5 网格</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">8×8</div>
+                    <div class="stat-label">Lv.12 网格</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">6</div>
+                    <div class="stat-label">主题池</div>
+                </div>
+            </div>
+            <ul style="margin-top:15px;">
+                <li>🍎 <strong>水果派对</strong> — 苹果、香蕉、葡萄、西瓜...</li>
+                <li>😀 <strong>表情包</strong> — 笑脸、爱心、火焰、星星...</li>
+                <li>❤️ <strong>红色系</strong> — 玫瑰、草莓、辣椒、樱桃...</li>
+                <li>🐱 <strong>小动物</strong> — 猫、狗、兔子、熊猫...</li>
+                <li>🚗 <strong>交通工具</strong> — 汽车、飞机、火箭、船...</li>
+                <li>🎲 <strong>大杂烩</strong> — 全部Emoji随机混合</li>
+            </ul>
+        </div>
+
+        <h2>⌨️ 操作说明</h2>
+        <div class="section">
+            <ul>
+                <li>🖱️ <strong>鼠标/手指</strong> — 点击矩阵中的Emoji进行消灭</li>
+                <li>⏸️ <strong>ESC键</strong> — 暂停/继续游戏</li>
+                <li>🏠 <strong>回到街机厅</strong> — 返回首页</li>
+            </ul>
+        </div>
+
+        <h2>💡 小技巧</h2>
+        <div class="section">
+            <ul>
+                <li>👀 先看清楚序列栏的目标Emoji，再开始点击</li>
+                <li>⚡ 手速要快，但千万别点错——错误惩罚很痛</li>
+                <li>🎯 优先消灭序列中靠前的Emoji，保持连击不断</li>
+                <li>🧠 大网格关卡建议扫视全屏，记住目标位置</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding: 20px; color: #666; font-size: 14px;">
+            <p>🎮 Emoji Arcade · 超休闲街机游戏平台</p>
+            <p style="margin-top: 8px;">无需下载 · 点开即玩 · 中英双语</p>
+        </div>
+    </div>
+</body>
+</html>

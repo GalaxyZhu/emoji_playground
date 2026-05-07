@@ -208,7 +208,7 @@ function renderMatrix() {
 
   const cfg = state.currentLevelCfg;
   board.style.gridTemplateColumns = `repeat(${cfg.grid}, 1fr)`;
-  board.style.gridTemplateRows = `repeat(${cfg.grid}, 1fr)`;
+  board.style.gridTemplateRows = `repeat(${cfg.grid}, minmax(36px, 1fr))`;
 
   state.matrix.forEach(cell => {
     const el = document.createElement('div');
