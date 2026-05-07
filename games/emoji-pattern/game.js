@@ -410,14 +410,18 @@ function levelComplete() {
 
   lds.classList.remove('hidden');
 
-  // 保存记录
-  if (state.score > state.bestScore) {
-    state.bestScore = state.score;
-    localStorage.setItem('emojiPattern_bestScore', state.bestScore);
-  }
-  if (state.level > state.bestLevel) {
-    state.bestLevel = state.level;
-    localStorage.setItem('emojiPattern_bestLevel', state.bestLevel);
+  // 保存记录（容错处理）
+  try {
+    if (state.score > state.bestScore) {
+      state.bestScore = state.score;
+      localStorage.setItem('emojiPattern_bestScore', state.bestScore);
+    }
+    if (state.level > state.bestLevel) {
+      state.bestLevel = state.level;
+      localStorage.setItem('emojiPattern_bestLevel', state.bestLevel);
+    }
+  } catch (e) {
+    console.warn('localStorage save failed:', e);
   }
 
   // 1.2秒后自动进入下一关
