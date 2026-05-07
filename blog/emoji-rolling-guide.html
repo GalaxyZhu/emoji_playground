@@ -337,6 +337,8 @@
 
     <script>
         function detectLang() {
+            const saved = localStorage.getItem('emoji_arcade_lang');
+            if (saved === 'zh' || saved === 'en') return saved;
             const nav = navigator.language || navigator.userLanguage;
             return nav.startsWith('zh') ? 'zh' : 'en';
         }
@@ -345,7 +347,9 @@
         }
         function toggleLang() {
             const cur = document.documentElement.lang;
-            setLang(cur === 'zh' ? 'en' : 'zh');
+            const next = cur === 'zh' ? 'en' : 'zh';
+            setLang(next);
+            localStorage.setItem('emoji_arcade_lang', next);
         }
         setLang(detectLang());
     </script>
