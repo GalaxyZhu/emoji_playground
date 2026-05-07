@@ -15,24 +15,23 @@ const THEMES = [
 // ===================== 关卡配置 =====================
 function getLevelConfig(level) {
   const presets = {
-    1: { grid: 3, seqLen: 2, eachCount: 2, time: 30, distractors: 0 },
-    2: { grid: 4, seqLen: 3, eachCountRange: [2,3], time: 35, distractors: 0 },
-    3: { grid: 4, seqLen: 3, eachCount: 3, time: 30, distractors: 1 },
-    4: { grid: 5, seqLen: 4, eachCountRange: [2,3], time: 35, distractors: 2 },
-    5: { grid: 5, seqLen: 4, eachCount: 3, time: 30, distractors: 3 },
+    1: { grid: 3, phases: 3, time: 25, distractors: 0 },
+    2: { grid: 4, phases: 4, time: 30, distractors: 1 },
+    3: { grid: 4, phases: 5, time: 30, distractors: 2 },
+    4: { grid: 5, phases: 5, time: 35, distractors: 2 },
+    5: { grid: 5, phases: 6, time: 35, distractors: 3 },
   };
 
   if (presets[level]) return presets[level];
 
   // 6+ 动态配置
   const grid = Math.min(8, 5 + Math.floor((level - 6) / 2));
-  const seqLen = Math.min(8, 5 + Math.floor((level - 6) / 2));
-  const distractors = Math.min(grid * grid - seqLen * 2, 4 + Math.floor((level - 6) / 2));
+  const phases = Math.min(10, 5 + Math.floor((level - 3) / 2));
+  const distractors = Math.min(grid * grid - phases, 4 + Math.floor((level - 6) / 2));
   return {
     grid,
-    seqLen,
-    eachCount: 2,
-    time: 40,
+    phases,
+    time: 25 + phases * 2,
     distractors
   };
 }
@@ -137,40 +136,44 @@ function generateLevel(level) {
   const cfg = getLevelConfig(level);
   const themeIdx = Math.min(Math.floor((level - 1) / 3), THEMES.length - 1);
   const theme = THEMES[themeIdx];
+  const pool = theme.emojis;
 
-  // 选择序列emoji（不重复）
-  const pool = shuffle(theme.emojis);
-  const seqEmojis = pool.slice(0, cfg.seqLen);
-
-  // 每个序列emoji的数量
-  const counts = seqEmojis.map(() => {
-    if (cfg.eachCount !== undefined) return cfg.eachCount;
-    if (cfg.eachCountRange) return randInt(cfg.eachCountRange[0], cfg.eachCountRange[1]);
-    return 2;
-  });
-
-  // 填充矩阵
-  const totalCells = cfg.grid * cfg.grid;
-  const seqTotal = counts.reduce((a, b) => a + b, 0);
-  const emptySlots = totalCells - seqTotal - cfg.distractors;
-
-  let cells = [];
-  seqEmojis.forEach((emoji, idx) => {
-    for (let i = 0; i < counts[idx]; i++) cells.push({ emoji, isTarget: true, seqIndex: idx });
-  });
-
-  // 干扰项：从主题中排除序列emoji后随机选
-  const distractorPool = theme.emojis.filter(e => !seqEmojis.includes(e));
-  for (let i = 0; i < cfg.distractors; i++) {
-    const de = distractorPool[randInt(0, distractorPool.length - 1)];
-    cells.push({ emoji: de, isTarget: false, seqIndex: -1 });
+  // 生成有序序列（允许重复）
+  const seqEmojis = [];
+  for (let i = 0; i < cfg.phases; i++) {
+    seqEmojis.push(pool[randInt(0, pool.length - 1)]);
   }
 
-  // 空位用随机emoji填充（非目标）
-  const fillerPool = theme.emojis;
+  // 统计每种emoji在序列中出现的次数
+  const seqCounts = {};
+  seqEmojis.forEach(e => { seqCounts[e] = (seqCounts[e] || 0) + 1; });
+
+  // 矩阵总格子数
+  const totalCells = cfg.grid * cfg.grid;
+
+  // 先放置序列需要的emoji（确保数量足够）
+  let cells = [];
+  Object.entries(seqCounts).forEach(([emoji, count]) => {
+    for (let i = 0; i < count; i++) {
+      cells.push({ emoji, isTarget: true });
+    }
+  });
+
+  // 填充干扰项（非序列emoji优先）
+  const seqSet = new Set(seqEmojis);
+  const distractorPool = theme.emojis.filter(e => !seqSet.has(e));
+  if (distractorPool.length > 0) {
+    for (let i = 0; i < cfg.distractors; i++) {
+      const de = distractorPool[randInt(0, distractorPool.length - 1)];
+      cells.push({ emoji: de, isTarget: false });
+    }
+  }
+
+  // 剩余空位用随机emoji填充
+  const emptySlots = totalCells - cells.length;
   for (let i = 0; i < emptySlots; i++) {
-    const fe = fillerPool[randInt(0, fillerPool.length - 1)];
-    cells.push({ emoji: fe, isTarget: false, seqIndex: -1 });
+    const fe = pool[randInt(0, pool.length - 1)];
+    cells.push({ emoji: fe, isTarget: false });
   }
 
   cells = shuffle(cells);
@@ -184,7 +187,7 @@ function generateLevel(level) {
     eliminated: false,
   }));
 
-  return { cfg, seqEmojis, matrix, counts };
+  return { cfg, seqEmojis, matrix };
 }
 
 // ===================== 渲染 =====================
@@ -294,7 +297,7 @@ function onCellClick(cell, el) {
   const targetEmoji = state.sequence[state.phase];
 
   if (cell.emoji === targetEmoji) {
-    // 正确点击
+    // 正确点击 — 直接进入下一阶段
     cell.eliminated = true;
     state.combo++;
     if (state.combo > state.maxCombo) state.maxCombo = state.combo;
@@ -308,34 +311,18 @@ function onCellClick(cell, el) {
     animateCorrect(el);
     renderHUD();
 
-    // 检查阶段是否完成（该emoji全部消灭）
-    const remaining = state.matrix.filter(c => c.emoji === targetEmoji && !c.eliminated);
-    if (remaining.length === 0) {
-      // 阶段完成
-      const phaseElapsed = (Date.now() - state.phaseStartTime) / 1000;
-      const isSpeed = phaseElapsed < 5;
+    state.phase++;
 
-      state.score += 100; // 完成阶段奖励
-      if (isSpeed) state.score += 200; // 极速奖励
-
-      state.timeLeft += 3; // 时间奖励
-      if (isSpeed) state.timeLeft += 2; // 极速额外+2秒（总共+5）
-
-      playPhaseDone();
-      animatePhaseDone(targetEmoji);
-
-      state.phase++;
-
-      if (state.phase >= state.sequence.length) {
-        // 关卡完成
-        setTimeout(() => levelComplete(isSpeed), 400);
-      } else {
-        state.phaseStartTime = Date.now();
-        setTimeout(() => {
-          renderSequence();
-          renderHUD();
-        }, 300);
-      }
+    if (state.phase >= state.sequence.length) {
+      // 关卡完成
+      setTimeout(() => levelComplete(), 300);
+    } else {
+      // 下一阶段
+      state.phaseStartTime = Date.now();
+      setTimeout(() => {
+        renderSequence();
+        renderHUD();
+      }, 200);
     }
   } else {
     // 错误点击
@@ -387,7 +374,7 @@ function loadLevel(level) {
   renderHUD();
 }
 
-function levelComplete(wasSpeed) {
+function levelComplete() {
   state.gameState = 'leveldone';
   stopTimer();
 
@@ -581,7 +568,7 @@ function applyTranslations(lang) {
       currentTarget: '当前目标',
       combo: '连击',
       errors: '失误',
-      instructions: '顶部显示目标Emoji序列<br>点击矩阵中所有匹配的Emoji<br>按顺序消灭完整条序列 = 过关<br>连续3次错误 → 游戏结束',
+      instructions: '顶部显示目标Emoji序列（允许重复）<br>按序列顺序，逐个点击匹配的Emoji<br>消灭完整条序列 = 过关<br>连续3次错误 → 游戏结束',
       howToPlay: '玩法说明',
       levelDoneTitle: '🎉 关卡完成！',
       levelDoneScore: '得分',
@@ -609,7 +596,7 @@ function applyTranslations(lang) {
       currentTarget: 'Target',
       combo: 'Combo',
       errors: 'Errors',
-      instructions: 'Target sequence shown at top<br>Tap all matching emojis in the grid<br>Clear the whole sequence to pass<br>3 consecutive errors = Game Over',
+      instructions: 'Target sequence shown at top (repeats allowed)<br>Tap matching emojis ONE BY ONE in order<br>Clear the whole sequence to pass<br>3 consecutive errors = Game Over',
       howToPlay: 'How to Play',
       levelDoneTitle: '🎉 Level Complete!',
       levelDoneScore: 'Score',
