@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🗿 表情大乱射攻略 | Emoji Arcade Blog</title>
+    <meta name="description" content="Emoji Shooter complete guide — boss patterns, power-up priority, and survival tactics for this vertical arcade shooter. 表情大乱射完整攻略，Boss战打法与道具优先级。">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px 20px 60px; }
+        .lang-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 100;
+            transition: background 0.3s;
+        }
+        .lang-switch:hover { background: rgba(255,255,255,0.2); }
+        [data-lang="en"] { display: none; }
+        html[lang="en"] [data-lang="zh"] { display: none; }
+        html[lang="en"] [data-lang="en"] { display: block; }
+        html[lang="en"] [data-lang="en"].inline { display: inline; }
+        .blog-header {
+            text-align: center;
+            padding: 40px 0 30px;
+            border-bottom: 2px solid rgba(255,107,107,0.3);
+            margin-bottom: 30px;
+        }
+        .blog-emoji { font-size: 64px; margin-bottom: 10px; }
+        h1 { font-size: 28px; color: #fff; margin-bottom: 10px; }
+        .subtitle { color: #888; font-size: 15px; }
+        .meta-bar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0 0;
+            font-size: 13px;
+            color: #888;
+        }
+        .meta-bar span { display: flex; align-items: center; gap: 4px; }
+        h2 {
+            font-size: 22px;
+            color: #fff;
+            margin: 35px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ff6b6b;
+        }
+        h3 { font-size: 18px; color: #ddd; margin: 25px 0 10px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(255,107,107,0.1) 0%, rgba(255,140,0,0.05) 100%);
+            padding: 20px 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #ff6b6b;
+        }
+        .tip-box {
+            background: rgba(78,205,196,0.08);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 3px solid #4ecdc4;
+        }
+        .tip-box::before { content: "💡 "; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        th {
+            background: rgba(255,107,107,0.15);
+            color: #ff6b6b;
+            font-weight: 600;
+        }
+        .play-btn {
+            display: inline-block;
+            padding: 14px 40px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8c00 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 20px 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255,107,107,0.3);
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 10px 24px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .back-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .footer-bar {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+        }
+        .footer-bar a { color: #66b3ff; text-decoration: none; }
+        ul { margin: 15px 0 15px 25px; }
+        li { margin-bottom: 8px; }
+        strong { color: #ff6b6b; }
+        @media (max-width: 600px) {
+            h1 { font-size: 22px; }
+            h2 { font-size: 18px; }
+            .blog-emoji { font-size: 48px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lang-switch" onclick="toggleLang()">
+        <span data-lang="zh">🌐 English</span>
+        <span data-lang="en">🌐 中文</span>
+    </div>
+
+    <div class="container">
+        <div class="blog-header">
+            <div class="blog-emoji">🗿</div>
+            <h1>
+                <span data-lang="zh">表情大乱射｜Boss战打法与道具优先级</span>
+                <span data-lang="en">Emoji Shooter — Boss Patterns & Power-Up Priority</span>
+            </ch1>
+            <div class="subtitle">
+                <span data-lang="zh">竖版街机射击 · 搞怪Emoji敌人 · 弹幕生存</span>
+                <span data-lang="en">Vertical Arcade Shooter · Quirky Emoji Enemies · Bullet Hell</span>
+            </div>
+            <div class="meta-bar">
+                <span>🎮 Emoji Arcade</span>
+                <span>📅 2026.05.07</span>
+                <span>⏱️ <span data-lang="zh">7分钟阅读</span><span data-lang="en">7 min read</span></span>
+            </div>
+        </div>
+
+        <p data-lang="zh">
+            🗿 <strong>表情包入侵了你的屏幕。你的任务是：把它们全部打爆。</strong><br><br>
+            《表情大乱射》是一款竖版街机射击游戏，操作简单到只有"移动"一个动作——飞机会自动射击。但别被表象骗了，面对越来越密集的弹幕和搞怪的Boss，活下去需要的可不是运气。
+        </p>
+        <p data-lang="en">
+            🗿 <strong>Emojis have invaded your screen. Your mission: blast them all.</strong><br><br>
+            Emoji Shooter is a vertical arcade shooter with one control: move. Your ship fires automatically. Don't let the simplicity fool you — surviving the dense bullet patterns and quirky bosses takes more than luck.
+        </p>
+
+        <h2>
+            <span data-lang="zh">🎮 基础操作与生存法则</span>
+            <span data-lang="en">🎮 Basics & Survival Rules</span>
+        </h2>
+
+        <ul data-lang="zh">
+            <li><strong>移动即射击：</strong>手指/鼠标控制飞机位置，自动射击。你唯一需要专注的是走位。</li>
+            <li><strong>预判弹幕：</strong>敌人的子弹有固定轨迹，观察1秒就能找到安全通道。不要急着冲，先看清楚。</li>
+            <li><strong>边角生存：</strong>屏幕两侧通常是弹幕密度最低的区域，被围时往边角靠。</li>
+        </ul>
+        <ul data-lang="en">
+            <li><strong>Move = Shoot:</strong> Drag or mouse to position. Your ship fires automatically. Focus purely on positioning.</li>
+            <li><strong>Read bullet patterns:</strong> Enemy shots follow fixed paths. Watch for 1 second to find the safe lane. Don't rush in blindly.</li>
+            <li><strong>Edges are safe:</strong> Screen sides usually have the lowest bullet density. When surrounded, head for the corners.</li>
+        </ul>
+
+        <h2>
+            <span data-lang="zh">⚡ 道具优先级：先捡什么？</span>
+            <span data-lang="en">⚡ Power-Up Priority: What to Grab First?</span>
+        </h2>
+
+        <table>
+            <tr>
+                <th><span data-lang="zh">优先级</span><span data-lang="en">Priority</span></th>
+                <th><span data-lang="zh">道具</span><span data-lang="en">Power-Up</span></th>
+                <th><span data-lang="zh">为什么重要</span><span data-lang="en">Why It Matters</span></th>
+            </tr>
+            <tr>
+                <td>🔥 S级</td>
+                <td>🛡️ <span data-lang="zh">护盾</span><span data-lang="en">Shield</span></td>
+                <td><span data-lang="zh">硬吃一次致命伤害，容错率翻倍</span><span data-lang="en">Absorbs one fatal hit. Doubles your margin for error.</span></td>
+            </tr>
+            <tr>
+                <td>💥 A级</td>
+                <td>🔫 <span data-lang="zh">散弹升级</span><span data-lang="en">Spread Shot</span></td>
+                <td><span data-lang="zh">清屏效率最高，尤其对付小怪群</span><span data-lang="en">Best screen-clearing. Essential against swarms.</span></td>
+            </tr>
+            <tr>
+                <td>⚡ B级</td>
+                <td>🚀 <span data-lang="zh">追踪导弹</span><span data-lang="en">Homing Missiles</span></td>
+                <td><span data-lang="zh">自动追敌，适合专心走位时补输出</span><span data-lang="en">Auto-targets enemies. Great when you need to focus on dodging.</span></td>
+            </tr>
+            <tr>
+                <td>✨ C级</td>
+                <td>⬆️ <span data-lang="zh">射速提升</span><span data-lang="en">Fire Rate Up</span></td>
+                <td><span data-lang="zh">锦上添花，有更好，没有也行</span><span data-lang="en">Nice to have, but not game-changing.</span></td>
+            </tr>
+        </table>
+
+        <div class="tip-box">
+            <span data-lang="zh"><strong>核心原则：</strong>护盾 > 散弹 > 导弹 > 射速。没有护盾的情况下贪输出，Boss战里一个小失误就直接重来。</span>
+            <span data-lang="en"><strong>Core rule:</strong> Shield > Spread > Missiles > Fire Rate. Going full offense without a shield means one mistake in a boss fight = restart.</span>
+        </div>
+
+        <h2>
+            <span data-lang="zh">👾 Boss战打法解析</span>
+            <span data-lang="en">👾 Boss Fight Breakdown</span>
+        </h2>
+
+        <h3 data-lang="zh">第一关Boss：😈 恶魔 Emoji</h3>
+        <h3 data-lang="en">Stage 1 Boss: 😈 Devil Emoji</h3>
+
+        <ul data-lang="zh">
+            <li><strong>攻击模式：</strong>散射弹幕 + 追踪火球</li>
+            <li><strong>弱点：</strong>追踪火球转弯慢，利用急停反向走位躲开</li>
+            <li><strong>打法：</strong>保持中距离，别贴脸。散射弹幕在近身时密度太高，中距离有足够的缝隙穿过</li>
+        </ul>
+        <ul data-lang="en">
+            <li><strong>Attack pattern:</strong> Spread barrage + homing fireballs</li>
+            <li><strong>Weakness:</strong> Homing fireballs turn slowly. Use sudden stops and reverse direction.</li>
+            <li><strong>Tactic:</strong> Keep mid-range, don't go close. Spread barrage is too dense up close; mid-range has safe gaps.</li>
+        </ul>
+
+        <h3 data-lang="zh">第二关Boss：🤢 呕吐绿球</h3>
+        <h3 data-lang="en">Stage 2 Boss: 🤢 Puke Green Ball</h3>
+
+        <ul data-lang="zh">
+            <li><strong>攻击模式：</strong>全屏毒液喷射，地面残留毒池</li>
+            <li><strong>弱点：</strong>喷射前有明显蓄力动作（身体膨胀），看到蓄力立刻往两侧闪</li>
+            <li><strong>打法：</strong>毒池是持续伤害，宁可多走两步绕过去，也别硬穿。护盾留着挡毒池比挡弹幕更划算</li>
+        </ul>
+        <ul data-lang="en">
+            <li><strong>Attack pattern:</strong> Full-screen poison spray, leaves toxic puddles</li>
+            <li><strong>Weakness:</strong> Obvious charge-up (body swells) before spray. Dodge sideways when you see it.</li>
+            <li><strong>Tactic:</strong> Puddles deal sustained damage. Walk around them, don't cut through. Save shield for puddles rather than bullets.</li>
+        </ul>
+
+        <h3 data-lang="zh">第三关Boss：🤡 小丑炸弹人</h3>
+        <h3 data-lang="en">Stage 3 Boss: 🤡 Clown Bomber</h3>
+
+        <ul data-lang="zh">
+            <li><strong>攻击模式：</strong>随机投放延时炸弹 + 快速冲刺</li>
+            <li><strong>弱点：</strong>炸弹落地后有3秒延时，足够你调整位置。真正危险的是冲刺——听到"嘀嘀"声立刻远离中心</li>
+            <li><strong>打法：</strong>这是第一个考验你"听声辨位"的Boss。关掉音乐开声音，提示音比视觉更早预警</li>
+        </ul>
+        <ul data-lang="en">
+            <li><strong>Attack pattern:</strong> Random delayed bombs + fast dash charges</li>
+            <li><strong>Weakness:</strong> Bombs have a 3-second delay after landing — enough time to reposition. The real danger is the dash. When you hear "beep beep," get away from center.</li>
+            <li><strong>Tactic:</strong> This boss tests your audio awareness. Turn off music, keep sound on. Audio cues warn before visuals.</li>
+        </ul>
+
+        <div class="highlight-box">
+            <p data-lang="zh"><strong>🎯 Boss通用法则：</strong>每个Boss出场前都有3秒无敌动画，利用这段时间调整位置到屏幕正下方——那里是最安全的起始点。</span></p>
+            <p data-lang="en"><strong>🎯 Universal Boss Rule:</strong> Every boss has a 3-second invincible intro. Use that time to position yourself at the bottom-center — the safest starting point.</span></p>
+        </div>
+
+        <h2>
+            <span data-lang="zh">🏆 高分玩家的秘密习惯</span>
+            <span data-lang="en">🏆 High-Score Player Habits</span>
+        </h2>
+
+        <ul data-lang="zh">
+            <li><strong>不贪心：</strong>看到道具别急着冲过去捡，先确认周围弹幕轨迹。死在路上不如不捡。</li>
+            <li><strong>留退路：</strong>永远保证自己左右各有一条逃生路线。别把自己逼到墙角。</li>
+            <li><strong>节奏感：</strong>Boss战是有节奏的——攻击→蓄力→爆发→空窗期。在空窗期输出，其他时候专心躲。</li>
+            <li><strong>熟悉先于反应：</strong>第一次打新Boss肯定会死，那是交学费。死3次后你自然会知道哪里该往哪躲。</li>
+        </ul>
+        <ul data-lang="en">
+            <li><strong>Don't be greedy:</strong> Don't rush to grab power-ups. Check bullet trajectories first. Dying on the way there isn't worth it.</li>
+            <li><strong>Always have an exit:</strong> Keep an escape route on both sides. Never trap yourself in a corner.</li>
+            <li><strong>Learn the rhythm:</strong> Boss fights have a beat — attack → charge → burst → window. DPS during the window; dodge everything else.</li>
+            <li><strong>Familiarity beats reflexes:</strong> You'll die to a new boss. That's tuition. After 3 deaths, you'll instinctively know where to dodge.</li>
+        </ul>
+
+        <div class="highlight-box" style="text-align: center;">
+            <p data-lang="zh" style="font-size: 16px; margin-bottom: 15px;">
+                💥 弹幕游戏里，活着就是输出。<br>
+                去吧，把那些搞怪的表情包打回它们该待的地方。
+            </p>
+            <p data-lang="en" style="font-size: 16px; margin-bottom: 15px;">
+                💥 In a bullet hell, survival IS damage.<br>
+                Go send those quirky emojis back where they belong.
+            </p>
+            <a href="../games/emoji-shooter/index.html" class="play-btn">
+                <span data-lang="zh">▶ 开始射击</span>
+                <span data-lang="en">▶ Start Shooting</span>
+            </a>
+        </div>
+
+        <div class="footer-bar">
+            <p>
+                <span data-lang="zh">📝 Emoji Arcade 攻略站 | 🎮 更多游戏攻略：</span>
+                <span data-lang="en">📝 Emoji Arcade Blog | 🎮 More game guides:</span>
+                <a href="emoji-survive-guide.html">🛻 <span data-lang="zh">废土求生</span><span data-lang="en">Emoji Survive</span></a> · <a href="emoji-match-guide.html">🧩 <span data-lang="zh">记忆翻翻天</span><span data-lang="en">Emoji Match</span></a>
+            </p>
+            <p style="margin-top: 10px;">
+                <a href="../index.html" class="back-link">🏠 <span data-lang="zh">返回首页</span><span data-lang="en">Back to Home</span></a>
+            </p>
+            <p style="margin-top: 15px; font-size: 12px; color: #555;">
+                © 2026 Emoji Arcade · Made with ❤️ by Galaxy + AI
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function detectLang() {
+            const nav = navigator.language || navigator.userLanguage;
+            return nav.startsWith('zh') ? 'zh' : 'en';
+        }
+        function setLang(lang) {
+            document.documentElement.lang = lang;
+        }
+        function toggleLang() {
+            const cur = document.documentElement.lang;
+            setLang(cur === 'zh' ? 'en' : 'zh');
+        }
+        setLang(detectLang());
+    </script>
+</body>
+</html>

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐵 猴子过河攻略 | Emoji Arcade Blog</title>
+    <meta name="description" content="Monkey Crossing complete guide — Frogger-style river crossing, log timing, and how to not get wet. 猴子过河完整攻略，Frogger风格的过河冒险生存手册。">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px 20px 60px; }
+        .lang-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 100;
+            transition: background 0.3s;
+        }
+        .lang-switch:hover { background: rgba(255,255,255,0.2); }
+        [data-lang="en"] { display: none; }
+        html[lang="en"] [data-lang="zh"] { display: none; }
+        html[lang="en"] [data-lang="en"] { display: block; }
+        html[lang="en"] [data-lang="en"].inline { display: inline; }
+        .blog-header {
+            text-align: center;
+            padding: 40px 0 30px;
+            border-bottom: 2px solid rgba(139,69,19,0.3);
+            margin-bottom: 30px;
+        }
+        .blog-emoji { font-size: 64px; margin-bottom: 10px; }
+        h1 { font-size: 28px; color: #fff; margin-bottom: 10px; }
+        .subtitle { color: #888; font-size: 15px; }
+        .meta-bar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0 0;
+            font-size: 13px;
+            color: #888;
+        }
+        .meta-bar span { display: flex; align-items: center; gap: 4px; }
+        h2 {
+            font-size: 22px;
+            color: #fff;
+            margin: 35px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #8b4513;
+        }
+        h3 { font-size: 18px; color: #ddd; margin: 25px 0 10px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(139,69,19,0.1) 0%, rgba(160,82,45,0.05) 100%);
+            padding: 20px 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #8b4513;
+        }
+        .tip-box {
+            background: rgba(78,205,196,0.08);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 3px solid #4ecdc4;
+        }
+        .tip-box::before { content: "💡 "; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        th {
+            background: rgba(139,69,19,0.15);
+            color: #cd853f;
+            font-weight: 600;
+        }
+        .play-btn {
+            display: inline-block;
+            padding: 14px 40px;
+            background: linear-gradient(135deg, #8b4513 0%, #cd853f 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 20px 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139,69,19,0.3);
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 10px 24px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .back-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .footer-bar {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+        }
+        .footer-bar a { color: #66b3ff; text-decoration: none; }
+        ul { margin: 15px 0 15px 25px; }
+        li { margin-bottom: 8px; }
+        strong { color: #cd853f; }
+        @media (max-width: 600px) {
+            h1 { font-size: 22px; }
+            h2 { font-size: 18px; }
+            .blog-emoji { font-size: 48px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lang-switch" onclick="toggleLang()">
+        <span data-lang="zh">🌐 English</span>
+        <span data-lang="en">🌐 中文</span>
+    </div>
+
+    <div class="container">
+        <div class="blog-header">
+            <div class="blog-emoji">🐵</div>
+            <h1>
+                <span data-lang="zh">猴子过河｜Frogger风格的过河冒险生存手册</span>
+                <span data-lang="en">Monkey Crossing — Frogger-Style River Survival</span>
+            </h1>
+            <div class="subtitle">
+                <span data-lang="zh">过河冒险 · 木头漂流 · 别掉水里</span>
+                <span data-lang="en">River Crossing · Log Drifting · Don't Fall In</span>
+            </div>
+            <div class="meta-bar">
+                <span>🎮 Emoji Arcade</span>
+                <span>📅 2026.05.07</span>
+                <span>⏱️ <span data-lang="zh">6分钟阅读</span><span data-lang="en">6 min read</span></span>
+            </div>
+        </div>
+
+        <p data-lang="zh">
+            🐵 <strong>一条河，几块漂流的木头，和一只不想弄湿尾巴的猴子。这就是全部。</strong><br><br>
+            《猴子过河》是一款经典的Frogger风格过河冒险游戏。你需要操控猴子从河岸出发，利用漂流的木头和浮动的荷叶，一步一步跳到对岸。听起来简单？等水流变急、木头变短、还有鳄鱼出没的时候再说。
+        </p>
+        <p data-lang="en">
+            🐵 <strong>A river, a few drifting logs, and a monkey who doesn't want a wet tail. That's it.</strong><br><br>
+            Monkey Crossing is a classic Frogger-style river adventure. Guide your monkey from one bank to the other using drifting logs and floating lily pads. Sounds easy? Wait until the current picks up, logs get shorter, and crocodiles show up.
+        </p>
+
+        <h2>
+            <span data-lang="zh">🎮 核心机制：水流与节奏</span>
+            <span data-lang="en">🎮 Core Mechanic: Water Flow &amp; Rhythm</span>
+        </h2>
+
+        <ul data-lang="zh">
+            <li><strong>点击跳跃：</strong>猴子只能向前跳一格，不能后退。每次跳跃需要确认落点安全。</li>
+            <li><strong>漂流物：</strong>木头和荷叶会随着水流向左或向右漂移。站在上面会被带着走——这是过河的关键，也是掉水里的元凶。</li>
+            <li><strong>水流方向：</strong>每关水流方向固定，但速度会逐关增加。第1关木头几乎静止，第5关的木头快到你跳上去就来不及跳下来。</li>
+        </ul>
+        <ul data-lang="en">
+            <li><strong>Tap to jump:</strong> The monkey can only jump forward one tile, never backward. Each jump needs a safe landing confirmed.</li>
+            <li><strong>Drift objects:</strong> Logs and lily pads drift left or right with the current. Standing on them carries you — that's the key to crossing, and also why you drown.</li>
+            <li><strong>Current direction:</strong> Fixed per level, but speed increases each level. Level 1 logs are nearly still; Level 5 logs move so fast you'll be swept away before you can jump off.</li>
+        </ul>
+
+        <div class="highlight-box">
+            <p data-lang="zh"><strong>核心真相：</strong>过河的秘诀不是"跳得准"，而是"等得起"。绝大多数死亡不是因为操作失误，而是因为"太急了"。</p>
+            <p data-lang="en"><strong>Core truth:</strong> The secret to crossing isn't "jumping accurately" — it's "waiting patiently." Most deaths aren't from bad aim; they're from being too impatient.</p>
+        </div>
+
+        <h2>
+            <span data-lang="zh">🧠 过河路线规划策略</span>
+            <span data-lang="en">🧠 Route Planning Strategy</span>
+        </h2>
+
+        <h3 data-lang="zh">第一阶段：观察期（不跳）</h3>
+        <h3 data-lang="en">Phase 1: Observation (Don't Jump)</h3>
+
+        <ul data-lang="zh">
+            <li><strong>看3秒再动：</strong>开局先不要急着跳。观察所有漂流物的方向和速度，找到一条"连贯路线"——从左岸到右岸，中间每个落脚点都在你的跳跃范围内。</li>
+            <li><strong>优先选"同向"漂流：</strong>如果水流向右，优先选择向右漂的木头。这样你被水流"帮助"前进，而不是"对抗"水流。</li>
+            <li><strong>标记"安全岛"：</strong>荷叶是静止的（不随水流漂），是最安全的落脚点。找到荷叶位置，把它们当作"中转站"。</li>
+        </ul>
+        <ul data-lang="en">
+            <li><strong>Watch for 3 seconds:</strong> Don't rush the first jump. Observe all drift directions and speeds. Find a "continuous route" from left bank to right where every landing is within your jump range.</li>
+            <li><strong>Prioritize "same direction" drift:</strong> If current flows right, favor right-drifting logs. The current helps you forward instead of fighting you.</li>
+            <li><strong>Mark "safe islands":</strong> Lily pads are stationary (don't drift). They're the safest landing spots. Find them and use them as "transit stations."</li>
+        </ul>
+
+        <h3 data-lang="zh">第二阶段：执行期（计算跳跃）</h3>
+        <h3 data-lang="en">Phase 2: Execution (Calculated Jumps)</h3>
+
+        <ul data-lang="zh">
+            <li><strong>"提前量"原则：</strong>跳向漂流的木头时，不要瞄准它现在的位置，要瞄准它0.5秒后的位置。水流越快，提前量越大。</li>
+            <li><strong>"落脚点判断"：</strong>木头有多种长度——短木头（1格）、中木头（2格）、长木头（3格）。短木头只给你0.5秒停留时间，必须"跳上即走"。</li>
+            <li><strong>"边缘安全区"：</strong>木头边缘（靠近河岸的区域）水流影响最小。被急流困住时，往边缘跳。</li>
+        </ul>
+        <ul data-lang="en">
+            <li><strong>"Lead" principle:</strong> When jumping to a drifting log, don't aim at its current position — aim where it'll be in 0.5 seconds. Faster current = larger lead.</li>
+            <li><strong>"Landing size" judgment:</strong> Logs come in short (1 tile), medium (2 tiles), and long (3 tiles). Short logs give you only 0.5s — "land and leave immediately."</li>
+            <li><strong>"Edge safe zone":</strong> The edges near riverbanks have the weakest current. When trapped by fast water, jump toward the edges.</li>
+        </ul>
+
+        <table>
+            <tr>
+                <th><span data-lang="zh">漂流物</span><span data-lang="en">Drift Object</span></th>
+                <th><span data-lang="zh">停留时间</span><span data-lang="en">Safe Time</span></th>
+                <th><span data-lang="zh">策略</span><span data-lang="en">Strategy</span></th>
+            </tr>
+            <tr>
+                <td>🪵 <span data-lang="zh">短木头</span><span data-lang="en">Short Log</span></td>
+                <td>0.5秒</td>
+                <td><span data-lang="zh">跳上即走，不能停留</span><span data-lang="en">Land and leave immediately</span></td>
+            </tr>
+            <tr>
+                <td>🪵 <span data-lang="zh">中木头</span><span data-lang="en">Medium Log</span></td>
+                <td>1.5秒</td>
+                <td><span data-lang="zh">可停留观察下一步</span><span data-lang="en">Can pause to plan next move</span></td>
+            </tr>
+            <tr>
+                <td>🪵 <span data-lang="zh">长木头</span><span data-lang="en">Long Log</span></td>
+                <td>3秒+</td>
+                <td><span data-lang="zh">理想的中转站，优先选择</span><span data-lang="en">Ideal transit station, prioritize</span></td>
+            </tr>
+            <tr>
+                <td>🪷 <span data-lang="zh">荷叶</span><span data-lang="en">Lily Pad</span></td>
+                <td>无限</td>
+                <td><span data-lang="zh">静止安全岛，随时可用</span><span data-lang="en">Stationary safe island, always available</span></td>
+            </tr>
+        </table>
+
+        <h2>
+            <span data-lang="zh">⚠️ 常见死亡原因与避免方法</span>
+            <span data-lang="en">⚠️ Common Deaths &amp; How to Avoid Them</span>
+        </h2>
+
+        <ul data-lang="zh">
+            <li><strong>"贪心跳"：</strong>看到远处的长木头，忍不住多跳一格想直接上去。结果距离不够，掉水里。<br>→ <strong>解决：</strong>一次只跳一格。宁愿多跳几次稳的，也别赌一次远的。</li>
+            <li><strong>"随流漂"：</strong>站在木头上被水流带到屏幕边缘，来不及跳下去。<br>→ <strong>解决：</strong>上木头后立刻确认下一跳目标，不要等到靠近边缘再想。</li>
+            <li><strong>"鳄鱼伏击"：</strong>某些荷叶上有鳄鱼，停留超过1秒会被吃掉。<br>→ <strong>解决：</strong>带鳄鱼的荷叶会轻微晃动（动画提示），跳过这些荷叶或用短木头中转。</li>
+        </ul>
+        <ul data-lang="en">
+            <li><strong>"Greedy jump":</strong> Seeing a distant long log, you try to overshoot and reach it in one jump. Not enough distance — splash.<br>→ <strong>Fix:</strong> One tile at a time. Better to make multiple safe jumps than gamble on one big one.</li>
+            <li><strong>"Drifted off-screen":</strong> Standing on a log, current carries you to the screen edge before you can jump off.<br>→ <strong>Fix:</strong> Immediately confirm your next target upon landing. Don't wait until you're near the edge.</li>
+            <li><strong>"Croc ambush":</strong> Some lily pads have crocodiles. Stay more than 1 second and you get eaten.<br>→ <strong>Fix:</strong> Croc-infested pads wobble slightly (animation cue). Skip them or use short logs as transit.</li>
+        </ul>
+
+        <div class="tip-box">
+            <span data-lang="zh"><strong>鳄鱼识别法：</strong>正常的荷叶静止不动。有鳄鱼的荷叶会有轻微"左右晃动"——那是鳄鱼在水下呼吸导致的。看到晃动的荷叶，跳上去后0.5秒内必须离开。</span>
+            <span data-lang="en"><strong>Croc detection:</strong> Normal lily pads are still. Croc-infested ones wobble slightly — that's the croc breathing underwater. If you see a wobbling pad, leave within 0.5s of landing.</span>
+        </div>
+
+        <h2>
+            <span data-lang="zh">🏆 高分秘诀：连续过河奖励</span>
+            <span data-lang="en">🏆 High Score Secret: Consecutive Crossing Bonus</span>
+        </h2>
+
+        <ul data-lang="zh">
+            <li><strong>不落水连击：</strong>连续过关不落水，每次额外奖励+50分。落水一次，连击归零。</li>
+            <li><strong>最少步数奖励：</strong>用最少的跳跃次数过河，额外+100分。这意味着你需要规划"最优路线"而不是"最安全路线"。</li>
+            <li><strong>时间奖励：</strong>快速通关有额外加成。但别为了速度牺牲稳定性——落水的时间惩罚比加速奖励更大。</li>
+        </ul>
+        <ul data-lang="en">
+            <li><strong>No-splash streak:</strong> Cross consecutive levels without falling in, and each grants +50 bonus points. One splash resets the streak to zero.</li>
+            <li><strong>Minimum steps bonus:</strong> Cross using the fewest jumps for an extra +100 points. This means planning an "optimal route" rather than a "safest route."</li>
+            <li><strong>Time bonus:</strong> Fast clears get extra points. But don't sacrifice stability for speed — the time penalty for drowning outweighs speed bonuses.</li>
+        </ul>
+
+        <div class="highlight-box" style="text-align: center;">
+            <p data-lang="zh" style="font-size: 16px; margin-bottom: 15px;">
+                🐵 猴子不想弄湿尾巴。<br>
+                你需要做的，只是帮它保持干燥。
+            </p>
+            <p data-lang="en" style="font-size: 16px; margin-bottom: 15px;">
+                🐵 The monkey doesn't want a wet tail.<br>
+                All you need to do is help it stay dry.
+            </p>
+            <a href="../games/emoji-hop/index.html" class="play-btn">
+                <span data-lang="zh">▶ 开始过河</span>
+                <span data-lang="en">▶ Start Crossing</span>
+            </a>
+        </div>
+
+        <div class="footer-bar">
+            <p>
+                <span data-lang="zh">📝 Emoji Arcade 攻略站 | 🎮 更多游戏攻略：</span>
+                <span data-lang="en">📝 Emoji Arcade Blog | 🎮 More game guides:</span>
+                <a href="emoji-frog-guide.html">🐸 <span data-lang="zh">跳跳蛙</span><span data-lang="en">Emoji Frog</span></a> · <a href="emoji-linkup-guide.html">🔗 <span data-lang="zh">连连看</span><span data-lang="en">Link-Up</span></a>
+            </p>
+            <p style="margin-top: 10px;">
+                <a href="../index.html" class="back-link">🏠 <span data-lang="zh">返回首页</span><span data-lang="en">Back to Home</span></a>
+            </p>
+            <p style="margin-top: 15px; font-size: 12px; color: #555;">
+                © 2026 Emoji Arcade · Made with ❤️ by Galaxy + AI
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function detectLang() {
+            const nav = navigator.language || navigator.userLanguage;
+            return nav.startsWith('zh') ? 'zh' : 'en';
+        }
+        function setLang(lang) {
+            document.documentElement.lang = lang;
+        }
+        function toggleLang() {
+            const cur = document.documentElement.lang;
+            setLang(cur === 'zh' ? 'en' : 'zh');
+        }
+        setLang(detectLang());
+    </script>
+</body>
+</html>

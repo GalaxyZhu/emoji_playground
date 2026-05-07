@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐸 跳跳蛙大冒险攻略 | Emoji Arcade Blog</title>
+    <meta name="description" content="Emoji Frog complete guide — hold-and-release jumping, platform timing, and how to climb higher than your friends. 跳跳蛙大冒险完整攻略，按住松开的节奏大师之路。">
+    <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px 20px 60px; }
+        .lang-switch {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 100;
+            transition: background 0.3s;
+        }
+        .lang-switch:hover { background: rgba(255,255,255,0.2); }
+        [data-lang="en"] { display: none; }
+        html[lang="en"] [data-lang="zh"] { display: none; }
+        html[lang="en"] [data-lang="en"] { display: block; }
+        html[lang="en"] [data-lang="en"].inline { display: inline; }
+        .blog-header {
+            text-align: center;
+            padding: 40px 0 30px;
+            border-bottom: 2px solid rgba(139,195,74,0.3);
+            margin-bottom: 30px;
+        }
+        .blog-emoji { font-size: 64px; margin-bottom: 10px; }
+        h1 { font-size: 28px; color: #fff; margin-bottom: 10px; }
+        .subtitle { color: #888; font-size: 15px; }
+        .meta-bar {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 15px 0 0;
+            font-size: 13px;
+            color: #888;
+        }
+        .meta-bar span { display: flex; align-items: center; gap: 4px; }
+        h2 {
+            font-size: 22px;
+            color: #fff;
+            margin: 35px 0 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #8bc34a;
+        }
+        h3 { font-size: 18px; color: #ddd; margin: 25px 0 10px; }
+        p { margin-bottom: 15px; text-align: justify; }
+        .highlight-box {
+            background: linear-gradient(135deg, rgba(139,195,74,0.1) 0%, rgba(76,175,80,0.05) 100%);
+            padding: 20px 25px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #8bc34a;
+        }
+        .tip-box {
+            background: rgba(78,205,196,0.08);
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin: 15px 0;
+            border-left: 3px solid #4ecdc4;
+        }
+        .tip-box::before { content: "💡 "; }
+        .play-btn {
+            display: inline-block;
+            padding: 14px 40px;
+            background: linear-gradient(135deg, #8bc34a 0%, #4caf50 100%);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 20px 0;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139,195,74,0.3);
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 10px 24px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 20px;
+            color: #888;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+        .back-link:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .footer-bar {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+        }
+        .footer-bar a { color: #66b3ff; text-decoration: none; }
+        ul { margin: 15px 0 15px 25px; }
+        li { margin-bottom: 8px; }
+        strong { color: #8bc34a; }
+        @media (max-width: 600px) {
+            h1 { font-size: 22px; }
+            h2 { font-size: 18px; }
+            .blog-emoji { font-size: 48px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="lang-switch" onclick="toggleLang()">
+        <span data-lang="zh">🌐 English</span>
+        <span data-lang="en">🌐 中文</span>
+    </div>
+
+    <div class="container">
+        <div class="blog-header">
+            <div class="blog-emoji">🐸</div>
+            <h1>
+                <span data-lang="zh">跳跳蛙大冒险｜按住松开的节奏大师之路</span>
+                <span data-lang="en">Emoji Frog — Master the Hold-and-Release Rhythm</span>
+            </h1>
+            <div class="subtitle">
+                <span data-lang="zh">极简跳跃 · 平台冒险 · 高度挑战</span>
+                <span data-lang="en">Minimal Jumping · Platform Adventure · Height Challenge</span>
+            </div>
+            <div class="meta-bar">
+                <span>🎮 Emoji Arcade</span>
+                <span>📅 2026.05.07</span>
+                <span>⏱️ <span data-lang="zh">6分钟阅读</span><span data-lang="en">6 min read</span></span>
+            </div>
+        </div>
+
+        <p data-lang="zh">
+            🐸 <strong>按住跳起，松开落下。听起来简单？等你面对越来越小的平台和越来越宽的间隔时，就知道这句话的分量了。</strong><br><br>
+            《跳跳蛙大冒险》是一款极简跳跃游戏。你的目标只有一个：不断向上跳，跳得越高越好。没有敌人，没有道具，只有你和重力。
+        </p>
+        <p data-lang="en">
+            🐸 <strong>Hold to jump, release to fall. Sounds simple? Wait until you're facing smaller platforms and wider gaps.</strong><br><br>
+            Emoji Frog is a minimal jumping game. Your only goal: keep jumping up, as high as possible. No enemies, no items — just you and gravity.
+        </p>
+
+        <h2>
+            <span data-lang="zh">🎮 核心机制：按住-松开的微妙节奏</span>
+            <span data-lang="en">🎮 Core Mechanic: The Subtle Hold-Release Rhythm</span>
+        </h2>
+
+        <ul data-lang="zh">
+            <li><strong>按住蓄力：</strong>按得越久，跳得越高、越远。但蓄力也有上限——超过0.8秒后不再增加距离。</li>
+            <li><strong>松开下落：</strong>在空中松开手指，青蛙会立刻开始下落。下落的时机决定了你能否精准落在平台上。</li>
+            <li><strong>二次跳跃：</strong>部分平台提供"弹跳加成"——落地瞬间再次起跳，高度额外增加20%。</li>
+        </ul>
+        <ul data-lang="en">
+            <li><strong>Hold to charge:</strong> The longer you hold, the higher and farther you jump. But there's a cap — after 0.8s, distance stops increasing.</li>
+            <li><strong>Release to fall:</strong> Release mid-air and the frog immediately starts falling. Fall timing determines whether you land on the platform.</li>
+            <li><strong>Bounce boost:</strong> Some platforms give a "jump bonus" — jump again the instant you land, and height increases by 20%.</li>
+        </ul>
+
+        <div class="highlight-box">
+            <p data-lang="zh"><strong>核心真相：</strong>这不是"跳得越高越好"的游戏。而是"跳得刚刚好"的游戏。差一点=掉下去。</p>
+            <p data-lang="en"><strong>Core truth:</strong> This isn't "jump as high as possible." It's "jump exactly right." A little off = fall.</p>
+        </div>
+
+        <h2>
+            <span data-lang="zh">📏 蓄力时间对照表</span>
+            <span data-lang="en">📏 Charge Time Reference</span>
+        </h2>
+
+        <table>
+            <tr>
+                <th><span data-lang="zh">平台间隔</span><span data-lang="en">Gap Distance</span></th>
+                <th><span data-lang="zh">蓄力时间</span><span data-lang="en">Charge Time</span></th>
+                <th><span data-lang="zh">适用场景</span><span data-lang="en">Scenario</span></th>
+            </tr>
+            <tr>
+                <td>🟢 <span data-lang="zh">短距（1格）</span><span data-lang="en">Short (1 tile)</span></td>
+                <td>0.2-0.3秒</td>
+                <td><span data-lang="zh">相邻平台，快速连跳</span><span data-lang="en">Adjacent platforms, rapid chaining</span></td>
+            </tr>
+            <tr>
+                <td>🟡 <span data-lang="zh">中距（2格）</span><span data-lang="en">Medium (2 tiles)</span></td>
+                <td>0.4-0.5秒</td>
+                <td><span data-lang="zh">标准间隔，最常用</span><span data-lang="en">Standard gap, most common</span></td>
+            </tr>
+            <tr>
+                <td>🔴 <span data-lang="zh">长距（3格+）</span><span data-lang="en">Long (3+ tiles)</span></td>
+                <td>0.6-0.8秒</td>
+                <td><span data-lang="zh">极限跨越，蓄力拉满</span><span data-lang="en">Max distance, full charge</span></td>
+            </tr>
+        </table>
+
+        <div class="tip-box">
+            <span data-lang="zh"><strong>训练技巧：</strong>刚开始玩时，嘴里默念"一、二、跳"来找0.5秒的感觉。熟练后就不需要了——手指会形成肌肉记忆。</span>
+            <span data-lang="en"><strong>Training tip:</strong> When starting out, count "one, two, jump" aloud to find the 0.5s feel. Once practiced, muscle memory takes over.</span>
+        </div>
+
+        <h2>
+            <span data-lang="zh">🏆 三段式进阶策略</span>
+            <span data-lang="en">🏆 Three-Stage Progression</span>
+        </h2>
+
+        <h3 data-lang="zh">第一阶段（0-50层）：建立节奏感</h3>
+        <h3 data-lang="en">Phase 1 (0-50 floors): Build Rhythm</h3>
+        <ul data-lang="zh">
+            <li><strong>平台大、间隔小：</strong>这是训练期。重点不是高度，而是"稳定落地"。每次跳跃后确认自己站在平台中央再跳下一次。</li>
+            <li><strong>别贪弹跳加成：</strong>前期平台大，弹跳加成收益低。直接跳比等弹跳时机更稳。</li>
+        </ul>
+        <ul data-lang="en">
+            <li><strong>Big platforms, small gaps:</strong> This is training mode. Focus on stable landings, not height. Confirm you're centered before the next jump.</li>
+            <li><strong>Skip bounce bonuses:</strong> Early platforms are large; bounce boost payoff is low. Direct jumps are more reliable.</li>
+        </ul>
+
+        <h3 data-lang="zh">第二阶段（50-100层）：精准控制</h3>
+        <h3 data-lang="en">Phase 2 (50-100 floors): Precision Control</h3>
+        <ul data-lang="zh">
+            <li><strong>平台开始变小：</strong>从50层开始，部分平台只有半个身位宽。起跳前必须确认落点。</li>
+            <li><strong>学会"微调落点"：</strong>在空中轻微左右滑动，可以在下落阶段微调水平位置。这是高手和新手的分水岭。</li>
+            <li><strong>弹跳加成开始重要：</strong>平台变小后，弹跳加成帮你跳过一些危险的小平台。</li>
+        </ul>
+        <ul data-lang="en">
+            <li><strong>Platforms shrink:</strong> From floor 50, some platforms are only half a frog-width. Confirm landing before jumping.</li>
+            <li><strong>Learn "air correction":</strong> Slight left/right swipes while falling fine-tune horizontal position. This separates pros from beginners.</li>
+            <li><strong>Bounce boost matters now:</strong> Smaller platforms mean bounce boost helps you skip risky small ones.</li>
+        </ul>
+
+        <h3 data-lang="zh">第三阶段（100层+）：极限生存</h3>
+        <h3 data-lang="en">Phase 3 (100+ floors): Extreme Survival</h3>
+        <ul data-lang="zh">
+            <li><strong>平台极小、间隔极大：</strong>100层后的平台有时只有一个身位，间隔达到3格。</li>
+            <li><strong>"先观察，后跳跃"：</strong>不要看到一个平台就跳。先观察上方2-3个平台的布局，规划路线。</li>
+            <li><strong>放弃"最高路线"：</strong>有时候直线向上的路线全是小平台，而旁边偏一点的路线有大平台可以"休息"。活着比冲高重要。</li>
+        </ul>
+        <ul data-lang="en">
+            <li><strong>Tiny platforms, huge gaps:</strong> Post-100 floors, some platforms are single-frog-width with 3-tile gaps.</li>
+            <li><strong>"Look before leaping":</strong> Don't jump at the first platform you see. Observe the 2-3 platforms above and plan a route.</li>
+            <li><strong>Abandon "highest route":</strong> Sometimes the straight-up path is all tiny platforms, while a slightly offset path has larger "rest" platforms. Survival > height.</li>
+        </ul>
+
+        <h2>
+            <span data-lang="zh">💡 高手的三个秘密习惯</span>
+            <span data-lang="en">💡 Three Secret Pro Habits</span>
+        </h2>
+
+        <ul data-lang="zh">
+            <li><strong>🎵 节拍器法：</strong>高手会在心里打节拍（比如跟着背景音乐的节奏），把跳跃变成"卡点"动作，而不是凭感觉。</li>
+            <li><strong>👀 视线管理：</strong>不要盯着青蛙看。视线放在"目标平台"上，用余光感受青蛙的位置。</li>
+            <li><strong>🤲 单指 vs 双指：</strong>单指操作简单但容易累。进阶后可以用左手拇指按住蓄力，右手拇指在空中微调落点。</li>
+        </ul>
+        <ul data-lang="en">
+            <li><strong>🎵 Metronome method:</strong> Pros mentally keep a beat (e.g., with background music), turning jumps into timed "on-the-beat" actions instead of guesswork.</li>
+            <li><strong>👀 Eye management:</strong> Don't stare at the frog. Focus on the "target platform" and sense the frog's position peripherally.</li>
+            <li><strong>🤲 One finger vs two:</strong> One finger is simple but tiring. Advanced: left thumb charges, right thumb fine-tunes mid-air.</li>
+        </ul>
+
+        <div class="highlight-box" style="text-align: center;">
+            <p data-lang="zh" style="font-size: 16px; margin-bottom: 15px;">
+                🐸 向上的路，每一步都是和重力的谈判。<br>
+                你跳得不是高度，是对自己的耐心。
+            </p>
+            <p data-lang="en" style="font-size: 16px; margin-bottom: 15px;">
+                🐸 The upward path is a negotiation with gravity.<br>
+                You're not jumping height — you're jumping patience.
+            </p>
+            <a href="../games/emoji-frog/index.html" class="play-btn">
+                <span data-lang="zh">▶ 开始跳跃</span>
+                <span data-lang="en">▶ Start Jumping</span>
+            </a>
+        </div>
+
+        <div class="footer-bar">
+            <p>
+                <span data-lang="zh">📝 Emoji Arcade 攻略站 | 🎮 更多游戏攻略：</span>
+                <span data-lang="en">📝 Emoji Arcade Blog | 🎮 More game guides:</span>
+                <a href="emoji-kart-guide.html">🏎️ <span data-lang="zh">道具互坑赛</span><span data-lang="en">Emoji Kart</span></a> · <a href="emoji-hop-guide.html">🐵 <span data-lang="zh">猴子过河</span><span data-lang="en">Monkey Crossing</span></a>
+            </p>
+            <p style="margin-top: 10px;">
+                <a href="../index.html" class="back-link">🏠 <span data-lang="zh">返回首页</span><span data-lang="en">Back to Home</span></a>
+            </p>
+            <p style="margin-top: 15px; font-size: 12px; color: #555;">
+                © 2026 Emoji Arcade · Made with ❤️ by Galaxy + AI
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function detectLang() {
+            const nav = navigator.language || navigator.userLanguage;
+            return nav.startsWith('zh') ? 'zh' : 'en';
+        }
+        function setLang(lang) {
+            document.documentElement.lang = lang;
+        }
+        function toggleLang() {
+            const cur = document.documentElement.lang;
+            setLang(cur === 'zh' ? 'en' : 'zh');
+        }
+        setLang(detectLang());
+    </script>
+</body>
+</html>
