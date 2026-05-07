@@ -757,6 +757,32 @@
                 <!-- Coming soon games will be rendered by JS -->
             </div>
         </section>
+
+        <!-- Blog / Guides Section -->
+        <section class="games-section" id="blogSection">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+                <h2 class="section-title" id="blogTitleZh" style="margin:0;">📝 攻略站</h2>
+                <h2 class="section-title" id="blogTitleEn" style="margin:0; display:none;">📝 Guides</h2>
+            </div>
+            <div class="games-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:20px;">
+                <a href="blog/emoji-survive-guide.html" style="text-decoration:none; color:inherit; display:block;">
+                    <div style="background:linear-gradient(135deg, rgba(255,140,0,0.12) 0%, rgba(255,107,107,0.05) 100%); border-radius:16px; padding:22px; border:1px solid rgba(255,140,0,0.15); transition:transform 0.3s, box-shadow 0.3s; cursor:pointer; height:100%;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(255,140,0,0.15)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none';">
+                        <div style="font-size:42px; margin-bottom:8px;">🛻</div>
+                        <h3 style="font-size:17px; color:#fff; margin-bottom:6px;"><span data-lang="zh">废土求生生存法则</span><span data-lang="en" style="display:none;">Survive 20 Waves</span></h3>
+                        <p style="font-size:13px; color:#999; line-height:1.5; margin:0;"><span data-lang="zh">改装路线 · 怪物应对 · 第20波Boss攻略</span><span data-lang="en" style="display:none;">Mod builds · enemy counters · boss tactics</span></p>
+                        <span style="display:inline-block; margin-top:12px; padding:5px 12px; background:rgba(255,140,0,0.18); border-radius:10px; font-size:12px; color:#ff8c00;">📖 <span data-lang="zh">阅读攻略</span><span data-lang="en" style="display:none;">Read Guide</span></span>
+                    </div>
+                </a>
+                <a href="blog/emoji-match-guide.html" style="text-decoration:none; color:inherit; display:block;">
+                    <div style="background:linear-gradient(135deg, rgba(252,191,73,0.12) 0%, rgba(247,127,0,0.05) 100%); border-radius:16px; padding:22px; border:1px solid rgba(252,191,73,0.15); transition:transform 0.3s, box-shadow 0.3s; cursor:pointer; height:100%;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(252,191,73,0.15)';" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none';">
+                        <div style="font-size:42px; margin-bottom:8px;">🧩</div>
+                        <h3 style="font-size:17px; color:#fff; margin-bottom:6px;"><span data-lang="zh">记忆翻翻天坑友指南</span><span data-lang="en" style="display:none;">Troll Your Friends</span></h3>
+                        <p style="font-size:13px; color:#999; line-height:1.5; margin:0;"><span data-lang="zh">三阶记忆法 · 双人心理战 · Hard模式技巧</span><span data-lang="en" style="display:none;">3-stage memory · 2P mind games · Hard mode</span></p>
+                        <span style="display:inline-block; margin-top:12px; padding:5px 12px; background:rgba(252,191,73,0.18); border-radius:10px; font-size:12px; color:#fcbf49;">📖 <span data-lang="zh">阅读攻略</span><span data-lang="en" style="display:none;">Read Guide</span></span>
+                    </div>
+                </a>
+            </div>
+        </section>
     </main>
 
     <!-- Footer -->
@@ -790,6 +816,8 @@
             <a href="privacy.html?lang=en" id="footerPrivacyEn" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px; display: none;">Privacy</a>
             <a href="terms.html" id="footerTermsZh" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">使用条款</a>
             <a href="terms.html" id="footerTermsEn" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px; display: none;">Terms</a>
+            <a href="blog/emoji-survive-guide.html" id="footerBlogZh" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">📝 攻略</a>
+            <a href="blog/emoji-survive-guide.html" id="footerBlogEn" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px; display: none;">📝 Guides</a>
             <span style="color: #666; margin: 0 10px; font-size: 12px;">|</span>
             <a href="https://github.com/GalaxyZhu/emoji_playground" target="_blank" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">GitHub</a>
             <a href="https://x.com/galaxyzhu" target="_blank" style="color: #888; text-decoration: none; margin: 0 10px; font-size: 12px;">X</a>
@@ -1990,6 +2018,25 @@
                 if (safariNoticeZh) safariNoticeZh.style.display = 'block';
                 if (safariNoticeEn) safariNoticeEn.style.display = 'none';
                 
+                // Blog section titles
+                const blogTitleZh = document.getElementById('blogTitleZh');
+                const blogTitleEn = document.getElementById('blogTitleEn');
+                if (blogTitleZh) blogTitleZh.style.display = 'block';
+                if (blogTitleEn) blogTitleEn.style.display = 'none';
+                
+                // Blog cards content switch
+                const blogCards = document.querySelectorAll('#blogSection [data-lang]');
+                blogCards.forEach(el => {
+                    if (el.getAttribute('data-lang') === 'zh') el.style.display = 'inline';
+                    else el.style.display = 'none';
+                });
+                
+                // Footer blog link
+                const footerBlogZh = document.getElementById('footerBlogZh');
+                const footerBlogEn = document.getElementById('footerBlogEn');
+                if (footerBlogZh) footerBlogZh.style.display = 'inline';
+                if (footerBlogEn) footerBlogEn.style.display = 'none';
+                
                 document.getElementById('loginText').textContent = '登录';
                 
                 // Guest badge
@@ -2044,6 +2091,25 @@
                 // Safari notice
                 if (safariNoticeZh) safariNoticeZh.style.display = 'none';
                 if (safariNoticeEn) safariNoticeEn.style.display = 'block';
+                
+                // Blog section titles
+                const blogTitleZh2 = document.getElementById('blogTitleZh');
+                const blogTitleEn2 = document.getElementById('blogTitleEn');
+                if (blogTitleZh2) blogTitleZh2.style.display = 'none';
+                if (blogTitleEn2) blogTitleEn2.style.display = 'block';
+                
+                // Blog cards content switch
+                const blogCards2 = document.querySelectorAll('#blogSection [data-lang]');
+                blogCards2.forEach(el => {
+                    if (el.getAttribute('data-lang') === 'zh') el.style.display = 'none';
+                    else el.style.display = 'inline';
+                });
+                
+                // Footer blog link
+                const footerBlogZh2 = document.getElementById('footerBlogZh');
+                const footerBlogEn2 = document.getElementById('footerBlogEn');
+                if (footerBlogZh2) footerBlogZh2.style.display = 'none';
+                if (footerBlogEn2) footerBlogEn2.style.display = 'inline';
                 
                 document.getElementById('loginText').textContent = 'Login';
                 
