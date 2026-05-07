@@ -404,7 +404,7 @@ function levelComplete(wasSpeed) {
   if (timeRatio > 0.5) stars = 2;
   if (timeRatio > 0.8 && state.consecutiveErrors === 0) stars = 3;
 
-  // 显示过关画面
+  // 显示过关画面（短暂）
   const lds = $.levelDoneScreen;
   lds.querySelector('.ld-score').textContent = state.score;
   lds.querySelector('.ld-level').textContent = state.level;
@@ -432,9 +432,20 @@ function levelComplete(wasSpeed) {
     state.bestLevel = state.level;
     localStorage.setItem('emojiPattern_bestLevel', state.bestLevel);
   }
+
+  // 1.2秒后自动进入下一关
+  state.autoNextTimer = setTimeout(() => {
+    lds.classList.add('hidden');
+    nextLevel();
+  }, 1200);
 }
 
 function nextLevel() {
+  // 清除自动跳转定时器（防止用户手动点击后又触发）
+  if (state.autoNextTimer) {
+    clearTimeout(state.autoNextTimer);
+    state.autoNextTimer = null;
+  }
   $.levelDoneScreen.classList.add('hidden');
   state.level++;
   state.gameState = 'playing';
@@ -565,7 +576,7 @@ function applyTranslations(lang) {
       bestLabel: '历史最高',
       restartGame: '🔄 再玩一次',
       levelComplete: '🎉 关卡完成！',
-      nextLevel: '➡️ 下一关',
+      nextLevel: '➡️ 马上进入下一关...',
       timeLeft: '剩余时间',
       currentTarget: '当前目标',
       combo: '连击',
@@ -576,7 +587,7 @@ function applyTranslations(lang) {
       levelDoneScore: '得分',
       levelDoneTime: '剩余时间',
       levelDoneCombo: '最高连击',
-      levelDoneNext: '下一关',
+      levelDoneNext: '马上进入下一关...',
     },
     en: {
       title: 'Emoji Pattern',
@@ -593,7 +604,7 @@ function applyTranslations(lang) {
       bestLabel: 'Best',
       restartGame: '🔄 Play Again',
       levelComplete: '🎉 Level Complete!',
-      nextLevel: '➡️ Next Level',
+      nextLevel: '➡️ Next Level Soon...',
       timeLeft: 'Time Left',
       currentTarget: 'Target',
       combo: 'Combo',
@@ -604,7 +615,7 @@ function applyTranslations(lang) {
       levelDoneScore: 'Score',
       levelDoneTime: 'Time Left',
       levelDoneCombo: 'Max Combo',
-      levelDoneNext: 'Next Level',
+      levelDoneNext: 'Next Level Soon...',
     }
   };
 
