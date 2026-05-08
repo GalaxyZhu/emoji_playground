@@ -78,7 +78,12 @@ const PatternDiagnosis = {
     show(stats) {
         const typeCode = this.detectType(stats);
         const type = this.types[typeCode];
-        const isZh = (typeof currentLang !== 'undefined' && currentLang === 'zh');
+        let isZh = false;
+        if (typeof currentLang !== 'undefined' && currentLang === 'zh') {
+            isZh = true;
+        } else if (typeof GameI18n !== 'undefined' && GameI18n.detectLang() === 'zh') {
+            isZh = true;
+        }
 
         const roast = isZh
             ? type.roasts[Math.floor(Math.random() * type.roasts.length)]
@@ -197,7 +202,12 @@ const PatternDiagnosis = {
     share(platform) {
         const type = this.currentType;
         const stats = this.currentStats;
-        const isZh = (typeof currentLang !== 'undefined' && currentLang === 'zh');
+        let isZh = false;
+        if (typeof currentLang !== 'undefined' && currentLang === 'zh') {
+            isZh = true;
+        } else if (typeof GameI18n !== 'undefined' && GameI18n.detectLang() === 'zh') {
+            isZh = true;
+        }
 
         const shareTitle = isZh ? type.title : type.titleEn;
         const shareQuote = isZh ? type.quote : type.quoteEn;
