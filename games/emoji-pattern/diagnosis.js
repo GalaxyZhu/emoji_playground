@@ -109,7 +109,7 @@ const PatternDiagnosis = {
                 newRecord: '✨ 新纪录！',
                 finalScore: '最终得分',
                 highScore: '最高分',
-                diagnosis: '🎮 Emoji劲舞团 诊断',
+                diagnosis: '🎮 眼疾手快 诊断',
                 roastTitle: '💬 专属吐槽',
                 clicks: '点击',
                 accuracy: '准确率',

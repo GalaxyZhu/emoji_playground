@@ -562,7 +562,7 @@ function applyTranslations(lang) {
   const isEn = lang === 'en';
   const T = {
     zh: {
-      title: 'Emoji劲舞团',
+      title: '眼疾手快',
       subtitle: '按顺序消灭Emoji，挑战你的眼力和手速！',
       startGame: '▶️ 开始游戏',
       backToArcade: '🏠 回到街机厅',
@@ -631,7 +631,7 @@ function applyTranslations(lang) {
     }
   });
 
-  document.title = isEn ? 'Emoji Pattern' : 'Emoji劲舞团';
+  document.title = isEn ? 'Emoji Pattern' : '眼疾手快';
 }
 
 // 暴露关键函数到全局，供诊断系统调用
