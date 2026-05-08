@@ -634,4 +634,7 @@ function applyTranslations(lang) {
   document.title = isEn ? 'Emoji Pattern' : 'Emoji劲舞团';
 }
 
+// 暴露关键函数到全局，供诊断系统调用
+window.startGame = startGame;
+
 })();
