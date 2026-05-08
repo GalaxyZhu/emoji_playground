@@ -83,6 +83,11 @@ const state = {
   phaseStartTime: 0,
   totalErrors: 0,
   consecutiveErrors: 0,
+  totalClicks: 0,
+  correctClicks: 0,
+  wrongClicks: 0,
+  totalTimeSpent: 0,
+  levelStartTime: 0,
   gameState: 'idle',   // idle | playing | paused | gameover | leveldone
   timerInterval: null,
   animFrame: null,
@@ -294,10 +299,12 @@ function onCellClick(cell, el) {
   if (state.gameState !== 'playing') return;
   if (cell.eliminated) return;
 
+  state.totalClicks++;
   const targetEmoji = state.sequence[state.phase];
 
   if (cell.emoji === targetEmoji) {
     // 正确点击 — 直接进入下一阶段
+    state.correctClicks++;
     cell.eliminated = true;
     state.combo++;
     if (state.combo > state.maxCombo) state.maxCombo = state.combo;
@@ -326,6 +333,8 @@ function onCellClick(cell, el) {
     }
   } else {
     // 错误点击
+    state.wrongClicks++;
+    state.totalErrors++;
     state.combo = 0;
     state.consecutiveErrors++;
     state.timeLeft -= 2;
@@ -347,6 +356,11 @@ function startGame() {
   state.score = 0;
   state.combo = 0;
   state.maxCombo = 0;
+  state.totalClicks = 0;
+  state.correctClicks = 0;
+  state.wrongClicks = 0;
+  state.totalErrors = 0;
+  state.totalTimeSpent = 0;
   state.gameState = 'playing';
 
   loadLevel(1);
@@ -368,6 +382,7 @@ function loadLevel(level) {
   state.timeLeft = data.cfg.time;
   state.phaseStartTime = Date.now();
   state.consecutiveErrors = 0;
+  state.levelStartTime = Date.now();
 
   renderSequence();
   renderMatrix();
@@ -377,6 +392,9 @@ function loadLevel(level) {
 function levelComplete() {
   state.gameState = 'leveldone';
   stopTimer();
+
+  // 累加本关用时
+  state.totalTimeSpent += (Date.now() - state.levelStartTime) / 1000;
 
   // 过关奖励
   state.score += 500 * state.level;
@@ -443,20 +461,49 @@ function gameOver() {
   stopTimer();
   playGameOver();
 
-  if (state.score > state.bestScore) {
-    state.bestScore = state.score;
-    localStorage.setItem('emojiPattern_bestScore', state.bestScore);
-  }
-  if (state.level > state.bestLevel) {
-    state.bestLevel = state.level;
-    localStorage.setItem('emojiPattern_bestLevel', state.bestLevel);
+  // 累加最后一关用时（如果还没到 levelComplete）
+  if (state.levelStartTime) {
+    state.totalTimeSpent += (Date.now() - state.levelStartTime) / 1000;
   }
 
-  $.finalScore.textContent = state.score;
-  $.finalLevel.textContent = state.level;
-  $.bestScoreDisplay.textContent = state.bestScore;
+  // 保存记录
+  try {
+    if (state.score > state.bestScore) {
+      state.bestScore = state.score;
+      localStorage.setItem('emojiPattern_bestScore', state.bestScore);
+    }
+    if (state.level > state.bestLevel) {
+      state.bestLevel = state.level;
+      localStorage.setItem('emojiPattern_bestLevel', state.bestLevel);
+    }
+  } catch (e) {
+    console.warn('localStorage save failed:', e);
+  }
 
-  $.gameOverScreen.classList.remove('hidden');
+  // 显示诊断报告
+  if (typeof PatternDiagnosis !== 'undefined') {
+    const stats = {
+      score: state.score,
+      level: state.level,
+      maxCombo: state.maxCombo,
+      totalClicks: state.totalClicks,
+      correctClicks: state.correctClicks,
+      wrongClicks: state.wrongClicks,
+      totalErrors: state.totalErrors,
+      totalTimeSpent: state.totalTimeSpent,
+      highScore: state.bestScore,
+      highLevel: state.bestLevel,
+      bestScore: state.bestScore,
+      bestLevel: state.bestLevel,
+    };
+    PatternDiagnosis.show(stats);
+  } else {
+    // fallback: 显示传统 gameover 画面
+    $.finalScore.textContent = state.score;
+    $.finalLevel.textContent = state.level;
+    $.bestScoreDisplay.textContent = state.bestScore;
+    $.gameOverScreen.classList.remove('hidden');
+  }
 }
 
 // ===================== 计时器 =====================
