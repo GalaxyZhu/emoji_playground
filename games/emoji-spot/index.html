@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>找坏人</title>
+    <script src="../shared/i18n-detect.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .game-header {
+            width: 100%;
+            max-width: 600px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+        .game-title { font-size: 18px; font-weight: 700; }
+        .hud {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+        }
+        .hud-item { text-align: center; }
+        .hud-label { font-size: 11px; color: #94a3b8; }
+        .hud-value { font-size: 16px; font-weight: 700; color: #fbbf24; }
+        .game-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+        .level-info {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .level-info h2 { font-size: 24px; margin-bottom: 4px; }
+        .level-info p { font-size: 13px; color: #94a3b8; }
+        .grid-container {
+            display: grid;
+            gap: 8px;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+        }
+        .grid-cell {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            aspect-ratio: 1;
+            min-width: 60px;
+            min-height: 60px;
+        }
+        .grid-cell:hover { background: rgba(255,255,255,0.15); transform: scale(1.05); }
+        .grid-cell.wrong { animation: shake 0.4s ease; background: rgba(239,68,68,0.3); }
+        .grid-cell.correct { animation: pop 0.4s ease; background: rgba(34,197,94,0.3); }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .overlay.hidden { display: none; }
+        .overlay-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
+        .overlay-subtitle { font-size: 14px; color: #94a3b8; margin-bottom: 24px; text-align: center; }
+        .btn {
+            padding: 14px 32px; border-radius: 12px; border: none; font-size: 16px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s; min-width: 200px; text-align: center;
+        }
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99,102,241,0.4); }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); margin-top: 10px; }
+        .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0;
+            max-width: 300px; width: 100%;
+        }
+        .stat-card {
+            background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; text-align: center;
+        }
+        .stat-value { font-size: 20px; font-weight: 700; color: #fbbf24; }
+        .stat-label { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+        .timer-bar {
+            width: 100%; max-width: 300px; height: 6px; background: rgba(255,255,255,0.1);
+            border-radius: 3px; margin-top: 12px; overflow: hidden;
+        }
+        .timer-fill {
+            height: 100%; background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
+            border-radius: 3px; transition: width 0.3s linear;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-header">
+        <div class="game-title">🕵️ 找坏人</div>
+        <div class="hud">
+            <div class="hud-item">
+                <div class="hud-label">关卡</div>
+                <div class="hud-value" id="levelDisplay">1</div>
+            </div>
+            <div class="hud-item">
+                <div class="hud-label">得分</div>
+                <div class="hud-value" id="scoreDisplay">0</div>
+            </div>
+            <div class="hud-item">
+                <div class="hud-label">时间</div>
+                <div class="hud-value" id="timeDisplay">30</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-area">
+        <div class="level-info">
+            <h2 id="levelTitle">第 1 关</h2>
+            <p id="levelHint">找出那个不一样的表情！</p>
+        </div>
+        <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:100%"></div></div>
+        <div class="grid-container" id="gridContainer"></div>
+    </div>
+
+    <!-- 开始画面 -->
+    <div class="overlay" id="startScreen">
+        <div class="overlay-title">🕵️ 找坏人</div>
+        <div class="overlay-subtitle">在一堆表情中找出唯一的不同<br>从 2×2 到 10×10，考验你的眼力！</div>
+        <button class="btn btn-primary" onclick="startGame()">▶️ 开始游戏</button>
+        <button class="btn btn-secondary" onclick="goBack()">🏠 回到街机厅</button>
+    </div>
+
+    <!-- 游戏结束 -->
+    <div class="overlay hidden" id="gameOverScreen">
+        <div class="overlay-title">💀 游戏结束</div>
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-value" id="finalLevel">1</div><div class="stat-label">到达关卡</div></div>
+            <div class="stat-card"><div class="stat-value" id="finalScore">0</div><div class="stat-label">最终得分</div></div>
+            <div class="stat-card"><div class="stat-value" id="finalAccuracy">0%</div><div class="stat-label">准确率</div></div>
+            <div class="stat-card"><div class="stat-value" id="finalBest">0</div><div class="stat-label">最高分</div></div>
+        </div>
+        <button class="btn btn-primary" onclick="startGame()">🔄 再来一局</button>
+        <button class="btn btn-secondary" onclick="goBack()">🏠 回到街机厅</button>
+    </div>
+
+    <script src="diagnosis.js"></script>
+    <script src="game.js?v=1"></script>
+</body>
+</html>
