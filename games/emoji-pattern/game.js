@@ -402,31 +402,6 @@ function levelComplete() {
   playLevelDone();
   animateLevelDone();
 
-  // 计算星级
-  const cfg = state.currentLevelCfg;
-  const timeRatio = state.timeLeft / cfg.time;
-  let stars = 1;
-  if (timeRatio > 0.5) stars = 2;
-  if (timeRatio > 0.8 && state.consecutiveErrors === 0) stars = 3;
-
-  // 显示过关画面（短暂）
-  const lds = $.levelDoneScreen;
-  lds.querySelector('.ld-score').textContent = state.score;
-  lds.querySelector('.ld-time').textContent = Math.ceil(state.timeLeft) + 's';
-  lds.querySelector('.ld-combo').textContent = state.maxCombo;
-
-  const starsEl = lds.querySelector('.ld-stars');
-  starsEl.innerHTML = '';
-  for (let i = 0; i < 3; i++) {
-    const s = document.createElement('span');
-    s.className = 'ld-star';
-    s.textContent = i < stars ? '⭐' : '☆';
-    s.style.animationDelay = `${i * 200}ms`;
-    starsEl.appendChild(s);
-  }
-
-  lds.classList.remove('hidden');
-
   // 保存记录（容错处理）
   try {
     if (state.score > state.bestScore) {
@@ -440,19 +415,14 @@ function levelComplete() {
   } catch (e) {
     console.warn('localStorage save failed:', e);
   }
-}
 
-function nextLevel() {
-  // 清除自动跳转定时器（防止用户手动点击后又触发）
-  if (state.autoNextTimer) {
-    clearTimeout(state.autoNextTimer);
-    state.autoNextTimer = null;
-  }
-  $.levelDoneScreen.classList.add('hidden');
-  state.level++;
-  state.gameState = 'playing';
-  loadLevel(state.level);
-  startTimer();
+  // 短暂延迟让玩家看到飞走动画，然后直接进入下一关
+  setTimeout(() => {
+    state.level++;
+    state.gameState = 'playing';
+    loadLevel(state.level);
+    startTimer();
+  }, 600);
 }
 
 function gameOver() {
@@ -556,7 +526,6 @@ function bindEvents() {
     $.pauseScreen.classList.add('hidden');
     startGame();
   });
-  document.getElementById('nextLevelBtn').addEventListener('click', nextLevel);
 
   // 回到街机厅按钮
   document.querySelectorAll('.back-arcade-btn').forEach(btn => {
