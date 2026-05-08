@@ -422,12 +422,6 @@ function levelComplete() {
   } catch (e) {
     console.warn('localStorage save failed:', e);
   }
-
-  // 1.2秒后自动进入下一关
-  state.autoNextTimer = setTimeout(() => {
-    lds.classList.add('hidden');
-    nextLevel();
-  }, 1200);
 }
 
 function nextLevel() {
