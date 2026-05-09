@@ -192,7 +192,6 @@ const SpotDiagnosis = {
     if (e && e.target !== e.currentTarget) return;
     const modal = document.getElementById('diagnosisModal');
     if (modal) modal.remove();
-    if (typeof startGame === 'function') startGame();
   },
 
   share(platform) {
