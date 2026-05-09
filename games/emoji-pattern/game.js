@@ -15,11 +15,11 @@ const THEMES = [
 // ===================== 关卡配置 =====================
 function getLevelConfig(level) {
   const presets = {
-    1: { grid: 3, phases: 3, time: 25, distractors: 0 },
-    2: { grid: 4, phases: 4, time: 30, distractors: 1 },
-    3: { grid: 4, phases: 5, time: 30, distractors: 2 },
-    4: { grid: 5, phases: 5, time: 35, distractors: 2 },
-    5: { grid: 5, phases: 6, time: 35, distractors: 3 },
+    1: { grid: 3, phases: 3, time: 15, distractors: 0 },
+    2: { grid: 4, phases: 4, time: 15, distractors: 1 },
+    3: { grid: 4, phases: 5, time: 15, distractors: 2 },
+    4: { grid: 5, phases: 5, time: 15, distractors: 2 },
+    5: { grid: 5, phases: 6, time: 15, distractors: 3 },
   };
 
   if (presets[level]) return presets[level];
@@ -31,7 +31,7 @@ function getLevelConfig(level) {
   return {
     grid,
     phases,
-    time: 25 + phases * 2,
+    time: 15,
     distractors
   };
 }
@@ -76,7 +76,7 @@ const state = {
   score: 0,
   combo: 0,
   maxCombo: 0,
-  timeLeft: 30,
+  timeLeft: 15,
   phase: 0,           // 当前序列阶段（0-based）
   sequence: [],       // 目标序列
   matrix: [],         // 当前矩阵 [{emoji, id, eliminated, row, col}]
