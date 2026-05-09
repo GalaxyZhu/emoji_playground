@@ -729,21 +729,41 @@
 
     <!-- Main Content -->
     <main class="main-content" style="padding-top: 0;">
-<!-- Games List -->
+<!-- 上头专区 -->
         <section class="games-section">
-            <h2 class="section-title" id="hotGamesTitleZh">🔥 火眼金睛</h2>
-            <h2 class="section-title" id="hotGamesTitleEn" style="display: none;">🔥 Eagle Eyes</h2>
+            <h2 class="section-title" id="hotGamesTitleZh">🎯 上头专区</h2>
+            <h2 class="section-title" id="hotGamesTitleEn" style="display: none;">🎯 Hot Games</h2>
             <div class="games-grid" id="gamesGrid">
                 <!-- 游戏卡片由 JS 动态生成 -->
             </div>
         </section>
 
-        <!-- Emoji for Speed 赛车系列 -->
+        <!-- 火眼金睛 -->
         <section class="games-section">
-            <h2 class="section-title" id="speedGamesTitleZh">💥 动作专区</h2>
-            <h2 class="section-title" id="speedGamesTitleEn" style="display: none;">💥 Action Zone</h2>
-            <p id="speedSubtitleZh" style="color: #888; margin-bottom: 20px; font-size: 14px;">射击 · 生存 · 跳跃 · 冲刺，肾上腺素拉满</p>
-            <p id="speedSubtitleEn" style="color: #666; margin-bottom: 20px; font-size: 14px; display: none;">Shooters · Survival · Jump · Dash — Action Packed</p>
+            <h2 class="section-title" id="eagleEyesTitleZh">🔥 火眼金睛</h2>
+            <h2 class="section-title" id="eagleEyesTitleEn" style="display: none;">🔥 Eagle Eyes</h2>
+            <div class="games-grid" id="eagleEyesGrid">
+                <!-- 眼力游戏由 JS 动态生成 -->
+            </div>
+        </section>
+
+        <!-- 动作专区 -->
+        <section class="games-section">
+            <h2 class="section-title" id="actionTitleZh">💥 动作专区</h2>
+            <h2 class="section-title" id="actionTitleEn" style="display: none;">💥 Action Zone</h2>
+            <p id="actionSubtitleZh" style="color: #888; margin-bottom: 20px; font-size: 14px;">射击 · 生存 · 跳跃 · 冲刺，肾上腺素拉满</p>
+            <p id="actionSubtitleEn" style="color: #666; margin-bottom: 20px; font-size: 14px; display: none;">Shooters · Survival · Jump · Dash — Action Packed</p>
+            <div class="games-grid" id="actionGrid">
+                <!-- 动作游戏由 JS 动态生成 -->
+            </div>
+        </section>
+
+        <!-- 速度与表情包 -->
+        <section class="games-section">
+            <h2 class="section-title" id="speedGamesTitleZh">🏎️ 速度与表情包</h2>
+            <h2 class="section-title" id="speedGamesTitleEn" style="display: none;">🏎️ Emoji for Speed</h2>
+            <p id="speedSubtitleZh" style="color: #888; margin-bottom: 20px; font-size: 14px;">用表情包飙车才是正经事 · 油门踩到底 · 翻车也快乐</p>
+            <p id="speedSubtitleEn" style="color: #666; margin-bottom: 20px; font-size: 14px; display: none;">Racing with Emojis · Speed & Passion · Drive with Attitude</p>
             <div class="games-grid" id="racingGamesGrid">
                 <!-- Racing games will be rendered by JS -->
             </div>
@@ -1689,6 +1709,8 @@
             }));
             
             renderGames();
+            renderEagleEyesGames();
+            renderActionGames();
             renderRacingGames();
             renderComingSoonGames();
         }
@@ -1698,12 +1720,11 @@
             const grid = document.getElementById('racingGamesGrid');
             const lang = getCurrentLang();
             
-            const racingGames = ['emoji-shooter', 'emoji-survive', 'emoji-frog', 'emoji-hop'];
+            const racingGames = ['emoji-rush', 'emoji-drift'];
             racingGames.forEach(id => {
-                const game = gamesData.find(g => g.id === id);
-                if (game && game.status === 'ready') {
-                    const record = Storage.getGameRecord(game.id);
-                    const card = createGameCard(game, record, lang);
+                const game = gameConfigs[id];
+                if (game) {
+                    const card = createStaticGameCard(id, game, lang);
                     grid.appendChild(card);
                 }
             });
@@ -1851,12 +1872,18 @@
 
         function refreshGameSections() {
             const gamesGrid = document.getElementById('gamesGrid');
+            const eagleGrid = document.getElementById('eagleEyesGrid');
+            const actionGrid = document.getElementById('actionGrid');
             const racingGrid = document.getElementById('racingGamesGrid');
             const comingSoonGrid = document.getElementById('comingSoonGrid');
             if (gamesGrid) gamesGrid.innerHTML = '';
+            if (eagleGrid) eagleGrid.innerHTML = '';
+            if (actionGrid) actionGrid.innerHTML = '';
             if (racingGrid) racingGrid.innerHTML = '';
             if (comingSoonGrid) comingSoonGrid.innerHTML = '';
             renderGames();
+            renderEagleEyesGames();
+            renderActionGames();
             renderRacingGames();
             renderComingSoonGames();
         }
@@ -1905,10 +1932,41 @@
             const grid = document.getElementById('gamesGrid');
             const lang = getCurrentLang();
             
-            // Hot Games：match, shooter, survive, frog, hop
-            const hotGames = ['emoji-match', 'emoji-linkup', 'emoji-pattern', 'emoji-spot'];
+            const hotGames = ['emoji-match', 'emoji-linkup', 'emoji-shooter', 'emoji-survive', 'emoji-frog', 'emoji-hop', 'emoji-pattern', 'emoji-spot'];
             
             hotGames.forEach(id => {
+                const game = gamesData.find(g => g.id === id);
+                if (game && game.status === 'ready') {
+                    const record = Storage.getGameRecord(game.id);
+                    const card = createGameCard(game, record, lang);
+                    grid.appendChild(card);
+                }
+            });
+        }
+        
+        // 渲染火眼金睛专区
+        function renderEagleEyesGames() {
+            const grid = document.getElementById('eagleEyesGrid');
+            const lang = getCurrentLang();
+            
+            const eagleGames = ['emoji-match', 'emoji-linkup', 'emoji-pattern', 'emoji-spot'];
+            eagleGames.forEach(id => {
+                const game = gamesData.find(g => g.id === id);
+                if (game && game.status === 'ready') {
+                    const record = Storage.getGameRecord(game.id);
+                    const card = createGameCard(game, record, lang);
+                    grid.appendChild(card);
+                }
+            });
+        }
+        
+        // 渲染动作专区
+        function renderActionGames() {
+            const grid = document.getElementById('actionGrid');
+            const lang = getCurrentLang();
+            
+            const actionGames = ['emoji-shooter', 'emoji-survive', 'emoji-frog', 'emoji-hop'];
+            actionGames.forEach(id => {
                 const game = gamesData.find(g => g.id === id);
                 if (game && game.status === 'ready') {
                     const record = Storage.getGameRecord(game.id);
@@ -2055,6 +2113,10 @@
             // Section titles
             const hotGamesTitleZh = document.getElementById('hotGamesTitleZh');
             const hotGamesTitleEn = document.getElementById('hotGamesTitleEn');
+            const eagleEyesTitleZh = document.getElementById('eagleEyesTitleZh');
+            const eagleEyesTitleEn = document.getElementById('eagleEyesTitleEn');
+            const actionTitleZh = document.getElementById('actionTitleZh');
+            const actionTitleEn = document.getElementById('actionTitleEn');
             const speedGamesTitleZh = document.getElementById('speedGamesTitleZh');
             const speedGamesTitleEn = document.getElementById('speedGamesTitleEn');
             const comingSoonTitleZh = document.getElementById('comingSoonTitleZh');
@@ -2083,10 +2145,20 @@
                 
                 if (hotGamesTitleZh) hotGamesTitleZh.style.display = 'block';
                 if (hotGamesTitleEn) hotGamesTitleEn.style.display = 'none';
+                if (eagleEyesTitleZh) eagleEyesTitleZh.style.display = 'block';
+                if (eagleEyesTitleEn) eagleEyesTitleEn.style.display = 'none';
+                if (actionTitleZh) actionTitleZh.style.display = 'block';
+                if (actionTitleEn) actionTitleEn.style.display = 'none';
                 if (speedGamesTitleZh) speedGamesTitleZh.style.display = 'block';
                 if (speedGamesTitleEn) speedGamesTitleEn.style.display = 'none';
                 if (comingSoonTitleZh) comingSoonTitleZh.style.display = 'block';
                 if (comingSoonTitleEn) comingSoonTitleEn.style.display = 'none';
+                
+                // Action subtitle
+                const actionSubtitleZh = document.getElementById('actionSubtitleZh');
+                const actionSubtitleEn = document.getElementById('actionSubtitleEn');
+                if (actionSubtitleZh) actionSubtitleZh.style.display = 'block';
+                if (actionSubtitleEn) actionSubtitleEn.style.display = 'none';
                 
                 if (footerZh) footerZh.style.display = 'block';
                 if (footerEn) footerEn.style.display = 'none';
@@ -2157,10 +2229,20 @@
                 
                 if (hotGamesTitleZh) hotGamesTitleZh.style.display = 'none';
                 if (hotGamesTitleEn) hotGamesTitleEn.style.display = 'block';
+                if (eagleEyesTitleZh) eagleEyesTitleZh.style.display = 'none';
+                if (eagleEyesTitleEn) eagleEyesTitleEn.style.display = 'block';
+                if (actionTitleZh) actionTitleZh.style.display = 'none';
+                if (actionTitleEn) actionTitleEn.style.display = 'block';
                 if (speedGamesTitleZh) speedGamesTitleZh.style.display = 'none';
                 if (speedGamesTitleEn) speedGamesTitleEn.style.display = 'block';
                 if (comingSoonTitleZh) comingSoonTitleZh.style.display = 'none';
                 if (comingSoonTitleEn) comingSoonTitleEn.style.display = 'block';
+                
+                // Action subtitle
+                const actionSubtitleZh2 = document.getElementById('actionSubtitleZh');
+                const actionSubtitleEn2 = document.getElementById('actionSubtitleEn');
+                if (actionSubtitleZh2) actionSubtitleZh2.style.display = 'none';
+                if (actionSubtitleEn2) actionSubtitleEn2.style.display = 'block';
                 
                 if (footerZh) footerZh.style.display = 'none';
                 if (footerEn) footerEn.style.display = 'block';
