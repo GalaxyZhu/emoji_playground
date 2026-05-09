@@ -156,6 +156,16 @@
         <button class="btn btn-secondary" onclick="goBack()">🏠 回到街机厅</button>
     </div>
 
+    <!-- 暂停画面 -->
+    <div class="overlay hidden" id="pauseScreen">
+        <div class="overlay-title">⏸️ 游戏暂停</div>
+        <div class="overlay-subtitle">休息一下，或者重来</div>
+        <button class="btn btn-primary" id="resumeBtn">▶️ 继续游戏</button>
+        <button class="btn btn-secondary" id="restartFromPauseBtn">🔄 重新开始</button>
+        <button class="btn btn-secondary" onclick="goBack()">🏠 回到街机厅</button>
+        <div style="margin-top:12px; font-size:12px; color:#94a3b8;">按 ESC 键也可以继续游戏</div>
+    </div>
+
     <!-- 游戏结束 -->
     <div class="overlay hidden" id="gameOverScreen">
         <div class="overlay-title">💀 游戏结束</div>

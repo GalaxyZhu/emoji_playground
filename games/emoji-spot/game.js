@@ -80,7 +80,9 @@ const $ = {
   finalLevel: document.getElementById('finalLevel'),
   finalScore: document.getElementById('finalScore'),
   finalAccuracy: document.getElementById('finalAccuracy'),
-  finalBest: document.getElementById('finalBest')
+  pauseScreen: document.getElementById('pauseScreen'),
+  resumeBtn: document.getElementById('resumeBtn'),
+  restartFromPauseBtn: document.getElementById('restartFromPauseBtn'),
 };
 
 // ========== 核心逻辑 ==========
@@ -99,6 +101,7 @@ function startGame() {
 
   $.startScreen.classList.add('hidden');
   $.gameOverScreen.classList.add('hidden');
+  $.pauseScreen.classList.add('hidden');
   if (typeof SpotDiagnosis !== 'undefined') SpotDiagnosis.hide();
 
   loadLevel(1);
@@ -252,6 +255,21 @@ function gameOver() {
   }
 }
 
+// ========== 暂停 ==========
+function pauseGame() {
+  if (state.gameState !== 'playing') return;
+  state.gameState = 'paused';
+  stopTimer();
+  $.pauseScreen.classList.remove('hidden');
+}
+
+function resumeGame() {
+  if (state.gameState !== 'paused') return;
+  state.gameState = 'playing';
+  $.pauseScreen.classList.add('hidden');
+  startTimer();
+}
+
 // ========== HUD ==========
 function updateHUD() {
   $.levelDisplay.textContent = state.level;
@@ -267,6 +285,22 @@ function updateHUD() {
 function goBack() {
   window.location.href = '../../index.html';
 }
+
+// 事件绑定
+$.resumeBtn.addEventListener('click', resumeGame);
+$.restartFromPauseBtn.addEventListener('click', () => {
+  $.pauseScreen.classList.add('hidden');
+  startGame();
+});
+
+// ESC 暂停
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    e.preventDefault();
+    if (state.gameState === 'playing') pauseGame();
+    else if (state.gameState === 'paused') resumeGame();
+  }
+});
 
 // 暴露到全局（供诊断系统调用）
 window.startGame = startGame;
