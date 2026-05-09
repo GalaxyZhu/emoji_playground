@@ -16,8 +16,8 @@ const THEMES = [
 function getLevelConfig(level) {
   const presets = {
     1: { grid: 3, phases: 3, time: 15, distractors: 0 },
-    2: { grid: 4, phases: 4, time: 30, distractors: 1 },
-    3: { grid: 4, phases: 5, time: 30, distractors: 2 },
+    2: { grid: 4, phases: 4, time: 15, distractors: 1 },
+    3: { grid: 4, phases: 5, time: 15, distractors: 2 },
     4: { grid: 5, phases: 5, time: 15, distractors: 2 },
     5: { grid: 5, phases: 6, time: 15, distractors: 3 },
   };

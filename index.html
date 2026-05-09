@@ -1067,6 +1067,15 @@
                 tags: { zh: ['记忆', '反应', '序列'], en: ['Memory', 'Reflex', 'Sequence'] },
                 players: { zh: '1人', en: '1 Player' },
                 playTime: { zh: '1-3分钟', en: '1-3 min' }
+            },
+            'emoji-spot': {
+                name: { zh: '找坏人', en: 'Emoji Spot' },
+                emoji: '🕵️',
+                tagline: { zh: '在一堆表情中找出唯一的不同，眼力大挑战', en: 'Find the one different emoji in the crowd, eyesight challenge' },
+                difficulty: { zh: '简单', en: 'Easy' },
+                tags: { zh: ['眼力', '找不同', '观察'], en: ['Eyesight', 'Spot Difference', 'Observation'] },
+                players: { zh: '1人', en: '1 Player' },
+                playTime: { zh: '1-3分钟', en: '1-3 min' }
             }
         };
         
@@ -1896,7 +1905,7 @@
             const lang = getCurrentLang();
             
             // Hot Games：match, shooter, survive, frog, hop
-            const hotGames = ['emoji-match', 'emoji-linkup', 'emoji-shooter', 'emoji-survive', 'emoji-frog', 'emoji-hop', 'emoji-pattern'];
+            const hotGames = ['emoji-match', 'emoji-linkup', 'emoji-shooter', 'emoji-survive', 'emoji-frog', 'emoji-hop', 'emoji-pattern', 'emoji-spot'];
             
             hotGames.forEach(id => {
                 const game = gamesData.find(g => g.id === id);

@@ -287,6 +287,14 @@
     }
 
     function _switchBackend() {
+        // 游客始终使用 localStorage 后端，避免 Firebase 数据不同步导致余额显示/扣除不一致
+        if (_isGuest()) {
+            if (_activeBackend !== _localBackend) {
+                _activeBackend = _localBackend;
+                console.log('[TokenSystem] Guest mode: switched to localStorage backend');
+            }
+            return;
+        }
         if (_useFirebase() && _activeBackend !== _fbBackend) {
             _activeBackend = _fbBackend;
             console.log('[TokenSystem] Switched to Firebase backend');
