@@ -729,14 +729,6 @@
 
     <!-- Main Content -->
     <main class="main-content" style="padding-top: 0;">
-<!-- 上头专区 -->
-        <section class="games-section">
-            <h2 class="section-title" id="hotGamesTitleZh">🎯 上头专区</h2>
-            <h2 class="section-title" id="hotGamesTitleEn" style="display: none;">🎯 Hot Games</h2>
-            <div class="games-grid" id="gamesGrid">
-                <!-- 游戏卡片由 JS 动态生成 -->
-            </div>
-        </section>
 
         <!-- 火眼金睛 -->
         <section class="games-section">
@@ -1708,7 +1700,6 @@
                 path: `games/${id}/index.html`
             }));
             
-            renderGames();
             renderEagleEyesGames();
             renderActionGames();
             renderRacingGames();
@@ -1871,17 +1862,14 @@
         }
 
         function refreshGameSections() {
-            const gamesGrid = document.getElementById('gamesGrid');
             const eagleGrid = document.getElementById('eagleEyesGrid');
             const actionGrid = document.getElementById('actionGrid');
             const racingGrid = document.getElementById('racingGamesGrid');
             const comingSoonGrid = document.getElementById('comingSoonGrid');
-            if (gamesGrid) gamesGrid.innerHTML = '';
             if (eagleGrid) eagleGrid.innerHTML = '';
             if (actionGrid) actionGrid.innerHTML = '';
             if (racingGrid) racingGrid.innerHTML = '';
             if (comingSoonGrid) comingSoonGrid.innerHTML = '';
-            renderGames();
             renderEagleEyesGames();
             renderActionGames();
             renderRacingGames();
@@ -2111,8 +2099,6 @@
             const speedSubtitleEn = document.getElementById('speedSubtitleEn');
             
             // Section titles
-            const hotGamesTitleZh = document.getElementById('hotGamesTitleZh');
-            const hotGamesTitleEn = document.getElementById('hotGamesTitleEn');
             const eagleEyesTitleZh = document.getElementById('eagleEyesTitleZh');
             const eagleEyesTitleEn = document.getElementById('eagleEyesTitleEn');
             const actionTitleZh = document.getElementById('actionTitleZh');
@@ -2143,8 +2129,6 @@
                 if (speedSubtitleZh) speedSubtitleZh.style.display = 'block';
                 if (speedSubtitleEn) speedSubtitleEn.style.display = 'none';
                 
-                if (hotGamesTitleZh) hotGamesTitleZh.style.display = 'block';
-                if (hotGamesTitleEn) hotGamesTitleEn.style.display = 'none';
                 if (eagleEyesTitleZh) eagleEyesTitleZh.style.display = 'block';
                 if (eagleEyesTitleEn) eagleEyesTitleEn.style.display = 'none';
                 if (actionTitleZh) actionTitleZh.style.display = 'block';
@@ -2227,8 +2211,6 @@
                 if (speedSubtitleZh) speedSubtitleZh.style.display = 'none';
                 if (speedSubtitleEn) speedSubtitleEn.style.display = 'block';
                 
-                if (hotGamesTitleZh) hotGamesTitleZh.style.display = 'none';
-                if (hotGamesTitleEn) hotGamesTitleEn.style.display = 'block';
                 if (eagleEyesTitleZh) eagleEyesTitleZh.style.display = 'none';
                 if (eagleEyesTitleEn) eagleEyesTitleEn.style.display = 'block';
                 if (actionTitleZh) actionTitleZh.style.display = 'none';
