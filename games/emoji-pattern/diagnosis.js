@@ -195,6 +195,10 @@ const PatternDiagnosis = {
     hide() {
         const modal = document.getElementById('diagnosisModal');
         if (modal) modal.remove();
+        // 重新开始游戏
+        if (typeof startGame === 'function') {
+            startGame();
+        }
     },
 
     share(platform) {
