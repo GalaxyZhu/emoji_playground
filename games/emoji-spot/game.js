@@ -1,5 +1,90 @@
 // 🕵️ Emoji Spot — 找坏人 核心游戏逻辑
 
+// ========== i18n 翻译 ==========
+let currentLang = 'zh';
+
+function applyTranslations(lang) {
+  currentLang = lang;
+  const isEn = lang === 'en';
+  const T = {
+    zh: {
+      title: '🕵️ 找坏人',
+      subtitle: '在一堆表情中找出唯一的不同\n从 2×2 到 10×10，考验你的眼力！',
+      startGame: '▶️ 开始游戏',
+      backToArcade: '🏠 回到街机厅',
+      gamePaused: '⏸️ 游戏暂停',
+      pauseSubtitle: '休息一下，或者重来',
+      resume: '▶️ 继续游戏',
+      restart: '🔄 重新开始',
+      pauseHint: '按 ESC 键也可以继续游戏',
+      gameOver: '💀 游戏结束',
+      levelLabel: '关卡',
+      scoreLabel: '得分',
+      timeLabel: '时间',
+      accuracyLabel: '准确率',
+      bestLabel: '最高分',
+      restartGame: '🔄 再来一局',
+      levelTitle: '第 {level} 关',
+      levelHint: '找出那个不一样的表情！',
+      levelHints: [
+        '找出那个不一样的表情！',
+        '注意看，有一个表情跟大家不同！',
+        '擦亮眼睛，坏人就藏在这里！',
+        '找到混入其中的卧底！'
+      ]
+    },
+    en: {
+      title: '🕵️ Find the Odd One',
+      subtitle: 'Spot the one different emoji\nFrom 2×2 to 10×10, test your eyes!',
+      startGame: '▶️ Start Game',
+      backToArcade: '🏠 Back to Arcade',
+      gamePaused: '⏸️ Game Paused',
+      pauseSubtitle: 'Take a break, or restart',
+      resume: '▶️ Resume',
+      restart: '🔄 Restart',
+      pauseHint: 'Press ESC to resume',
+      gameOver: '💀 Game Over',
+      levelLabel: 'Level',
+      scoreLabel: 'Score',
+      timeLabel: 'Time',
+      accuracyLabel: 'Accuracy',
+      bestLabel: 'Best',
+      restartGame: '🔄 Play Again',
+      levelTitle: 'Level {level}',
+      levelHint: 'Find the emoji that\'s different!',
+      levelHints: [
+        'Find the emoji that\'s different!',
+        'Look closely, one emoji is not like the others!',
+        'Keep your eyes sharp, the bad guy is hiding here!',
+        'Spot the impostor among them!'
+      ]
+    }
+  };
+
+  const dict = isEn ? T.en : T.zh;
+
+  // 翻译 data-i18n 元素
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) {
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+        el.placeholder = dict[key];
+      } else {
+        // 处理可能包含换行的文本
+        el.innerHTML = dict[key].replace(/\n/g, '<br>');
+      }
+    }
+  });
+
+  // 更新标题
+  document.title = isEn ? 'Find the Odd One' : '找坏人';
+
+  // 更新 html lang
+  if (typeof GameI18n !== 'undefined') {
+    GameI18n.setHtmlLang(lang);
+  }
+}
+
 // ========== Emoji 差异素材池 ==========
 const EMOJI_POOLS = {
   easy: [      // Lv 1-3: 完全不同
@@ -123,14 +208,27 @@ function loadLevel(level) {
   renderGrid();
   updateHUD();
 
-  $.levelTitle.textContent = `第 ${level} 关`;
-  const hints = [
-    '找出那个不一样的表情！',
-    '注意看，有一个表情跟大家不同！',
-    '擦亮眼睛，坏人就藏在这里！',
-    '找到混入其中的卧底！'
-  ];
-  $.levelHint.textContent = hints[Math.floor(Math.random() * hints.length)];
+  // 翻译关卡标题和提示
+  const isEn = currentLang === 'en';
+  const T = isEn ? {
+    levelTitle: 'Level {level}',
+    levelHints: [
+      'Find the emoji that\'s different!',
+      'Look closely, one emoji is not like the others!',
+      'Keep your eyes sharp, the bad guy is hiding here!',
+      'Spot the impostor among them!'
+    ]
+  } : {
+    levelTitle: '第 {level} 关',
+    levelHints: [
+      '找出那个不一样的表情！',
+      '注意看，有一个表情跟大家不同！',
+      '擦亮眼睛，坏人就藏在这里！',
+      '找到混入其中的卧底！'
+    ]
+  };
+  $.levelTitle.textContent = T.levelTitle.replace('{level}', level);
+  $.levelHint.textContent = T.levelHints[Math.floor(Math.random() * T.levelHints.length)];
 }
 
 function renderGrid() {
@@ -291,6 +389,15 @@ $.resumeBtn.addEventListener('click', resumeGame);
 $.restartFromPauseBtn.addEventListener('click', () => {
   $.pauseScreen.classList.add('hidden');
   startGame();
+});
+
+// 初始化：检测语言并应用翻译
+window.addEventListener('DOMContentLoaded', () => {
+  let lang = 'zh';
+  if (typeof GameI18n !== 'undefined') {
+    lang = GameI18n.detectLang();
+  }
+  applyTranslations(lang);
 });
 
 // ESC 暂停

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>找坏人</title>
+    <title data-i18n="title">找坏人</title>
     <script src="../shared/i18n-detect.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
@@ -122,18 +122,18 @@
 </head>
 <body>
     <div class="game-header">
-        <div class="game-title">🕵️ 找坏人</div>
+        <div class="game-title" data-i18n="title">🕵️ 找坏人</div>
         <div class="hud">
             <div class="hud-item">
-                <div class="hud-label">关卡</div>
+                <div class="hud-label" data-i18n="levelLabel">关卡</div>
                 <div class="hud-value" id="levelDisplay">1</div>
             </div>
             <div class="hud-item">
-                <div class="hud-label">得分</div>
+                <div class="hud-label" data-i18n="scoreLabel">得分</div>
                 <div class="hud-value" id="scoreDisplay">0</div>
             </div>
             <div class="hud-item">
-                <div class="hud-label">时间</div>
+                <div class="hud-label" data-i18n="timeLabel">时间</div>
                 <div class="hud-value" id="timeDisplay">30</div>
             </div>
         </div>
@@ -150,36 +150,36 @@
 
     <!-- 开始画面 -->
     <div class="overlay" id="startScreen">
-        <div class="overlay-title">🕵️ 找坏人</div>
-        <div class="overlay-subtitle">在一堆表情中找出唯一的不同<br>从 2×2 到 10×10，考验你的眼力！</div>
-        <button class="btn btn-primary" onclick="startGame()">▶️ 开始游戏</button>
-        <button class="btn btn-secondary" onclick="goBack()">🏠 回到街机厅</button>
+        <div class="overlay-title" data-i18n="title">🕵️ 找坏人</div>
+        <div class="overlay-subtitle" data-i18n="subtitle">在一堆表情中找出唯一的不同<br>从 2×2 到 10×10，考验你的眼力！</div>
+        <button class="btn btn-primary" onclick="startGame()" data-i18n="startGame">▶️ 开始游戏</button>
+        <button class="btn btn-secondary" onclick="goBack()" data-i18n="backToArcade">🏠 回到街机厅</button>
     </div>
 
     <!-- 暂停画面 -->
     <div class="overlay hidden" id="pauseScreen">
-        <div class="overlay-title">⏸️ 游戏暂停</div>
-        <div class="overlay-subtitle">休息一下，或者重来</div>
-        <button class="btn btn-primary" id="resumeBtn">▶️ 继续游戏</button>
-        <button class="btn btn-secondary" id="restartFromPauseBtn">🔄 重新开始</button>
-        <button class="btn btn-secondary" onclick="goBack()">🏠 回到街机厅</button>
-        <div style="margin-top:12px; font-size:12px; color:#94a3b8;">按 ESC 键也可以继续游戏</div>
+        <div class="overlay-title" data-i18n="gamePaused">⏸️ 游戏暂停</div>
+        <div class="overlay-subtitle" data-i18n="pauseSubtitle">休息一下，或者重来</div>
+        <button class="btn btn-primary" id="resumeBtn" data-i18n="resume">▶️ 继续游戏</button>
+        <button class="btn btn-secondary" id="restartFromPauseBtn" data-i18n="restart">🔄 重新开始</button>
+        <button class="btn btn-secondary" onclick="goBack()" data-i18n="backToArcade">🏠 回到街机厅</button>
+        <div style="margin-top:12px; font-size:12px; color:#94a3b8;" data-i18n="pauseHint">按 ESC 键也可以继续游戏</div>
     </div>
 
     <!-- 游戏结束 -->
     <div class="overlay hidden" id="gameOverScreen">
-        <div class="overlay-title">💀 游戏结束</div>
+        <div class="overlay-title" data-i18n="gameOver">💀 游戏结束</div>
         <div class="stats-grid">
-            <div class="stat-card"><div class="stat-value" id="finalLevel">1</div><div class="stat-label">到达关卡</div></div>
-            <div class="stat-card"><div class="stat-value" id="finalScore">0</div><div class="stat-label">最终得分</div></div>
-            <div class="stat-card"><div class="stat-value" id="finalAccuracy">0%</div><div class="stat-label">准确率</div></div>
-            <div class="stat-card"><div class="stat-value" id="finalBest">0</div><div class="stat-label">最高分</div></div>
+            <div class="stat-card"><div class="stat-value" id="finalLevel">1</div><div class="stat-label" data-i18n="levelLabel">到达关卡</div></div>
+            <div class="stat-card"><div class="stat-value" id="finalScore">0</div><div class="stat-label" data-i18n="scoreLabel">最终得分</div></div>
+            <div class="stat-card"><div class="stat-value" id="finalAccuracy">0%</div><div class="stat-label" data-i18n="accuracyLabel">准确率</div></div>
+            <div class="stat-card"><div class="stat-value" id="finalBest">0</div><div class="stat-label" data-i18n="bestLabel">最高分</div></div>
         </div>
-        <button class="btn btn-primary" onclick="startGame()">🔄 再来一局</button>
-        <button class="btn btn-secondary" onclick="goBack()">🏠 回到街机厅</button>
+        <button class="btn btn-primary" onclick="startGame()" data-i18n="restartGame">🔄 再来一局</button>
+        <button class="btn btn-secondary" onclick="goBack()" data-i18n="backToArcade">🏠 回到街机厅</button>
     </div>
 
     <script src="diagnosis.js"></script>
-    <script src="game.js?v=1"></script>
+    <script src="game.js?v=2"></script>
 </body>
 </html>
