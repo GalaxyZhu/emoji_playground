@@ -9,7 +9,7 @@
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            background: linear-gradient(135deg, #1a0a2e 0%, #16213e 40%, #0f0f23 100%);
             min-height: 100vh;
             color: #fff;
             overflow-x: hidden;
@@ -84,32 +84,141 @@
             50% { transform: scale(1.2); }
             100% { transform: scale(1); }
         }
+
+        /* ========== 覆盖屏幕（统一 emoji-pattern 风格）========== */
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85);
+            background: rgba(10, 8, 20, 0.92);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             z-index: 1000;
-            padding: 20px;
+            padding: 30px 20px;
+            text-align: center;
         }
-        .overlay.hidden { display: none; }
-        .overlay-title { font-size: 32px; font-weight: 800; margin-bottom: 8px; }
-        .overlay-subtitle { font-size: 14px; color: #94a3b8; margin-bottom: 24px; text-align: center; }
+        .overlay.hidden { display: none !important; }
+
+        .overlay-emoji {
+            font-size: 72px;
+            margin-bottom: 12px;
+            animation: bounceEmoji 0.8s infinite alternate ease-in-out;
+        }
+        @keyframes bounceEmoji {
+            from { transform: translateY(0) scale(1); }
+            to   { transform: translateY(-12px) scale(1.1); }
+        }
+        .overlay-title {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #00f5ff, #bc13fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .overlay-subtitle {
+            font-size: 15px;
+            color: #aaa;
+            margin-bottom: 28px;
+            line-height: 1.6;
+            max-width: 340px;
+        }
+
         .btn {
-            padding: 14px 32px; border-radius: 12px; border: none; font-size: 16px; font-weight: 600;
-            cursor: pointer; transition: all 0.3s; min-width: 200px; text-align: center;
+            padding: 14px 36px;
+            font-size: 18px;
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #fff;
+            min-width: 200px;
+            margin: 6px 0;
         }
-        .btn-primary { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99,102,241,0.4); }
-        .btn-secondary { background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); margin-top: 10px; }
-        .stats-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0;
-            max-width: 300px; width: 100%;
+        .btn:hover { transform: scale(1.05); }
+        .btn:active { transform: scale(0.95); }
+        .btn-primary {
+            background: linear-gradient(135deg, #00f5ff 0%, #bc13fe 100%);
+            box-shadow: 0 4px 20px rgba(0, 245, 255, 0.3);
         }
-        .stat-card {
-            background: rgba(255,255,255,0.05); border-radius: 10px; padding: 12px; text-align: center;
+        .btn-secondary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }
-        .stat-value { font-size: 20px; font-weight: 700; color: #fbbf24; }
-        .stat-label { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%);
+            box-shadow: 0 4px 15px rgba(74, 222, 128, 0.3);
+        }
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        /* 玩法说明框 */
+        .instructions-box {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #999;
+            line-height: 1.8;
+            max-width: 340px;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .instructions-box strong {
+            color: #ccc;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        .best-score-display {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #fbbf24;
+        }
+
+        /* 暂停画面 */
+        .pause-title {
+            font-size: 28px;
+            color: #fff;
+            margin-bottom: 30px;
+        }
+        .pause-hint {
+            color: #666;
+            font-size: 12px;
+            margin-top: 16px;
+        }
+
+        /* 游戏结束画面 */
+        .gameover-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 16px 0 24px;
+            max-width: 280px;
+        }
+        .go-stat {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 10px;
+        }
+        .go-stat-label {
+            font-size: 11px;
+            color: #888;
+        }
+        .go-stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 2px;
+        }
+
         .timer-bar {
             width: 100%; max-width: 300px; height: 6px; background: rgba(255,255,255,0.1);
             border-radius: 3px; margin-top: 12px; overflow: hidden;
@@ -117,6 +226,15 @@
         .timer-fill {
             height: 100%; background: linear-gradient(90deg, #22c55e, #eab308, #ef4444);
             border-radius: 3px; transition: width 0.3s linear;
+        }
+
+        /* 响应式 */
+        @media (max-height: 700px) {
+            .overlay-emoji { font-size: 56px; }
+            .overlay-title { font-size: 30px; }
+        }
+        @media (max-height: 600px) {
+            .overlay-emoji { font-size: 48px; }
         }
     </style>
 </head>
@@ -148,38 +266,53 @@
         <div class="grid-container" id="gridContainer"></div>
     </div>
 
-    <!-- 开始画面 -->
+    <!-- ========== 开始画面（emoji-pattern 风格）========== -->
     <div class="overlay" id="startScreen">
-        <div class="overlay-title" data-i18n="title">🕵️ 找坏人</div>
+        <div class="overlay-emoji">🕵️</div>
+        <div class="overlay-title" data-i18n="titleText">找坏人</div>
         <div class="overlay-subtitle" data-i18n="subtitle">在一堆表情中找出唯一的不同<br>从 2×2 到 10×10，考验你的眼力！</div>
-        <button class="btn btn-primary" onclick="startGame()" data-i18n="startGame">▶️ 开始游戏</button>
+        <button class="btn btn-primary" id="startBtn" data-i18n="startGame">▶️ 开始游戏</button>
         <button class="btn btn-secondary" onclick="goBack()" data-i18n="backToArcade">🏠 回到街机厅</button>
-    </div>
-
-    <!-- 暂停画面 -->
-    <div class="overlay hidden" id="pauseScreen">
-        <div class="overlay-title" data-i18n="gamePaused">⏸️ 游戏暂停</div>
-        <div class="overlay-subtitle" data-i18n="pauseSubtitle">休息一下，或者重来</div>
-        <button class="btn btn-primary" id="resumeBtn" data-i18n="resume">▶️ 继续游戏</button>
-        <button class="btn btn-secondary" id="restartFromPauseBtn" data-i18n="restart">🔄 重新开始</button>
-        <button class="btn btn-secondary" onclick="goBack()" data-i18n="backToArcade">🏠 回到街机厅</button>
-        <div style="margin-top:12px; font-size:12px; color:#94a3b8;" data-i18n="pauseHint">按 ESC 键也可以继续游戏</div>
-    </div>
-
-    <!-- 游戏结束 -->
-    <div class="overlay hidden" id="gameOverScreen">
-        <div class="overlay-title" data-i18n="gameOver">💀 游戏结束</div>
-        <div class="stats-grid">
-            <div class="stat-card"><div class="stat-value" id="finalLevel">1</div><div class="stat-label" data-i18n="levelLabel">到达关卡</div></div>
-            <div class="stat-card"><div class="stat-value" id="finalScore">0</div><div class="stat-label" data-i18n="scoreLabel">最终得分</div></div>
-            <div class="stat-card"><div class="stat-value" id="finalAccuracy">0%</div><div class="stat-label" data-i18n="accuracyLabel">准确率</div></div>
-            <div class="stat-card"><div class="stat-value" id="finalBest">0</div><div class="stat-label" data-i18n="bestLabel">最高分</div></div>
+        <div class="instructions-box">
+            <strong data-i18n="howToPlay">玩法说明</strong>
+            <span data-i18n="instructions">
+                屏幕上满是相同的 Emoji<br>
+                只有一个表情跟大家不同<br>
+                点击找出那个"坏人"<br>
+                点错扣 3 秒，时间归零 = 游戏结束
+            </span>
         </div>
-        <button class="btn btn-primary" onclick="startGame()" data-i18n="restartGame">🔄 再来一局</button>
+        <div class="best-score-display">
+            🏆 <span data-i18n="bestLabel">历史最高</span>: <span id="startBestScore">0</span>
+        </div>
+    </div>
+
+    <!-- ========== 暂停画面 ========== -->
+    <div class="overlay hidden" id="pauseScreen">
+        <div class="pause-title" data-i18n="gamePaused">⏸️ 游戏暂停</div>
+        <div class="btn-row">
+            <button class="btn btn-success" id="resumeBtn" data-i18n="resume">▶️ 继续游戏</button>
+            <button class="btn btn-danger" id="restartFromPauseBtn" data-i18n="restart">🔄 重新开始</button>
+        </div>
+        <button class="btn btn-secondary" onclick="goBack()" data-i18n="backToArcade">🏠 回到街机厅</button>
+        <div class="pause-hint" data-i18n="pauseHint">按 ESC 键也可以继续游戏</div>
+    </div>
+
+    <!-- ========== 游戏结束 ========== -->
+    <div class="overlay hidden" id="gameOverScreen">
+        <div class="overlay-emoji">💀</div>
+        <div class="overlay-title" data-i18n="gameOver">💀 游戏结束</div>
+        <div class="gameover-stats">
+            <div class="go-stat"><div class="go-stat-value" id="finalLevel">1</div><div class="go-stat-label" data-i18n="levelLabel">到达关卡</div></div>
+            <div class="go-stat"><div class="go-stat-value" id="finalScore">0</div><div class="go-stat-label" data-i18n="scoreLabel">最终得分</div></div>
+            <div class="go-stat"><div class="go-stat-value" id="finalAccuracy">0%</div><div class="go-stat-label" data-i18n="accuracyLabel">准确率</div></div>
+            <div class="go-stat"><div class="go-stat-value" id="finalBest">0</div><div class="go-stat-label" data-i18n="bestLabel">最高分</div></div>
+        </div>
+        <button class="btn btn-primary" id="restartBtn" data-i18n="restartGame">🔄 再来一局</button>
         <button class="btn btn-secondary" onclick="goBack()" data-i18n="backToArcade">🏠 回到街机厅</button>
     </div>
 
     <script src="diagnosis.js"></script>
-    <script src="game.js?v=2"></script>
+    <script src="game.js?v=3"></script>
 </body>
 </html>
