@@ -250,12 +250,20 @@ function loadLevel(level) {
 
 function renderGrid() {
   $.gridContainer.innerHTML = '';
-  $.gridContainer.style.gridTemplateColumns = `repeat(${state.gridSize}, 1fr)`;
+  const size = state.gridSize;
+  $.gridContainer.style.gridTemplateColumns = `repeat(${size}, minmax(0, 1fr))`;
 
-  const totalCells = state.gridSize * state.gridSize;
+  // 动态计算字体大小：根据容器宽度和格子数
+  const containerWidth = Math.min(window.innerWidth - 40, 600);
+  const gap = 8;
+  const cellSize = (containerWidth - (size - 1) * gap) / size;
+  const fontSize = Math.max(16, Math.min(36, Math.floor(cellSize * 0.65)));
+
+  const totalCells = size * size;
   for (let i = 0; i < totalCells; i++) {
     const cell = document.createElement('div');
     cell.className = 'grid-cell';
+    cell.style.fontSize = fontSize + 'px';
     cell.textContent = (i === state.badGuyIndex) ? state.emojiBad : state.emojiBase;
     cell.dataset.index = i;
     cell.addEventListener('click', () => onCellClick(i, cell));
