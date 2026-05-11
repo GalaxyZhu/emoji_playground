@@ -9,6 +9,7 @@ function applyTranslations(lang) {
   const T = {
     zh: {
       title: '🕵️ 找坏人',
+      titleText: '找坏人',
       subtitle: '在一堆表情中找出唯一的不同\n从 2×2 到 10×10，考验你的眼力！',
       startGame: '▶️ 开始游戏',
       backToArcade: '🏠 回到街机厅',
@@ -24,6 +25,8 @@ function applyTranslations(lang) {
       accuracyLabel: '准确率',
       bestLabel: '最高分',
       restartGame: '🔄 再来一局',
+      howToPlay: '玩法说明',
+      instructions: '屏幕上满是相同的 Emoji\n只有一个表情跟大家不同\n点击找出那个"坏人"\n点错扣 3 秒，时间归零 = 游戏结束',
       levelTitle: '第 {level} 关',
       levelHint: '找出那个不一样的表情！',
       levelHints: [
@@ -35,6 +38,7 @@ function applyTranslations(lang) {
     },
     en: {
       title: '🕵️ Find the Odd One',
+      titleText: 'Find the Odd One',
       subtitle: 'Spot the one different emoji\nFrom 2×2 to 10×10, test your eyes!',
       startGame: '▶️ Start Game',
       backToArcade: '🏠 Back to Arcade',
@@ -50,6 +54,8 @@ function applyTranslations(lang) {
       accuracyLabel: 'Accuracy',
       bestLabel: 'Best',
       restartGame: '🔄 Play Again',
+      howToPlay: 'How to Play',
+      instructions: 'The screen is full of the same emoji\nOnly one is different from the rest\nTap to find the "bad guy"\nWrong click = -3s, time runs out = Game Over',
       levelTitle: 'Level {level}',
       levelHint: 'Find the emoji that\'s different!',
       levelHints: [
@@ -83,6 +89,10 @@ function applyTranslations(lang) {
   if (typeof GameI18n !== 'undefined') {
     GameI18n.setHtmlLang(lang);
   }
+
+  // 更新开始画面的最高分显示
+  const bestScore = parseInt(localStorage.getItem('emojiSpot_bestScore') || '0');
+  if ($.startBestScore) $.startBestScore.textContent = bestScore;
 }
 
 // ========== Emoji 差异素材池 ==========
@@ -168,6 +178,9 @@ const $ = {
   pauseScreen: document.getElementById('pauseScreen'),
   resumeBtn: document.getElementById('resumeBtn'),
   restartFromPauseBtn: document.getElementById('restartFromPauseBtn'),
+  startBtn: document.getElementById('startBtn'),
+  restartBtn: document.getElementById('restartBtn'),
+  startBestScore: document.getElementById('startBestScore'),
 };
 
 // ========== 核心逻辑 ==========
@@ -188,6 +201,10 @@ function startGame() {
   $.gameOverScreen.classList.add('hidden');
   $.pauseScreen.classList.add('hidden');
   if (typeof SpotDiagnosis !== 'undefined') SpotDiagnosis.hide();
+
+  // 更新最高分显示（以防游戏过程中刷新了记录）
+  const bestScore = parseInt(localStorage.getItem('emojiSpot_bestScore') || '0');
+  if ($.startBestScore) $.startBestScore.textContent = bestScore;
 
   loadLevel(1);
   startTimer();
@@ -390,6 +407,8 @@ $.restartFromPauseBtn.addEventListener('click', () => {
   $.pauseScreen.classList.add('hidden');
   startGame();
 });
+$.startBtn.addEventListener('click', startGame);
+$.restartBtn.addEventListener('click', startGame);
 
 // 初始化：检测语言并应用翻译
 window.addEventListener('DOMContentLoaded', () => {
