@@ -1929,7 +1929,7 @@
             const grid = document.getElementById('gamesGrid');
             const lang = getCurrentLang();
             
-            const hotGames = ['emoji-match', 'emoji-linkup', 'emoji-shooter', 'emoji-survive', 'emoji-frog', 'emoji-hop', 'emoji-pattern', 'emoji-spot', 'emoji-evolve'];
+            const hotGames = ['emoji-match', 'emoji-linkup', 'emoji-shooter', 'emoji-survive', 'emoji-frog', 'emoji-hop', 'emoji-pattern', 'emoji-spot'];
             
             hotGames.forEach(id => {
                 const game = gamesData.find(g => g.id === id);
@@ -1946,7 +1946,7 @@
             const grid = document.getElementById('eagleEyesGrid');
             const lang = getCurrentLang();
             
-            const eagleGames = ['emoji-match', 'emoji-linkup', 'emoji-pattern', 'emoji-spot'];
+            const eagleGames = ['emoji-match', 'emoji-linkup', 'emoji-pattern', 'emoji-spot', 'emoji-evolve'];
             eagleGames.forEach(id => {
                 const game = gamesData.find(g => g.id === id);
                 if (game && game.status === 'ready') {
