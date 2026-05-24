@@ -43,7 +43,7 @@ const THEMES = {
     emoji: '💧',
     description: '从水滴到海洋之王',
     locked: true,
-    unlockCost: 50,
+    unlockCost: 20,
     colors: ['#1a3a5a', '#1a4a6a', '#1a5a7a', '#1a6a8a', '#1a7a9a', '#1a8aaa', '#00ccff'],
     chain: [
       { level: 1, emoji: '💧', name: '水滴', value: 2 },
@@ -61,7 +61,7 @@ const THEMES = {
     emoji: '⚔️',
     description: '从石器到末日武器',
     locked: true,
-    unlockCost: 100,
+    unlockCost: 50,
     colors: ['#3a3a3a', '#4a4a4a', '#5a5a5a', '#6a6a6a', '#7a7a7a', '#8a8a8a', '#ff4444'],
     chain: [
       { level: 1, emoji: '🪨', name: '石器', value: 2 },
@@ -79,7 +79,7 @@ const THEMES = {
     emoji: '🍔',
     description: '从农田到满汉全席',
     locked: true,
-    unlockCost: 150,
+    unlockCost: 100,
     colors: ['#3a5a1a', '#4a6a2a', '#5a7a3a', '#6a8a4a', '#7a9a5a', '#8aaa6a', '#ff8800'],
     chain: [
       { level: 1, emoji: '🌾', name: '稻穗', value: 2 },
