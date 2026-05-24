@@ -373,20 +373,21 @@
             .game-title { font-size: 15px; }
         }
     </style>
+    <script src="../shared/i18n-detect.js"></script>
 </head>
 <body>
     <div class="game-header">
         <div class="game-title">
             <span>🧬</span>
-            <span>表情包超进化</span>
+            <span data-i18n="title">表情包超进化</span>
         </div>
         <div class="hud">
             <div class="hud-item">
-                <div class="hud-label">得分</div>
+                <div class="hud-label" data-i18n="scoreLabel">得分</div>
                 <div class="hud-value" id="score">0</div>
             </div>
             <div class="hud-item">
-                <div class="hud-label">最佳</div>
+                <div class="hud-label" data-i18n="bestLabel">最佳</div>
                 <div class="hud-value" id="best">0</div>
             </div>
         </div>
@@ -398,32 +399,33 @@
         <div class="grid-wrapper" id="grid"></div>
         <div class="controls">
             <button class="ctrl-btn" id="undoBtn" onclick="game.undoMove()">
-                ↩️ 撤销<span class="undo-count" id="undoCount">(3)</span>
+                ↩️ <span data-i18n="undo">撤销</span><span class="undo-count" id="undoCount">(3)</span>
             </button>
-            <button class="ctrl-btn" onclick="game.restart()">🔄 重来</button>
+            <button class="ctrl-btn" onclick="game.restart()"><span data-i18n="restart">🔄 重来</span></button>
+            <button class="ctrl-btn" onclick="game.goHome()"><span data-i18n="backToArcade">🏠 返回街机厅</span></button>
         </div>
-        <div class="hint-text">← ↑ ↓ → 或 WASD 滑动 | 相同 Emoji 合并进化</div>
+        <div class="hint-text" data-i18n="hint">← ↑ ↓ → 或 WASD 滑动 | 相同 Emoji 合并进化</div>
     </div>
 
     <!-- Game Over Overlay -->
     <div class="overlay" id="gameOverOverlay">
-        <div class="overlay-title">😢 进化中断</div>
-        <div class="overlay-subtitle">没有可移动的空间了</div>
+        <div class="overlay-title" data-i18n="gameOverTitle">😢 进化中断</div>
+        <div class="overlay-subtitle" data-i18n="gameOverSubtitle">没有可移动的空间了</div>
         <div id="diagnosisContainer"></div>
         <div class="overlay-buttons">
-            <button class="overlay-btn primary" onclick="game.restart()">再来一局</button>
-            <button class="overlay-btn secondary" onclick="game.goHome()">返回首页</button>
+            <button class="overlay-btn primary" onclick="game.restart()"><span data-i18n="playAgain">再来一局</span></button>
+            <button class="overlay-btn secondary" onclick="game.goHome()"><span data-i18n="backToArcade">返回街机厅</span></button>
         </div>
     </div>
 
     <!-- Win Overlay -->
     <div class="overlay" id="winOverlay">
-        <div class="overlay-title">🎉 进化完成！</div>
-        <div class="overlay-subtitle">你合成了终极形态！</div>
+        <div class="overlay-title" data-i18n="winTitle">🎉 进化完成！</div>
+        <div class="overlay-subtitle" data-i18n="winSubtitle">你合成了终极形态！</div>
         <div id="winDiagnosisContainer"></div>
         <div class="overlay-buttons">
-            <button class="overlay-btn primary" onclick="game.restart()">再来一局</button>
-            <button class="overlay-btn secondary" onclick="game.goHome()">返回首页</button>
+            <button class="overlay-btn primary" onclick="game.restart()"><span data-i18n="playAgain">再来一局</span></button>
+            <button class="overlay-btn secondary" onclick="game.goHome()"><span data-i18n="backToArcade">返回街机厅</span></button>
         </div>
     </div>
 
@@ -436,8 +438,8 @@
             <div class="cost-line" id="unlockCost">⭐ 50</div>
             <div class="stars-line" id="unlockStars">当前 Stars: 120</div>
             <div class="unlock-buttons">
-                <button class="overlay-btn primary" id="unlockConfirmBtn" onclick="game.confirmUnlock()">解锁</button>
-                <button class="overlay-btn secondary" onclick="game.closeUnlockDialog()">取消</button>
+                <button class="overlay-btn primary" id="unlockConfirmBtn" onclick="game.confirmUnlock()"><span data-i18n="unlock">解锁</span></button>
+                <button class="overlay-btn secondary" onclick="game.closeUnlockDialog()"><span data-i18n="cancel">取消</span></button>
             </div>
         </div>
     </div>
@@ -449,6 +451,68 @@
     <script src="diagnosis.js"></script>
     <script src="../../shared/stars-system.js"></script>
     <script>
+        // ===== i18n =====
+        const currentLang = GameI18n ? GameI18n.detectLang() : 'zh';
+        if (GameI18n) GameI18n.setHtmlLang(currentLang);
+
+        const i18n = {
+            zh: {
+                title: '表情包超进化',
+                scoreLabel: '得分',
+                bestLabel: '最佳',
+                undo: '撤销',
+                restart: '🔄 重来',
+                backToArcade: '🏠 返回街机厅',
+                hint: '← ↑ ↓ → 或 WASD 滑动 | 相同 Emoji 合并进化',
+                gameOverTitle: '😢 进化中断',
+                gameOverSubtitle: '没有可移动的空间了',
+                winTitle: '🎉 进化完成！',
+                winSubtitle: '你合成了终极形态！',
+                playAgain: '再来一局',
+                unlock: '解锁',
+                cancel: '取消',
+                starsPrefix: '当前 Stars:',
+                starsEnough: '足够',
+                starsShort: '还差',
+                starsInsufficient: 'Stars 不足'
+            },
+            en: {
+                title: 'Emoji Evolution',
+                scoreLabel: 'Score',
+                bestLabel: 'Best',
+                undo: 'Undo',
+                restart: '🔄 Restart',
+                backToArcade: '🏠 Back to Arcade',
+                hint: '← ↑ ↓ → or WASD to slide | Merge same emojis to evolve',
+                gameOverTitle: '😢 Evolution Interrupted',
+                gameOverSubtitle: 'No more moves available',
+                winTitle: '🎉 Evolution Complete!',
+                winSubtitle: 'You created the ultimate form!',
+                playAgain: 'Play Again',
+                unlock: 'Unlock',
+                cancel: 'Cancel',
+                starsPrefix: 'Current Stars:',
+                starsEnough: 'enough',
+                starsShort: 'need',
+                starsInsufficient: 'Not enough Stars'
+            }
+        };
+
+        function t(key) {
+            return i18n[currentLang]?.[key] || i18n['zh'][key] || key;
+        }
+
+        function applyI18n() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.dataset.i18n;
+                if (i18n[currentLang]?.[key]) {
+                    el.textContent = i18n[currentLang][key];
+                }
+            });
+            document.title = t('title');
+        }
+
+        // ===== UI Class =====
         class EmojiEvolveUI {
             constructor() {
                 this.game = null;
@@ -461,6 +525,7 @@
                 this.startGame('life');
                 this.setupControls();
                 this.setupTouch();
+                applyI18n();
             }
 
             renderThemeBar() {
@@ -504,11 +569,11 @@
                 document.getElementById('unlockCost').textContent = `⭐ ${theme.unlockCost}`;
                 
                 const starsLine = document.getElementById('unlockStars');
-                starsLine.textContent = `当前 Stars: ${stars}（${enough ? '足够' : '还差 ' + (theme.unlockCost - stars)}）`;
+                starsLine.textContent = `${t('starsPrefix')} ${stars}（${enough ? t('starsEnough') : t('starsShort') + ' ' + (theme.unlockCost - stars)}）`;
                 starsLine.className = 'stars-line ' + (enough ? 'enough' : 'short');
                 
                 const confirmBtn = document.getElementById('unlockConfirmBtn');
-                confirmBtn.textContent = enough ? '解锁' : 'Stars 不足';
+                confirmBtn.textContent = enough ? t('unlock') : t('starsInsufficient');
                 confirmBtn.disabled = !enough;
                 confirmBtn.style.opacity = enough ? '1' : '0.5';
                 
