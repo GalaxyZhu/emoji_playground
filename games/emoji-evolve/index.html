@@ -66,6 +66,22 @@
             border-color: #fbbf24;
             color: #fbbf24;
         }
+        .theme-btn.locked {
+            opacity: 0.6;
+            border-style: dashed;
+            position: relative;
+        }
+        .theme-btn.locked::after {
+            content: '🔒';
+            font-size: 10px;
+            margin-left: 4px;
+        }
+        .theme-btn .cost-badge {
+            font-size: 10px;
+            color: #fbbf24;
+            margin-left: 4px;
+            font-weight: 700;
+        }
         .theme-btn:hover { background: rgba(255,255,255,0.15); }
 
         .game-area {
@@ -302,6 +318,54 @@
             100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
 
+        /* Unlock Dialog */
+        .unlock-dialog {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 8, 20, 0.85);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+        .unlock-dialog.show { display: flex; }
+        .unlock-card {
+            background: linear-gradient(135deg, rgba(26,10,46,0.95), rgba(15,15,35,0.95));
+            border: 1px solid rgba(251,191,36,0.3);
+            border-radius: 20px;
+            padding: 28px;
+            max-width: 320px;
+            width: 100%;
+            text-align: center;
+        }
+        .unlock-card .theme-emoji { font-size: 48px; margin-bottom: 8px; }
+        .unlock-card .theme-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+        .unlock-card .theme-desc { font-size: 13px; color: #94a3b8; margin-bottom: 16px; }
+        .unlock-card .cost-line {
+            font-size: 20px;
+            font-weight: 700;
+            color: #fbbf24;
+            margin-bottom: 8px;
+        }
+        .unlock-card .stars-line {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 20px;
+        }
+        .unlock-card .stars-line.enough { color: #4ade80; }
+        .unlock-card .stars-line.short { color: #ef4444; }
+        .unlock-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .unlock-buttons .overlay-btn {
+            flex: 1;
+            padding: 10px 16px;
+            font-size: 14px;
+        }
+
         /* Responsive */
         @media (max-width: 420px) {
             .grid-wrapper { max-width: 95vw; }
@@ -363,6 +427,21 @@
         </div>
     </div>
 
+    <!-- Unlock Dialog -->
+    <div class="unlock-dialog" id="unlockDialog">
+        <div class="unlock-card">
+            <div class="theme-emoji" id="unlockEmoji">💧</div>
+            <div class="theme-name" id="unlockName">水之进化</div>
+            <div class="theme-desc" id="unlockDesc">从水滴到海洋之王</div>
+            <div class="cost-line" id="unlockCost">⭐ 50</div>
+            <div class="stars-line" id="unlockStars">当前 Stars: 120</div>
+            <div class="unlock-buttons">
+                <button class="overlay-btn primary" id="unlockConfirmBtn" onclick="game.confirmUnlock()">解锁</button>
+                <button class="overlay-btn secondary" onclick="game.closeUnlockDialog()">取消</button>
+            </div>
+        </div>
+    </div>
+
     <div class="confetti-container" id="confetti"></div>
 
     <script src="themes.js"></script>
@@ -388,18 +467,71 @@
                 const bar = document.getElementById('themeBar');
                 bar.innerHTML = '';
                 Object.values(THEMES).forEach(theme => {
+                    const isUnlocked = this.game ? this.game.isThemeUnlocked(theme.id) : !theme.locked;
                     const btn = document.createElement('button');
-                    btn.className = 'theme-btn' + (theme.id === this.currentTheme ? ' active' : '');
-                    btn.innerHTML = `${theme.emoji} ${theme.name}`;
+                    btn.className = 'theme-btn' + (theme.id === this.currentTheme ? ' active' : '') + (!isUnlocked ? ' locked' : '');
+                    
+                    let html = `${theme.emoji} ${theme.name}`;
+                    if (!isUnlocked && theme.locked) {
+                        html += `<span class="cost-badge">⭐${theme.unlockCost}</span>`;
+                    }
+                    btn.innerHTML = html;
                     btn.onclick = () => this.switchTheme(theme.id);
                     bar.appendChild(btn);
                 });
             }
 
             switchTheme(themeId) {
+                const isUnlocked = this.game ? this.game.isThemeUnlocked(themeId) : !getTheme(themeId).locked;
+                if (!isUnlocked) {
+                    this.pendingTheme = themeId;
+                    this.showUnlockDialog(themeId);
+                    return;
+                }
                 this.currentTheme = themeId;
                 this.renderThemeBar();
                 this.startGame(themeId);
+            }
+
+            showUnlockDialog(themeId) {
+                const theme = getTheme(themeId);
+                const stars = this.game ? this.game.getTotalStars() : 0;
+                const enough = stars >= theme.unlockCost;
+                
+                document.getElementById('unlockEmoji').textContent = theme.emoji;
+                document.getElementById('unlockName').textContent = theme.name;
+                document.getElementById('unlockDesc').textContent = theme.description;
+                document.getElementById('unlockCost').textContent = `⭐ ${theme.unlockCost}`;
+                
+                const starsLine = document.getElementById('unlockStars');
+                starsLine.textContent = `当前 Stars: ${stars}（${enough ? '足够' : '还差 ' + (theme.unlockCost - stars)}）`;
+                starsLine.className = 'stars-line ' + (enough ? 'enough' : 'short');
+                
+                const confirmBtn = document.getElementById('unlockConfirmBtn');
+                confirmBtn.textContent = enough ? '解锁' : 'Stars 不足';
+                confirmBtn.disabled = !enough;
+                confirmBtn.style.opacity = enough ? '1' : '0.5';
+                
+                document.getElementById('unlockDialog').classList.add('show');
+            }
+
+            closeUnlockDialog() {
+                document.getElementById('unlockDialog').classList.remove('show');
+                this.pendingTheme = null;
+            }
+
+            confirmUnlock() {
+                if (!this.pendingTheme) return;
+                const result = this.game.tryUnlockTheme(this.pendingTheme);
+                if (result.success) {
+                    this.closeUnlockDialog();
+                    this.currentTheme = this.pendingTheme;
+                    this.renderThemeBar();
+                    this.startGame(this.pendingTheme);
+                } else {
+                    // Stars 不足，刷新对话框显示
+                    this.showUnlockDialog(this.pendingTheme);
+                }
             }
 
             startGame(themeId) {
@@ -407,6 +539,7 @@
                 this.updateUI();
                 this.renderGrid();
                 this.hideOverlays();
+                this.renderThemeBar();
             }
 
             restart() {

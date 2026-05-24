@@ -21,6 +21,65 @@ class EmojiEvolveGame {
     this.init();
   }
 
+  // 检查主题是否已解锁
+  isThemeUnlocked(themeId) {
+    const theme = getTheme(themeId);
+    if (!theme.locked) return true;
+    const unlocked = this.getUnlockedThemes();
+    return unlocked.includes(themeId);
+  }
+
+  // 获取已解锁主题列表
+  getUnlockedThemes() {
+    try {
+      return JSON.parse(localStorage.getItem('emoji-evolve-unlocked') || '[]');
+    } catch {
+      return [];
+    }
+  }
+
+  // 保存解锁主题
+  saveUnlockedTheme(themeId) {
+    const unlocked = this.getUnlockedThemes();
+    if (!unlocked.includes(themeId)) {
+      unlocked.push(themeId);
+      localStorage.setItem('emoji-evolve-unlocked', JSON.stringify(unlocked));
+    }
+  }
+
+  // 尝试解锁主题，返回成功/失败
+  tryUnlockTheme(themeId) {
+    const theme = getTheme(themeId);
+    if (!theme.locked) return { success: true, reason: 'free' };
+    if (this.isThemeUnlocked(themeId)) return { success: true, reason: 'already' };
+
+    const stars = this.getTotalStars();
+    if (stars < theme.unlockCost) {
+      return { success: false, reason: 'insufficient', needed: theme.unlockCost, has: stars };
+    }
+
+    // 扣除 stars
+    if (typeof ArcadeStars !== 'undefined') {
+      const current = ArcadeStars.getTotal ? ArcadeStars.getTotal() : parseInt(localStorage.getItem('emoji_arcade_stars') || '0');
+      localStorage.setItem('emoji_arcade_stars', (current - theme.unlockCost).toString());
+      const history = JSON.parse(localStorage.getItem('emoji_arcade_stars_history') || '[]');
+      history.push({ gameId: 'emoji-evolve', amount: -theme.unlockCost, total: current - theme.unlockCost, time: Date.now(), action: 'unlock_' + themeId });
+      if (history.length > 100) history.shift();
+      localStorage.setItem('emoji_arcade_stars_history', JSON.stringify(history));
+    }
+
+    this.saveUnlockedTheme(themeId);
+    return { success: true, reason: 'purchased', cost: theme.unlockCost };
+  }
+
+  // 获取总 stars（兼容有无 ArcadeStars）
+  getTotalStars() {
+    if (typeof ArcadeStars !== 'undefined' && ArcadeStars.getTotal) {
+      return ArcadeStars.getTotal();
+    }
+    return parseInt(localStorage.getItem('emoji_arcade_stars') || '0');
+  }
+
   init() {
     this.board = Array(this.size).fill(null).map(() => Array(this.size).fill(0));
     this.score = 0;
