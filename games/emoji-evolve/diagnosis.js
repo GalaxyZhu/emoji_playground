@@ -81,58 +81,90 @@ const EvolveDiagnosis = {
         merges: data.merges,
         maxLevel: data.maxLevel,
         maxLevelName: bestItem.name,
+        maxLevelNameEn: bestItem.nameEn || bestItem.name,
         maxLevelEmoji: bestItem.emoji,
         won: data.won,
         stars: data.stars,
-        theme: theme.name
+        theme: theme.name,
+        themeEn: theme.nameEn || theme.name
       }
     };
   },
 
   // 渲染诊断报告 HTML
-  render(result) {
+  render(result, lang) {
     const { type, roast, data } = result;
     const isWin = data.won;
+    const isEn = lang === 'en';
+    
+    const title = isEn ? type.titleEn : type.title;
+    const quote = isEn ? type.quoteEn : type.quote;
+    const rareLabel = isEn ? type.rareEn : type.rare;
+    const roastText = isEn 
+      ? type.roastsEn[type.roasts.indexOf(roast)] || roast 
+      : roast;
+    
+    const labels = isEn ? {
+      score: 'Final Score',
+      best: 'Best',
+      moves: 'Moves',
+      merges: 'Merges',
+      maxLevel: 'Max Evolved',
+      stars: 'Stars Earned',
+      win: '🎉 Cleared! Evolution complete!',
+      lose: '😢 Evolution interrupted. Try again!'
+    } : {
+      score: '最终得分',
+      best: '最高分',
+      moves: '总步数',
+      merges: '合并次数',
+      maxLevel: '最高进化',
+      stars: '获得 Stars',
+      win: '🎉 通关！进化完成！',
+      lose: '😢 进化中断，下次继续！'
+    };
+
+    const maxLevelName = isEn && data.maxLevelNameEn ? data.maxLevelNameEn : data.maxLevelName;
 
     return `
       <div class="diagnosis-card">
         <div class="diagnosis-header">
           <div class="diagnosis-icon">${type.icon}</div>
           <div class="diagnosis-title">
-            <div class="diagnosis-name">${type.title}</div>
-            <div class="diagnosis-rare ${type.rarityClass}">${type.rare} · ${type.rarePercent}</div>
+            <div class="diagnosis-name">${title}</div>
+            <div class="diagnosis-rare ${type.rarityClass}">${rareLabel} · ${type.rarePercent}</div>
           </div>
         </div>
-        <div class="diagnosis-quote">${type.quote}</div>
-        <div class="diagnosis-roast">💬 ${roast}</div>
+        <div class="diagnosis-quote">${quote}</div>
+        <div class="diagnosis-roast">💬 ${roastText}</div>
         <div class="diagnosis-stats">
           <div class="stat-item">
-            <div class="stat-label">最终得分</div>
+            <div class="stat-label">${labels.score}</div>
             <div class="stat-value">${data.score}</div>
           </div>
           <div class="stat-item">
-            <div class="stat-label">最高分</div>
+            <div class="stat-label">${labels.best}</div>
             <div class="stat-value">${data.bestScore}</div>
           </div>
           <div class="stat-item">
-            <div class="stat-label">总步数</div>
+            <div class="stat-label">${labels.moves}</div>
             <div class="stat-value">${data.moves}</div>
           </div>
           <div class="stat-item">
-            <div class="stat-label">合并次数</div>
+            <div class="stat-label">${labels.merges}</div>
             <div class="stat-value">${data.merges}</div>
           </div>
           <div class="stat-item">
-            <div class="stat-label">最高进化</div>
-            <div class="stat-value">${data.maxLevelEmoji} ${data.maxLevelName}</div>
+            <div class="stat-label">${labels.maxLevel}</div>
+            <div class="stat-value">${data.maxLevelEmoji} ${maxLevelName}</div>
           </div>
           <div class="stat-item stars">
-            <div class="stat-label">获得 Stars</div>
+            <div class="stat-label">${labels.stars}</div>
             <div class="stat-value">⭐ ${data.stars}</div>
           </div>
         </div>
         <div class="diagnosis-result ${isWin ? 'win' : 'lose'}">
-          ${isWin ? '🎉 通关！进化完成！' : '😢 进化中断，下次继续！'}
+          ${isWin ? labels.win : labels.lose}
         </div>
       </div>
     `;

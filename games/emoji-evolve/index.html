@@ -533,10 +533,12 @@
                 bar.innerHTML = '';
                 Object.values(THEMES).forEach(theme => {
                     const isUnlocked = this.game ? this.game.isThemeUnlocked(theme.id) : !theme.locked;
+                    const isEn = currentLang === 'en';
                     const btn = document.createElement('button');
                     btn.className = 'theme-btn' + (theme.id === this.currentTheme ? ' active' : '') + (!isUnlocked ? ' locked' : '');
                     
-                    let html = `${theme.emoji} ${theme.name}`;
+                    const themeName = isEn && theme.nameEn ? theme.nameEn : theme.name;
+                    let html = `${theme.emoji} ${themeName}`;
                     if (!isUnlocked && theme.locked) {
                         html += `<span class="cost-badge">⭐${theme.unlockCost}</span>`;
                     }
@@ -562,10 +564,11 @@
                 const theme = getTheme(themeId);
                 const stars = this.game ? this.game.getTotalStars() : 0;
                 const enough = stars >= theme.unlockCost;
+                const isEn = currentLang === 'en';
                 
                 document.getElementById('unlockEmoji').textContent = theme.emoji;
-                document.getElementById('unlockName').textContent = theme.name;
-                document.getElementById('unlockDesc').textContent = theme.description;
+                document.getElementById('unlockName').textContent = isEn && theme.nameEn ? theme.nameEn : theme.name;
+                document.getElementById('unlockDesc').textContent = isEn && theme.descriptionEn ? theme.descriptionEn : theme.description;
                 document.getElementById('unlockCost').textContent = `⭐ ${theme.unlockCost}`;
                 
                 const starsLine = document.getElementById('unlockStars');
@@ -682,7 +685,7 @@
 
             showGameOver() {
                 const diag = EvolveDiagnosis.generate(this.game.getDiagnosisData());
-                document.getElementById('diagnosisContainer').innerHTML = EvolveDiagnosis.render(diag);
+                document.getElementById('diagnosisContainer').innerHTML = EvolveDiagnosis.render(diag, currentLang);
                 document.getElementById('gameOverOverlay').classList.add('show');
                 this.awardStars(diag.data.stars);
             }
@@ -690,7 +693,7 @@
             showWin() {
                 this.spawnConfetti();
                 const diag = EvolveDiagnosis.generate(this.game.getDiagnosisData());
-                document.getElementById('winDiagnosisContainer').innerHTML = EvolveDiagnosis.render(diag);
+                document.getElementById('winDiagnosisContainer').innerHTML = EvolveDiagnosis.render(diag, currentLang);
                 document.getElementById('winOverlay').classList.add('show');
                 this.awardStars(diag.data.stars);
             }
