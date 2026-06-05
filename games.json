@@ -46,6 +46,20 @@
       "playTime": "5-10分钟"
     },
     {
+      "id": "chess-horde",
+      "name": "棋阵守卫战",
+      "emoji": "♟",
+      "tagline": "国际象棋+塔防+生存，经典棋阵对抗无尽尸潮",
+      "version": "0.1.0",
+      "status": "beta",
+      "path": "games/chess-horde/index.html",
+      "cover": "assets/images/chess-horde-cover.svg",
+      "difficulty": "中等",
+      "tags": ["策略", "塔防", "国际象棋", "生存"],
+      "players": "1人",
+      "playTime": "5-15分钟"
+    },
+    {
       "id": "emoji-evolve",
       "name": "Emoji进化2048",
       "emoji": "🧬",

@@ -1097,6 +1097,15 @@
                 tags: { zh: ['益智', '合并', '进化'], en: ['Puzzle', 'Merge', 'Evolution'] },
                 players: { zh: '1人', en: '1 Player' },
                 playTime: { zh: '3-10分钟', en: '3-10 min' }
+            },
+            'chess-horde': {
+                name: { zh: '棋阵守卫战', en: 'Chess Horde' },
+                emoji: '♟',
+                tagline: { zh: '国际象棋+塔防+生存，经典棋阵对抗无尽尸潮', en: 'Chess + Tower Defense + Survival, classic formation vs endless horde' },
+                difficulty: { zh: '中等', en: 'Medium' },
+                tags: { zh: ['策略', '塔防', '国际象棋', '生存'], en: ['Strategy', 'Tower Defense', 'Chess', 'Survival'] },
+                players: { zh: '1人', en: '1 Player' },
+                playTime: { zh: '5-15分钟', en: '5-15 min' }
             }
         };
         
@@ -1929,7 +1938,7 @@
             const grid = document.getElementById('gamesGrid');
             const lang = getCurrentLang();
             
-            const hotGames = ['emoji-match', 'emoji-linkup', 'emoji-shooter', 'emoji-survive', 'emoji-frog', 'emoji-hop', 'emoji-pattern', 'emoji-spot'];
+            const hotGames = ['emoji-match', 'emoji-linkup', 'emoji-shooter', 'emoji-survive', 'emoji-frog', 'emoji-hop', 'emoji-pattern', 'emoji-spot', 'chess-horde'];
             
             hotGames.forEach(id => {
                 const game = gamesData.find(g => g.id === id);
@@ -1946,7 +1955,7 @@
             const grid = document.getElementById('eagleEyesGrid');
             const lang = getCurrentLang();
             
-            const eagleGames = ['emoji-match', 'emoji-linkup', 'emoji-pattern', 'emoji-spot', 'emoji-evolve'];
+            const eagleGames = ['emoji-match', 'emoji-linkup', 'emoji-pattern', 'emoji-spot', 'emoji-evolve', 'chess-horde'];
             eagleGames.forEach(id => {
                 const game = gamesData.find(g => g.id === id);
                 if (game && game.status === 'ready') {
@@ -1962,7 +1971,7 @@
             const grid = document.getElementById('actionGrid');
             const lang = getCurrentLang();
             
-            const actionGames = ['emoji-shooter', 'emoji-survive', 'emoji-frog', 'emoji-hop'];
+            const actionGames = ['emoji-shooter', 'emoji-survive', 'emoji-frog', 'emoji-hop', 'chess-horde'];
             actionGames.forEach(id => {
                 const game = gamesData.find(g => g.id === id);
                 if (game && game.status === 'ready') {

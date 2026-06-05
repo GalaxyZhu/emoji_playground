@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>棋阵守卫战 | Chess Horde | Emoji Arcade</title>
+<meta name="description" content="国际象棋+塔防+生存，用经典棋子对抗无尽棋阵，吃子赚金币，买兵续命！">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='55' font-size='70' text-anchor='middle'%3E♟%3C/text%3E%3C/svg%3E">
+<script src="../shared/i18n-detect.js"></script>
+<style>
+  :root{--bg:#0a0a0f;--light:#fff;--dim:#94a3b8;--accent:#6366f1;--accent2:#8b5cf6;--gold:#fbbf24;--danger:#ef4444;--board1:#f0d9b5;--board2:#b58863;--enemy:#1a1a2e;--shadow:rgba(0,0,0,0.5);--good:#22c55e;--warn:#f59e0b}
+  *{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--light);overflow:hidden;height:100vh;display:flex;flex-direction:column;align-items:center}
+  #topBar{width:100%;max-width:500px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;flex-shrink:0}
+  .topPill{background:rgba(255,255,255,0.06);border-radius:20px;padding:4px 12px;display:flex;align-items:center;gap:4px;font-weight:700}
+  .topPill .icon{font-size:16px}
+  .topPill.gold{color:var(--gold)}
+  .topPill.wave{color:var(--accent)}
+  .topPill.score{color:var(--good)}
+  .topPill.danger{color:var(--danger)}
+
+  #phaseBar{width:100%;max-width:500px;height:3px;background:rgba(255,255,255,0.06);flex-shrink:0;position:relative}
+  #phaseBar .fill{height:100%;background:var(--accent);transition:width 0.3s;border-radius:0 2px 2px 0}
+
+  #boardArea{flex:1;display:flex;align-items:center;justify-content:center;width:100%;padding:0 8px;min-height:0}
+  #chessBoard{width:100%;max-width:500px;aspect-ratio:1;position:relative;border-radius:8px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+  .row{display:flex;width:100%;height:12.5%}
+  .cell{flex:1;height:100%;display:flex;align-items:center;justify-content:center;font-size:clamp(20px,6vw,36px);position:relative;cursor:pointer;transition:background 0.15s}
+  .cell.light{background:var(--board1)}
+  .cell.dark{background:var(--board2)}
+  .cell.highlight{background:rgba(99,102,241,0.35)!important}
+  .cell.attack{background:rgba(239,68,68,0.35)!important}
+  .cell.selected{background:rgba(99,102,241,0.55)!important}
+  .cell.danger{background:rgba(239,68,68,0.2)!important}
+  .cell .piece{position:relative;z-index:2;transition:transform 0.2s,filter 0.2s}
+  .cell .piece.king{font-size:clamp(24px,7vw,42px)}
+  .cell .piece.queen{font-size:clamp(24px,7vw,42px)}
+  .cell .piece.player{filter:drop-shadow(0 0 4px rgba(99,102,241,0.6))}
+  .cell .piece.enemy{filter:drop-shadow(0 0 4px rgba(239,68,68,0.5))}
+  .cell .piece.dead{transform:scale(0);opacity:0}
+  .cell .piece.spawn{animation:popIn 0.3s ease}
+  .cell .moveDot{position:absolute;width:10px;height:10px;background:rgba(99,102,241,0.5);border-radius:50%;z-index:1;pointer-events:none}
+  .cell .attackRing{position:absolute;width:60%;height:60%;border:2px solid rgba(239,68,68,0.6);border-radius:50%;z-index:1;pointer-events:none}
+  .cell .goldPop{position:absolute;top:-8px;left:50%;transform:translateX(-50%);font-size:12px;font-weight:700;color:var(--gold);z-index:5;animation:floatUp 0.8s ease forwards;pointer-events:none;white-space:nowrap}
+  .cell .comboPop{position:absolute;bottom:-6px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--good);z-index:5;animation:floatUp 0.8s ease forwards;pointer-events:none}
+  .cell .damageFlash{position:absolute;inset:0;background:rgba(239,68,68,0.3);z-index:3;animation:flashRed 0.3s ease;pointer-events:none}
+  .cell .checkFlash{position:absolute;inset:0;background:rgba(239,68,68,0.6);z-index:3;animation:pulseRed 0.8s ease infinite;pointer-events:none}
+  .spawnZone{position:absolute;top:0;left:0;right:0;height:37.5%;background:rgba(99,102,241,0.06);pointer-events:none;z-index:0;border-bottom:1px dashed rgba(99,102,241,0.2)}
+  .spawnZone::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:repeating-linear-gradient(90deg,rgba(99,102,241,0.2),rgba(99,102,241,0.2) 8px,transparent 8px,transparent 16px)}
+  @keyframes popIn{0%{transform:scale(0.3);opacity:0}70%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}
+  @keyframes floatUp{0%{transform:translateX(-50%) translateY(0);opacity:1}100%{transform:translateX(-50%) translateY(-30px);opacity:0}}
+  @keyframes flashRed{0%{opacity:1}100%{opacity:0}}
+  @keyframes pulseRed{0%,100%{opacity:0.4}50%{opacity:0.8}}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+  .shake{animation:shake 0.4s ease}
+  @keyframes goldGlow{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,0.4)}50%{box-shadow:0 0 0 8px rgba(251,191,36,0)}}
+  .goldGlow{animation:goldGlow 0.6s ease}
+
+  #shopBar{width:100%;max-width:500px;padding:6px 12px;display:flex;gap:6px;overflow-x:auto;flex-shrink:0;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  #shopBar::-webkit-scrollbar{display:none}
+  .shopItem{flex-shrink:0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:5px 10px;min-width:72px;text-align:center;cursor:pointer;transition:all 0.15s;position:relative}
+  .shopItem:hover,.shopItem:active{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.15);transform:translateY(-1px)}
+  .shopItem.disabled{opacity:0.35;pointer-events:none}
+  .shopItem .emoji{font-size:22px;display:block}
+  .shopItem .price{font-size:11px;color:var(--gold);font-weight:700;margin-top:2px}
+  .shopItem .cooldown{font-size:10px;color:var(--dim);margin-top:1px}
+  .shopItem .cdBadge{position:absolute;top:-2px;right:-2px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:1px 4px;border-radius:8px;min-width:16px}
+  .shopItem.onCooldown .cdBadge{display:block}
+
+  #overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.3s}
+  #overlay.show{opacity:1;pointer-events:auto}
+  .overlayTitle{font-size:32px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .overlaySub{color:var(--dim);font-size:14px;margin-bottom:24px;text-align:center;padding:0 20px;line-height:1.5}
+  .overlayBtn{display:inline-block;padding:14px 36px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin:4px}
+  .overlayBtn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(99,102,241,0.3)}
+  .overlayBtn.secondary{background:rgba(255,255,255,0.1);color:var(--light)}
+  .overlayBtn.secondary:hover{background:rgba(255,255,255,0.15)}
+  .overlayBtnWrap{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .overlayStats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px;max-width:320px;width:90%}
+  .overlayStat{background:rgba(255,255,255,0.06);border-radius:12px;padding:12px;text-align:center}
+  .overlayStat .val{font-size:24px;font-weight:800;color:var(--gold)}
+  .overlayStat .lab{font-size:12px;color:var(--dim);margin-top:4px}
+  .overlayDiagnosis{background:rgba(255,255,255,0.06);border-radius:16px;padding:20px;max-width:320px;width:90%;text-align:center;margin-bottom:20px;border:1px solid rgba(255,255,255,0.08)}
+  .overlayDiagnosis .dIcon{font-size:48px;margin-bottom:8px}
+  .overlayDiagnosis .dTitle{font-size:18px;font-weight:700;margin-bottom:4px}
+  .overlayDiagnosis .dRare{font-size:12px;color:var(--gold);margin-bottom:6px}
+  .overlayDiagnosis .dQuote{font-size:13px;color:var(--dim);font-style:italic;margin-bottom:8px}
+  .overlayDiagnosis .dRoast{font-size:12px;color:var(--dim);padding:8px 12px;background:rgba(255,255,255,0.04);border-radius:8px}
+
+  #waveBanner{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:50;font-size:28px;font-weight:800;color:var(--accent);text-shadow:0 0 30px rgba(99,102,241,0.5);opacity:0;pointer-events:none;transition:opacity 0.3s}
+  #waveBanner.show{opacity:1;animation:waveBanner 1.5s ease forwards}
+  @keyframes waveBanner{0%{transform:translate(-50%,-50%) scale(0.5);opacity:0}20%{transform:translate(-50%,-50%) scale(1.1);opacity:1}80%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+
+  #checkWarning{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:50;background:rgba(239,68,68,0.9);color:#fff;padding:8px 20px;border-radius:20px;font-size:14px;font-weight:700;opacity:0;pointer-events:none;transition:opacity 0.3s;white-space:nowrap}
+  #checkWarning.show{opacity:1}
+
+  #toastWrap{position:fixed;bottom:60px;left:50%;transform:translateX(-50%);z-index:50;pointer-events:none}
+  .toast{background:rgba(0,0,0,0.8);color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;margin-bottom:6px;animation:toastIn 0.3s ease,toastOut 0.3s ease 2.7s forwards;white-space:nowrap}
+  @keyframes toastIn{0%{transform:translateY(10px);opacity:0}100%{transform:translateY(0);opacity:1}}
+  @keyframes toastOut{0%{opacity:1}100%{opacity:0}}
+
+  #comboBar{position:fixed;top:48px;left:50%;transform:translateX(-50%);z-index:40;opacity:0;transition:opacity 0.3s}
+  #comboBar.show{opacity:1}
+  #comboBar .comboText{font-size:14px;font-weight:700;color:var(--good);text-shadow:0 0 10px rgba(34,197,94,0.4);text-align:center}
+  #comboBar .comboBarBg{width:120px;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:4px;overflow:hidden}
+  #comboBar .comboBarFill{height:100%;background:var(--good);border-radius:2px;transition:width 0.1s linear}
+
+  .backBtn{position:fixed;top:8px;left:8px;z-index:60;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);color:var(--light);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .backBtn:hover{background:rgba(255,255,255,0.1)}
+
+  @media(max-width:400px){#topBar{font-size:11px}#topBar .topPill{padding:3px 8px}.shopItem{min-width:60px;padding:4px 8px}.shopItem .emoji{font-size:18px}}
+</style>
+</head>
+<body>
+
+<a href="../../index.html" class="backBtn">←</a>
+
+<div id="topBar">
+  <div class="topPill wave"><span class="icon">🌊</span><span id="waveNum">波 1</span></div>
+  <div class="topPill gold"><span class="icon">🪙</span><span id="goldNum">0</span></div>
+  <div class="topPill score"><span class="icon">🏆</span><span id="scoreNum">0</span></div>
+  <div class="topPill danger" id="timerPill"><span class="icon">⏱️</span><span id="timerNum">15</span></div>
+</div>
+<div id="phaseBar"><div class="fill" id="phaseFill" style="width:100%"></div></div>
+<div id="comboBar"><div class="comboText" id="comboText">连击 x0</div><div class="comboBarBg"><div class="comboBarFill" id="comboFill" style="width:0%"></div></div></div>
+
+<div id="boardArea"><div id="chessBoard"></div></div>
+
+<div id="shopBar" class="shopBar"></div>
+
+<div id="waveBanner"></div>
+<div id="checkWarning"></div>
+<div id="toastWrap"></div>
+
+<div id="overlay">
+  <div class="overlayTitle" id="overlayTitle">棋阵守卫战</div>
+  <div class="overlaySub" id="overlaySub">经典棋阵 vs 无尽尸潮</div>
+  <div id="overlayContent">
+    <div class="overlayBtnWrap">
+      <button class="overlayBtn" id="startBtn">▶️ 开始战斗</button>
+      <a class="overlayBtn secondary" href="../../index.html">🏠 回到街机厅</a>
+    </div>
+  </div>
+</div>
+
+<script src="diagnosis.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
