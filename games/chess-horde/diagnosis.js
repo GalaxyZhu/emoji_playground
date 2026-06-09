@@ -60,7 +60,7 @@ const HordeDiagnosis = {
     }
   },
 
-  getDiagnosis(score, wave, turns, maxCombo) {
+  getDiagnosis(score, wave, turns, maxCombo, kills) {
     if (score >= 2000 && wave >= 20) return this.types.GRANDMASTER;
     if (score >= 1200 && wave >= 15) return this.types.TACTICIAN;
     if (score >= 800 && wave >= 10) return this.types.CONDUCTOR;

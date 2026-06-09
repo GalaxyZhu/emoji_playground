@@ -1,4 +1,5 @@
-// ♟ Chess Horde — 棋阵守卫战 核心游戏逻辑
+// ♟ Chess Horde — 棋阵守卫战 重平衡版 V2
+// 核心改动：波次制(战斗期/整备期)、棋子HP、技能系统、经济重平衡
 
 // ========== i18n 翻译 ==========
 let currentLang = 'zh';
@@ -9,16 +10,19 @@ function applyTranslations(lang) {
   const T = {
     zh: {
       title: '♟ 棋阵守卫战',
-      subtitle: '经典棋阵 vs 无尽尸潮\n移动棋子，吃掉敌人，赚取金币，购买新兵！',
+      subtitle: '经典棋阵 vs 无尽尸潮\n战斗期杀敌，整备期调整，撑住每一波！',
       startGame: '▶️ 开始战斗',
       backToArcade: '🏠 回到街机厅',
       gameOver: '💀 防线崩溃',
       gameOverSub: '你的王倒下了，或时间耗尽',
       waveTitle: '第 {wave} 波',
+      battlePhase: '🔴 战斗期',
+      prepPhase: '🟢 整备期',
       score: '得分',
       gold: '金币',
       best: '最高',
       wave: '波次',
+      phase: '回合',
       time: '时间',
       combo: '连击',
       comboBreak: '连击中断！',
@@ -29,13 +33,15 @@ function applyTranslations(lang) {
       shopCooldown: '冷却中...',
       bossWave: '👑 BOSS 波次！',
       waveClear: '✨ 波次清场！',
+      phaseShift: '整备期开始！调整阵型',
+      battleStart: '战斗开始！敌人来袭',
       kingCaptured: '王被吃掉了！',
       timeUp: '时间耗尽！',
       pauseTitle: '⏸️ 游戏暂停',
       resume: '▶️ 继续',
       restart: '🔄 重新开始',
       howToPlay: '玩法说明',
-      instructions: '标准国际象棋走法\n每回合移动1个棋子吃掉敌人\n吃子获得金币，可在商店买新棋子\n王被将军必须解除，否则失败\n敌人每回合自动向下移动',
+      instructions: '战斗期：敌人每回合移动，你移动1个棋子杀敌\n整备期：敌人不动，你移动2个棋子+可购买新兵\n吃子赚金币，购买强化防线\n王被将军必须解除，否则失败\n王技能：国王威压清除周围敌人，女王审判清除直线',
       shopPawn: '兵',
       shopKnight: '马',
       shopBishop: '相',
@@ -45,19 +51,26 @@ function applyTranslations(lang) {
       cd: 'CD',
       turns: '回合',
       playAgain: '🔄 再来一局',
+      skillReady: '👑 国王威压就绪！点击发动',
+      queenSkillReady: '♕ 女王审判就绪！',
+      reinforce: '💂 援军到达！',
+      hp: 'HP',
     },
     en: {
       title: '♟ Chess Horde',
-      subtitle: 'Classic Chess vs Endless Horde\nMove, capture, earn gold, buy reinforcements!',
+      subtitle: 'Classic Chess vs Endless Horde\nBattle phase to kill, Prep phase to rebuild!',
       startGame: '▶️ Start Battle',
       backToArcade: '🏠 Back to Arcade',
       gameOver: '💀 Line Broken',
       gameOverSub: 'Your King fell or time ran out',
       waveTitle: 'Wave {wave}',
+      battlePhase: '🔴 Battle',
+      prepPhase: '🟢 Prep',
       score: 'Score',
       gold: 'Gold',
       best: 'Best',
       wave: 'Wave',
+      phase: 'Turn',
       time: 'Time',
       combo: 'Combo',
       comboBreak: 'Combo broken!',
@@ -68,13 +81,15 @@ function applyTranslations(lang) {
       shopCooldown: 'Cooldown...',
       bossWave: '👑 BOSS WAVE!',
       waveClear: '✨ Wave cleared!',
+      phaseShift: 'Prep phase! Rebuild your formation',
+      battleStart: 'Battle begins! Enemies incoming',
       kingCaptured: 'King captured!',
       timeUp: 'Time ran out!',
       pauseTitle: '⏸️ Paused',
       resume: '▶️ Resume',
       restart: '🔄 Restart',
       howToPlay: 'How to Play',
-      instructions: 'Standard chess moves\nMove 1 piece per turn to capture enemies\nEarn gold per capture, buy reinforcements\nKing in check must escape, or lose\nEnemies move down every turn',
+      instructions: 'Battle: enemies move every turn, you move 1 piece\nPrep: enemies frozen, you move 2 pieces + buy\nEarn gold by capturing, buy reinforcements\nKing in check must escape\nSkills: King Aura clears nearby, Queen Judgment clears line',
       shopPawn: 'Pawn',
       shopKnight: 'Knight',
       shopBishop: 'Bishop',
@@ -84,6 +99,10 @@ function applyTranslations(lang) {
       cd: 'CD',
       turns: 'turns',
       playAgain: '🔄 Play Again',
+      skillReady: '👑 King Aura ready! Tap to activate',
+      queenSkillReady: '♕ Queen Judgment ready!',
+      reinforce: '💂 Reinforcements arrived!',
+      hp: 'HP',
     }
   };
   const dict = isEn ? T.en : T.zh;
@@ -98,17 +117,28 @@ const T = applyTranslations(currentLang);
 
 // ========== 常量 ==========
 const BOARD_SIZE = 8;
-const TURN_TIME = 15;
+const TURN_TIME = 20;
+const BATTLE_TURNS = 4;   // 战斗期回合数
+const PREP_TURNS = 2;     // 整备期回合数
 
 const PLAYER_EMOJI = { K: '♔', Q: '♕', R: '♖', B: '♗', N: '♘', P: '♙' };
 const ENEMY_EMOJI = { K: '♚', Q: '♛', R: '♜', B: '♝', N: '♞', P: '♟' };
 
 const PIECE_VALUES = { P: 10, N: 25, B: 25, R: 40, Q: 80, K: 200 };
 const SHOP_PRICES = { P: 30, N: 60, B: 60, R: 100, Q: 180 };
-const SHOP_COOLDOWNS = { P: 2, N: 3, B: 3, R: 4, Q: 5 };
+const SHOP_COOLDOWNS = { P: 1, N: 2, B: 2, R: 3, Q: 4 };
+
+const PIECE_HP = { P: 2, N: 3, B: 3, R: 4, Q: 5, K: 5 };
+const ENEMY_ATTACK = { P: 1, N: 1, B: 1, R: 2, Q: 2, K: 3 };
+
+const ENEMY_MOVE_CHANCE = { P: 1.0, N: 0.8, B: 0.8, R: 0.6, Q: 0.5, K: 0.0 };
 
 const PIECE_NAMES = { P: '兵', N: '马', B: '相', R: '车', Q: '后', K: '王' };
 const PIECE_NAMES_EN = { P: 'Pawn', N: 'Knight', B: 'Bishop', R: 'Rook', Q: 'Queen', K: 'King' };
+
+const KING_SKILL_CD = 5;  // 国王技能冷却
+const QUEEN_SKILL_CD = 10; // 女王技能冷却
+const REINFORCE_INTERVAL = 5; // 自动援军间隔
 
 // ========== 状态 ==========
 let board = [];
@@ -117,7 +147,7 @@ let validMoves = [];
 let validCaptures = [];
 let gameState = 'menu'; // menu, playing, paused, gameover
 let wave = 1;
-let gold = 0;
+let gold = 150; // 开局150
 let score = 0;
 let bestScore = parseInt(localStorage.getItem('chessHordeBest') || '0');
 let combo = 0;
@@ -127,10 +157,23 @@ let turnTimer = null;
 let timeLeft = TURN_TIME;
 let turnCount = 0;
 let isPlayerTurn = true;
-let shopCooldowns = { P: 0, N: 0, B: 0, R: 0, Q: 0 };
-let enemiesMoved = false;
 let animating = false;
 let checkState = { inCheck: false, from: [] };
+
+// 波次系统
+let phase = 'battle'; // battle, prep
+let phaseTurnsLeft = BATTLE_TURNS;
+let maxPhaseTurns = BATTLE_TURNS;
+let reinforceCounter = 0; // 援军计数器
+let kingSkillCD = 0; // 王技能冷却
+let queenSkillCD = 0; // 后技能冷却
+let movesThisTurn = 0;
+let maxMovesThisTurn = 1;
+let buysThisTurn = 0;
+let maxBuysThisTurn = 1;
+
+let shopCooldowns = { P: 0, N: 0, B: 0, R: 0, Q: 0 };
+let totalEnemiesDefeated = 0;
 
 // ========== 棋盘初始化 ==========
 function initBoard() {
@@ -141,14 +184,17 @@ function initBoard() {
       board[r][c] = null;
     }
   }
-  // 玩家初始布局 (底部2行)
   const playerRow1 = [
-    { type: 'R', owner: 'player' }, { type: 'N', owner: 'player' },
-    { type: 'B', owner: 'player' }, { type: 'Q', owner: 'player' },
-    { type: 'K', owner: 'player' }, { type: 'B', owner: 'player' },
-    { type: 'N', owner: 'player' }, { type: 'R', owner: 'player' }
+    { type: 'R', owner: 'player', hp: PIECE_HP.R, maxHp: PIECE_HP.R },
+    { type: 'N', owner: 'player', hp: PIECE_HP.N, maxHp: PIECE_HP.N },
+    { type: 'B', owner: 'player', hp: PIECE_HP.B, maxHp: PIECE_HP.B },
+    { type: 'Q', owner: 'player', hp: PIECE_HP.Q, maxHp: PIECE_HP.Q },
+    { type: 'K', owner: 'player', hp: PIECE_HP.K, maxHp: PIECE_HP.K },
+    { type: 'B', owner: 'player', hp: PIECE_HP.B, maxHp: PIECE_HP.B },
+    { type: 'N', owner: 'player', hp: PIECE_HP.N, maxHp: PIECE_HP.N },
+    { type: 'R', owner: 'player', hp: PIECE_HP.R, maxHp: PIECE_HP.R }
   ];
-  const playerRow2 = Array(8).fill({ type: 'P', owner: 'player' });
+  const playerRow2 = Array(8).fill(null).map(() => ({ type: 'P', owner: 'player', hp: PIECE_HP.P, maxHp: PIECE_HP.P }));
   playerRow1.forEach((p, i) => board[7][i] = { ...p });
   playerRow2.forEach((p, i) => board[6][i] = { ...p });
 }
@@ -158,7 +204,6 @@ function renderBoard() {
   const container = document.getElementById('chessBoard');
   container.innerHTML = '';
 
-  // 生成区域标记
   const spawnZone = document.createElement('div');
   spawnZone.className = 'spawnZone';
   container.appendChild(spawnZone);
@@ -172,7 +217,6 @@ function renderBoard() {
       cell.dataset.r = r;
       cell.dataset.c = c;
 
-      // 选中和移动提示
       if (selected && selected.r === r && selected.c === c) {
         cell.classList.add('selected');
       }
@@ -187,15 +231,26 @@ function renderBoard() {
         cell.appendChild(ring);
       }
 
-      // 棋子
       const piece = board[r][c];
       if (piece) {
         const span = document.createElement('span');
         span.className = 'piece ' + piece.owner;
         if (piece.type === 'K') span.classList.add('king');
         if (piece.type === 'Q') span.classList.add('queen');
+        if (piece.hp <= 0) span.classList.add('dead');
         span.textContent = piece.owner === 'player' ? PLAYER_EMOJI[piece.type] : ENEMY_EMOJI[piece.type];
         cell.appendChild(span);
+
+        // HP bar
+        if (piece.owner === 'player' && piece.hp < piece.maxHp) {
+          const hpWrap = document.createElement('div');
+          hpWrap.style.cssText = 'position:absolute;bottom:2px;left:10%;width:80%;height:3px;background:rgba(0,0,0,0.3);border-radius:2px;z-index:4;';
+          const hpFill = document.createElement('div');
+          const hpPct = piece.hp / piece.maxHp;
+          hpFill.style.cssText = `width:${hpPct*100}%;height:100%;background:${hpPct > 0.5 ? '#22c55e' : hpPct > 0.25 ? '#f59e0b' : '#ef4444'};border-radius:2px;transition:width 0.3s;`;
+          hpWrap.appendChild(hpFill);
+          cell.appendChild(hpWrap);
+        }
       }
 
       cell.addEventListener('click', () => onCellClick(r, c));
@@ -204,7 +259,6 @@ function renderBoard() {
     container.appendChild(rowEl);
   }
 
-  // 将军警告
   if (checkState.inCheck) {
     const kingPos = findKing('player');
     if (kingPos) {
@@ -232,7 +286,6 @@ function findKing(owner) {
 function getPieceMoves(r, c, piece) {
   const moves = [];
   const captures = [];
-  const type = piece.type;
 
   const addMove = (nr, nc) => {
     if (nr < 0 || nr >= BOARD_SIZE || nc < 0 || nc >= BOARD_SIZE) return;
@@ -254,18 +307,16 @@ function getPieceMoves(r, c, piece) {
     }
   };
 
-  switch (type) {
+  switch (piece.type) {
     case 'P': {
       const dir = piece.owner === 'player' ? -1 : 1;
       const startRow = piece.owner === 'player' ? 6 : 1;
-      // 前进
       if (r + dir >= 0 && r + dir < BOARD_SIZE && !board[r + dir][c]) {
         moves.push({ r: r + dir, c });
         if (r === startRow && !board[r + dir * 2][c]) {
           moves.push({ r: r + dir * 2, c });
         }
       }
-      // 斜吃
       [-1, 1].forEach(dc => {
         const nr = r + dir, nc = c + dc;
         if (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE) {
@@ -305,7 +356,11 @@ function getPieceMoves(r, c, piece) {
 
 // ========== 点击处理 ==========
 function onCellClick(r, c) {
-  if (gameState !== 'playing' || animating || !isPlayerTurn) return;
+  if (gameState !== 'playing' || animating) return;
+
+  // 整备期检查：是否还能移动
+  if (movesThisTurn >= maxMovesThisTurn && phase === 'prep') return;
+  if (movesThisTurn >= maxMovesThisTurn && phase === 'battle') return;
 
   const clicked = board[r][c];
 
@@ -330,7 +385,6 @@ function onCellClick(r, c) {
     return;
   }
 
-  // 取消选择
   selected = null;
   validMoves = [];
   validCaptures = [];
@@ -347,33 +401,29 @@ function executeMove(fromR, fromC, toR, toC) {
   if (target) {
     captured = true;
     goldEarned = PIECE_VALUES[target.type] || 10;
-    // 连击加成
     if (combo > 0) goldEarned += Math.floor(combo * 5);
     gold += goldEarned;
     score += goldEarned;
+    totalEnemiesDefeated++;
 
-    // 连击系统
     combo++;
     resetComboTimer();
-
-    // 显示金币弹出
     showGoldPop(toR, toC, goldEarned, combo);
   } else {
     combo = 0;
     clearComboTimer();
   }
 
-  // 执行移动
   board[toR][toC] = movingPiece;
   board[fromR][fromC] = null;
 
-  // 兵升变（玩家兵到达第0行）
+  // 兵升变
   if (movingPiece.type === 'P' && movingPiece.owner === 'player' && toR === 0) {
-    board[toR][toC] = { type: 'Q', owner: 'player' };
+    board[toR][toC] = { type: 'Q', owner: 'player', hp: PIECE_HP.Q, maxHp: PIECE_HP.Q };
     showToast('⭐ ' + (currentLang === 'en' ? 'Pawn promoted!' : '兵升变为后！'));
   }
 
-  // 敌人兵到达第7行 = 玩家受创（扣金币/分数）
+  // 敌人兵到达第7行 = 攻击玩家
   if (movingPiece.type === 'P' && movingPiece.owner === 'enemy' && toR === 7) {
     const penalty = 20;
     gold = Math.max(0, gold - penalty);
@@ -385,7 +435,8 @@ function executeMove(fromR, fromC, toR, toC) {
   validMoves = [];
   validCaptures = [];
 
-  // 检查是否吃掉敌人王
+  movesThisTurn++;
+
   if (target && target.type === 'K') {
     waveClearBonus();
   }
@@ -393,15 +444,16 @@ function executeMove(fromR, fromC, toR, toC) {
   updateUI();
   renderBoard();
 
-  // 结束玩家回合，敌人回合
-  endPlayerTurn();
+  // 检查是否还有移动次数
+  if (movesThisTurn >= maxMovesThisTurn) {
+    endPlayerTurn();
+  }
 }
 
 function showGoldPop(r, c, amount, comboCount) {
   const container = document.getElementById('chessBoard');
   const cell = container.querySelector(`[data-r="${r}"][data-c="${c}"]`);
   if (!cell) return;
-
   const popEl = document.createElement('div');
   popEl.className = 'goldPop';
   popEl.textContent = '+' + amount + (comboCount > 1 ? ' 🔥x' + comboCount : '');
@@ -440,6 +492,7 @@ function clearComboTimer() {
 function endPlayerTurn() {
   isPlayerTurn = false;
   turnCount++;
+  reinforceCounter++;
 
   // 减少商店冷却
   for (let key in shopCooldowns) {
@@ -447,22 +500,89 @@ function endPlayerTurn() {
   }
   renderShop();
 
-  // 检查将军状态
+  // 被动收入
+  gold += 5;
+  if (phase === 'prep') gold += 20;
+
+  // 检查将军
   checkState = checkIfInCheck('player');
-  if (checkState.inCheck) {
-    showCheckWarning(true);
+  if (checkState.inCheck) showCheckWarning(true);
+
+  // 技能冷却
+  if (kingSkillCD > 0) kingSkillCD--;
+  if (queenSkillCD > 0) queenSkillCD--;
+
+  // 阶段切换
+  phaseTurnsLeft--;
+  if (phaseTurnsLeft <= 0) {
+    switchPhase();
+  } else {
+    // 继续当前阶段
+    if (phase === 'battle') {
+      setTimeout(() => enemyTurn(), 400);
+    } else {
+      // 整备期：敌人不动，直接回玩家回合
+      startNewPlayerTurn();
+    }
+  }
+}
+
+function switchPhase() {
+  if (phase === 'battle') {
+    // 进入整备期
+    phase = 'prep';
+    phaseTurnsLeft = PREP_TURNS;
+    maxPhaseTurns = PREP_TURNS;
+    showToast('🟢 ' + T.prepPhase + ' ×' + PREP_TURNS);
+    showPhaseBanner('🟢 ' + (currentLang === 'en' ? 'PREP PHASE' : '整备期'));
+    startNewPlayerTurn();
+  } else {
+    // 整备期结束，进入新波次战斗期
+    phase = 'battle';
+    phaseTurnsLeft = BATTLE_TURNS + Math.floor(wave / 5);
+    maxPhaseTurns = phaseTurnsLeft;
+    spawnEnemies();
+    showToast('🔴 ' + T.battleStart);
+    showPhaseBanner('🔴 ' + (currentLang === 'en' ? 'BATTLE!' : '战斗开始！'));
+    startNewPlayerTurn();
+  }
+}
+
+function startNewPlayerTurn() {
+  isPlayerTurn = true;
+  movesThisTurn = 0;
+  buysThisTurn = 0;
+  timeLeft = TURN_TIME;
+
+  // 整备期可以多移动
+  maxMovesThisTurn = phase === 'prep' ? 2 : 1;
+  maxBuysThisTurn = phase === 'prep' ? 2 : 1;
+
+  // 自动援军
+  if (reinforceCounter >= REINFORCE_INTERVAL) {
+    reinforceCounter = 0;
+    autoReinforce();
   }
 
-  // 敌人移动
-  setTimeout(() => {
-    enemyTurn();
-  }, 400);
+  updateUI();
+  renderBoard();
+  startTurnTimer();
+}
+
+function autoReinforce() {
+  const emptySlots = [];
+  for (let c = 0; c < BOARD_SIZE; c++) {
+    if (!board[7][c]) emptySlots.push(c);
+  }
+  if (emptySlots.length === 0) return;
+  const c = emptySlots[Math.floor(Math.random() * emptySlots.length)];
+  board[7][c] = { type: 'P', owner: 'player', hp: PIECE_HP.P, maxHp: PIECE_HP.P };
+  showToast('💂 ' + T.reinforce);
 }
 
 function enemyTurn() {
   animating = true;
 
-  // 收集所有敌人
   const enemies = [];
   for (let r = 0; r < BOARD_SIZE; r++) {
     for (let c = 0; c < BOARD_SIZE; c++) {
@@ -471,116 +591,93 @@ function enemyTurn() {
     }
   }
 
-  // 敌人移动（贪婪AI：向玩家阵地/最近目标移动）
   enemies.forEach(e => {
+    const chance = ENEMY_MOVE_CHANCE[e.piece.type] || 1;
+    if (Math.random() > chance) return; // 一定概率不动
+
     const moves = getEnemyMove(e.r, e.c, e.piece);
     if (moves.length > 0) {
-      // 优先吃子，其次向玩家阵地移动
       const captureMoves = moves.filter(m => board[m.r][m.c] && board[m.r][m.c].owner === 'player');
       const chosen = captureMoves.length > 0
         ? captureMoves[Math.floor(Math.random() * captureMoves.length)]
         : moves[Math.floor(Math.random() * Math.min(moves.length, 3))];
 
-      if (board[chosen.r][chosen.c] && board[chosen.r][chosen.c].owner === 'player') {
-        // 敌人吃掉玩家棋子
-        if (board[chosen.r][chosen.c].type === 'K') {
-          // 王被吃
-          gameOver('kingCaptured');
-          return;
-        }
-      }
+      const target = board[chosen.r][chosen.c];
+      if (target && target.owner === 'player') {
+        // 敌人攻击玩家棋子（HP系统）
+        const dmg = ENEMY_ATTACK[e.piece.type] || 1;
+        target.hp -= dmg;
 
-      board[chosen.r][chosen.c] = e.piece;
-      board[e.r][e.c] = null;
+        if (target.hp <= 0) {
+          if (target.type === 'K') {
+            gameOver('kingCaptured');
+            return;
+          }
+          board[chosen.r][chosen.c] = e.piece;
+          board[e.r][e.c] = null;
+          showToast('💀 ' + (currentLang === 'en' ? 'Your ' : '你的') + (currentLang === 'en' ? PIECE_NAMES_EN[target.type] : PIECE_NAMES[target.type]) + (currentLang === 'en' ? ' fell!' : ' 阵亡了！'));
+        } else {
+          // 攻击但棋子还在，敌人移动到旁边
+          showToast('⚔️ ' + (currentLang === 'en' ? 'Your ' : '你的') + (currentLang === 'en' ? PIECE_NAMES_EN[target.type] : PIECE_NAMES[target.type]) + ' -' + dmg + 'HP');
+          // 敌人不移动，原地攻击
+        }
+      } else {
+        board[chosen.r][chosen.c] = e.piece;
+        board[e.r][e.c] = null;
+      }
     }
   });
 
   renderBoard();
 
-  // 检查是否有敌人到达底线
+  // 检查突破底线的敌人
   for (let c = 0; c < BOARD_SIZE; c++) {
     if (board[7][c] && board[7][c].owner === 'enemy') {
       const penalty = 30;
       gold = Math.max(0, gold - penalty);
       score = Math.max(0, score - penalty);
-      showToast('⚠️ 敌人突破防线！ -' + penalty);
-      // 移除突破的敌人
+      showToast('⚠️ ' + (currentLang === 'en' ? 'Enemy broke through!' : '敌人突破防线！') + ' -' + penalty);
       board[7][c] = null;
     }
-  }
-
-  // 检查是否有敌人到达第6行（预警）
-  let dangerCount = 0;
-  for (let c = 0; c < BOARD_SIZE; c++) {
-    if (board[6][c] && board[6][c].owner === 'enemy') dangerCount++;
-  }
-  if (dangerCount > 0) {
-    document.getElementById('timerPill').classList.add('danger');
-  } else {
-    document.getElementById('timerPill').classList.remove('danger');
   }
 
   setTimeout(() => {
     animating = false;
 
-    // 检查将军是否被解除
     const newCheck = checkIfInCheck('player');
     if (checkState.inCheck && newCheck.inCheck) {
-      // 将军未解除，游戏结束
       gameOver('checkmate');
       return;
     }
     checkState = newCheck;
-    if (!checkState.inCheck) {
-      showCheckWarning(false);
-    } else {
-      showCheckWarning(true);
-    }
+    if (!checkState.inCheck) showCheckWarning(false);
+    else showCheckWarning(true);
 
-    // 生成新敌人
-    spawnEnemies();
-
-    // 开始新回合
-    isPlayerTurn = true;
-    timeLeft = TURN_TIME;
-    startTurnTimer();
-    updateUI();
-    renderBoard();
+    startNewPlayerTurn();
   }, 300);
 }
 
-// 敌人移动AI（贪婪策略）
 function getEnemyMove(r, c, piece) {
   const { moves, captures } = getPieceMoves(r, c, piece);
   const all = [...moves, ...captures];
   if (all.length === 0) return [];
 
-  // 过滤：敌人更倾向于向下/向玩家移动
   const scored = all.map(m => {
     let score = 0;
     const target = board[m.r][m.c];
-
-    // 优先吃子
     if (target && target.owner === 'player') {
       score += 100 + (PIECE_VALUES[target.type] || 0);
     }
-
-    // 向玩家阵地移动（行号增加）
     score += (m.r - r) * 5;
-
-    // 王的距离（优先向王移动）
     const kingPos = findKing('player');
     if (kingPos) {
       const dist = Math.abs(m.r - kingPos.r) + Math.abs(m.c - kingPos.c);
       score += (14 - dist) * 2;
     }
-
-    // Boss王的特殊行为：不主动移动，有护卫时不动
     if (piece.type === 'K') {
       const guards = countEnemyGuards(r, c);
-      if (guards >= 2) score -= 200; // 王周围有2+护卫时不动
+      if (guards >= 2) score -= 200;
     }
-
     return { ...m, score };
   });
 
@@ -602,11 +699,9 @@ function countEnemyGuards(r, c) {
   return count;
 }
 
-// 检查将军
 function checkIfInCheck(owner) {
   const kingPos = findKing(owner);
   if (!kingPos) return { inCheck: false, from: [] };
-
   const attackers = [];
   for (let r = 0; r < BOARD_SIZE; r++) {
     for (let c = 0; c < BOARD_SIZE; c++) {
@@ -634,26 +729,19 @@ function showCheckWarning(show) {
 
 // ========== 生成敌人 ==========
 function spawnEnemies() {
-  // 根据波次计算生成参数
   const { enemyTypes, count } = getWaveConfig(wave);
-
-  // 找到顶部行的空位
   const spawnRows = [0, 1, 2];
   let spawned = 0;
 
   for (let i = 0; i < count; i++) {
-    // 随机选择类型
     const type = enemyTypes[Math.floor(Math.random() * enemyTypes.length)];
-    // 随机选择顶部行的空位
     const emptySpots = [];
     for (let sr of spawnRows) {
       for (let c = 0; c < BOARD_SIZE; c++) {
         if (!board[sr][c]) emptySpots.push({ r: sr, c });
       }
     }
-
     if (emptySpots.length === 0) break;
-
     const spot = emptySpots[Math.floor(Math.random() * emptySpots.length)];
     board[spot.r][spot.c] = { type, owner: 'enemy' };
     spawned++;
@@ -665,7 +753,6 @@ function spawnEnemies() {
     if (!board[0][centerC]) {
       board[0][centerC] = { type: 'K', owner: 'enemy' };
     }
-    // Boss 护卫
     const guardTypes = ['N', 'B', 'R'];
     for (let c = 2; c <= 5; c++) {
       if (c !== centerC && !board[0][c]) {
@@ -681,12 +768,13 @@ function spawnEnemies() {
 }
 
 function getWaveConfig(w) {
-  if (w <= 3) return { enemyTypes: ['P'], count: 3 + w };
-  if (w <= 6) return { enemyTypes: ['P', 'N', 'B'], count: 5 + Math.floor(w / 2) };
-  if (w <= 10) return { enemyTypes: ['P', 'N', 'B', 'R'], count: 7 + Math.floor(w / 2) };
-  if (w <= 15) return { enemyTypes: ['P', 'N', 'B', 'R', 'Q'], count: 10 + Math.floor(w / 3) };
-  if (w <= 20) return { enemyTypes: ['P', 'N', 'B', 'R', 'Q'], count: 12 + Math.floor(w / 3) };
-  return { enemyTypes: ['P', 'N', 'B', 'R', 'Q', 'K'], count: 15 + Math.floor(w / 4) };
+  if (w <= 2) return { enemyTypes: ['P'], count: 3 };
+  if (w <= 4) return { enemyTypes: ['P'], count: 4 };
+  if (w <= 5) return { enemyTypes: ['P', 'N'], count: 5 };
+  if (w <= 7) return { enemyTypes: ['P', 'N', 'B'], count: 5 + Math.floor(w/3) };
+  if (w <= 10) return { enemyTypes: ['P', 'N', 'B', 'R'], count: 6 + Math.floor(w/3) };
+  if (w <= 15) return { enemyTypes: ['P', 'N', 'B', 'R', 'Q'], count: 7 + Math.floor(w/4) };
+  return { enemyTypes: ['P', 'N', 'B', 'R', 'Q'], count: 8 + Math.floor(w/5) };
 }
 
 function showWaveBanner(text) {
@@ -696,14 +784,103 @@ function showWaveBanner(text) {
   setTimeout(() => el.classList.remove('show'), 1600);
 }
 
+function showPhaseBanner(text) {
+  const el = document.getElementById('waveBanner');
+  el.textContent = text;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2000);
+}
+
 function waveClearBonus() {
   const bonus = 50 + wave * 10;
   gold += bonus;
   score += bonus;
-  showToast('✨ ' + (currentLang === 'en' ? 'Boss defeated! +' : 'Boss击败！+') + bonus);
+  // 全棋子回满HP
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      const p = board[r][c];
+      if (p && p.owner === 'player') p.hp = p.maxHp;
+    }
+  }
+  showToast('✨ ' + (currentLang === 'en' ? 'Boss defeated! +' : 'Boss击败！全棋回满HP！+') + bonus);
   updateUI();
+  renderBoard();
   document.getElementById('chessBoard').classList.add('goldGlow');
   setTimeout(() => document.getElementById('chessBoard').classList.remove('goldGlow'), 600);
+}
+
+// ========== 技能系统 ==========
+function useKingSkill() {
+  if (kingSkillCD > 0 || gameState !== 'playing' || !isPlayerTurn) return;
+  const kingPos = findKing('player');
+  if (!kingPos) return;
+
+  // 清除周围2格所有敌人
+  let cleared = 0;
+  for (let dr = -2; dr <= 2; dr++) {
+    for (let dc = -2; dc <= 2; dc++) {
+      if (dr === 0 && dc === 0) continue;
+      const nr = kingPos.r + dr, nc = kingPos.c + dc;
+      if (nr >= 0 && nr < BOARD_SIZE && nc >= 0 && nc < BOARD_SIZE) {
+        const p = board[nr][nc];
+        if (p && p.owner === 'enemy') {
+          board[nr][nc] = null;
+          cleared++;
+        }
+      }
+    }
+  }
+
+  if (cleared > 0) {
+    const bonus = cleared * 15;
+    gold += bonus;
+    score += bonus;
+    kingSkillCD = KING_SKILL_CD;
+    showToast('👑 ' + (currentLang === 'en' ? 'King Aura!' : '国王威压！') + ' +' + bonus + '🪙 (' + cleared + ')');
+    updateUI();
+    renderBoard();
+  }
+}
+
+function useQueenSkill() {
+  if (queenSkillCD > 0 || gameState !== 'playing' || !isPlayerTurn) return;
+  const queenPos = findQueen('player');
+  if (!queenPos) return;
+
+  // 清除后所在直线/斜线所有敌人（简化：清除同行同列）
+  let cleared = 0;
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    if (r !== queenPos.r) {
+      const p = board[r][queenPos.c];
+      if (p && p.owner === 'enemy') { board[r][queenPos.c] = null; cleared++; }
+    }
+  }
+  for (let c = 0; c < BOARD_SIZE; c++) {
+    if (c !== queenPos.c) {
+      const p = board[queenPos.r][c];
+      if (p && p.owner === 'enemy') { board[queenPos.r][c] = null; cleared++; }
+    }
+  }
+
+  if (cleared > 0) {
+    const bonus = cleared * 20;
+    gold += bonus;
+    score += bonus;
+    queenSkillCD = QUEEN_SKILL_CD;
+    showToast('♕ ' + (currentLang === 'en' ? 'Queen Judgment!' : '女王审判！') + ' +' + bonus + '🪙 (' + cleared + ')');
+    updateUI();
+    renderBoard();
+  }
+}
+
+function findQueen(owner) {
+  for (let r = 0; r < BOARD_SIZE; r++) {
+    for (let c = 0; c < BOARD_SIZE; c++) {
+      const p = board[r][c];
+      if (p && p.type === 'Q' && p.owner === owner) return { r, c };
+    }
+  }
+  return null;
 }
 
 // ========== 商店 ==========
@@ -751,8 +928,9 @@ function renderShop() {
     const cd = shopCooldowns[type] || 0;
     const canAfford = gold >= price;
     const onCooldown = cd > 0;
+    const canBuy = buysThisTurn < maxBuysThisTurn;
 
-    if (canAfford && !onCooldown) {
+    if (canAfford && !onCooldown && canBuy) {
       item.classList.remove('disabled');
     } else {
       item.classList.add('disabled');
@@ -771,33 +949,24 @@ function renderShop() {
 }
 
 function buyPiece(type) {
-  if (gameState !== 'playing' || !isPlayerTurn || animating) return;
+  if (gameState !== 'playing' || !isPlayerTurn || buysThisTurn >= maxBuysThisTurn) return;
   const price = SHOP_PRICES[type];
   const cd = shopCooldowns[type] || 0;
 
-  if (cd > 0) {
-    showToast(T.shopCooldown);
-    return;
-  }
-  if (gold < price) {
-    showToast(T.buyFail);
-    return;
-  }
+  if (cd > 0) { showToast(T.shopCooldown); return; }
+  if (gold < price) { showToast(T.buyFail); return; }
 
-  // 找底线空位
   const emptySlots = [];
   for (let c = 0; c < BOARD_SIZE; c++) {
     if (!board[7][c]) emptySlots.push(c);
   }
-  if (emptySlots.length === 0) {
-    showToast(T.shopFull);
-    return;
-  }
+  if (emptySlots.length === 0) { showToast(T.shopFull); return; }
 
   const c = emptySlots[Math.floor(Math.random() * emptySlots.length)];
-  board[7][c] = { type, owner: 'player' };
+  board[7][c] = { type, owner: 'player', hp: PIECE_HP[type], maxHp: PIECE_HP[type] };
   gold -= price;
   shopCooldowns[type] = SHOP_COOLDOWNS[type];
+  buysThisTurn++;
 
   const name = currentLang === 'en' ? PIECE_NAMES_EN[type] : PIECE_NAMES[type];
   showToast(T.buySuccess.replace('{piece}', name));
@@ -815,7 +984,12 @@ function startTurnTimer() {
     timeLeft -= 0.1;
     if (timeLeft <= 0) {
       clearInterval(turnTimer);
-      gameOver('timeUp');
+      // 超时：强制结束回合
+      if (movesThisTurn >= maxMovesThisTurn || phase === 'prep') {
+        endPlayerTurn();
+      } else {
+        gameOver('timeUp');
+      }
     }
     updateTimer();
   }, 100);
@@ -828,9 +1002,27 @@ function updateTimer() {
 }
 
 function updateUI() {
-  document.getElementById('waveNum').textContent = (currentLang === 'en' ? 'W' : '波') + ' ' + wave;
+  const phaseLabel = phase === 'battle' ? '🔴' : '🟢';
+  document.getElementById('waveNum').textContent = phaseLabel + ' ' + (currentLang === 'en' ? 'W' : '波') + wave + ' · ' + phaseTurnsLeft + '/' + maxPhaseTurns;
   document.getElementById('goldNum').textContent = gold;
   document.getElementById('scoreNum').textContent = score;
+
+  // 技能状态
+  if (kingSkillCD === 0) {
+    showToastIfNotShown('👑 ' + T.skillReady);
+  }
+}
+
+let shownSkillToast = { king: false, queen: false };
+function showToastIfNotShown(msg) {
+  if (msg.includes('👑') && !shownSkillToast.king) {
+    shownSkillToast.king = true;
+    showToast(msg);
+  }
+  if (msg.includes('♕') && !shownSkillToast.queen) {
+    shownSkillToast.queen = true;
+    showToast(msg);
+  }
 }
 
 // ========== Toast ==========
@@ -847,14 +1039,24 @@ function showToast(msg) {
 function startGame() {
   gameState = 'playing';
   wave = 1;
-  gold = 0;
+  gold = 150;
   score = 0;
   combo = 0;
   turnCount = 0;
+  reinforceCounter = 0;
+  kingSkillCD = 0;
+  queenSkillCD = 0;
   shopCooldowns = { P: 0, N: 0, B: 0, R: 0, Q: 0 };
+  totalEnemiesDefeated = 0;
   checkState = { inCheck: false, from: [] };
   isPlayerTurn = true;
   animating = false;
+  phase = 'battle';
+  phaseTurnsLeft = BATTLE_TURNS;
+  maxPhaseTurns = BATTLE_TURNS;
+  movesThisTurn = 0;
+  buysThisTurn = 0;
+  shownSkillToast = { king: false, queen: false };
 
   initBoard();
   initShop();
@@ -865,7 +1067,7 @@ function startGame() {
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('checkWarning').classList.remove('show');
 
-  // 初始敌人
+  // 初始生成第一波敌人
   setTimeout(() => {
     spawnEnemies();
     startTurnTimer();
@@ -882,15 +1084,15 @@ function gameOver(reason) {
     localStorage.setItem('chessHordeBest', bestScore.toString());
   }
 
-  const diag = HordeDiagnosis.getDiagnosis(score, wave, turnCount, combo);
+  const diag = HordeDiagnosis.getDiagnosis(score, wave, turnCount, combo, totalEnemiesDefeated);
   const isEn = currentLang === 'en';
 
   const title = document.getElementById('overlayTitle');
-  const subtitle = document.getElementById('overlaySub');
+  const sub = document.getElementById('overlaySub');
   const content = document.getElementById('overlayContent');
 
   title.textContent = T.gameOver;
-  subtitle.textContent = T.gameOverSub;
+  sub.textContent = T.gameOverSub;
 
   content.innerHTML = `
     <div class="overlayDiagnosis">
@@ -903,7 +1105,7 @@ function gameOver(reason) {
     <div class="overlayStats">
       <div class="overlayStat"><div class="val">${score}</div><div class="lab">${T.score}</div></div>
       <div class="overlayStat"><div class="val">${wave - 1}</div><div class="lab">${T.wave}</div></div>
-      <div class="overlayStat"><div class="val">${turnCount}</div><div class="lab">${T.time}</div></div>
+      <div class="overlayStat"><div class="val">${totalEnemiesDefeated}</div><div class="lab">${currentLang === 'en' ? 'Kills' : '杀敌'}</div></div>
       <div class="overlayStat"><div class="val">${bestScore}</div><div class="lab">${T.best}</div></div>
     </div>
     <div class="overlayBtnWrap">
@@ -921,11 +1123,11 @@ function pauseGame() {
   clearInterval(turnTimer);
 
   const title = document.getElementById('overlayTitle');
-  const subtitle = document.getElementById('overlaySub');
+  const sub = document.getElementById('overlaySub');
   const content = document.getElementById('overlayContent');
 
   title.textContent = T.pauseTitle;
-  subtitle.textContent = T.pauseSubtitle;
+  sub.textContent = T.pauseSubtitle;
   content.innerHTML = `
     <div class="overlayBtnWrap">
       <button class="overlayBtn" onclick="resumeGame()">${T.resume}</button>
@@ -952,6 +1154,8 @@ document.addEventListener('keydown', e => {
     if (gameState === 'playing') pauseGame();
     else if (gameState === 'paused') resumeGame();
   }
+  if (e.key === '1' || e.key === 'k') useKingSkill();
+  if (e.key === '2' || e.key === 'q') useQueenSkill();
 });
 
 // ========== 初始化 ==========
