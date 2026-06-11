@@ -1170,6 +1170,9 @@ function init() {
   document.getElementById('overlayTitle').textContent = T.title;
   document.getElementById('overlaySub').textContent = T.subtitle;
   document.getElementById('gameInstructions').innerHTML = T.instructions.replace(/\n/g, '<br>');
+  const bestScore = parseInt(localStorage.getItem('chessHordeBest') || '0');
+  const bestScoreEl = document.getElementById('bestScoreDisplay');
+  if (bestScoreEl) bestScoreEl.textContent = (currentLang === 'en' ? 'Best: ' : '最高分: ') + bestScore;
   document.getElementById('overlay').classList.add('show');
 }
 
