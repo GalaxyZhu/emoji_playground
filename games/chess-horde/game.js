@@ -1169,6 +1169,7 @@ function init() {
   document.getElementById('startBtn').addEventListener('click', startGame);
   document.getElementById('overlayTitle').textContent = T.title;
   document.getElementById('overlaySub').textContent = T.subtitle;
+  document.getElementById('gameInstructions').innerHTML = T.instructions.replace(/\n/g, '<br>');
   document.getElementById('overlay').classList.add('show');
 }
 

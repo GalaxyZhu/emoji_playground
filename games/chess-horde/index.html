@@ -67,15 +67,18 @@
   .shopItem .cdBadge{position:absolute;top:-2px;right:-2px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;padding:1px 4px;border-radius:8px;min-width:16px}
   .shopItem.onCooldown .cdBadge{display:block}
 
-  #overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.3s}
+  #overlay{position:fixed;inset:0;background:#0a0a0f;z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;opacity:0;pointer-events:none;transition:opacity 0.3s}
   #overlay.show{opacity:1;pointer-events:auto}
-  .overlayTitle{font-size:32px;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-  .overlaySub{color:var(--dim);font-size:14px;margin-bottom:24px;text-align:center;padding:0 20px;line-height:1.5}
-  .overlayBtn{display:inline-block;padding:14px 36px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin:4px}
-  .overlayBtn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(99,102,241,0.3)}
-  .overlayBtn.secondary{background:rgba(255,255,255,0.1);color:var(--light)}
-  .overlayBtn.secondary:hover{background:rgba(255,255,255,0.15)}
-  .overlayBtnWrap{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .overlayTitle{font-size:24px;font-weight:800;margin-bottom:6px;color:var(--light)}
+  .overlaySub{color:var(--dim);font-size:13px;margin-bottom:8px;text-align:center;padding:0 20px;line-height:1.5}
+  .overlayBtn{display:inline-block;padding:14px 36px;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin:4px;text-decoration:none;text-align:center}
+  .overlayBtn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(34,197,94,0.3)}
+  .overlayBtn.secondary{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}
+  .overlayBtn.secondary:hover{box-shadow:0 8px 24px rgba(99,102,241,0.3)}
+  .overlayBtnWrap{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;flex-direction:column;align-items:center}
+  .menuHero{display:flex;flex-direction:column;align-items:center}
+  .gameIcon{font-size:48px;margin-bottom:12px;text-align:center}
+  .gameInstructions{margin-top:24px;color:var(--dim);font-size:12px;line-height:1.6;max-width:320px;text-align:center;padding:0 20px}
   .overlayStats{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px;max-width:320px;width:90%}
   .overlayStat{background:rgba(255,255,255,0.06);border-radius:12px;padding:12px;text-align:center}
   .overlayStat .val{font-size:24px;font-weight:800;color:var(--gold)}
@@ -136,9 +139,13 @@
   <div class="overlayTitle" id="overlayTitle">棋阵守卫战</div>
   <div class="overlaySub" id="overlaySub">经典棋阵 vs 无尽尸潮</div>
   <div id="overlayContent">
-    <div class="overlayBtnWrap">
-      <button class="overlayBtn" id="startBtn">▶️ 开始战斗</button>
-      <a class="overlayBtn secondary" href="../../index.html">🏠 回到街机厅</a>
+    <div class="menuHero">
+      <div class="gameIcon">♟</div>
+      <div class="overlayBtnWrap">
+        <button class="overlayBtn" id="startBtn">🎮 开始游戏</button>
+        <a class="overlayBtn secondary" href="../../index.html">🏠 回到街机厅</a>
+      </div>
+      <div class="gameInstructions" id="gameInstructions"></div>
     </div>
   </div>
 </div>
