@@ -400,6 +400,8 @@ function executeMove(fromR, fromC, toR, toC) {
 
   if (target) {
     captured = true;
+    showAttackEffect(fromR, fromC, toR, toC, 'player');
+    showDeathEffect(toR, toC, 'enemy');
     goldEarned = PIECE_VALUES[target.type] || 10;
     if (combo > 0) goldEarned += Math.floor(combo * 5);
     gold += goldEarned;
@@ -449,6 +451,58 @@ function executeMove(fromR, fromC, toR, toC) {
     endPlayerTurn();
   }
 }
+
+function showAttackEffect(fromR, fromC, toR, toC, owner) {
+  const board = document.getElementById('chessBoard');
+  const fromCell = board.querySelector(`[data-r="${fromR}"][data-c="${fromC}"]`);
+  const toCell = board.querySelector(`[data-r="${toR}"][data-c="${toC}"]`);
+  if (!fromCell || !toCell) return;
+
+  const fRect = fromCell.getBoundingClientRect();
+  const tRect = toCell.getBoundingClientRect();
+  const bRect = board.getBoundingClientRect();
+
+  const fx = fRect.left + fRect.width / 2 - bRect.left;
+  const fy = fRect.top + fRect.height / 2 - bRect.top;
+  const tx = tRect.left + tRect.width / 2 - bRect.left;
+  const ty = tRect.top + tRect.height / 2 - bRect.top;
+
+  const dx = tx - fx;
+  const dy = ty - fy;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+  const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+
+  // Slash line
+  const slash = document.createElement('div');
+  slash.className = 'attackSlash' + (owner === 'player' ? ' player' : '');
+  slash.style.cssText = `left:${fx}px;top:${fy}px;width:${dist}px;transform:rotate(${angle}deg);`;
+  board.appendChild(slash);
+  setTimeout(() => slash.remove(), 450);
+
+  // Target cell flash
+  toCell.classList.add('attackFlash');
+  setTimeout(() => toCell.classList.remove('attackFlash'), 520);
+
+  // Impact ring on target
+  const impact = document.createElement('div');
+  impact.className = 'impactRing' + (owner === 'player' ? ' player' : '');
+  toCell.appendChild(impact);
+  setTimeout(() => impact.remove(), 520);
+}
+
+function showDeathEffect(r, c, owner) {
+  const board = document.getElementById('chessBoard');
+  const cell = board.querySelector(`[data-r="${r}"][data-c="${c}"]`);
+  if (!cell) return;
+  const piece = cell.querySelector('.piece');
+  if (piece) {
+    piece.classList.add('deathAnim');
+    setTimeout(() => {
+      if (piece.parentNode) piece.classList.remove('deathAnim');
+    }, 520);
+  }
+}
+
 
 function showGoldPop(r, c, amount, comboCount) {
   const container = document.getElementById('chessBoard');
@@ -612,11 +666,13 @@ function enemyTurn() {
         const attackerEmoji = ENEMY_EMOJI[e.piece.type];
         const targetName = (currentLang === 'en' ? 'your ' + PIECE_NAMES_EN[target.type] : '你的' + PIECE_NAMES[target.type]);
         const targetEmoji = PLAYER_EMOJI[target.type];
+        showAttackEffect(e.r, e.c, chosen.r, chosen.c, 'enemy');
         if (target.hp <= 0) {
           if (target.type === 'K') {
             gameOver('kingCaptured');
             return;
           }
+          showDeathEffect(chosen.r, chosen.c, 'player');
           board[chosen.r][chosen.c] = e.piece;
           board[e.r][e.c] = null;
           showToast(attackerEmoji + ' ' + attackerName + ' → ' + targetEmoji + ' ' + targetName + (currentLang === 'en' ? ' fell!' : ' 💀 阵亡！'));
