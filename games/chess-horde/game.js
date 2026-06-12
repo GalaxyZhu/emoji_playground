@@ -9,7 +9,7 @@ function applyTranslations(lang) {
   const isEn = lang === 'en';
   const T = {
     zh: {
-      title: '♟ 棋阵守卫战',
+      title: '棋阵守卫战',
       subtitle: '经典棋阵 vs 无尽尸潮\n战斗期杀敌，整备期调整，撑住每一波！',
       startGame: '▶️ 开始战斗',
       backToArcade: '🏠 回到街机厅',
@@ -41,7 +41,7 @@ function applyTranslations(lang) {
       resume: '▶️ 继续',
       restart: '🔄 重新开始',
       howToPlay: '玩法说明',
-      instructions: '战斗期：敌人每回合移动，你移动1个棋子杀敌\n整备期：敌人不动，你移动2个棋子+可购买新兵\n吃子赚金币，购买强化防线\n王被将军必须解除，否则失败\n王技能：国王威压清除周围敌人，女王审判清除直线',
+      instructions: '🔴 战斗期：敌人每回合移动，你移动1枚棋子吃子杀敌！每吃一个敌棋赚金币 💰\n🟢 整备期：敌人暂停，你移动2枚棋子 + 可购买新兵入伍！\n♟️ 吃子赚金币，升级强化防线。王被将军⚠️必须解除，否则一败涂地！\n👑 王技能 · 国王威压：清除周围敌人；女王审判：横扫直线全清！',
       shopPawn: '兵',
       shopKnight: '马',
       shopBishop: '相',
@@ -57,7 +57,7 @@ function applyTranslations(lang) {
       hp: 'HP',
     },
     en: {
-      title: '♟ Chess Horde',
+      title: 'Chess Horde',
       subtitle: 'Classic Chess vs Endless Horde\nBattle phase to kill, Prep phase to rebuild!',
       startGame: '▶️ Start Battle',
       backToArcade: '🏠 Back to Arcade',
@@ -89,7 +89,7 @@ function applyTranslations(lang) {
       resume: '▶️ Resume',
       restart: '🔄 Restart',
       howToPlay: 'How to Play',
-      instructions: 'Battle: enemies move every turn, you move 1 piece\nPrep: enemies frozen, you move 2 pieces + buy\nEarn gold by capturing, buy reinforcements\nKing in check must escape\nSkills: King Aura clears nearby, Queen Judgment clears line',
+      instructions: '🔴 Battle: enemies move every turn, you move 1 piece to capture them! Earn gold 💰 per kill!\n🟢 Prep: enemies frozen, move 2 pieces + buy new recruits!\n♟️ Capture enemies for gold, buy reinforcements. King in check? ⚠️ Must escape or lose!\n👑 King Aura: blast nearby enemies. Queen Judgment: wipe the whole line!',
       shopPawn: 'Pawn',
       shopKnight: 'Knight',
       shopBishop: 'Bishop',
