@@ -608,10 +608,6 @@ function enemyTurn() {
         const dmg = ENEMY_ATTACK[e.piece.type] || 1;
         target.hp -= dmg;
 
-        const attackerName = (currentLang === 'en' ? 'Enemy ' + PIECE_NAMES_EN[e.piece.type] : '敌人' + PIECE_NAMES[e.piece.type]);
-        const attackerEmoji = ENEMY_EMOJI[e.piece.type];
-        const targetName = (currentLang === 'en' ? 'your ' + PIECE_NAMES_EN[target.type] : '你的' + PIECE_NAMES[target.type]);
-        const targetEmoji = PLAYER_EMOJI[target.type];
         if (target.hp <= 0) {
           if (target.type === 'K') {
             gameOver('kingCaptured');
@@ -619,9 +615,11 @@ function enemyTurn() {
           }
           board[chosen.r][chosen.c] = e.piece;
           board[e.r][e.c] = null;
-          showToast(attackerEmoji + ' ' + attackerName + ' → ' + targetEmoji + ' ' + targetName + (currentLang === 'en' ? ' fell!' : ' 💀 阵亡！'));
+          showToast('💀 ' + (currentLang === 'en' ? 'Your ' : '你的') + (currentLang === 'en' ? PIECE_NAMES_EN[target.type] : PIECE_NAMES[target.type]) + (currentLang === 'en' ? ' fell!' : ' 阵亡了！'));
         } else {
-          showToast(attackerEmoji + ' ' + attackerName + ' → ' + targetEmoji + ' ' + targetName + ' -' + dmg + 'HP');
+          // 攻击但棋子还在，敌人移动到旁边
+          showToast('⚔️ ' + (currentLang === 'en' ? 'Your ' : '你的') + (currentLang === 'en' ? PIECE_NAMES_EN[target.type] : PIECE_NAMES[target.type]) + ' -' + dmg + 'HP');
+          // 敌人不移动，原地攻击
         }
       } else {
         board[chosen.r][chosen.c] = e.piece;
@@ -656,7 +654,6 @@ function enemyTurn() {
     else showCheckWarning(true);
 
     startNewPlayerTurn();
-    updateSkillButtons();
   }, 300);
 }
 
@@ -842,7 +839,6 @@ function useKingSkill() {
     showToast('👑 ' + (currentLang === 'en' ? 'King Aura!' : '国王威压！') + ' +' + bonus + '🪙 (' + cleared + ')');
     updateUI();
     renderBoard();
-    updateSkillButtons();
   }
 }
 
@@ -874,7 +870,6 @@ function useQueenSkill() {
     showToast('♕ ' + (currentLang === 'en' ? 'Queen Judgment!' : '女王审判！') + ' +' + bonus + '🪙 (' + cleared + ')');
     updateUI();
     renderBoard();
-    updateSkillButtons();
   }
 }
 
@@ -1016,7 +1011,6 @@ function updateUI() {
   if (kingSkillCD === 0) {
     showToastIfNotShown('👑 ' + T.skillReady);
   }
-  updateSkillButtons();
 }
 
 let shownSkillToast = { king: false, queen: false };
@@ -1031,63 +1025,14 @@ function showToastIfNotShown(msg) {
   }
 }
 
-
-// ========== 技能按钮 ==========
-function initSkillBar() {
-  const bar = document.getElementById('skillBar');
-  if (!bar) return;
-  bar.innerHTML = '';
-
-  const kingBtn = document.createElement('button');
-  kingBtn.className = 'skillBtn king';
-  kingBtn.id = 'kingSkillBtn';
-  kingBtn.innerHTML = '👑 ' + (currentLang === 'en' ? 'King Aura' : '国王威压') + '<span class="cd" id="kingCD"></span>';
-  kingBtn.onclick = useKingSkill;
-  bar.appendChild(kingBtn);
-
-  const queenBtn = document.createElement('button');
-  queenBtn.className = 'skillBtn queen';
-  queenBtn.id = 'queenSkillBtn';
-  queenBtn.innerHTML = '♕ ' + (currentLang === 'en' ? 'Queen Judgment' : '女王审判') + '<span class="cd" id="queenCD"></span>';
-  queenBtn.onclick = useQueenSkill;
-  bar.appendChild(queenBtn);
-}
-
-function updateSkillButtons() {
-  const kingBtn = document.getElementById('kingSkillBtn');
-  const queenBtn = document.getElementById('queenSkillBtn');
-  const kingCD = document.getElementById('kingCD');
-  const queenCD = document.getElementById('queenCD');
-  if (!kingBtn || !queenBtn) return;
-
-  const kingReady = kingSkillCD === 0 && gameState === 'playing' && isPlayerTurn && findKing('player');
-  const queenReady = queenSkillCD === 0 && gameState === 'playing' && isPlayerTurn && findQueen('player');
-
-  kingBtn.disabled = !kingReady;
-  queenBtn.disabled = !queenReady;
-  if (kingCD) kingCD.textContent = kingSkillCD > 0 ? ' ' + kingSkillCD + 'T' : '';
-  if (queenCD) queenCD.textContent = queenSkillCD > 0 ? ' ' + queenSkillCD + 'T' : '';
-}
-
 // ========== Toast ==========
-const MAX_LOGS = 50;
 function showToast(msg) {
   const wrap = document.getElementById('toastWrap');
   const toast = document.createElement('div');
   toast.className = 'toast';
   toast.textContent = msg;
   wrap.appendChild(toast);
-  // Remove old logs if too many
-  while (wrap.children.length > MAX_LOGS) {
-    wrap.removeChild(wrap.firstChild);
-  }
-  // Auto-scroll to bottom
-  wrap.scrollTop = wrap.scrollHeight;
-}
-
-function clearLogs() {
-  const wrap = document.getElementById('toastWrap');
-  if (wrap) wrap.innerHTML = '';
+  setTimeout(() => toast.remove(), 3100);
 }
 
 // ========== 游戏流程 ==========
@@ -1121,8 +1066,6 @@ function startGame() {
 
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('checkWarning').classList.remove('show');
-  clearLogs();
-  initSkillBar();
 
   // 初始生成第一波敌人
   setTimeout(() => {
