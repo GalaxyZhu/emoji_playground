@@ -345,6 +345,7 @@
         }
         .pause-home-btn:hover { transform: scale(1.05); }
     </style>
+    <link rel="stylesheet" href="../shared/game-core.css">
 </head>
 <body>
     <div id="gameContainer">
@@ -393,31 +394,7 @@
             
             <!-- 开始/结束界面 -->
             <div id="ui">
-                <div id="startScreen" class="screen">
-                    <div class="emoji-title">🐵</div>
-                    <h1 data-i18n="gameTitle">猴子过河</h1>
-                    <div class="high-score"><span data-i18n="highScoreLabel">最高分</span>: <span id="startHighScore">0</span></div>
-                    <button class="btn" onclick="startGame()" data-i18n="startGame">开始游戏</button>
-                    <button class="btn btn-home" onclick="location.href='../../index.html'"><span data-i18n="backToArcade">回到街机厅</span></button>
-                    <div class="instructions" data-i18n="instructions">
-                        方向键或触摸控制青蛙移动<br>
-                        穿越马路躲避车辆 🚗<br>
-                        跳上木头 🪵 过河，小心鳄鱼 🐊<br>
-                        <b>鳄鱼会随机张嘴！</b> 张嘴时跳上去会被吃掉<br>
-                        填满 5 个荷叶目标 🪷 进入下一关<br>
-                        注意时间限制！
-                    </div>
-                </div>
                 
-                <div id="gameOverScreen" class="screen hidden">
-                    <div class="emoji-title">💀</div>
-                    <h1 data-i18n="gameOver">游戏结束</h1>
-                    <div class="score-display"><span data-i18n="scoreLabel">得分</span>: <span id="finalScore">0</span></div>
-                    <div class="high-score"><span data-i18n="highScoreLabel">最高分</span>: <span id="finalHighScore">0</span></div>
-                    <div class="stats" id="gameStats"></div>
-                    <button class="btn" onclick="restartGame()" data-i18n="playAgain">再来一局</button>
-                    <button class="btn btn-home" onclick="location.href='../../index.html'"><span data-i18n="backToArcade">回到街机厅</span></button>
-                </div>
                 
                 <div id="levelCompleteScreen" class="screen hidden">
                     <div class="emoji-title">🎉</div>
@@ -891,14 +868,12 @@
             
             // 直接显示诊断报告（替代原来的 gameOverScreen）
             setTimeout(() => {
-                if (typeof HopDiagnosis !== 'undefined') {
-                    HopDiagnosis.show({
-                        score: score,
-                        highScore: highScore,
-                        level: level - 1,
-                        goalsFilled: goalsFilled.filter(g => g).length
-                    });
-                }
+                new GameDiagnosis(GameConfig).show({
+                    score: score,
+                    highScore: highScore,
+                    level: level - 1,
+                    goalsFilled: goalsFilled.filter(g => g).length
+                });
             }, 300);
         }
         
@@ -1192,6 +1167,13 @@
         
         init();
     </script>
-    <script src="diagnosis.js"></script>
+    <script src="config.js"></script>
+    <script src="../shared/game-core.js"></script>
+    <script>
+        if (typeof GameLauncher !== 'undefined' && typeof GameConfig !== 'undefined') {
+            const launcher = new GameLauncher(GameConfig);
+            launcher.show();
+        }
+    </script>
 </body>
 </html>

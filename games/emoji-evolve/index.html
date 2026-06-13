@@ -374,6 +374,7 @@
         }
     </style>
     <script src="../shared/i18n-detect.js"></script>
+    <link rel="stylesheet" href="../shared/game-core.css">
 </head>
 <body>
     <div class="game-header">
@@ -448,7 +449,8 @@
 
     <script src="themes.js"></script>
     <script src="game.js"></script>
-    <script src="diagnosis.js"></script>
+    <script src="config.js"></script>
+    <script src="../shared/game-core.js"></script>
     <script src="../../shared/stars-system.js"></script>
     <script>
         // ===== i18n =====
@@ -684,18 +686,24 @@
             }
 
             showGameOver() {
-                const diag = EvolveDiagnosis.generate(this.game.getDiagnosisData());
-                document.getElementById('diagnosisContainer').innerHTML = EvolveDiagnosis.render(diag, currentLang);
+                const stats = this.game.getDiagnosisData();
+                if (typeof GameDiagnosis !== 'undefined' && typeof GameConfig !== 'undefined') {
+                    new GameDiagnosis(GameConfig).show(stats);
+                }
                 document.getElementById('gameOverOverlay').classList.add('show');
-                this.awardStars(diag.data.stars);
+                const stars = stats && typeof stats === 'object' ? (stats.stars || (stats.data && stats.data.stars) || 0) : 0;
+                this.awardStars(stars);
             }
 
             showWin() {
                 this.spawnConfetti();
-                const diag = EvolveDiagnosis.generate(this.game.getDiagnosisData());
-                document.getElementById('winDiagnosisContainer').innerHTML = EvolveDiagnosis.render(diag, currentLang);
+                const stats = this.game.getDiagnosisData();
+                if (typeof GameDiagnosis !== 'undefined' && typeof GameConfig !== 'undefined') {
+                    new GameDiagnosis(GameConfig).show(stats);
+                }
                 document.getElementById('winOverlay').classList.add('show');
-                this.awardStars(diag.data.stars);
+                const stars = stats && typeof stats === 'object' ? (stats.stars || (stats.data && stats.data.stars) || 0) : 0;
+                this.awardStars(stars);
             }
 
             awardStars(stars) {
@@ -770,6 +778,12 @@
         }
 
         const game = new EmojiEvolveUI();
+    </script>
+    <script>
+        if (typeof GameLauncher !== 'undefined' && typeof GameConfig !== 'undefined') {
+            const launcher = new GameLauncher(GameConfig);
+            launcher.show();
+        }
     </script>
 </body>
 </html>

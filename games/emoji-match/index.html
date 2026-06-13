@@ -423,6 +423,7 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="../shared/game-core.css">
 </head>
 <body>
     <!-- 头部 -->
@@ -783,8 +784,8 @@
             
             // 直接显示诊断报告（替代原来的 gameOverModal）
             setTimeout(() => {
-                if (typeof MatchDiagnosis !== 'undefined') {
-                    MatchDiagnosis.show({
+                if (typeof GameDiagnosis !== 'undefined' && typeof GameConfig !== 'undefined') {
+                    new GameDiagnosis(GameConfig).show({
                         score1: score1,
                         score2: score2,
                         isDraw: score1 === score2,
@@ -808,117 +809,13 @@
         init();
     </script>
     
-    <!-- 匹配游戏诊断系统 -->
+    <script src="config.js"></script>
+    <script src="../shared/game-core.js"></script>
     <script>
-        const MatchDiagnosis = {
-            types: {
-                BRN: { icon: '🧠', title: '人脑计算机', titleEn: 'Human Computer', quote: '"三消？那是我的母语。"', quoteEn: '"Match-3? That is my native language."', rarePercent: '8%', rarityClass: 'rare', roasts: { zh: ['你的大脑是GPU做的吧', '建议去拉斯维加斯', '你玩匹配像在做高数题'], en: ['Is your brain made of GPUs?', 'Consider Vegas—seriously', 'You match like you are doing calculus'] } },
-                COL: { icon: '🦥', title: '树懒型选手', titleEn: 'Sloth Gamer', quote: '"我找到了！……刚才那个。"', quoteEn: '"I found it! ...the one from earlier."', rarePercent: '38%', rarityClass: 'common', roasts: { zh: ['反应速度让树懒都着急', '游戏结束三秒后才点', '建议玩回合制'], en: ['Your reaction time makes sloths impatient', 'You click 3 seconds after the game ends', 'Try turn-based games instead'] } },
-                OCD: { icon: '🔍', title: '强迫症患者', titleEn: 'Match OCD', quote: '"颜色不对，宁愿不消。"', quoteEn: '"Wrong color? I would rather not match."', rarePercent: '24%', rarityClass: 'common', roasts: { zh: ['强迫症比分数还高', '太挑剔导致时间到了', '建议去整理衣柜'], en: ['Your OCD is higher than your score', 'Too picky, time is up', 'Go organize your wardrobe'] } },
-                RNG: { icon: '🎰', title: '瞎点点大师', titleEn: 'Random Clicker', quote: '"只要点得够快，概率就追不上我。"', quoteEn: '"If I click fast enough, probability cannot catch me."', rarePercent: '30%', rarityClass: 'common', roasts: { zh: ['手速和智商成反比', '鼠标：我承受了太多', '建议去玩刮刮乐'], en: ['Hand speed is inversely proportional to IQ', 'Mouse: I have suffered enough', 'Try scratch-off lottery tickets'] } }
-            },
-            getTexts() {
-                const isZh = lang === 'zh';
-                return isZh ? {
-                    confirmed: '确诊',
-                    tag: '🧩 Emoji Match 诊断',
-                    roastTitle: '💬 网友吐槽',
-                    statP1: '玩家1得分',
-                    statP2: '玩家2得分',
-                    statTotal: '总匹配数',
-                    share: '分享你的诊断报告',
-                    replay: '🔄 再来一局',
-                    copied: '已复制！',
-                    draw: '平局！',
-                    p1Win: '玩家1获胜!',
-                    p2Win: '玩家2获胜!',
-                    shareTitle: (type) => `🎮 Emoji Arcade 诊断报告\n\n${type.icon} ${type.title}\n${type.quote}\n\n测测你是什么玩家"病症" 👉 emojiarcade.app`,
-                    shareTwitter: (type) => `🎮 刚被诊断为「${type.title}」\n${type.quote}\n\n测测你是什么玩家"病症" 👇`
-                } : {
-                    confirmed: 'DIAGNOSIS',
-                    tag: '🧩 Emoji Match Diagnosis',
-                    roastTitle: '💬 Roast',
-                    statP1: 'Player 1 Score',
-                    statP2: 'Player 2 Score',
-                    statTotal: 'Total Matches',
-                    share: 'Share your diagnosis',
-                    replay: '🔄 Play Again',
-                    copied: 'Copied!',
-                    draw: 'Draw!',
-                    p1Win: 'Player 1 Wins!',
-                    p2Win: 'Player 2 Wins!',
-                    shareTitle: (type) => `🎮 Emoji Arcade Diagnosis\n\n${type.icon} ${type.titleEn}\n${type.quoteEn}\n\nFind out your player type 👉 emojiarcade.app`,
-                    shareTwitter: (type) => `🎮 Just diagnosed as "${type.titleEn}"\n${type.quoteEn}\n\nFind out your player type 👇`
-                };
-            },
-            detectType(stats) {
-                if (stats.isDraw) return 'RNG';
-                if (stats.score1 >= 8 || stats.score2 >= 8) return 'BRN';
-                if (stats.score1 <= 2 && stats.score2 <= 2) return 'COL';
-                return 'OCD';
-            },
-            show(stats) {
-                const isZh = lang === 'zh';
-                const t = this.getTexts();
-                const typeCode = this.detectType(stats);
-                const type = this.types[typeCode];
-                const roastPool = type.roasts[isZh ? 'zh' : 'en'];
-                const roast = roastPool[Math.floor(Math.random() * roastPool.length)];
-                const rarityColors = { common: 'linear-gradient(135deg,#94a3b8,#64748b)', rare: 'linear-gradient(135deg,#60a5fa,#3b82f6)', epic: 'linear-gradient(135deg,#a855f7,#7c3aed)', legendary: 'linear-gradient(135deg,#fbbf24,#f59e0b)' };
-                const winnerText = stats.isDraw ? t.draw : (stats.winner === 1 ? t.p1Win : t.p2Win);
-                const title = isZh ? type.title : type.titleEn;
-                const quote = isZh ? type.quote : type.quoteEn;
-                const rarity = isZh
-                    ? ({ common: '常见', rare: '稀有', epic: '史诗', legendary: '传说' }[type.rarityClass] || '常见')
-                    : ({ common: 'Common', rare: 'Rare', epic: 'Epic', legendary: 'Legendary' }[type.rarityClass] || 'Common');
-                const html = `
-                    <div id="diagnosisModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:99999;display:flex;justify-content:center;align-items:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;" onclick="if(event.target===this)MatchDiagnosis.hide()">
-                        <div style="background:linear-gradient(135deg,#1a1a2e 0%,#16213e 100%);border-radius:20px;padding:30px;max-width:420px;width:90%;border:2px solid rgba(255,255,255,0.1);position:relative;max-height:90vh;overflow-y:auto;">
-                            <div style="position:absolute;top:15px;right:15px;width:50px;height:50px;border:2px solid #ef4444;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#ef4444;font-weight:bold;font-size:12px;transform:rotate(-15deg);opacity:0.8;">${t.confirmed}</div>
-                            <div style="text-align:center;margin-bottom:20px;">
-                                <div style="font-size:50px;margin-bottom:10px;">${type.icon}</div>
-                                <div style="background:rgba(255,255,255,0.1);padding:4px 12px;border-radius:15px;font-size:11px;color:#94a3b8;display:inline-block;margin-bottom:8px;">${t.tag}</div>
-                                <h2 style="font-size:22px;font-weight:800;background:linear-gradient(90deg,#fbbf24,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:3px;">${title}</h2>
-                                <div style="display:inline-flex;align-items:center;gap:4px;margin-top:12px;padding:6px 16px;border-radius:20px;font-weight:700;font-size:12px;background:${rarityColors[type.rarityClass]};color:#fff;">🌟 ${rarity} · ${type.rarePercent}</div>
-                            </div>
-                            <div style="background:rgba(99,102,241,0.1);border-left:3px solid #6366f1;padding:12px;margin:12px 0;border-radius:0 8px 8px 0;font-style:italic;color:#cbd5e1;font-size:13px;">${quote}</div>
-                            <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:10px;border-radius:8px;margin:12px 0;"><div style="color:#ef4444;font-size:11px;font-weight:600;margin-bottom:4px;">${t.roastTitle}</div><div style="color:#fca5a5;font-size:13px;">${roast}</div></div>
-                            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0;">
-                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#3b82f6;">${stats.score1}</div><div style="font-size:11px;color:#94a3b8;">${t.statP1}</div></div>
-                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#ec4899;">${stats.score2}</div><div style="font-size:11px;color:#94a3b8;">${t.statP2}</div></div>
-                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#fbbf24;">${stats.isDraw ? '🤝' : '🏆'}</div><div style="font-size:11px;color:#94a3b8;">${winnerText}</div></div>
-                                <div style="background:rgba(255,255,255,0.05);padding:12px;border-radius:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:#a855f7;">${stats.score1 + stats.score2}</div><div style="font-size:11px;color:#94a3b8;">${t.statTotal}</div></div>
-                            </div>
-                            <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:15px;margin-top:15px;">
-                                <div style="text-align:center;color:#94a3b8;font-size:11px;margin-bottom:10px;">${t.share}</div>
-                                <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
-                                    <button onclick="MatchDiagnosis.share('twitter')" style="padding:8px 14px;border-radius:15px;border:none;background:#1da1f2;color:white;font-weight:600;cursor:pointer;font-size:12px;">🐦</button>
-                                    <button onclick="MatchDiagnosis.share('weibo')" style="padding:8px 14px;border-radius:15px;border:none;background:#e6162d;color:white;font-weight:600;cursor:pointer;font-size:12px;">📱</button>
-                                    <button onclick="MatchDiagnosis.share('copy')" style="padding:8px 14px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:12px;">📋</button>
-                                </div>
-                                <div style="display:flex;gap:8px;margin-top:12px;">
-                                    <button onclick="MatchDiagnosis.hide()" style="flex:1;padding:12px;border-radius:15px;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-weight:600;cursor:pointer;font-size:14px;">${t.replay}</button>
-                                    <button onclick="location.href='../../index.html'" style="padding:12px 16px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:14px;">🏠</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                const existing = document.getElementById('diagnosisModal');
-                if (existing) existing.remove();
-                document.body.insertAdjacentHTML('beforeend', html);
-                this.currentType = type;
-            },
-            hide() { const modal = document.getElementById('diagnosisModal'); if (modal) modal.remove(); closeModal(); init(); },
-            share(platform) {
-                const t = this.getTexts();
-                const type = this.currentType;
-                const text = t.shareTitle(type);
-                if (platform === 'twitter') window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(t.shareTwitter(type))}&url=${encodeURIComponent('https://emojiarcade.app')}`, '_blank');
-                else if (platform === 'weibo') window.open(`https://service.weibo.com/share/share.php?title=${encodeURIComponent(text)}&url=${encodeURIComponent('https://emojiarcade.app')}`, '_blank');
-                else if (platform === 'copy') navigator.clipboard.writeText(text).then(() => alert(t.copied));
-            }
-        };
+        if (typeof GameLauncher !== 'undefined' && typeof GameConfig !== 'undefined') {
+            const launcher = new GameLauncher(GameConfig);
+            launcher.show();
+        }
     </script>
 </body>
 </html>

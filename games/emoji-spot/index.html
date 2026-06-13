@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title data-i18n="title">找坏人</title>
     <script src="../shared/i18n-detect.js"></script>
+    <link rel="stylesheet" href="../shared/game-core.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; -webkit-user-select: none; touch-action: manipulation; }
         body {
@@ -270,27 +271,6 @@
         <div class="grid-container" id="gridContainer"></div>
     </div>
 
-    <!-- ========== 开始画面（emoji-pattern 风格）========== -->
-    <div class="overlay" id="startScreen">
-        <div class="overlay-emoji">🕵️</div>
-        <div class="overlay-title" data-i18n="titleText">找坏人</div>
-        <div class="overlay-subtitle" data-i18n="subtitle">在一堆表情中找出唯一的不同<br>从 2×2 到 10×10，考验你的眼力！</div>
-        <button class="btn btn-primary" id="startBtn" data-i18n="startGame">▶️ 开始游戏</button>
-        <button class="btn btn-secondary" onclick="goBack()" data-i18n="backToArcade">🏠 回到街机厅</button>
-        <div class="instructions-box">
-            <strong data-i18n="howToPlay">玩法说明</strong>
-            <span data-i18n="instructions">
-                屏幕上满是相同的 Emoji<br>
-                只有一个表情跟大家不同<br>
-                点击找出那个"坏人"<br>
-                点错扣 3 秒，时间归零 = 游戏结束
-            </span>
-        </div>
-        <div class="best-score-display">
-            🏆 <span data-i18n="bestLabel">历史最高</span>: <span id="startBestScore">0</span>
-        </div>
-    </div>
-
     <!-- ========== 暂停画面 ========== -->
     <div class="overlay hidden" id="pauseScreen">
         <div class="pause-title" data-i18n="gamePaused">⏸️ 游戏暂停</div>
@@ -302,21 +282,14 @@
         <div class="pause-hint" data-i18n="pauseHint">按 ESC 键也可以继续游戏</div>
     </div>
 
-    <!-- ========== 游戏结束 ========== -->
-    <div class="overlay hidden" id="gameOverScreen">
-        <div class="overlay-emoji">💀</div>
-        <div class="overlay-title" data-i18n="gameOver">💀 游戏结束</div>
-        <div class="gameover-stats">
-            <div class="go-stat"><div class="go-stat-value" id="finalLevel">1</div><div class="go-stat-label" data-i18n="levelLabel">到达关卡</div></div>
-            <div class="go-stat"><div class="go-stat-value" id="finalScore">0</div><div class="go-stat-label" data-i18n="scoreLabel">最终得分</div></div>
-            <div class="go-stat"><div class="go-stat-value" id="finalAccuracy">0%</div><div class="go-stat-label" data-i18n="accuracyLabel">准确率</div></div>
-            <div class="go-stat"><div class="go-stat-value" id="finalBest">0</div><div class="go-stat-label" data-i18n="bestLabel">最高分</div></div>
-        </div>
-        <button class="btn btn-primary" id="restartBtn" data-i18n="restartGame">🔄 再来一局</button>
-        <button class="btn btn-secondary" onclick="goBack()" data-i18n="backToArcade">🏠 回到街机厅</button>
-    </div>
-
-    <script src="diagnosis.js"></script>
+    <script src="config.js"></script>
+    <script src="../shared/game-core.js"></script>
     <script src="game.js?v=3"></script>
+    <script>
+        if (typeof GameLauncher !== 'undefined' && typeof GameConfig !== 'undefined') {
+            const launcher = new GameLauncher(GameConfig);
+            launcher.show();
+        }
+    </script>
 </body>
 </html>

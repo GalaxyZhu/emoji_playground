@@ -159,7 +159,12 @@
 
 <script src="config.js"></script>
 <script src="../shared/game-core.js"></script>
-<script src="diagnosis.js"></script>
 <script src="game.js"></script>
+<script>
+    if (typeof GameLauncher !== 'undefined' && typeof GameConfig !== 'undefined') {
+        const launcher = new GameLauncher(GameConfig);
+        launcher.show();
+    }
+</script>
 </body>
 </html>

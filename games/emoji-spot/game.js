@@ -353,29 +353,19 @@ function gameOver() {
   }
 
   // 显示诊断报告
-  if (typeof SpotDiagnosis !== 'undefined') {
-    const accuracy = state.totalClicks > 0 ? (state.correctClicks / state.totalClicks * 100) : 0;
-    const stats = {
-      score: state.score,
-      level: state.level,
-      maxStreak: state.maxStreak,
-      totalClicks: state.totalClicks,
-      correctClicks: state.correctClicks,
-      wrongClicks: state.wrongClicks,
-      accuracy: accuracy.toFixed(1),
-      bestScore: state.bestScore,
-      bestLevel: state.bestLevel
-    };
-    SpotDiagnosis.show(stats);
-  } else {
-    // fallback
-    const accuracy = state.totalClicks > 0 ? (state.correctClicks / state.totalClicks * 100) : 0;
-    $.finalLevel.textContent = state.level;
-    $.finalScore.textContent = state.score;
-    $.finalAccuracy.textContent = accuracy.toFixed(1) + '%';
-    $.finalBest.textContent = state.bestScore;
-    $.gameOverScreen.classList.remove('hidden');
-  }
+  const accuracy = state.totalClicks > 0 ? (state.correctClicks / state.totalClicks * 100) : 0;
+  const stats = {
+    score: state.score,
+    level: state.level,
+    maxStreak: state.maxStreak,
+    totalClicks: state.totalClicks,
+    correctClicks: state.correctClicks,
+    wrongClicks: state.wrongClicks,
+    accuracy: accuracy.toFixed(1),
+    bestScore: state.bestScore,
+    bestLevel: state.bestLevel
+  };
+  new GameDiagnosis(GameConfig).show(stats);
 }
 
 // ========== 暂停 ==========

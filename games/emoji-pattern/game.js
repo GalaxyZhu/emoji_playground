@@ -451,29 +451,21 @@ function gameOver() {
   }
 
   // 显示诊断报告
-  if (typeof PatternDiagnosis !== 'undefined') {
-    const stats = {
-      score: state.score,
-      level: state.level,
-      maxCombo: state.maxCombo,
-      totalClicks: state.totalClicks,
-      correctClicks: state.correctClicks,
-      wrongClicks: state.wrongClicks,
-      totalErrors: state.totalErrors,
-      totalTimeSpent: state.totalTimeSpent,
-      highScore: state.bestScore,
-      highLevel: state.bestLevel,
-      bestScore: state.bestScore,
-      bestLevel: state.bestLevel,
-    };
-    PatternDiagnosis.show(stats);
-  } else {
-    // fallback: 显示传统 gameover 画面
-    $.finalScore.textContent = state.score;
-    $.finalLevel.textContent = state.level;
-    $.bestScoreDisplay.textContent = state.bestScore;
-    $.gameOverScreen.classList.remove('hidden');
-  }
+  const stats = {
+    score: state.score,
+    level: state.level,
+    maxCombo: state.maxCombo,
+    totalClicks: state.totalClicks,
+    correctClicks: state.correctClicks,
+    wrongClicks: state.wrongClicks,
+    totalErrors: state.totalErrors,
+    totalTimeSpent: state.totalTimeSpent,
+    highScore: state.bestScore,
+    highLevel: state.bestLevel,
+    bestScore: state.bestScore,
+    bestLevel: state.bestLevel,
+  };
+  new GameDiagnosis(GameConfig).show(stats);
 }
 
 // ===================== 计时器 =====================

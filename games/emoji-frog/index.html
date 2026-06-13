@@ -191,6 +191,7 @@
             transform: scale(1.05);
         }
     </style>
+    <link rel="stylesheet" href="../shared/game-core.css">
 </head>
 <body>
     <div id="mainContainer">
@@ -203,27 +204,7 @@
                 <div class="height-display hidden" id="heightDisplay"><span id="highScoreLabel" data-i18n="heightDisplay">最高</span>: 0m</div>
                 <div class="controls-hint hidden" id="controlsHint" data-i18n="controlsHint">A/D 或 ←→ 控制左右方向 | 左右穿墙</div>
 
-                <div class="ui-overlay" id="startScreen">
-                    <div class="emoji-title">🐸</div>
-                    <h1>跳跳蛙</h1>
-                    <button class="btn" id="startBtn" data-i18n="startGame">开始跳跃</button>
-                    <button class="btn" id="backToArcadeStartBtn" style="margin-top: 15px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);" data-i18n="backToArcade">🏠 回到街机厅</button>
-                    <div class="instructions">
-                        青蛙自动跳跃，你只需要控制左右方向<br>
-                        A/D 或 ←→ 移动，左右穿墙<br>
-                        跳得越高，分数越高！
-                    </div>
-                </div>
 
-                <div class="ui-overlay hidden" id="gameOverScreen">
-                    <div class="emoji-title">💀</div>
-                    <h1 data-i18n="gameOver">游戏结束</h1>
-                    <div class="instructions" style="font-size: 18px; margin-bottom: 20px;">
-                        <span id="heightLabel" data-i18n="heightLabel">高度</span>: <span id="finalScore" style="color: #4ade80; font-weight: bold;">0</span>m
-                    </div>
-                    <button class="btn" id="restartBtn" data-i18n="restartGame">再跳一次</button>
-                    <button class="btn" id="backToArcadeBtn" style="margin-top: 15px; background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);" data-i18n="backToArcade">🏠 回到街机厅</button>
-                </div>
                 
                 <!-- 暂停对话框 -->
                 <div class="ui-overlay hidden" id="pauseScreen">
@@ -481,14 +462,12 @@
 
             // 直接显示诊断报告（替代原来的 gameOverScreen）
             setTimeout(() => {
-                if (typeof FrogDiagnosis !== 'undefined') {
-                    FrogDiagnosis.show({
-                        score: Math.floor(score),
-                        maxHeight: Math.floor(maxHeight),
-                        lilyBounces: window.lilyBounces || 0,
-                        rocketBoosts: window.rocketBoosts || 0
-                    });
-                }
+                new GameDiagnosis(GameConfig).show({
+                    score: Math.floor(score),
+                    maxHeight: Math.floor(maxHeight),
+                    lilyBounces: window.lilyBounces || 0,
+                    rocketBoosts: window.rocketBoosts || 0
+                });
             }, 300);
             
             document.getElementById('scoreDisplay').classList.add('hidden');
@@ -1039,6 +1018,13 @@
             document.querySelector('#startScreen .instructions').innerHTML = t('instructions') + `<br><br>${historyHighText}: ${Math.floor(maxHeight)}m`;
         });
     </script>
-    <script src="diagnosis.js"></script>
+    <script src="config.js"></script>
+    <script src="../shared/game-core.js"></script>
+    <script>
+        if (typeof GameLauncher !== 'undefined' && typeof GameConfig !== 'undefined') {
+            const launcher = new GameLauncher(GameConfig);
+            launcher.show();
+        }
+    </script>
 </body>
 </html>

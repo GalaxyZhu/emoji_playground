@@ -145,6 +145,7 @@
         .low-health-warning.show { opacity: 1; animation: pulse 0.5s infinite; }
         @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
     </style>
+    <link rel="stylesheet" href="../shared/game-core.css">
 </head>
 <body>
     <canvas id="gameCanvas"></canvas>
@@ -156,36 +157,9 @@
     <div class="combo-bonus" id="comboBonus">+❤️ 连击奖励!</div>
     <div class="low-health-warning" id="lowHealthWarning">⚠️ 血量危险!</div>
     
-    <div class="ui-overlay" id="startScreen">
-        <div class="emoji-title">🚗</div>
-        <h1>EMOJI DRIFT</h1>
-        <div style="color: #00c8ff; font-size: 18px; margin-bottom: 20px;">🎵 节奏漂移模式 V0.3.0</div>
-        <button class="btn" id="startBtn">开始漂移</button>
-        <button class="btn btn-home" id="homeBtn" onclick="location.href='../../index.html'" style="margin-top: 15px;">🏠 回到街机厅</button>
-        <div class="instructions">
-            🎵 弯道会在道路上出现<br>
-            🎯 当车进入弯道判定区时<br>
-            👈 点击左侧 = 左漂移<br>
-            👉 点击右侧 = 右漂移<br>
-            💚 Perfect = 最高速 + 连击+1<br>
-            💙 Good = 正常<br>
-            ❌ Miss = 扣1血 + 连击重置<br>
-            <span style="color: #00ff88;">🔥 每10连击恢复1点生命！</span>
-        </div>
-    </div>
-    
-    <div class="ui-overlay hidden" id="gameOverScreen">
-        <div class="emoji-title">💥</div>
-        <h1 id="gameOverTitle"></h1>
-        <div style="color: #fff; font-size: 20px; margin-bottom: 5px;"></div>
-        <div style="color: #ffd700; font-size: 16px; margin-bottom: 5px;"></div>
-        <div style="color: #ff4444; font-size: 16px; margin-bottom: 5px;"></div>
-        <div style="color: #00c8ff; font-size: 14px; margin-bottom: 30px;"></div>
-        <button class="btn" id="restartBtn"></button>
-        <button class="btn btn-home" id="homeBtn" onclick="location.href='../../index.html'"></button>
-    </div>
-
     <script src="../shared/i18n-detect.js"></script>
+    <script src="config.js"></script>
+    <script src="../shared/game-core.js"></script>
     <script>
         // 语言检测与翻译
         const i18n = {
@@ -257,12 +231,10 @@
         const t = i18n[lang];
         document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
 
-        // 应用翻译
+        // 应用翻译（已移除startScreen相关，由GameLauncher接管）
         document.getElementById('startBtn').textContent = t.startGame;
         document.getElementById('restartBtn').textContent = t.restart;
         document.getElementById('homeBtn').textContent = t.backToArcade;
-        document.querySelector('#startScreen .instructions').innerHTML = t.instructions.join('<br>');
-        document.querySelector('#startScreen div:nth-child(3)').textContent = t.rhythmMode;
 
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -532,9 +504,6 @@
             window.perfectCount = 0;
             window.goodCount = 0;
             window.missCount = 0;
-            
-            document.getElementById('startScreen').classList.add('hidden');
-            document.getElementById('gameOverScreen').classList.add('hidden');
             updateComboUI();
             updateHealthUI();
             // 初始化得分显示
@@ -548,20 +517,15 @@
                 highScore = score;
                 localStorage.setItem('emojiDriftHighScore', highScore);
             }
-            
-            // 直接显示诊断报告（替代原来的 gameOverScreen）
-            setTimeout(() => {
-                if (typeof DriftDiagnosis !== 'undefined') {
-                    DriftDiagnosis.show({
-                        score: score,
-                        highScore: highScore,
-                        maxCombo: maxCombo,
-                        perfectDrifts: window.perfectCount || 0,
-                        goodDrifts: window.goodCount || 0,
-                        missDrifts: window.missCount || 0
-                    });
-                }
-            }, 300);
+            // Unified diagnosis
+            const stats = {
+                score: score,
+                highScore: highScore,
+                maxCombo: maxCombo,
+                perfectDrifts: window.perfectCount || 0
+            };
+            const diagnosis = new GameDiagnosis(GameConfig);
+            diagnosis.show(stats);
         }
         
         function spawnCurve() {
@@ -758,11 +722,13 @@
             }
         }
         
-        document.getElementById('startBtn').addEventListener('click', startGame);
-        document.getElementById('restartBtn').addEventListener('click', startGame);
-        
         draw();
+        
+        // Show unified launcher
+        if (typeof GameLauncher !== 'undefined' && typeof GameConfig !== 'undefined') {
+            const launcher = new GameLauncher(GameConfig);
+            launcher.show();
+        }
     </script>
-    <script src="diagnosis.js"></script>
 </body>
 </html>

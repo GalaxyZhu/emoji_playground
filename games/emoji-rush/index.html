@@ -290,6 +290,7 @@
         }
         .speed-hint.show { opacity: 1; }
     </style>
+    <link rel="stylesheet" href="../shared/game-core.css">
 </head>
 <body>
     <div id="gameContainer">
@@ -316,31 +317,7 @@
         </div>
     </div>
     
-    <div class="ui-overlay" id="startScreen">
-        <div class="emoji-title">🏎️</div>
-        <h1>EMOJI RUSH</h1>
-        <div class="version-tag" style="color: #e94560; font-size: 18px; margin-bottom: 20px;">⚠️ 速度失控 + QTE减速模式</div>
-        <button class="btn" id="startBtn">开始狂飙</button>
-        <div class="instructions" id="instructions">
-            ⚠️ 刹车坏了！车速只会越来越快！<br>
-            👈 点击/触摸左侧 = 左变道 | 点击/触摸右侧 = 右变道 👉<br>
-            🚧 躲避障碍物<br>
-            🔥 速度超过300km/h时画面会颤抖！<br>
-            <span style="color: #00d4ff;">⏱️ 速度超过140km/h时，会出现QTE制动机会！<br>
-            按下蓝色按钮即可减速50km/h，获得喘息机会！</span>
-        </div>
-    </div>
     
-    <div class="ui-overlay hidden" id="gameOverScreen">
-        <div class="emoji-title">💥</div>
-        <h1 id="gameOverTitle">撞车了！</h1>
-        <div style="color: #fff; font-size: 20px; margin-bottom: 5px;"><span id="distanceLabel">行驶距离: </span><span id="finalScore">0</span>m</div>
-        <div style="color: #e94560; font-size: 18px; margin-bottom: 5px;"><span id="maxSpeedLabel">最高速度: </span><span id="finalSpeed">0</span>km/h</div>
-        <div style="color: #00d4ff; font-size: 16px; margin-bottom: 5px;"><span id="qteLabel">成功QTE: </span><span id="finalQTE">0</span>次</div>
-        <div style="color: #ffd700; font-size: 16px; margin-bottom: 30px;"><span id="highScoreLabel">最高分: </span><span id="highScore">0</span>m</div>
-        <button class="btn" id="restartBtn">再来一局</button>
-        <button class="btn btn-home" id="homeBtn" onclick="location.href='../../index.html'">🏠 回到街机厅</button>
-    </div>
 
     <script src="../shared/i18n-detect.js"></script>
     <script>
@@ -653,16 +630,14 @@
             }
             
             // 显示诊断系统
-            if (typeof RushDiagnosis !== 'undefined') {
-                RushDiagnosis.show({
-                    score: Math.floor(score),
-                    highScore: Math.floor(highScore),
-                    maxSpeed: Math.floor(maxSpeed),
-                    qteCount: qteSuccessCount,
-                    carsPassed: Math.floor(score / 10),
-                    nearMisses: Math.floor(score / 50)
-                });
-            }
+            new GameDiagnosis(GameConfig).show({
+                score: Math.floor(score),
+                highScore: Math.floor(highScore),
+                maxSpeed: Math.floor(maxSpeed),
+                qteCount: qteSuccessCount,
+                carsPassed: Math.floor(score / 10),
+                nearMisses: Math.floor(score / 50)
+            });
         }
         
         function spawnObstacle() {
@@ -920,6 +895,13 @@
         
         draw();
     </script>
-    <script src="diagnosis.js"></script>
+    <script src="config.js"></script>
+    <script src="../shared/game-core.js"></script>
+    <script>
+        if (typeof GameLauncher !== 'undefined' && typeof GameConfig !== 'undefined') {
+            const launcher = new GameLauncher(GameConfig);
+            launcher.show();
+        }
+    </script>
 </body>
 </html>

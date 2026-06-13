@@ -6,6 +6,7 @@
     <title>🔗 Emoji Link-Up - Play Free Online Emoji Connect Game | Emoji Arcade</title>
     <meta name="description" content="Play Emoji Link-Up online for free! Connect matching emojis with lines in this addictive puzzle game. Fast-paced, brain-teasing fun!">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../shared/game-core.css">
 </head>
 <body>
     <!-- 游戏头部 -->
@@ -100,8 +101,9 @@
     <div id="diagnosisContainer"></div>
 
     <script src="../../assets/js/firebase-config.js"></script>
+    <script src="config.js"></script>
+    <script src="../shared/game-core.js"></script>
     <script src="game.js?v=6"></script>
-    <script src="diagnosis.js?v=6"></script>
     <script type="module">
         import { Leaderboard } from '../../assets/js/leaderboard.js?v=6';
         window.Leaderboard = Leaderboard;
@@ -110,6 +112,12 @@
         Leaderboard.init('emoji-linkup', lang, 'time').catch((err) => {
             console.warn('[Leaderboard] Init failed:', err);
         });
+    </script>
+    <script>
+        if (typeof GameLauncher !== 'undefined' && typeof GameConfig !== 'undefined') {
+            const launcher = new GameLauncher(GameConfig);
+            launcher.show();
+        }
     </script>
 </body>
 </html>

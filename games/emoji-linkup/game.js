@@ -918,25 +918,20 @@ async function endGame(won) {
     }
 
     // 分数提交完成后，再显示诊断弹窗
-    if (typeof LinkUpDiagnosis !== 'undefined') {
-        try {
-            LinkUpDiagnosis.show({
-                score: game.score,
-                won: won,
-                duration: duration,
-                successfulMoves: game.successfulMoves,
-                failedClicks: game.failedClicks,
-                maxCombo: game.maxCombo,
-                avgTime: parseFloat(avgTime),
-                hintsUsed: DIFFICULTY[difficulty].hint - game.hints,
-                remainingTime: game.remainingTime,
-                difficulty: difficulty
-            });
-            console.log('[endGame] Diagnosis shown');
-        } catch (e) {
-            console.error('[endGame] Diagnosis show failed:', e);
-        }
-    }
+    const stats = {
+        score: game.score,
+        won: won,
+        duration: duration,
+        successfulMoves: game.successfulMoves,
+        failedClicks: game.failedClicks,
+        maxCombo: game.maxCombo,
+        avgTime: parseFloat(avgTime),
+        hintsUsed: DIFFICULTY[difficulty].hint - game.hints,
+        remainingTime: game.remainingTime,
+        difficulty: difficulty
+    };
+    new GameDiagnosis(GameConfig).show(stats);
+    console.log('[endGame] Diagnosis shown');
 }
 
 // ==================== 启动 ====================
