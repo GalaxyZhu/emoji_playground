@@ -6,6 +6,7 @@
 <title>棋阵守卫战 | Chess Horde | Emoji Arcade</title>
 <meta name="description" content="国际象棋+塔防+生存，用经典棋子对抗无尽棋阵，吃子赚金币，买兵续命！">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext x='50' y='55' font-size='70' text-anchor='middle'%3E♟%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="../shared/game-core.css">
 <script src="../shared/i18n-detect.js"></script>
 <style>
   :root{--bg:#0a0a0f;--light:#fff;--dim:#94a3b8;--accent:#6366f1;--accent2:#8b5cf6;--gold:#fbbf24;--danger:#ef4444;--board1:#f0d9b5;--board2:#b58863;--enemy:#1a1a2e;--shadow:rgba(0,0,0,0.5);--good:#22c55e;--warn:#f59e0b}
@@ -156,22 +157,8 @@
 <div id="toastWrap"></div>
 <div id="skillBar"></div>
 
-<div id="overlay">
-  <div class="gameIcon">♟️</div>
-  <div class="overlayTitle" id="overlayTitle">棋阵守卫战</div>
-  <div class="overlaySub" id="overlaySub">经典棋阵 vs 无尽尸潮</div>
-  <div class="bestScore" id="bestScoreDisplay"></div>
-  <div id="overlayContent">
-    <div class="menuHero">
-      <div class="overlayBtnWrap">
-        <button class="overlayBtn" id="startBtn">🎮 开始游戏</button>
-        <a class="overlayBtn secondary" href="../../index.html">🏠 回到街机厅</a>
-      </div>
-      <div class="gameInstructions" id="gameInstructions"></div>
-    </div>
-  </div>
-</div>
-
+<script src="config.js"></script>
+<script src="../shared/game-core.js"></script>
 <script src="diagnosis.js"></script>
 <script src="game.js"></script>
 </body>

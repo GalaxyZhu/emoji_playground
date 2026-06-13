@@ -1187,6 +1187,19 @@ function startGame() {
   }, 500);
 }
 
+// ========== 统一框架启动页 ==========
+function showLauncher() {
+  const launcher = new GameLauncher(GameConfig);
+  launcher.show();
+}
+
+// 页面加载时显示启动页
+window.addEventListener('load', () => {
+  if (typeof GameLauncher !== 'undefined' && typeof GameConfig !== 'undefined') {
+    showLauncher();
+  }
+});
+
 function gameOver(reason) {
   gameState = 'gameover';
   clearInterval(turnTimer);
@@ -1197,37 +1210,16 @@ function gameOver(reason) {
     localStorage.setItem('chessHordeBest', bestScore.toString());
   }
 
-  const diag = HordeDiagnosis.getDiagnosis(score, wave, turnCount, combo, totalEnemiesDefeated);
-  const isEn = currentLang === 'en';
-
-  const title = document.getElementById('overlayTitle');
-  const sub = document.getElementById('overlaySub');
-  const content = document.getElementById('overlayContent');
-
-  title.textContent = T.gameOver;
-  sub.textContent = T.gameOverSub;
-
-  content.innerHTML = `
-    <div class="overlayDiagnosis">
-      <div class="dIcon">${diag.icon}</div>
-      <div class="dTitle">${isEn ? diag.titleEn : diag.title}</div>
-      <div class="dRare">${isEn ? diag.rareEn : diag.rare} · ${diag.rarePercent}</div>
-      <div class="dQuote">${isEn ? diag.quoteEn : diag.quote}</div>
-      <div class="dRoast">${isEn ? diag.roastsEn[Math.floor(Math.random() * diag.roastsEn.length)] : diag.roasts[Math.floor(Math.random() * diag.roasts.length)]}</div>
-    </div>
-    <div class="overlayStats">
-      <div class="overlayStat"><div class="val">${score}</div><div class="lab">${T.score}</div></div>
-      <div class="overlayStat"><div class="val">${wave - 1}</div><div class="lab">${T.wave}</div></div>
-      <div class="overlayStat"><div class="val">${totalEnemiesDefeated}</div><div class="lab">${currentLang === 'en' ? 'Kills' : '杀敌'}</div></div>
-      <div class="overlayStat"><div class="val">${bestScore}</div><div class="lab">${T.best}</div></div>
-    </div>
-    <div class="overlayBtnWrap">
-      <button class="overlayBtn" onclick="startGame()">${T.playAgain}</button>
-      <a class="overlayBtn secondary" href="../../index.html">${T.backToArcade}</a>
-    </div>
-  `;
-
-  document.getElementById('overlay').classList.add('show');
+  // Use unified GameDiagnosis
+  const stats = {
+    score: score,
+    wave: wave - 1,
+    kills: totalEnemiesDefeated,
+    turns: turnCount,
+    maxCombo: combo
+  };
+  const diagnosis = new GameDiagnosis(GameConfig);
+  diagnosis.show(stats);
 }
 
 function pauseGame() {
