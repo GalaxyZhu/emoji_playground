@@ -1,7 +1,7 @@
 /**
  * Token System - Emoji Arcade 虚拟代币系统
  * V3: 区分游客(guest)和会员(member)
- *   - 游客: 初始5币, 每日最多玩3次, 签到+5币, 看广告+3币
+ *   - 游客: 初始10币, 每日最多玩10次, 无签到, 看广告+3币
  *   - 会员: 初始30币, 无次数限制, 签到+10币, 看广告+5币
  *   - 支持 Firebase Firestore 后端 + localStorage Fallback
  */
@@ -166,7 +166,7 @@
                 const plays = this._getTodayPlays();
                 if (plays >= GUEST.MAX_PLAYS_PER_DAY) {
                     return { success: false, balance: this.getBalance(), error: 'GUEST_LIMIT',
-                             message: '游客每日最多玩3次，登录后可无限畅玩！' };
+                             message: `游客每日最多玩${GUEST.MAX_PLAYS_PER_DAY}次，登录后可无限畅玩！` };
                 }
             }
 
@@ -538,7 +538,7 @@
                     sub.textContent = isZh ? `🪙 余额为 0，无法进入 ${game.name}` : `🪙 Balance is 0, cannot enter ${game.name}`;
                 }
             }
-            if (watchBtn) watchBtn.textContent = isZh ? `📺 看广告领 ${GUEST.AD_REWARD} 币` : `📺 Watch Ad (+${GUEST.AD_REWARD})`;
+            if (watchBtn) watchBtn.textContent = isZh ? `🪙 免费领 ${GUEST.AD_REWARD} 币` : `🪙 Get +${GUEST.AD_REWARD} Coins`;
             if (cancelBtn) cancelBtn.textContent = isZh ? '取消' : 'Cancel';
 
             if (watchBtn) {
@@ -571,7 +571,7 @@
             const lang = (typeof getCurrentLang === 'function') ? getCurrentLang() : 'en';
             const isZh = lang === 'zh';
 
-            if (text) text.textContent = isZh ? '广告播放中...' : 'Playing ad...';
+            if (text) text.textContent = isZh ? '领取中...' : 'Claiming...';
             if (bar) bar.style.width = '0%';
             if (modal) modal.classList.add('active');
 
@@ -673,7 +673,7 @@
             // 看广告按钮
             const adBtn = document.getElementById('tokenCenterAdBtn');
             if (adBtn) {
-                adBtn.textContent = isZh ? `📺 看广告 (+${cfg.AD_REWARD})` : `📺 Watch Ad (+${cfg.AD_REWARD})`;
+                adBtn.textContent = isZh ? `🪙 免费领 (+${cfg.AD_REWARD})` : `🪙 Get Free (+${cfg.AD_REWARD})`;
                 const newAdBtn = adBtn.cloneNode(true);
                 adBtn.parentNode.replaceChild(newAdBtn, adBtn);
                 newAdBtn.addEventListener('click', () => {

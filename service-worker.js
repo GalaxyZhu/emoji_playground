@@ -1,5 +1,5 @@
 // Emoji Arcade Service Worker
-const CACHE_NAME = 'emoji-arcade-v2';  // 更新版本号强制刷新缓存
+const CACHE_NAME = 'emoji-arcade-v3';  // 更新版本号强制刷新缓存
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -7,7 +7,16 @@ const STATIC_ASSETS = [
   '/favicon.svg',
   '/assets/css/style.css',
   '/games.json',
-  '/games/emoji-shooter/index.html'  // 添加 shooter 页面
+  '/robots.txt',
+  '/sitemap.xml',
+  // Core games (shells + launcher will handle most)
+  '/games/emoji-shooter/index.html',
+  '/games/emoji-hop/index.html',
+  '/games/emoji-frog/index.html',
+  '/games/emoji-match/index.html',
+  '/games/emoji-linkup/index.html',
+  '/games/shared/game-core.css',
+  '/games/shared/game-core.js'
 ];
 
 // 安装时缓存静态资源
