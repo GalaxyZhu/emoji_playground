@@ -670,18 +670,6 @@
                 });
             }
 
-            // 看广告按钮
-            const adBtn = document.getElementById('tokenCenterAdBtn');
-            if (adBtn) {
-                adBtn.textContent = isZh ? `🪙 免费领 (+${cfg.AD_REWARD})` : `🪙 Get Free (+${cfg.AD_REWARD})`;
-                const newAdBtn = adBtn.cloneNode(true);
-                adBtn.parentNode.replaceChild(newAdBtn, adBtn);
-                newAdBtn.addEventListener('click', () => {
-                    this.hideTokenCenter();
-                    this.showAdWatching({ id: 'token-center', name: 'My Coins' });
-                });
-            }
-
             // 交易记录
             const list = document.getElementById('tokenTransactionList');
             if (list) {
@@ -713,21 +701,6 @@
                         `;
                     }).join('');
                 }
-            }
-
-            // VIP 调试按钮
-            const vipBtn = document.getElementById('tokenCenterVipBtn');
-            if (vipBtn) {
-                const isVip = TokenSystem.isVip();
-                vipBtn.textContent = isVip
-                    ? (isZh ? '👑 VIP 已激活' : '👑 VIP Active')
-                    : (isZh ? '👑 激活 VIP（调试）' : '👑 Activate VIP (Debug)');
-                const newVipBtn = vipBtn.cloneNode(true);
-                vipBtn.parentNode.replaceChild(newVipBtn, vipBtn);
-                newVipBtn.addEventListener('click', async () => {
-                    await TokenSystem.setVip(!isVip);
-                    this.showTokenCenter();
-                });
             }
 
             // 关闭按钮
