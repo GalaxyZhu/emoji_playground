@@ -71,11 +71,11 @@
                 color:#fff;border:none;border-radius:12px;font-size:16px;
                 font-weight:700;cursor:pointer;transition:all 0.3s;
                 box-shadow:0 8px 24px rgba(34,197,94,0.3);">${lang==='zh'?'🎮 开始游戏':'🎮 Play'}</button>
-              <a href="../../index.html" style="
+              <button id="gcHomeBtn" style="
                 padding:14px 36px;background:linear-gradient(135deg,#6366f1,#8b5cf6);
                 color:#fff;border:none;border-radius:12px;font-size:16px;
                 font-weight:700;cursor:pointer;text-decoration:none;
-                transition:all 0.3s;">${lang==='zh'?'🏠 回到街机厅':'🏠 Arcade'}</a>
+                transition:all 0.3s;">${lang==='zh'?'🏠 回到街机厅':'🏠 Arcade'}</button>
             </div>
           </div>
         </div>
@@ -83,6 +83,8 @@
       document.body.insertAdjacentHTML('beforeend', html);
       this.overlay = document.getElementById('gameOverlay');
       document.getElementById('gcStartBtn').addEventListener('click', () => this.hide());
+      const homeBtn = document.getElementById('gcHomeBtn');
+      if (homeBtn) homeBtn.addEventListener('click', () => GameLauncher.goHome());
     }
 
     hide() {
@@ -91,6 +93,18 @@
       setTimeout(() => {
         if (this.overlay) { this.overlay.remove(); this.overlay = null; }
       }, 300);
+    }
+
+    /* 统一返回街机厅：优先调用父页面 closeGame，fallback 到 URL 跳转 */
+    static goHome() {
+      try {
+        if (window.parent && window.parent !== window && typeof window.parent.closeGame === 'function') {
+          window.parent.closeGame();
+          return;
+        }
+      } catch (e) { /* 跨域忽略 */ }
+      const lang = (typeof currentLang !== 'undefined') ? currentLang : 'zh';
+      location.href = `../../index.html?lang=${lang}`;
     }
   }
 
@@ -117,7 +131,7 @@
       const rareLabel = (RARITY_LABELS[lang] || RARITY_LABELS.zh)[rareClass] || rareClass;
       const rareColor = RARITY_COLORS[rareClass] || RARITY_COLORS.common;
       const rarePercent = type.rarePercent || '?';
-      const icon = type.icon || cfg.emoji;
+      const icon = type.icon || this.cfg.emoji;
       const tag = lang === 'zh' ? `🎮 ${T(this.cfg.name, lang)} 诊断` : `🎮 ${T(this.cfg.name, lang)} Diagnosis`;
       const confirmed = lang === 'zh' ? '确诊' : 'DIAGNOSED';
       const roastTitle = lang === 'zh' ? '💬 专属吐槽' : '💬 Roast';
@@ -203,7 +217,7 @@
               </div>
               <div style="display:flex;gap:8px;margin-top:12px;">
                 <button id="gcReplayBtn" style="flex:1;padding:12px;border-radius:15px;border:none;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:white;font-weight:600;cursor:pointer;font-size:14px;">${replay}</button>
-                <button onclick="location.href='../../index.html'" style="padding:12px 16px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:14px;">🏠</button>
+                <button id="gcHomeBtn" style="padding:12px 16px;border-radius:15px;border:none;background:rgba(255,255,255,0.1);color:white;border:1px solid rgba(255,255,255,0.2);font-weight:600;cursor:pointer;font-size:14px;">🏠</button>
               </div>
             </div>
           </div>
@@ -216,6 +230,21 @@
         GameDiagnosis.hide();
         if (typeof startGame === 'function') startGame();
       });
+      const homeBtn = document.getElementById('gcHomeBtn');
+      if (homeBtn) homeBtn.addEventListener('click', () => GameLauncher.goHome());
+
+      /* 统一上报分数给父页面（同源才发，避免跨域伪造） */
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({
+            type: 'GAME_SCORE',
+            gameId: this.cfg.id,
+            score: stats.score || 0,
+            isHighScore: isNewRecord,
+            stats: stats
+          }, location.origin);
+        }
+      } catch (e) { /* 跨域忽略 */ }
     }
 
     static hide() {

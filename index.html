@@ -965,7 +965,7 @@
     </div>
 
     <script type="module">
-        import { Leaderboard } from './assets/js/leaderboard.js?v=7';
+        import { Leaderboard } from './assets/js/leaderboard.js?v=8';
         import { generateNickname, generateNicknameOptions } from './assets/js/nickname-generator.js';
         
         window.Leaderboard = Leaderboard;
@@ -2435,26 +2435,38 @@
             startAutoRotate();
         })();
 
-        // ==================== 预留：消息接收（游戏内分数上报）====================
+        // ==================== 消息接收（游戏内分数上报）====================
+        // 接收子游戏通过 postMessage 上报的分数，写入 Storage 供首页卡片显示
         window.addEventListener('message', (e) => {
-            if (e.data.type === 'GAME_SCORE') {
-                const { gameId, score } = e.data;
-                const record = Storage.getGameRecord(gameId);
-                const isHighScore = score > record.highScore;
-                
-                if (isHighScore) {
-                    record.highScore = score;
-                    Storage.setGameRecord(gameId, record);
-                }
-                
-                // 追踪：游戏分数
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'game_score', {
-                        'game_id': gameId,
-                        'score': score,
-                        'is_high_score': isHighScore
-                    });
-                }
+            // origin 校验：仅接受同源消息，防止跨域伪造
+            if (e.origin !== window.location.origin) return;
+            if (!e.data || e.data.type !== 'GAME_SCORE') return;
+
+            const { gameId, score, isHighScore } = e.data;
+            if (!gameId || typeof score !== 'number') return;
+
+            const record = Storage.getGameRecord(gameId);
+            const newHigh = isHighScore || score > (record.highScore || 0);
+            if (newHigh) {
+                record.highScore = score;
+            }
+            record.playCount = (record.playCount || 0) + 1;
+            record.lastPlayed = new Date().toISOString();
+            Storage.setGameRecord(gameId, record);
+
+            // 刷新首页卡片的"最高分"显示（如果游戏卡片已渲染）
+            try {
+                const scoreEl = document.querySelector(`[data-game-id="${gameId}"] [data-role="highScore"]`);
+                if (scoreEl && newHigh) scoreEl.textContent = score;
+            } catch (err) { /* 元素不存在则忽略 */ }
+
+            // 追踪：游戏分数
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'game_score', {
+                    'game_id': gameId,
+                    'score': score,
+                    'is_high_score': newHigh
+                });
             }
         });
     </script>

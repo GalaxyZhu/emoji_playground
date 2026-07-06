@@ -1,31 +1,39 @@
 /**
- * Leaderboard.js - Firebase v9+ 排行榜模块
+ * Leaderboard.js - Firebase v10 compat 排行榜模块
  * 用于 emoji-playground 项目的全球排行榜功能
  *
- * 参考：Firebase v9 modular API 最佳实践
+ * 重要：与 firebase-user.js 共享同一个 firebase app 实例和 auth 状态
+ * 不要再用 v9 modular import 创建独立 app，否则会出现两个 auth 状态不同步
+ *
+ * 参考：Firebase v10 compat API
  * 作者：Kimi Claw
  */
 
-// Firebase v9+ modular imports
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js';
-import {
-  getFirestore,
-  collection,
-  doc,
-  setDoc,
-  getDoc,
-  getDocs,
-  query,
-  orderBy,
-  limit,
-  where,
-  serverTimestamp,
-} from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js';
-import {
-  getAuth,
-  signInAnonymously,
-  onAuthStateChanged,
-} from 'https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js';
+// 复用 firebase-user.js 已初始化的全局 firebase 对象（v10 compat SDK）
+// 不再单独 import v9 modular，避免双 SDK 双 app 实例
+let _firebaseInitialized = false;
+const _ensureFirebase = () => {
+  if (typeof firebase === 'undefined') {
+    throw new Error('[Leaderboard] Firebase SDK not loaded. Ensure firebase-app-compat.js is included before leaderboard.js');
+  }
+  if (typeof firebaseConfig === 'undefined') {
+    throw new Error('[Leaderboard] firebaseConfig not found');
+  }
+  // 复用已初始化的默认 app（firebase-user.js 已调过 initializeApp）
+  if (!_firebaseInitialized) {
+    try {
+      firebase.initializeApp(firebaseConfig);
+    } catch (e) {
+      // "already exists" 是正常的：firebase-user.js 已经初始化过了
+      if (!e.message.includes('already exists')) throw e;
+    }
+    _firebaseInitialized = true;
+  }
+  return {
+    db: firebase.firestore(),
+    auth: firebase.auth(),
+  };
+};
 
 // ── i18n ─────────────────────────────────────────────
 const i18n = {
@@ -565,8 +573,9 @@ function askNickname() {
 async function ensureNickname(uid) {
   if (!db || !currentGameId) return null;
 
-  const playerDocRef = doc(db, 'leaderboards', currentGameId, 'players', uid);
-  const snap = await getDoc(playerDocRef);
+  const playerDocRef = db.collection('leaderboards').doc(currentGameId)
+    .collection('players').doc(uid);
+  const snap = await playerDocRef.get();
 
   // 如果 Firestore 已有昵称，直接返回
   if (snap.exists() && snap.data().nickname) {
@@ -576,14 +585,14 @@ async function ensureNickname(uid) {
   // 优先读取首页用户系统设置的昵称（统一入口）
   const globalNickname = localStorage.getItem('emoji_arcade_nickname');
   if (globalNickname) {
-    await setDoc(playerDocRef, { nickname: globalNickname, updatedAt: serverTimestamp() });
+    await playerDocRef.set({ nickname: globalNickname, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
     return globalNickname;
   }
 
   // 完全没有昵称，弹出输入框（兜底）
   const nickname = await askNickname();
   if (nickname) {
-    await setDoc(playerDocRef, { nickname, updatedAt: serverTimestamp() });
+    await playerDocRef.set({ nickname, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
   }
   return nickname;
 }
@@ -595,8 +604,9 @@ async function fetchLeaderboard() {
   if (!db || !currentGameId) return [];
 
   try {
-    const colRef = collection(db, 'leaderboards', currentGameId, 'scores');
-    const snap = await getDocs(colRef);
+    const colRef = db.collection('leaderboards').doc(currentGameId)
+      .collection('scores');
+    const snap = await colRef.get();
 
     const entries = snap.docs.map(d => ({
       ...d.data(),
@@ -635,8 +645,9 @@ async function fetchLeaderboard() {
 async function fetchPlayerBest(uid) {
   if (!db || !currentGameId || !uid) return null;
 
-  const colRef = collection(db, 'leaderboards', currentGameId, 'scores');
-  const snap = await getDocs(colRef);
+  const colRef = db.collection('leaderboards').doc(currentGameId)
+    .collection('scores');
+  const snap = await colRef.get();
 
   const userScores = snap.docs
     .map(d => ({ id: d.id, ...d.data() }))
@@ -749,21 +760,22 @@ const Leaderboard = {
     rankBy = sortMode === 'time' ? 'time' : 'score';
 
     if (!app) {
-      app = initializeApp(window.firebaseConfig);
-      db = getFirestore(app);
-      auth = getAuth(app);
+      const fb = _ensureFirebase();
+      app = firebase.app();
+      db = fb.db;
+      auth = fb.auth;
     }
 
-    // 匿名登录
+    // 复用 firebase-user.js 的 auth 状态：如果已登录就直接用，否则匿名登录
     return new Promise((resolve, reject) => {
-      const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      const unsubscribe = auth.onAuthStateChanged(async (user) => {
         unsubscribe();
         if (user) {
           currentUser = user;
           resolve(user);
         } else {
           try {
-            const cred = await signInAnonymously(auth);
+            const cred = await auth.signInAnonymously();
             currentUser = cred.user;
             resolve(cred.user);
           } catch (err) {
@@ -797,12 +809,13 @@ const Leaderboard = {
 
     // 写入分数记录（每次成绩都记录，便于追踪）
     const scoreId = `${uid}_${Date.now()}`;
-    const scoreRef = doc(db, 'leaderboards', currentGameId, 'scores', scoreId);
-    await setDoc(scoreRef, {
+    const scoreRef = db.collection('leaderboards').doc(currentGameId)
+      .collection('scores').doc(scoreId);
+    await scoreRef.set({
       score,
       nickname: nickname || 'Anonymous',
       uid,
-      timestamp: serverTimestamp(),
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       difficulty: data.difficulty || 'normal',
       ...data,
     });
@@ -889,15 +902,20 @@ const Leaderboard = {
       throw new Error('Leaderboard not initialized. Call init() first.');
     }
     const uid = currentUser.uid;
-    const games = ['emoji-linkup', 'emoji-shooter', 'emoji-match', 'emoji-survive',
-                   'emoji-rush', 'emoji-drift', 'emoji-hop', 'emoji-frog',
-                   'emoji-kart', 'emoji-rolling'];
+    // 与 games.json 保持一致：14 款游戏全部纳入统计
+    const games = [
+      'emoji-shooter', 'emoji-hop', 'emoji-frog', 'emoji-match',
+      'emoji-linkup', 'emoji-survive', 'emoji-rush', 'emoji-drift',
+      'emoji-spot', 'emoji-pattern', 'chess-horde', 'emoji-evolve',
+      'emoji-rolling', 'emoji-kart',
+    ];
     const results = [];
 
     for (const gameId of games) {
       try {
-        const colRef = collection(db, 'leaderboards', gameId, 'scores');
-        const snap = await getDocs(colRef);
+        const colRef = db.collection('leaderboards').doc(gameId)
+          .collection('scores');
+        const snap = await colRef.get();
         const userScores = snap.docs
           .map(d => d.data())
           .filter(e => e.uid === uid);
@@ -940,7 +958,8 @@ const Leaderboard = {
     const uid = currentUser.uid;
 
     try {
-      const snap = await getDocs(collection(db, 'players', uid, 'achievements'));
+      const snap = await db.collection('players').doc(uid)
+        .collection('achievements').get();
       return snap.docs.map(d => ({ id: d.id, ...d.data() }));
     } catch (err) {
       console.warn('[getAchievements] error:', err);
@@ -980,13 +999,14 @@ const Leaderboard = {
     for (const def of definitions) {
       if (!def.check()) continue;
 
-      const achRef = doc(db, 'players', uid, 'achievements', def.id);
-      const snap = await getDoc(achRef);
+      const achRef = db.collection('players').doc(uid)
+        .collection('achievements').doc(def.id);
+      const snap = await achRef.get();
 
       if (!snap.exists()) {
-        await setDoc(achRef, {
+        await achRef.set({
           ...def,
-          unlockedAt: serverTimestamp(),
+          unlockedAt: firebase.firestore.FieldValue.serverTimestamp(),
         });
         newAchievements.push(def);
       }
