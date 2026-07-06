@@ -2074,7 +2074,7 @@
             const container = document.getElementById('gameContainer');
             const frame = document.getElementById('gameFrame');
             const currentGame = Storage.get('current_game');
-            
+
             // 追踪：游戏关闭
             if (typeof gtag !== 'undefined' && currentGame) {
                 const record = Storage.getGameRecord(currentGame);
@@ -2083,9 +2083,21 @@
                     'play_count': record.playCount
                 });
             }
-            
+
             container.classList.remove('active');
-            frame.src = '';
+
+            // 通知子游戏自行清理（取消 rAF、停止音频、清理定时器等）
+            // 给 100ms 让子游戏处理完再清空 src，避免音频残留和资源泄漏
+            try {
+                if (frame.contentWindow) {
+                    frame.contentWindow.postMessage({ type: 'CLEANUP' }, location.origin);
+                }
+            } catch (e) { /* 跨域忽略 */ }
+
+            setTimeout(() => {
+                frame.src = '';
+            }, 100);
+
             Storage.set('current_game', null);
         }
         
@@ -2095,6 +2107,10 @@
             if (e.key === 'Escape') {
                 const container = document.getElementById('gameContainer');
                 if (container.classList.contains('active')) {
+                    // 焦点在 iframe 内时不响应 ESC，让子游戏自己处理暂停/恢复
+                    // 玩家可通过暂停界面的"回街机厅"按钮或右上角关闭按钮退出
+                    const active = document.activeElement;
+                    if (active && active.tagName === 'IFRAME') return;
                     closeGame();
                 }
             }

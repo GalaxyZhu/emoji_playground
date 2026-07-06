@@ -1047,13 +1047,18 @@
         function update(currentTime) {
             if (gameState !== 'playing') return;
 
+            // 帧率无关位移：dt 以 60fps 为基准（=1.0），144Hz 屏约为 0.42，30Hz 约为 2.0
+            // clamp 到 [0.1, 3] 避免标签页切换回来时位移过大跳过碰撞检测
+            const dt = Math.min(3, Math.max(0.1, (currentTime - lastTime) / 16.67));
+            lastTime = currentTime;
+
             updateDifficulty();
             checkPowerupExpiration(currentTime);
 
             if (inputX !== null) {
                 const targetX = Math.max(CONFIG.playerSize/2,
                     Math.min(gameWidth - CONFIG.playerSize/2, inputX));
-                player.x += (targetX - player.x) * 0.15;
+                player.x += (targetX - player.x) * 0.15 * dt;
             }
 
             const currentShootInterval = activePowerups.speed.active ?
@@ -1065,7 +1070,7 @@
 
             if (isBossFight) {
                 if (currentBoss) {
-                    updateBoss(currentTime);
+                    updateBoss(currentTime, dt);
                 }
             } else {
                 if (currentTime - lastSpawn > currentSpawnInterval) {
@@ -1083,13 +1088,13 @@
             }
 
             bullets = bullets.filter(b => {
-                b.y -= 8;
+                b.y -= 8 * dt;
                 return b.y > -50;
             });
 
             enemyBullets = enemyBullets.filter(b => {
-                b.x += b.vx;
-                b.y += b.vy;
+                b.x += b.vx * dt;
+                b.y += b.vy * dt;
 
                 const dx = b.x - player.x;
                 const dy = b.y - player.y;
@@ -1110,8 +1115,8 @@
             });
 
             enemies = enemies.filter(e => {
-                e.y += e.speed;
-                e.x += Math.sin(e.y * 0.02) * (e.isBoss ? 2 : 0);
+                e.y += e.speed * dt;
+                e.x += Math.sin(e.y * 0.02) * (e.isBoss ? 2 : 0) * dt;
 
                 const dx = e.x - player.x;
                 const dy = e.y - player.y;
@@ -1145,18 +1150,23 @@
             }
 
             powerups = powerups.filter(p => {
-                p.y += 1.5;
+                p.y += 1.5 * dt;
                 return p.y < gameHeight + 50 && p.hp > 0;
             });
 
             particles = particles.filter(p => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life -= 0.05;
+                p.x += p.vx * dt;
+                p.y += p.vy * dt;
+                p.life -= 0.05 * dt;
                 return p.life > 0;
             });
 
-            bullets.forEach((b, bi) => {
+            // 碰撞检测：用"标记 + filter 重建"代替 forEach + splice
+            // 避免 forEach 内 splice 导致的元素跳过、重复删除等经典 bug
+            for (const b of bullets) {
+                if (b.hit) continue;  // 本帧已命中其他目标，跳过
+
+                // 优先判定 BOSS（如果存在）
                 if (currentBoss) {
                     const dx = b.x - currentBoss.x;
                     const dy = b.y - currentBoss.y;
@@ -1165,54 +1175,64 @@
                         const damage = activePowerups.power.active ? 3 : 1;
                         currentBoss.hp -= damage;
                         createExplosion(b.x, b.y, true);
-                        bullets.splice(bi, 1);
+                        b.hit = true;
                         updateBossUI();
                         currentBoss.hitFlash = 5;
 
                         if (currentBoss.hp <= 0) {
                             defeatBoss();
                         }
-                        return;
+                        continue;  // 子弹已消耗，跳过后续敌人判定
                     }
                 }
 
-                enemies.forEach((e, ei) => {
+                // 判定普通敌人
+                for (const e of enemies) {
+                    if (e.dead) continue;
                     const dx = b.x - e.x, dy = b.y - e.y;
                     if (Math.sqrt(dx*dx + dy*dy) < (CONFIG.bulletSize + e.size) / 2) {
                         window.shotsHit++;
                         const damage = activePowerups.power.active ? 3 : 1;
                         e.hp -= damage;
                         createExplosion(b.x, b.y, true);
-                        bullets.splice(bi, 1);
+                        b.hit = true;
 
                         if (e.hp <= 0) {
                             createExplosion(e.x, e.y);
                             score += e.score;
                             enemiesKilled++;
-                            enemies.splice(ei, 1);
+                            e.dead = true;
                         }
+                        break;  // 一颗子弹只命中一个敌人
                     }
-                });
-            });
+                }
+                if (b.hit) continue;
 
-            bullets.forEach((b, bi) => {
-                powerups.forEach((p, pi) => {
+                // 判定奖励包
+                for (const p of powerups) {
+                    if (p.dead) continue;
                     const dx = b.x - p.x, dy = b.y - p.y;
                     if (Math.sqrt(dx*dx + dy*dy) < (CONFIG.bulletSize + p.size) / 2) {
                         const damage = activePowerups.power.active ? 3 : 1;
                         p.hp -= damage;
                         createSparkle(b.x, b.y);
-                        bullets.splice(bi, 1);
+                        b.hit = true;
 
                         if (p.hp <= 0) {
                             activatePowerup(p);
                             createExplosion(p.x, p.y);
                             score += 50;
-                            powerups.splice(pi, 1);
+                            p.dead = true;
                         }
+                        break;  // 一颗子弹只命中一个奖励包
                     }
-                });
-            });
+                }
+            }
+
+            // 清理已命中/已死亡的实体（统一 filter，不再 splice）
+            bullets = bullets.filter(b => !b.hit);
+            enemies = enemies.filter(e => !e.dead);
+            powerups = powerups.filter(p => !p.dead);
 
             if (!isBossFight && enemiesKilled > 0 && enemiesKilled % 10 === 0) {
                 const newWave = Math.floor(enemiesKilled / 10) + 1;
@@ -1270,11 +1290,11 @@
         }
 
         // 更新BOSS行为
-        function updateBoss(currentTime) {
+        function updateBoss(currentTime, dt) {
             if (!currentBoss) return;
 
             // BOSS左右移动
-            currentBoss.x += currentBoss.speed * currentBoss.direction;
+            currentBoss.x += currentBoss.speed * currentBoss.direction * dt;
 
             // 碰到边界反弹
             const minX = powerupZoneWidth + currentBoss.size / 2;

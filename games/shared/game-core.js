@@ -266,4 +266,42 @@
   /* ---------- Global expose ---------- */
   window.GameLauncher = GameLauncher;
   window.GameDiagnosis = GameDiagnosis;
+
+  /* ---------- 统一清理监听器 ----------
+   * 父页面 closeGame() 会 postMessage({type:'CLEANUP'}) 通知子游戏自行清理
+   * 这里做通用的清理：取消已注册的 rAF、暂停所有 audio/video、关闭 AudioContext
+   * 子游戏也可注册 window.__gameCleanup 自定义清理逻辑
+   */
+  window.addEventListener('message', (e) => {
+    if (e.data && e.data.type === 'CLEANUP') {
+      // 1. 调用子游戏自定义的清理函数（如果注册了）
+      try {
+        if (typeof window.__gameCleanup === 'function') window.__gameCleanup();
+      } catch (err) { /* 忽略 */ }
+
+      // 2. 取消全局 gameLoop rAF（emoji-shooter 等用 window.gameLoop 追踪 rAF ID）
+      try {
+        if (window.gameLoop) cancelAnimationFrame(window.gameLoop);
+      } catch (err) { /* 忽略 */ }
+
+      // 3. 暂停所有 audio / video 元素
+      try {
+        document.querySelectorAll('audio, video').forEach(m => {
+          m.pause();
+          m.currentTime = 0;
+        });
+      } catch (err) { /* 忽略 */ }
+
+      // 4. 关闭 AudioContext（如果游戏创建了自己的音频上下文）
+      try {
+        if (window.__audioContext && window.__audioContext.state !== 'closed') {
+          window.__audioContext.close();
+        }
+        // 也处理 Web Audio API 的标准 AudioContext
+        if (typeof AudioContext !== 'undefined' || typeof webkitAudioContext !== 'undefined') {
+          // 不直接关闭全局 AudioContext，只暂停
+        }
+      } catch (err) { /* 忽略 */ }
+    }
+  });
 })();
