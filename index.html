@@ -1124,22 +1124,13 @@
             set(key, value) {
                 localStorage.setItem(this.prefix + key, JSON.stringify(value));
             },
-            
-            // User related (reserved)
-            getUser() {
-                return this.get('user');
-            },
-            
-            setUser(user) {
-                this.set('user', user);
-            },
-            
+
             // Game records
             getGameRecord(gameId) {
                 const records = this.get('game_records') || {};
                 return records[gameId] || { highScore: 0, playCount: 0, lastPlayed: null };
             },
-            
+
             setGameRecord(gameId, record) {
                 const records = this.get('game_records') || {};
                 records[gameId] = record;
@@ -1170,7 +1161,27 @@
             if (savedAvatar) selectedAvatar = savedAvatar;
             
             // Try to restore saved user
-            const saved = localStorage.getItem(USER_STORAGE_KEY);
+            let saved = localStorage.getItem(USER_STORAGE_KEY);
+
+            // 一次性迁移：老 key 'emoji_arcade_user' → 新 key 'emoji_arcade_user_v2'
+            // 老版本 Storage.setUser() 写到了 emoji_arcade_user，新版本业务代码读 _v2
+            // 如果检测到老 key 且新 key 为空，把数据迁移过来并清理老 key
+            if (!saved) {
+                const legacyKey = 'emoji_arcade_user';
+                const legacy = localStorage.getItem(legacyKey);
+                if (legacy) {
+                    try {
+                        JSON.parse(legacy);  // 验证是合法 JSON
+                        localStorage.setItem(USER_STORAGE_KEY, legacy);
+                        localStorage.removeItem(legacyKey);
+                        saved = legacy;
+                    } catch (e) {
+                        // 老 key 数据损坏，直接清理
+                        localStorage.removeItem(legacyKey);
+                    }
+                }
+            }
+
             if (saved) {
                 try {
                     currentUser = JSON.parse(saved);
@@ -1178,7 +1189,7 @@
                     return;
                 } catch(e) {}
             }
-            
+
             // V2: 不再自动匿名登录，保持游客状态
             showGuestState();
         }
@@ -1709,15 +1720,36 @@
         
         // ==================== 游戏加载（支持双语）====================
         async function loadGames() {
-            // 构建游戏数据
+            // 从 games.json 拉取权威的 version/status/path，合并到 gameConfigs（双语展示数据）
+            // 这样 games.json 成为单一数据源，新增游戏只需改 games.json + gameConfigs 两处（都是必要数据）
+            // 不再硬编码 version='0.1.0' / status='ready'
+            try {
+                const resp = await fetch('/games.json', { cache: 'no-store' });
+                if (resp.ok) {
+                    const data = await resp.json();
+                    const gamesArr = Array.isArray(data) ? data : (data.games || []);
+                    gamesArr.forEach(g => {
+                        if (g.id && gameConfigs[g.id]) {
+                            // 合并 games.json 的权威字段到 gameConfigs
+                            gameConfigs[g.id].version = g.version || '0.1.0';
+                            gameConfigs[g.id].status = g.status || 'ready';
+                            gameConfigs[g.id].path = g.path || `games/${g.id}/index.html`;
+                        }
+                    });
+                }
+            } catch (e) {
+                console.warn('[loadGames] fetch games.json failed, fallback to defaults:', e);
+            }
+
+            // 构建 gamesData，使用合并后的真实 version/status/path
             gamesData = Object.keys(gameConfigs).map(id => ({
                 id,
                 ...gameConfigs[id],
-                version: '0.1.0',
-                status: 'ready',
-                path: `games/${id}/index.html`
+                version: gameConfigs[id].version || '0.1.0',
+                status: gameConfigs[id].status || 'ready',
+                path: gameConfigs[id].path || `games/${id}/index.html`
             }));
-            
+
             renderEagleEyesGames();
             renderActionGames();
             renderRacingGames();
@@ -1748,9 +1780,9 @@
                 name: game.name,
                 emoji: game.emoji,
                 tagline: game.tagline[lang],
-                version: '0.1.0',
-                status: 'ready',
-                path: `games/${id}/index.html`,
+                version: game.version || '0.1.0',
+                status: game.status || 'ready',
+                path: game.path || `games/${id}/index.html`,
                 difficulty: game.difficulty[lang],
                 tags: game.tags[lang],
                 players: game.players[lang],
@@ -1802,15 +1834,15 @@
                 name: game.name,
                 emoji: game.emoji,
                 tagline: game.tagline[lang],
-                version: '0.1.0',
-                status: 'ready',
-                path: `games/${id}/index.html`,
+                version: game.version || '0.1.0',
+                status: game.status || 'ready',
+                path: game.path || `games/${id}/index.html`,
                 difficulty: game.difficulty[lang],
                 tags: game.tags[lang],
                 players: game.players[lang],
                 playTime: game.playTime[lang]
             });
-            
+
             const tagline = game.tagline[lang];
             const tags = game.tags[lang];
             const statusText = 'ALPHA';
@@ -2435,9 +2467,9 @@
                             name: game.name,
                             emoji: game.emoji,
                             tagline: game.tagline[lang],
-                            version: '0.1.0',
-                            status: 'ready',
-                            path: `games/${gameId}/index.html`,
+                            version: game.version || '0.1.0',
+                            status: game.status || 'ready',
+                            path: game.path || `games/${gameId}/index.html`,
                             difficulty: game.difficulty[lang],
                             tags: game.tags[lang],
                             players: game.players[lang],

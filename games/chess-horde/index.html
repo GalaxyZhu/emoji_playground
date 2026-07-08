@@ -120,7 +120,7 @@
   #comboBar .comboBarBg{width:120px;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:4px;overflow:hidden}
   #comboBar .comboBarFill{height:100%;background:var(--good);border-radius:2px;transition:width 0.1s linear}
 
-  .backBtn{position:fixed;top:8px;left:8px;z-index:60;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);color:var(--light);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  .backBtn{position:fixed;top:8px;left:8px;z-index:60;width:36px;height:36px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);color:var(--light);font-size:18px;font-family:inherit;display:flex;align-items:center;justify-content:center;cursor:pointer;text-decoration:none;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
   .backBtn:hover{background:rgba(255,255,255,0.1)}
 
   @media(max-width:400px){#topBar{font-size:11px}#topBar .topPill{padding:3px 8px}.shopItem{min-width:60px;padding:4px 8px}.shopItem .emoji{font-size:18px}}
@@ -137,7 +137,7 @@
 </head>
 <body>
 
-<a href="../../index.html" class="backBtn">←</a>
+<button type="button" class="backBtn" onclick="GameLauncher.goHome()" aria-label="返回街机厅">←</button>
 
 <div id="topBar">
   <div class="topPill wave"><span class="icon">🌊</span><span id="waveNum">波 1</span></div>
